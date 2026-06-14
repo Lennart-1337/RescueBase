@@ -1,3 +1,5 @@
+export type UserRole = "ADMIN" | "WAREHOUSE";
+export type TwoFactorMethod = "TOTP" | "EMAIL";
 export type KitOperationalStatus = "READY" | "CONDITIONAL" | "NOT_READY";
 export type ReplenishmentStatus = "OPEN" | "IN_PROGRESS" | "DONE" | "CANCELLED";
 export type AuditActorType = "SYSTEM" | "USER" | "PUBLIC_CHECKER";

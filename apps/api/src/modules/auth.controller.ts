@@ -10,8 +10,8 @@ import {
   UnauthorizedException
 } from "@nestjs/common";
 import { ApiTags } from "@nestjs/swagger";
+import type { TwoFactorMethod, UserRole } from "@rescuebase/domain";
 import type { Request, Response } from "express";
-import type { TwoFactorMethod, UserRole } from "@prisma/client";
 import { AuditService } from "../services/audit.service.js";
 import { MailService } from "../services/mail.service.js";
 import { PrismaService } from "../persistence/prisma.service.js";

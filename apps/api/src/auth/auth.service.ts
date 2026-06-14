@@ -2,8 +2,9 @@ import { Injectable, UnauthorizedException } from "@nestjs/common";
 import { compare, hash } from "bcryptjs";
 import { randomBytes, createHash } from "node:crypto";
 import { authenticator } from "otplib";
+import type { TwoFactorMethod, UserRole } from "@rescuebase/domain";
 import type { Response } from "express";
-import type { TwoFactorMethod, User, UserRole } from "@prisma/client";
+import type { User } from "@prisma/client";
 import { EMAIL_2FA_TTL_MS, INVITATION_TTL_MS, PASSWORD_RESET_TTL_MS, SESSION_COOKIE_NAME, SESSION_TTL_MS } from "./auth.constants.js";
 import { PrismaService } from "../persistence/prisma.service.js";
 
