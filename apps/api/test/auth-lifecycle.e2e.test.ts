@@ -8,30 +8,20 @@ import { PrismaClient } from "@prisma/client";
 import request from "supertest";
 import { AppModule } from "../src/modules/app.module.js";
 import { seedRescueBaseDevelopmentData } from "../src/persistence/seed.js";
-
-type StartedMySqlContainer = {
-  getConnectionUri(): string;
-  stop(): Promise<void>;
-};
+import { createMysqlTestEnvironment } from "./mysql-test-environment.js";
 
 jest.setTimeout(30_000);
 
 describe("auth lifecycle", () => {
   let app: INestApplication;
-  let database: StartedMySqlContainer | undefined;
+  let database: Awaited<ReturnType<typeof createMysqlTestEnvironment>> | undefined;
   let testcontainersUnavailable: string | undefined;
 
   beforeAll(async () => {
     process.env.MAIL_PROVIDER = "console";
     process.env.APP_PUBLIC_URL = "http://localhost:5173";
     try {
-      const { MySqlContainer } = await import("@testcontainers/mysql");
-      database = await new MySqlContainer("mariadb:11.4")
-        .withDatabase("rescuebase_auth_test")
-        .withUsername("rescuebase")
-        .withUserPassword("rescuebase")
-        .withRootPassword("rescuebase-root")
-        .start();
+      database = await createMysqlTestEnvironment("rescuebase_auth_test");
     } catch (error) {
       testcontainersUnavailable = error instanceof Error ? error.message : "Container runtime unavailable.";
       if (process.env.REQUIRE_TESTCONTAINERS === "true") {
@@ -39,7 +29,7 @@ describe("auth lifecycle", () => {
       }
       return;
     }
-    process.env.DATABASE_URL = database.getConnectionUri();
+    process.env.DATABASE_URL = database.databaseUrl;
     execFileSync("npx", ["prisma", "migrate", "deploy"], {
       cwd: process.cwd(),
       env: { ...process.env, DATABASE_URL: process.env.DATABASE_URL },
