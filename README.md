@@ -69,3 +69,76 @@ types, so path, request-body and response drift is caught by TypeScript. CI runs
 ## Production Notes
 
 Use `.env.example` as the baseline. Production deployments should set a strong `JWT_SECRET`, switch `MAIL_PROVIDER=smtp`, configure the `SMTP_*` variables, and enable encrypted backups.
+
+## Staging on Windows Server 2025
+
+RescueBase staging targets Windows Server 2025 as a WSL2 host for the existing Linux Docker Compose stack. The server runs Ubuntu 24.04 inside WSL, Docker Engine and Compose plugin inside that distro, and publishes only `80/443` through Caddy.
+
+### Required server assets
+
+- A Windows Server 2025 host with WSL2 enabled
+- A public DNS record for the staging domain
+- A private checkout of this repository inside WSL at `/opt/rescuebase/staging`
+- A `.env.staging` file based on `.env.staging.example`
+- `GHCR_USERNAME` and `GHCR_TOKEN` available to the Windows operator shell
+- An age identity file matching `AGE_IDENTITY_FILE` for restore operations
+
+### First bootstrap
+
+From an elevated PowerShell session on the server:
+
+```powershell
+.\scripts\windows-staging\bootstrap-wsl-staging.ps1 -RepositoryUrl https://github.com/<owner>/<repo>.git
+```
+
+Then create `/opt/rescuebase/staging/.env.staging` inside WSL from `.env.staging.example`, set the real secrets, and confirm the server can `git fetch` the private repository plus `docker login ghcr.io`.
+
+### Staging deploy and rollback
+
+Standard deploy from the `staging` branch:
+
+```powershell
+$env:GHCR_USERNAME = "<ghcr-user>"
+$env:GHCR_TOKEN = "<ghcr-read-token>"
+.\scripts\windows-staging\deploy-staging.ps1
+```
+
+Rollback or promotion to a pinned immutable image tag:
+
+```powershell
+.\scripts\windows-staging\deploy-staging.ps1 -ImageTag staging-202606141030-abcd123
+```
+
+The deploy wrapper updates the WSL checkout, logs into GHCR, pulls the images referenced by `.env.staging`, starts the stack with `--no-build`, and prints the effective `IMAGE_TAG`.
+
+### Backups and restore
+
+Run a manual encrypted backup:
+
+```powershell
+.\scripts\windows-staging\backup-staging.ps1
+```
+
+Restore from a backup file already present in `/opt/rescuebase/staging/backups`:
+
+```powershell
+.\scripts\windows-staging\restore-staging.ps1 -BackupFile rescuebase-20260614T020000Z.sql.gz.age
+```
+
+Nightly backups should be scheduled from Windows Task Scheduler with a PowerShell action such as:
+
+```text
+Program/script: powershell.exe
+Arguments: -NoProfile -ExecutionPolicy Bypass -File C:\path\to\repo\scripts\windows-staging\backup-staging.ps1
+```
+
+The backup container writes compressed SQL dumps under `backups/` and encrypts them to `.age` when `BACKUP_AGE_RECIPIENT` is configured. Restore accepts either `.sql.gz` or `.sql.gz.age`.
+
+### GHCR staging publish
+
+Pushes to the `staging` branch run CI first. When CI succeeds, the `Publish Staging Images` workflow publishes Linux `amd64` images to private GHCR:
+
+- `ghcr.io/<owner>/rescuebase-api:staging-<UTCYYYYMMDDHHmm>-<shortsha>`
+- `ghcr.io/<owner>/rescuebase-api:staging-latest`
+- `ghcr.io/<owner>/rescuebase-web:staging-<UTCYYYYMMDDHHmm>-<shortsha>`
+- `ghcr.io/<owner>/rescuebase-web:staging-latest`

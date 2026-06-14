@@ -1,0 +1,63 @@
+services:
+  mariadb:
+    ports: !reset []
+    environment:
+      MARIADB_DATABASE: ${MARIADB_DATABASE}
+      MARIADB_USER: ${MARIADB_USER}
+      MARIADB_PASSWORD: ${MARIADB_PASSWORD}
+      MARIADB_ROOT_PASSWORD: ${MARIADB_PASSWORD}
+
+  api:
+    image: ${API_IMAGE}:${IMAGE_TAG}
+    build: !reset null
+    pull_policy: always
+    environment:
+      APP_PUBLIC_URL: ${APP_PUBLIC_URL}
+      JWT_SECRET: ${JWT_SECRET}
+      MAIL_PROVIDER: ${MAIL_PROVIDER}
+      MAIL_FROM: ${MAIL_FROM}
+      SMTP_HOST: ${SMTP_HOST}
+      SMTP_PORT: ${SMTP_PORT}
+      SMTP_SECURE: ${SMTP_SECURE}
+      SMTP_USER: ${SMTP_USER}
+      SMTP_PASSWORD: ${SMTP_PASSWORD}
+      DATABASE_URL: mysql://${MARIADB_USER}:${MARIADB_PASSWORD}@mariadb:3306/${MARIADB_DATABASE}
+      RESCUEBASE_SEED_DEV_DATA: "false"
+
+  web:
+    image: ${WEB_IMAGE}:${IMAGE_TAG}
+    build: !reset null
+    pull_policy: always
+
+  backup:
+    image: ${API_IMAGE}:${IMAGE_TAG}
+    pull_policy: always
+    profiles: ["ops"]
+    restart: "no"
+    command: ["sh", "/app/infra/backups/backup-mariadb.sh"]
+    environment:
+      DATABASE_URL: mysql://${MARIADB_USER}:${MARIADB_PASSWORD}@mariadb:3306/${MARIADB_DATABASE}
+      BACKUP_AGE_RECIPIENT: ${BACKUP_AGE_RECIPIENT}
+      RETENTION_DAYS: ${RETENTION_DAYS:-14}
+    volumes:
+      - ./backups:/backups
+    depends_on:
+      mariadb:
+        condition: service_healthy
+
+  restore:
+    image: ${API_IMAGE}:${IMAGE_TAG}
+    pull_policy: always
+    profiles: ["ops"]
+    restart: "no"
+    command: ["sh", "/app/infra/backups/restore-mariadb.sh"]
+    environment:
+      DATABASE_URL: mysql://${MARIADB_USER}:${MARIADB_PASSWORD}@mariadb:3306/${MARIADB_DATABASE}
+      AGE_IDENTITY_FILE: ${AGE_IDENTITY_FILE}
+      BACKUP_FILE: ${BACKUP_FILE:-}
+    volumes:
+      - ./backups:/backups
+      - ${AGE_IDENTITY_FILE}:${AGE_IDENTITY_FILE}:ro
+    depends_on:
+      mariadb:
+        condition: service_healthy

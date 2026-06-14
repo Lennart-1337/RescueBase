@@ -5,10 +5,10 @@ services:
     ports:
       - "3306:3306"
     environment:
-      MARIADB_DATABASE: rescuebase
-      MARIADB_USER: rescuebase
-      MARIADB_PASSWORD: rescuebase
-      MARIADB_ROOT_PASSWORD: rescuebase-root
+      MARIADB_DATABASE: ${MARIADB_DATABASE:-rescuebase}
+      MARIADB_USER: ${MARIADB_USER:-rescuebase}
+      MARIADB_PASSWORD: ${MARIADB_PASSWORD:-rescuebase}
+      MARIADB_ROOT_PASSWORD: ${MARIADB_ROOT_PASSWORD:-rescuebase-root}
     volumes:
       - mariadb-data:/var/lib/mysql
     healthcheck:
@@ -25,7 +25,7 @@ services:
     environment:
       NODE_ENV: production
       API_PORT: 3000
-      DATABASE_URL: mysql://rescuebase:rescuebase@mariadb:3306/rescuebase
+      DATABASE_URL: mysql://${MARIADB_USER:-rescuebase}:${MARIADB_PASSWORD:-rescuebase}@mariadb:3306/${MARIADB_DATABASE:-rescuebase}
       APP_PUBLIC_URL: ${APP_PUBLIC_URL:-http://localhost}
       JWT_SECRET: ${JWT_SECRET:-change-me}
       MAIL_PROVIDER: ${MAIL_PROVIDER:-console}
