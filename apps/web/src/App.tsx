@@ -1567,31 +1567,6 @@ function TemplatePanel({
   }
 }
 
-function CompactList({
-  emptyText,
-  items
-}: {
-  emptyText: string;
-  items: Array<{ id: string; title: string; meta: string; badge?: string }>;
-}) {
-  if (items.length === 0) {
-    return <div className="compact-list-empty">{emptyText}</div>;
-  }
-  return (
-    <div className="compact-list">
-      {items.map((item) => (
-        <div className="compact-list-row" key={item.id}>
-          <span>
-            <strong>{item.title}</strong>
-            <small>{item.meta}</small>
-          </span>
-          {item.badge ? <Badge tone="info">{item.badge}</Badge> : null}
-        </div>
-      ))}
-    </div>
-  );
-}
-
 function UsersPage({ user }: { user: AuthenticatedUser }) {
   const [displayName, setDisplayName] = useState("");
   const [email, setEmail] = useState("");

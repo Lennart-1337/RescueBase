@@ -2,6 +2,7 @@ import { Injectable, NotFoundException } from "@nestjs/common";
 import PDFDocument from "pdfkit";
 import QRCode from "qrcode";
 import { PrismaService } from "../persistence/prisma.service.js";
+import type { BatchRecord, OrderRecord } from "../persistence/mappers.js";
 import { createQrSheetLayout, needsPageBreak } from "./report-layout.js";
 
 const palette = {
@@ -23,11 +24,11 @@ export class ReportService {
 
   async inventoryCsv(): Promise<string> {
     const header = "Artikel,Lagerort,Charge,Ablaufdatum,Menge\n";
-    const batches = await this.prisma.batch.findMany({
+    const batches: BatchRecord[] = await this.prisma.batch.findMany({
       include: { article: true, location: true },
       orderBy: [{ article: { name: "asc" } }, { expiresAt: "asc" }]
     });
-    const rows = batches.map((batch) =>
+    const rows = batches.map((batch: BatchRecord) =>
       [batch.article.name, batch.location.name, batch.lotNumber, batch.expiresAt.toISOString().slice(0, 10), batch.quantity]
         .map((value) => `"${String(value ?? "").replaceAll('"', '""')}"`)
         .join(",")
@@ -37,12 +38,12 @@ export class ReportService {
 
   async replenishmentCsv(): Promise<string> {
     const header = "Auftrag,Rucksack,Status,Artikel,Soll,Erfüllt,Einheit,Grund\n";
-    const orders = await this.prisma.replenishmentOrder.findMany({
+    const orders: Array<OrderRecord & { kit: { name: string } }> = await this.prisma.replenishmentOrder.findMany({
       include: { kit: true, items: true },
       orderBy: { createdAt: "desc" }
     });
-    const rows = orders.flatMap((order) =>
-      order.items.map((item) =>
+    const rows = orders.flatMap((order: OrderRecord & { kit: { name: string } }) =>
+      order.items.map((item: OrderRecord["items"][number]) =>
         [order.id, order.kit.name, order.status, item.articleName, item.requestedQuantity, item.fulfilledQuantity, item.unit, item.reason]
           .map((value) => `"${String(value ?? "").replaceAll('"', '""')}"`)
           .join(",")
@@ -92,8 +93,8 @@ export class ReportService {
         ["Erstellt", formatDateTime(order.createdAt)]
       ], { x: 48, width: doc.page.width - 96 });
 
-      const totalRequested = order.items.reduce((sum, item) => sum + item.requestedQuantity, 0);
-      const totalFulfilled = order.items.reduce((sum, item) => sum + item.fulfilledQuantity, 0);
+      const totalRequested = order.items.reduce((sum: number, item: OrderRecord["items"][number]) => sum + item.requestedQuantity, 0);
+      const totalFulfilled = order.items.reduce((sum: number, item: OrderRecord["items"][number]) => sum + item.fulfilledQuantity, 0);
       this.drawSummaryLine(doc, [
         `Positionen ${order.items.length}`,
         `Soll ${totalRequested}`,
@@ -103,7 +104,7 @@ export class ReportService {
 
       let y = doc.y + 20;
       y = this.drawTableHeader(doc, y, ["Artikel", "Grund", "Soll", "Erfüllt", "Offen"]);
-      order.items.forEach((item, index) => {
+      order.items.forEach((item: OrderRecord["items"][number], index: number) => {
         const rowHeight = this.measureReplenishmentRow(doc, item);
         if (needsPageBreak({
           currentY: y,

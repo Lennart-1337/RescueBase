@@ -9,7 +9,7 @@ import {
 } from "@rescuebase/domain";
 import { AuditService } from "../services/audit.service.js";
 import { PrismaService } from "../persistence/prisma.service.js";
-import { mapOrder, mapTemplate, toIsoDateTime, type KitRecord, type OrderRecord } from "../persistence/mappers.js";
+import { mapOrder, mapTemplate, toIsoDateTime, type KitRecord } from "../persistence/mappers.js";
 import { PublicRoute } from "../auth/auth.decorators.js";
 
 type PublicCheckTransaction = Pick<PrismaService, "check" | "kit" | "replenishmentOrder" | "auditEvent">;
