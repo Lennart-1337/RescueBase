@@ -1,4 +1,4 @@
-import { PrismaClient } from "@prisma/client";
+import { execFileSync } from "node:child_process";
 
 type StartedMySqlContainer = {
   getConnectionUri(): string;
@@ -39,20 +39,26 @@ export async function createMysqlTestEnvironment(databaseName: string) {
 async function createGithubActionsEnvironment(databaseName: string) {
   const rootUrl = "mysql://root:rescuebase-root@127.0.0.1:3306/rescuebase";
   const databaseUrl = `mysql://rescuebase:rescuebase@127.0.0.1:3306/${databaseName}`;
-  const prisma = new PrismaClient({ datasourceUrl: rootUrl });
-
-  await prisma.$executeRawUnsafe(`DROP DATABASE IF EXISTS \`${databaseName}\``);
-  await prisma.$executeRawUnsafe(`CREATE DATABASE \`${databaseName}\``);
-  await prisma.$executeRawUnsafe(`GRANT ALL PRIVILEGES ON \`${databaseName}\`.* TO 'rescuebase'@'%'`);
-  await prisma.$executeRawUnsafe("FLUSH PRIVILEGES");
-  await prisma.$disconnect();
+  executeSql(rootUrl, [
+    `DROP DATABASE IF EXISTS \`${databaseName}\`;`,
+    `CREATE DATABASE \`${databaseName}\`;`,
+    `GRANT ALL PRIVILEGES ON \`${databaseName}\`.* TO 'rescuebase'@'%';`,
+    "FLUSH PRIVILEGES;"
+  ].join("\n"));
 
   return {
     databaseUrl,
     stop: async () => {
-      const cleanup = new PrismaClient({ datasourceUrl: rootUrl });
-      await cleanup.$executeRawUnsafe(`DROP DATABASE IF EXISTS \`${databaseName}\``);
-      await cleanup.$disconnect();
+      executeSql(rootUrl, `DROP DATABASE IF EXISTS \`${databaseName}\`;`);
     }
   };
+}
+
+function executeSql(url: string, sql: string) {
+  execFileSync("npx", ["prisma", "db", "execute", "--stdin", "--url", url], {
+    cwd: process.cwd(),
+    env: process.env,
+    input: sql,
+    stdio: ["pipe", "inherit", "inherit"]
+  });
 }
