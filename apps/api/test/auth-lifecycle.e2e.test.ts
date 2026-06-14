@@ -4,11 +4,15 @@ import { execFileSync } from "node:child_process";
 import { jest } from "@jest/globals";
 import cookieParser from "cookie-parser";
 import { authenticator } from "otplib";
-import { MySqlContainer, type StartedMySqlContainer } from "@testcontainers/mysql";
 import { PrismaClient } from "@prisma/client";
 import request from "supertest";
 import { AppModule } from "../src/modules/app.module.js";
 import { seedRescueBaseDevelopmentData } from "../src/persistence/seed.js";
+
+type StartedMySqlContainer = {
+  getConnectionUri(): string;
+  stop(): Promise<void>;
+};
 
 jest.setTimeout(30_000);
 
@@ -21,6 +25,7 @@ describe("auth lifecycle", () => {
     process.env.MAIL_PROVIDER = "console";
     process.env.APP_PUBLIC_URL = "http://localhost:5173";
     try {
+      const { MySqlContainer } = await import("@testcontainers/mysql");
       database = await new MySqlContainer("mariadb:11.4")
         .withDatabase("rescuebase_auth_test")
         .withUsername("rescuebase")
