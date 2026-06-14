@@ -1,25 +1,75 @@
-import type { Prisma } from "@prisma/client";
+export type TemplateRecord = {
+  id: string;
+  name: string;
+  version: number;
+  positions: Array<{
+    id: string;
+    articleId: string;
+    moduleName: string | null;
+    requiredQuantity: number;
+    critical: boolean;
+    article: { name: string; unit: string };
+  }>;
+};
 
-type TemplateWithPositions = Prisma.KitTemplateGetPayload<{
-  include: { positions: { include: { article: true } } };
-}>;
+export type KitRecord = {
+  id: string;
+  name: string;
+  code: string;
+  locationId: string;
+  templateId: string;
+  status: string;
+  publicToken: string;
+  tokenRotatedAt: Date;
+  location: { id: string; name: string };
+  template: TemplateRecord;
+};
 
-type KitWithRelations = Prisma.KitGetPayload<{
-  include: {
-    location: true;
-    template: { include: { positions: { include: { article: true } } } };
-  };
-}>;
+export type BatchRecord = {
+  id: string;
+  articleId: string;
+  locationId: string;
+  lotNumber: string;
+  expiresAt: Date;
+  quantity: number;
+  article: { id: string; name: string; unit: string };
+  location: { id: string; name: string };
+};
 
-type BatchWithRelations = Prisma.BatchGetPayload<{
-  include: { article: true; location: true };
-}>;
+export type OrderRecord = {
+  id: string;
+  kitId: string;
+  checkId: string;
+  status: string;
+  createdAt: Date;
+  updatedAt: Date;
+  kit: { id: string; name: string; code: string; status: string; publicToken: string };
+  items: Array<{
+    articleId: string;
+    articleName: string;
+    templatePositionId: string;
+    requestedQuantity: number;
+    fulfilledQuantity: number;
+    reason: string;
+    unit: string;
+    critical: boolean;
+  }>;
+};
 
-type OrderWithRelations = Prisma.ReplenishmentOrderGetPayload<{
-  include: { items: true; kit: true };
-}>;
-
-type MovementRecord = Prisma.InventoryMovementGetPayload<Record<string, never>>;
+export type MovementRecord = {
+  id: string;
+  batchId: string;
+  articleId: string;
+  locationId: string;
+  replenishmentOrderId: string | null;
+  templatePositionId: string | null;
+  type: string;
+  quantity: number;
+  actorLabel: string;
+  reason: string | null;
+  metadata: unknown;
+  createdAt: Date;
+};
 
 export function toIsoDate(value: Date): string {
   return value.toISOString().slice(0, 10);
@@ -29,7 +79,7 @@ export function toIsoDateTime(value: Date): string {
   return value.toISOString();
 }
 
-export function mapTemplate(template: TemplateWithPositions) {
+export function mapTemplate(template: TemplateRecord) {
   return {
     id: template.id,
     name: template.name,
@@ -46,7 +96,7 @@ export function mapTemplate(template: TemplateWithPositions) {
   };
 }
 
-export function mapKit(kit: KitWithRelations) {
+export function mapKit(kit: KitRecord) {
   return {
     id: kit.id,
     name: kit.name,
@@ -61,7 +111,7 @@ export function mapKit(kit: KitWithRelations) {
   };
 }
 
-export function mapBatch(batch: BatchWithRelations) {
+export function mapBatch(batch: BatchRecord) {
   return {
     id: batch.id,
     articleId: batch.articleId,
@@ -81,7 +131,7 @@ export function mapBatch(batch: BatchWithRelations) {
   };
 }
 
-export function mapOrder(order: OrderWithRelations) {
+export function mapOrder(order: OrderRecord) {
   return {
     id: order.id,
     kitId: order.kitId,

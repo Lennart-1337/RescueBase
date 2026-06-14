@@ -1,11 +1,20 @@
 import { BadRequestException, Body, Controller, Get, NotFoundException, Param, Post } from "@nestjs/common";
 import { ApiTags } from "@nestjs/swagger";
 import { applyFulfillment } from "@rescuebase/domain";
-import type { ReplenishmentDraftItem } from "@rescuebase/domain";
+import type { ReplenishmentDraftItem, ReplenishmentStatus } from "@rescuebase/domain";
 import { AuditService } from "../services/audit.service.js";
 import { PrismaService } from "../persistence/prisma.service.js";
-import { mapOrder } from "../persistence/mappers.js";
+import { mapOrder, type OrderRecord } from "../persistence/mappers.js";
 import { Roles } from "../auth/auth.decorators.js";
+
+type ReplenishmentTransaction = Pick<
+  PrismaService,
+  "batch" | "inventoryMovement" | "replenishmentItem" | "replenishmentOrder" | "kit" | "auditEvent"
+>;
+
+type ReplenishmentOrderRecord = OrderRecord & {
+  items: Array<OrderRecord["items"][number]>;
+};
 
 @ApiTags("Nachfüllaufträge")
 @Roles("ADMIN", "WAREHOUSE")
@@ -47,7 +56,7 @@ export class ReplenishmentController {
 
   @Post(":id/fulfill")
   async fulfill(@Param("id") id: string, @Body() body: { items: Array<{ itemId: string; batchId: string; quantity: number }> }) {
-    const order = await this.prisma.replenishmentOrder.findUnique({
+    const order: ReplenishmentOrderRecord | null = await this.prisma.replenishmentOrder.findUnique({
       where: { id },
       include: { items: true, kit: true }
     });
@@ -62,8 +71,8 @@ export class ReplenishmentController {
     const result = applyFulfillment(
       {
         id: order.id,
-        status: order.status,
-        items: order.items.map((item) => ({
+        status: order.status as ReplenishmentStatus,
+        items: order.items.map((item: ReplenishmentOrderRecord["items"][number]) => ({
           ...item,
           reason: toReplenishmentReason(item.reason),
           neededQuantity: item.requestedQuantity
@@ -72,13 +81,13 @@ export class ReplenishmentController {
       body.items.map((item) => ({ itemId: item.itemId, quantity: item.quantity }))
     );
 
-    const updatedOrder = await this.prisma.$transaction(async (tx) => {
+    const updatedOrder = await this.prisma.$transaction(async (tx: ReplenishmentTransaction) => {
       for (const item of body.items) {
         const quantity = Math.trunc(item.quantity);
         if (quantity === 0) {
           continue;
         }
-        const orderItem = order.items.find((entry) => entry.templatePositionId === item.itemId);
+        const orderItem = order.items.find((entry: ReplenishmentOrderRecord["items"][number]) => entry.templatePositionId === item.itemId);
         if (!orderItem) {
           throw new BadRequestException("Auftragsposition nicht gefunden.");
         }
@@ -182,7 +191,7 @@ export class ReplenishmentController {
   }
 
   private async validateFulfillment(
-    order: Awaited<ReturnType<PrismaService["replenishmentOrder"]["findUnique"]>> & { items: Array<{ templatePositionId: string; articleId: string; requestedQuantity: number; fulfilledQuantity: number }> },
+    order: ReplenishmentOrderRecord,
     items: Array<{ itemId: string; batchId: string; quantity: number }>
   ) {
     for (const item of items) {
@@ -194,7 +203,7 @@ export class ReplenishmentController {
         continue;
       }
 
-      const orderItem = order?.items.find((entry) => entry.templatePositionId === item.itemId);
+      const orderItem = order.items.find((entry: ReplenishmentOrderRecord["items"][number]) => entry.templatePositionId === item.itemId);
       if (!orderItem) {
         throw new BadRequestException("Auftragsposition nicht gefunden.");
       }

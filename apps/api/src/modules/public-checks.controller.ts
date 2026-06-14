@@ -9,8 +9,11 @@ import {
 } from "@rescuebase/domain";
 import { AuditService } from "../services/audit.service.js";
 import { PrismaService } from "../persistence/prisma.service.js";
-import { mapOrder, mapTemplate, toIsoDateTime } from "../persistence/mappers.js";
+import { mapOrder, mapTemplate, toIsoDateTime, type KitRecord, type OrderRecord } from "../persistence/mappers.js";
 import { PublicRoute } from "../auth/auth.decorators.js";
+
+type PublicCheckTransaction = Pick<PrismaService, "check" | "kit" | "replenishmentOrder" | "auditEvent">;
+type PublicKitRecord = Omit<KitRecord, "location">;
 
 @ApiTags("Öffentliche Checks")
 @PublicRoute()
@@ -50,7 +53,7 @@ export class PublicChecksController {
       .update(body.signaturePngDataUrl)
       .digest("hex");
 
-    const result = await this.prisma.$transaction(async (tx) => {
+    const result = await this.prisma.$transaction(async (tx: PublicCheckTransaction) => {
       const check = await tx.check.create({
         data: {
           kitId: kit.id,
@@ -147,8 +150,8 @@ export class PublicChecksController {
     };
   }
 
-  private async findKitByToken(token: string) {
-    const kit = await this.prisma.kit.findUnique({
+  private async findKitByToken(token: string): Promise<PublicKitRecord> {
+    const kit: PublicKitRecord | null = await this.prisma.kit.findUnique({
       where: { publicToken: token },
       include: {
         template: { include: { positions: { include: { article: true } } } }

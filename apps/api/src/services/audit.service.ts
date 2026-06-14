@@ -1,5 +1,4 @@
 import { Injectable } from "@nestjs/common";
-import type { Prisma } from "@prisma/client";
 import type { AuditActorType } from "@rescuebase/domain";
 import { PrismaService } from "../persistence/prisma.service.js";
 
@@ -22,7 +21,7 @@ export class AuditService {
         action: input.action,
         entityType: input.entityType,
         entityId: input.entityId,
-        payload: (input.payload ?? {}) as Prisma.InputJsonValue
+        payload: toJsonPayload(input.payload)
       }
     }).then(() => undefined);
   }
@@ -45,7 +44,7 @@ export class AuditService {
         action: input.action,
         entityType: input.entityType,
         entityId: input.entityId,
-        payload: (input.payload ?? {}) as Prisma.InputJsonValue
+        payload: toJsonPayload(input.payload)
       }
     }).then(() => undefined);
   }
@@ -60,4 +59,8 @@ export class AuditService {
       orderBy: { createdAt: "desc" }
     });
   }
+}
+
+function toJsonPayload(value: Record<string, unknown> | undefined) {
+  return JSON.parse(JSON.stringify(value ?? {})) as never;
 }
