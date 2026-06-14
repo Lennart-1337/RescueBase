@@ -4,10 +4,8 @@ import { execFileSync } from "node:child_process";
 import { jest } from "@jest/globals";
 import cookieParser from "cookie-parser";
 import { authenticator } from "otplib";
-import { PrismaClient } from "@prisma/client";
 import request from "supertest";
 import { AppModule } from "../src/modules/app.module.js";
-import { seedRescueBaseDevelopmentData } from "../src/persistence/seed.js";
 import { createMysqlTestEnvironment } from "./mysql-test-environment.js";
 
 jest.setTimeout(30_000);
@@ -35,9 +33,11 @@ describe("auth lifecycle", () => {
       env: { ...process.env, DATABASE_URL: process.env.DATABASE_URL },
       stdio: "inherit"
     });
-    const prisma = new PrismaClient({ datasourceUrl: process.env.DATABASE_URL });
-    await seedRescueBaseDevelopmentData(prisma);
-    await prisma.$disconnect();
+    execFileSync("npm", ["run", "prisma:seed:dev"], {
+      cwd: process.cwd(),
+      env: { ...process.env, DATABASE_URL: process.env.DATABASE_URL },
+      stdio: "inherit"
+    });
 
     const moduleRef = await Test.createTestingModule({ imports: [AppModule] }).compile();
     app = moduleRef.createNestApplication();
