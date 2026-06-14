@@ -4,6 +4,7 @@ import {
   Link,
   Outlet,
   RouterProvider,
+  createMemoryHistory,
   createRootRoute,
   createRoute,
   createRouter,
@@ -126,8 +127,8 @@ const routeTree = rootRoute.addChildren([
   publicCheckRoute
 ]);
 
-function createAppRouter() {
-  return createRouter({ routeTree });
+export function createAppRouter(options?: { history?: Parameters<typeof createRouter>[0]["history"] }) {
+  return createRouter({ routeTree, history: options?.history });
 }
 
 declare module "@tanstack/react-router" {
@@ -136,8 +137,8 @@ declare module "@tanstack/react-router" {
   }
 }
 
-export default function App() {
-  const [router] = useState(createAppRouter);
+export default function App(props: { router?: ReturnType<typeof createAppRouter> }) {
+  const [router] = useState(() => props.router ?? createAppRouter());
   const [queryClient] = useState(
     () =>
       new QueryClient({
@@ -158,6 +159,14 @@ export default function App() {
       <RouterProvider router={router} />
     </QueryClientProvider>
   );
+}
+
+export function createAppMemoryRouter(pathname: string) {
+  return createAppRouter({
+    history: createMemoryHistory({
+      initialEntries: [pathname]
+    })
+  });
 }
 
 function RootRoute() {

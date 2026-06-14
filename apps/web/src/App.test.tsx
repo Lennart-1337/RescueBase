@@ -1,5 +1,5 @@
-import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
-import App from "./App";
+import { act, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
+import App, { createAppMemoryRouter } from "./App";
 
 const kit = {
   id: "kit-rucksack-1",
@@ -50,8 +50,11 @@ const order = {
   ]
 };
 
+let activeRouter: ReturnType<typeof createAppMemoryRouter> | undefined;
+
 describe("RescueBase web app", () => {
   afterEach(() => {
+    activeRouter = undefined;
     vi.restoreAllMocks();
     history.pushState({}, "", "/");
   });
@@ -74,7 +77,7 @@ describe("RescueBase web app", () => {
       "/api/replenishment-orders": [order]
     });
 
-    render(<App />);
+    await renderApp();
 
     expect(await screen.findByRole("heading", { name: "Nachfüllzentrale" })).toBeInTheDocument();
     expect(await screen.findByText("order-1001 · Restmenge 3")).toBeInTheDocument();
@@ -121,7 +124,7 @@ describe("RescueBase web app", () => {
       }
     });
 
-    render(<App />);
+    await renderApp();
 
     expect(await screen.findByRole("heading", { name: "Rucksack Fahrzeug 1" })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Verband" })).toBeInTheDocument();
@@ -134,7 +137,7 @@ describe("RescueBase web app", () => {
     history.pushState({}, "", "/");
     vi.stubGlobal("fetch", vi.fn().mockRejectedValue(new Error("network down")));
 
-    render(<App />);
+    await renderApp();
 
     expect(await screen.findByRole("heading", { name: "API nicht verfügbar" })).toBeInTheDocument();
     await waitFor(() => expect(screen.queryByText("Rucksack Fahrzeug 1")).not.toBeInTheDocument());
@@ -158,14 +161,14 @@ describe("RescueBase web app", () => {
       "/api/catalog/templates": [kit.template]
     });
 
-    render(<App />);
+    await renderApp();
 
     const articlePanel = (await screen.findByRole("heading", { name: "Artikel" })).closest("section");
     expect(articlePanel).not.toBeNull();
-    fireEvent.change(within(articlePanel as HTMLElement).getByLabelText("Name"), { target: { value: "Rettungsdecke" } });
-    fireEvent.change(within(articlePanel as HTMLElement).getByLabelText("Einheit"), { target: { value: "Stück" } });
-    fireEvent.change(within(articlePanel as HTMLElement).getByLabelText("Barcode/DataMatrix"), { target: { value: "040000000099" } });
-    fireEvent.click(within(articlePanel as HTMLElement).getByRole("button", { name: /Artikel anlegen/ }));
+    await changeValue(within(articlePanel as HTMLElement).getByLabelText("Name"), "Rettungsdecke");
+    await changeValue(within(articlePanel as HTMLElement).getByLabelText("Einheit"), "Stück");
+    await changeValue(within(articlePanel as HTMLElement).getByLabelText("Barcode/DataMatrix"), "040000000099");
+    await clickElement(within(articlePanel as HTMLElement).getByRole("button", { name: /Artikel anlegen/ }));
 
     await waitFor(() => expect(postedBody("/api/catalog/articles")).toEqual({
       name: "Rettungsdecke",
@@ -198,14 +201,14 @@ describe("RescueBase web app", () => {
       }
     });
 
-    render(<App />);
+    await renderApp();
 
     const articlePanel = (await screen.findByRole("heading", { name: "Artikel" })).closest("section");
     expect(articlePanel).not.toBeNull();
-    fireEvent.click(within(articlePanel as HTMLElement).getByRole("button", { name: /Bearbeiten/ }));
-    fireEvent.change(within(articlePanel as HTMLElement).getByLabelText("Name"), { target: { value: "Verbandpäckchen groß" } });
-    fireEvent.change(within(articlePanel as HTMLElement).getByLabelText("Barcode/DataMatrix"), { target: { value: "040000000099" } });
-    fireEvent.click(within(articlePanel as HTMLElement).getByRole("button", { name: /Artikel speichern/ }));
+    await clickElement(within(articlePanel as HTMLElement).getByRole("button", { name: /Bearbeiten/ }));
+    await changeValue(within(articlePanel as HTMLElement).getByLabelText("Name"), "Verbandpäckchen groß");
+    await changeValue(within(articlePanel as HTMLElement).getByLabelText("Barcode/DataMatrix"), "040000000099");
+    await clickElement(within(articlePanel as HTMLElement).getByRole("button", { name: /Artikel speichern/ }));
 
     await waitFor(() => expect(requestBody("/api/catalog/articles/article-bandage", "PATCH")).toEqual({
       name: "Verbandpäckchen groß",
@@ -233,13 +236,13 @@ describe("RescueBase web app", () => {
       "/api/catalog/locations": [location]
     });
 
-    render(<App />);
+    await renderApp();
 
     expect(await screen.findByRole("heading", { name: "Lager" })).toBeInTheDocument();
-    fireEvent.change(screen.getByLabelText("Charge"), { target: { value: "RD-2028-02" } });
-    fireEvent.change(screen.getByLabelText("Ablaufdatum"), { target: { value: "2028-02-29" } });
-    fireEvent.change(screen.getByLabelText("Menge"), { target: { value: "25" } });
-    fireEvent.click(screen.getByRole("button", { name: /Charge erfassen/ }));
+    await changeValue(screen.getByLabelText("Charge"), "RD-2028-02");
+    await changeValue(screen.getByLabelText("Ablaufdatum"), "2028-02-29");
+    await changeValue(screen.getByLabelText("Menge"), "25");
+    await clickElement(screen.getByRole("button", { name: /Charge erfassen/ }));
 
     await waitFor(() => expect(postedBody("/api/inventory/batches")).toEqual({
       articleId: "article-bandage",
@@ -269,14 +272,14 @@ describe("RescueBase web app", () => {
       "/api/inventory/batches/batch-bandage-1/movements": []
     });
 
-    render(<App />);
+    await renderApp();
 
-    fireEvent.click(await screen.findByRole("button", { name: /Korrigieren/ }));
+    await clickElement(await screen.findByRole("button", { name: /Korrigieren/ }));
     const correctionPanel = (await screen.findByRole("heading", { name: "Chargenkorrektur" })).closest("section");
     expect(correctionPanel).not.toBeNull();
-    fireEvent.change(within(correctionPanel as HTMLElement).getByLabelText("Charge"), { target: { value: "VB-2026-04A" } });
-    fireEvent.change(within(correctionPanel as HTMLElement).getByLabelText("Begründung"), { target: { value: "Inventur" } });
-    fireEvent.click(within(correctionPanel as HTMLElement).getByRole("button", { name: /Korrektur buchen/ }));
+    await changeValue(within(correctionPanel as HTMLElement).getByLabelText("Charge"), "VB-2026-04A");
+    await changeValue(within(correctionPanel as HTMLElement).getByLabelText("Begründung"), "Inventur");
+    await clickElement(within(correctionPanel as HTMLElement).getByRole("button", { name: /Korrektur buchen/ }));
 
     await waitFor(() => expect(postedBody("/api/inventory/batches/batch-bandage-1/corrections")).toEqual({
       reason: "Inventur",
@@ -305,9 +308,9 @@ describe("RescueBase web app", () => {
       }
     });
 
-    render(<App />);
+    await renderApp();
 
-    fireEvent.click(await screen.findByRole("button", { name: /TOTP vorbereiten/ }));
+    await clickElement(await screen.findByRole("button", { name: /TOTP vorbereiten/ }));
 
     expect(await screen.findByAltText("TOTP-QR-Code")).toBeInTheDocument();
     expect(screen.getByText("ABCDEF123456")).toBeInTheDocument();
@@ -333,13 +336,13 @@ describe("RescueBase web app", () => {
       }
     });
 
-    render(<App />);
+    await renderApp();
 
     expect(await screen.findByRole("heading", { name: "Einladung annehmen" })).toBeInTheDocument();
-    fireEvent.change(screen.getByLabelText("Name"), { target: { value: "Lager Nord" } });
-    fireEvent.change(screen.getByLabelText("Passwort"), { target: { value: "rescuebase-neu" } });
-    fireEvent.change(screen.getByLabelText("Passwort wiederholen"), { target: { value: "rescuebase-neu" } });
-    fireEvent.click(screen.getByRole("button", { name: /Konto aktivieren/ }));
+    await changeValue(screen.getByLabelText("Name"), "Lager Nord");
+    await changeValue(screen.getByLabelText("Passwort"), "rescuebase-neu");
+    await changeValue(screen.getByLabelText("Passwort wiederholen"), "rescuebase-neu");
+    await clickElement(screen.getByRole("button", { name: /Konto aktivieren/ }));
 
     await waitFor(() => expect(postedBody("/api/auth/invitations/accept")).toEqual({
       token: "token-123",
@@ -357,11 +360,11 @@ describe("RescueBase web app", () => {
       }
     });
 
-    render(<App />);
+    await renderApp();
 
     expect(await screen.findByRole("heading", { name: "Passwort zurücksetzen" })).toBeInTheDocument();
-    fireEvent.change(screen.getByLabelText("E-Mail"), { target: { value: "lager-neu@rescuebase.local" } });
-    fireEvent.click(screen.getByRole("button", { name: /Reset-Link senden/ }));
+    await changeValue(screen.getByLabelText("E-Mail"), "lager-neu@rescuebase.local");
+    await clickElement(screen.getByRole("button", { name: /Reset-Link senden/ }));
 
     await waitFor(() => expect(postedBody("/api/auth/password-reset/request")).toEqual({
       email: "lager-neu@rescuebase.local"
@@ -403,4 +406,31 @@ function requestBody(pathname: string, method: string): unknown {
     return path === pathname && (init?.method ?? "GET") === method;
   });
   return call?.[1]?.body ? JSON.parse(String(call[1].body)) : undefined;
+}
+
+async function renderApp() {
+  activeRouter = createAppMemoryRouter(window.location.pathname);
+  await act(async () => {
+    await activeRouter?.load();
+    render(<App router={activeRouter} />);
+    await flushUi();
+  });
+}
+
+async function clickElement(element: HTMLElement) {
+  await act(async () => {
+    fireEvent.click(element);
+    await flushUi();
+  });
+}
+
+async function changeValue(element: HTMLElement, value: string) {
+  await act(async () => {
+    fireEvent.change(element, { target: { value } });
+    await flushUi();
+  });
+}
+
+async function flushUi() {
+  await Promise.resolve();
 }
