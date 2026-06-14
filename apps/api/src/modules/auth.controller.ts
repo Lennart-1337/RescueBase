@@ -19,6 +19,20 @@ import { PublicRoute, Roles } from "../auth/auth.decorators.js";
 import { AuthService } from "../auth/auth.service.js";
 import type { AuthenticatedRequest } from "../auth/auth.guard.js";
 
+type AdminUserListItem = {
+  id: string;
+  email: string;
+  displayName: string;
+  role: UserRole;
+  active: boolean;
+  twoFactorEnabled: boolean;
+  twoFactorMethod?: TwoFactorMethod;
+};
+
+type AdminUserRecord = Omit<AdminUserListItem, "twoFactorMethod"> & {
+  twoFactorMethod: TwoFactorMethod | null;
+};
+
 @ApiTags("Auth")
 @Controller("auth")
 export class AuthController {
@@ -312,27 +326,19 @@ export class AuthController {
 
   @Roles("ADMIN")
   @Get("users")
-  async users(): Promise<Array<{
-    id: string;
-    email: string;
-    displayName: string;
-    role: UserRole;
-    active: boolean;
-    twoFactorEnabled: boolean;
-    twoFactorMethod?: TwoFactorMethod;
-  }>> {
-    const users = await this.prisma.user.findMany({
+  async users(): Promise<AdminUserListItem[]> {
+    const users: AdminUserRecord[] = await this.prisma.user.findMany({
       orderBy: [{ role: "asc" }, { email: "asc" }]
     });
-    return users.map((user) => ({
+    return users.map((user): AdminUserListItem => ({
       id: user.id,
       email: user.email,
-        displayName: user.displayName,
-        role: user.role,
-        active: user.active,
-        twoFactorEnabled: user.twoFactorEnabled,
-        twoFactorMethod: user.twoFactorMethod ?? undefined
-      }));
+      displayName: user.displayName,
+      role: user.role,
+      active: user.active,
+      twoFactorEnabled: user.twoFactorEnabled,
+      twoFactorMethod: user.twoFactorMethod ?? undefined
+    }));
   }
 
   @Roles("ADMIN")
