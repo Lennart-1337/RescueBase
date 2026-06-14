@@ -1,0 +1,65 @@
+import { ApiError, openApiClient, reportUrl } from "./openapi-client";
+import type {
+  BatchCorrectionRequest,
+  CompleteCheckRequest,
+  CreateArticleRequest,
+  CreateBatchRequest,
+  CreateKitRequest,
+  CreateLocationRequest,
+  CreateTemplateRequest,
+  FulfillOrderRequest,
+  InviteUserRequest,
+  ReviseTemplateRequest,
+  UpdateArticleRequest,
+  UpdateKitRequest,
+  UpdateLocationRequest
+} from "./types";
+
+export { ApiError };
+
+export const rescueBaseApi = {
+  setupStatus: () => openApiClient.get("/auth/setup/status"),
+  createFirstAdmin: (body: { email: string; displayName: string; password: string }) =>
+    openApiClient.post("/auth/setup/first-admin", body),
+  login: (body: { email: string; password: string; twoFactorCode?: string; emailChallengeId?: string }) => openApiClient.post("/auth/login", body),
+  invitation: (token: string) => openApiClient.get("/auth/invitations/{token}", { params: { token } }),
+  acceptInvitation: (body: { token: string; password: string; displayName?: string }) =>
+    openApiClient.post("/auth/invitations/accept", body),
+  requestPasswordReset: (body: { email: string }) => openApiClient.post("/auth/password-reset/request", body),
+  passwordResetPreview: (token: string) => openApiClient.get("/auth/password-reset/{token}", { params: { token } }),
+  confirmPasswordReset: (body: { token: string; password: string }) => openApiClient.post("/auth/password-reset/confirm", body),
+  session: () => openApiClient.get("/auth/session"),
+  logout: () => openApiClient.post("/auth/logout"),
+  setupTotp: () => openApiClient.post("/auth/2fa/totp/setup"),
+  enableTotp: (body: { code: string }) => openApiClient.post("/auth/2fa/totp/enable", body),
+  startEmailTwoFactor: () => openApiClient.post("/auth/2fa/email/start"),
+  enableEmailTwoFactor: (body: { challengeId: string; code: string }) => openApiClient.post("/auth/2fa/email/enable", body),
+  disableTwoFactor: () => openApiClient.post("/auth/2fa/disable"),
+  inviteUser: (body: InviteUserRequest) => openApiClient.post("/auth/invite", body),
+  users: () => openApiClient.get("/auth/users"),
+  setUserActive: (id: string, body: { active: boolean }) => openApiClient.post("/auth/users/{id}/active", body, { params: { id } }),
+  articles: () => openApiClient.get("/catalog/articles"),
+  locations: () => openApiClient.get("/catalog/locations"),
+  templates: () => openApiClient.get("/catalog/templates"),
+  createArticle: (body: CreateArticleRequest) => openApiClient.post("/catalog/articles", body),
+  updateArticle: (id: string, body: UpdateArticleRequest) => openApiClient.patch("/catalog/articles/{id}", body, { params: { id } }),
+  createLocation: (body: CreateLocationRequest) => openApiClient.post("/catalog/locations", body),
+  updateLocation: (id: string, body: UpdateLocationRequest) => openApiClient.patch("/catalog/locations/{id}", body, { params: { id } }),
+  createTemplate: (body: CreateTemplateRequest) => openApiClient.post("/catalog/templates", body),
+  reviseTemplate: (id: string, body: ReviseTemplateRequest) => openApiClient.post("/catalog/templates/{id}/revise", body, { params: { id } }),
+  batches: () => openApiClient.get("/inventory/batches"),
+  batchMovements: (id: string) => openApiClient.get("/inventory/batches/{id}/movements", { params: { id } }),
+  createBatch: (body: CreateBatchRequest) => openApiClient.post("/inventory/batches", body),
+  correctBatch: (id: string, body: BatchCorrectionRequest) => openApiClient.post("/inventory/batches/{id}/corrections", body, { params: { id } }),
+  kits: () => openApiClient.get("/catalog/kits"),
+  createKit: (body: CreateKitRequest) => openApiClient.post("/catalog/kits", body),
+  updateKit: (id: string, body: UpdateKitRequest) => openApiClient.patch("/catalog/kits/{id}", body, { params: { id } }),
+  orders: () => openApiClient.get("/replenishment-orders"),
+  publicKit: (token: string) => openApiClient.get("/public/kits/{token}", { params: { token } }),
+  rotateKitToken: (id: string) => openApiClient.post("/catalog/kits/{id}/rotate-token", { params: { id } }),
+  completeCheck: (token: string, body: CompleteCheckRequest) =>
+    openApiClient.post("/public/kits/{token}/checks", body, { params: { token } }),
+  fulfillOrder: (id: string, body: FulfillOrderRequest) =>
+    openApiClient.post("/replenishment-orders/{id}/fulfill", body, { params: { id } }),
+  reportUrl
+};

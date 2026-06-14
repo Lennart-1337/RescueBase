@@ -1,0 +1,2931 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "RescueBase API",
+    "description": "API for Sanitätslager, Rucksackchecks, Chargen and Nachfüllaufträge.",
+    "version": "0.1.0"
+  },
+  "servers": [
+    {
+      "url": "/api",
+      "description": "Reverse-proxied API base path"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Auth"
+    },
+    {
+      "name": "Stammdaten"
+    },
+    {
+      "name": "Lager"
+    },
+    {
+      "name": "Öffentliche Checks"
+    },
+    {
+      "name": "Nachfüllaufträge"
+    },
+    {
+      "name": "Reports"
+    },
+    {
+      "name": "Audit"
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "sessionCookie": {
+        "type": "apiKey",
+        "in": "cookie",
+        "name": "rb_session"
+      }
+    },
+    "schemas": {
+      "UserRole": {
+        "type": "string",
+        "enum": [
+          "ADMIN",
+          "WAREHOUSE"
+        ]
+      },
+      "TwoFactorMethod": {
+        "type": "string",
+        "enum": [
+          "TOTP",
+          "EMAIL"
+        ]
+      },
+      "KitOperationalStatus": {
+        "type": "string",
+        "enum": [
+          "READY",
+          "CONDITIONAL",
+          "NOT_READY"
+        ]
+      },
+      "ReplenishmentStatus": {
+        "type": "string",
+        "enum": [
+          "OPEN",
+          "IN_PROGRESS",
+          "DONE",
+          "CANCELLED"
+        ]
+      },
+      "ReplenishmentReason": {
+        "type": "string",
+        "enum": [
+          "SHORTAGE",
+          "DISCARDED_EXPIRED",
+          "SHORTAGE_AND_DISCARDED_EXPIRED"
+        ]
+      },
+      "SetupStatus": {
+        "type": "object",
+        "properties": {
+          "initialized": {
+            "type": "boolean"
+          },
+          "firstAdminEmail": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "initialized"
+        ],
+        "additionalProperties": false
+      },
+      "AuthenticatedUser": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string",
+            "format": "email"
+          },
+          "displayName": {
+            "type": "string"
+          },
+          "role": {
+            "$ref": "#/components/schemas/UserRole"
+          },
+          "twoFactorEnabled": {
+            "type": "boolean"
+          },
+          "twoFactorMethod": {
+            "$ref": "#/components/schemas/TwoFactorMethod"
+          }
+        },
+        "required": [
+          "id",
+          "email",
+          "displayName",
+          "role",
+          "twoFactorEnabled"
+        ],
+        "additionalProperties": false
+      },
+      "SessionResponse": {
+        "type": "object",
+        "properties": {
+          "user": {
+            "$ref": "#/components/schemas/AuthenticatedUser"
+          }
+        },
+        "required": [
+          "user"
+        ],
+        "additionalProperties": false
+      },
+      "FirstAdminRequest": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email"
+          },
+          "displayName": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string",
+            "minLength": 12
+          }
+        },
+        "required": [
+          "email",
+          "displayName",
+          "password"
+        ],
+        "additionalProperties": false
+      },
+      "FirstAdminResponse": {
+        "type": "object",
+        "properties": {
+          "ok": {
+            "type": "boolean",
+            "enum": [
+              true
+            ]
+          },
+          "userId": {
+            "type": "string"
+          },
+          "user": {
+            "$ref": "#/components/schemas/AuthenticatedUser"
+          }
+        },
+        "required": [
+          "ok",
+          "userId",
+          "user"
+        ],
+        "additionalProperties": false
+      },
+      "LoginRequest": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email"
+          },
+          "password": {
+            "type": "string"
+          },
+          "twoFactorCode": {
+            "type": "string"
+          },
+          "emailChallengeId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "email",
+          "password"
+        ],
+        "additionalProperties": false
+      },
+      "LoginResponse": {
+        "type": "object",
+        "properties": {
+          "requiresTwoFactor": {
+            "type": "boolean"
+          },
+          "twoFactorMethod": {
+            "$ref": "#/components/schemas/TwoFactorMethod"
+          },
+          "emailChallengeId": {
+            "type": "string"
+          },
+          "debugCode": {
+            "type": "string"
+          },
+          "user": {
+            "$ref": "#/components/schemas/AuthenticatedUser"
+          }
+        },
+        "required": [
+          "requiresTwoFactor"
+        ],
+        "additionalProperties": false
+      },
+      "TotpSetupResponse": {
+        "type": "object",
+        "properties": {
+          "secret": {
+            "type": "string"
+          },
+          "otpauthUrl": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "secret",
+          "otpauthUrl"
+        ],
+        "additionalProperties": false
+      },
+      "EnableTotpRequest": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "code"
+        ],
+        "additionalProperties": false
+      },
+      "EmailTwoFactorStartResponse": {
+        "type": "object",
+        "properties": {
+          "challengeId": {
+            "type": "string"
+          },
+          "debugCode": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "challengeId"
+        ],
+        "additionalProperties": false
+      },
+      "EnableEmailTwoFactorRequest": {
+        "type": "object",
+        "properties": {
+          "challengeId": {
+            "type": "string"
+          },
+          "code": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "challengeId",
+          "code"
+        ],
+        "additionalProperties": false
+      },
+      "InviteUserRequest": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email"
+          },
+          "displayName": {
+            "type": "string"
+          },
+          "role": {
+            "$ref": "#/components/schemas/UserRole"
+          }
+        },
+        "required": [
+          "email",
+          "displayName",
+          "role"
+        ],
+        "additionalProperties": false
+      },
+      "InviteUserResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "invitationUrl": {
+            "type": "string",
+            "format": "uri"
+          },
+          "debugUrl": {
+            "type": "string",
+            "format": "uri"
+          }
+        },
+        "required": [
+          "id",
+          "invitationUrl"
+        ],
+        "additionalProperties": false
+      },
+      "InvitationPreview": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email"
+          },
+          "displayName": {
+            "type": "string"
+          },
+          "role": {
+            "$ref": "#/components/schemas/UserRole"
+          }
+        },
+        "required": [
+          "email",
+          "displayName",
+          "role"
+        ],
+        "additionalProperties": false
+      },
+      "AcceptInvitationRequest": {
+        "type": "object",
+        "properties": {
+          "token": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string",
+            "minLength": 12
+          },
+          "displayName": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "token",
+          "password"
+        ],
+        "additionalProperties": false
+      },
+      "AcceptInvitationResponse": {
+        "type": "object",
+        "properties": {
+          "ok": {
+            "type": "boolean",
+            "enum": [
+              true
+            ]
+          },
+          "user": {
+            "$ref": "#/components/schemas/AuthenticatedUser"
+          }
+        },
+        "required": [
+          "ok",
+          "user"
+        ],
+        "additionalProperties": false
+      },
+      "PasswordResetRequest": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email"
+          }
+        },
+        "required": [
+          "email"
+        ],
+        "additionalProperties": false
+      },
+      "PasswordResetRequestResponse": {
+        "type": "object",
+        "properties": {
+          "ok": {
+            "type": "boolean",
+            "enum": [
+              true
+            ]
+          },
+          "debugUrl": {
+            "type": "string",
+            "format": "uri"
+          }
+        },
+        "required": [
+          "ok"
+        ],
+        "additionalProperties": false
+      },
+      "PasswordResetPreview": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email"
+          },
+          "displayName": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "email",
+          "displayName"
+        ],
+        "additionalProperties": false
+      },
+      "PasswordResetConfirmRequest": {
+        "type": "object",
+        "properties": {
+          "token": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string",
+            "minLength": 12
+          }
+        },
+        "required": [
+          "token",
+          "password"
+        ],
+        "additionalProperties": false
+      },
+      "UserSummary": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string",
+            "format": "email"
+          },
+          "displayName": {
+            "type": "string"
+          },
+          "role": {
+            "$ref": "#/components/schemas/UserRole"
+          },
+          "active": {
+            "type": "boolean"
+          },
+          "twoFactorEnabled": {
+            "type": "boolean"
+          },
+          "twoFactorMethod": {
+            "$ref": "#/components/schemas/TwoFactorMethod"
+          }
+        },
+        "required": [
+          "id",
+          "email",
+          "displayName",
+          "role",
+          "active",
+          "twoFactorEnabled"
+        ],
+        "additionalProperties": false
+      },
+      "SetUserActiveRequest": {
+        "type": "object",
+        "properties": {
+          "active": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "active"
+        ],
+        "additionalProperties": false
+      },
+      "Article": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "unit": {
+            "type": "string"
+          },
+          "barcode": {
+            "type": "string"
+          },
+          "criticalDefault": {
+            "type": "boolean"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "unit",
+          "criticalDefault"
+        ],
+        "additionalProperties": false
+      },
+      "CreateArticleRequest": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "unit": {
+            "type": "string"
+          },
+          "barcode": {
+            "type": "string"
+          },
+          "criticalDefault": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "name",
+          "unit",
+          "criticalDefault"
+        ],
+        "additionalProperties": false
+      },
+      "UpdateArticleRequest": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "unit": {
+            "type": "string"
+          },
+          "barcode": {
+            "type": "string"
+          },
+          "criticalDefault": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "name",
+          "unit",
+          "criticalDefault"
+        ],
+        "additionalProperties": false
+      },
+      "Location": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "kind": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "kind"
+        ],
+        "additionalProperties": false
+      },
+      "CreateLocationRequest": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "kind": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "kind"
+        ],
+        "additionalProperties": false
+      },
+      "UpdateLocationRequest": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "kind": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "kind"
+        ],
+        "additionalProperties": false
+      },
+      "TemplatePosition": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "articleId": {
+            "type": "string"
+          },
+          "articleName": {
+            "type": "string"
+          },
+          "moduleName": {
+            "type": "string"
+          },
+          "requiredQuantity": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "unit": {
+            "type": "string"
+          },
+          "critical": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "id",
+          "articleId",
+          "articleName",
+          "requiredQuantity",
+          "unit",
+          "critical"
+        ],
+        "additionalProperties": false
+      },
+      "KitTemplate": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "version": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "positions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TemplatePosition"
+            }
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "version",
+          "positions"
+        ],
+        "additionalProperties": false
+      },
+      "CreateTemplatePositionRequest": {
+        "type": "object",
+        "properties": {
+          "articleId": {
+            "type": "string"
+          },
+          "moduleName": {
+            "type": "string"
+          },
+          "requiredQuantity": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "critical": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "articleId",
+          "requiredQuantity",
+          "critical"
+        ],
+        "additionalProperties": false
+      },
+      "CreateTemplateRequest": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "version": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "positions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CreateTemplatePositionRequest"
+            }
+          }
+        },
+        "required": [
+          "name",
+          "positions"
+        ],
+        "additionalProperties": false
+      },
+      "ReviseTemplateRequest": {
+        "type": "object",
+        "properties": {
+          "positions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CreateTemplatePositionRequest"
+            }
+          }
+        },
+        "required": [
+          "positions"
+        ],
+        "additionalProperties": false
+      },
+      "Kit": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "code": {
+            "type": "string"
+          },
+          "locationId": {
+            "type": "string"
+          },
+          "templateId": {
+            "type": "string"
+          },
+          "status": {
+            "$ref": "#/components/schemas/KitOperationalStatus"
+          },
+          "publicToken": {
+            "type": "string"
+          },
+          "tokenRotatedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "location": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "name"
+            ],
+            "additionalProperties": false
+          },
+          "template": {
+            "$ref": "#/components/schemas/KitTemplate"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "code",
+          "locationId",
+          "templateId",
+          "status",
+          "publicToken",
+          "tokenRotatedAt"
+        ],
+        "additionalProperties": false
+      },
+      "KitSummary": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "code": {
+            "type": "string"
+          },
+          "status": {
+            "$ref": "#/components/schemas/KitOperationalStatus"
+          },
+          "publicToken": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "code",
+          "status",
+          "publicToken"
+        ],
+        "additionalProperties": false
+      },
+      "CreateKitRequest": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "code": {
+            "type": "string"
+          },
+          "locationId": {
+            "type": "string"
+          },
+          "templateId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "code",
+          "locationId",
+          "templateId"
+        ],
+        "additionalProperties": false
+      },
+      "UpdateKitRequest": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "code": {
+            "type": "string"
+          },
+          "locationId": {
+            "type": "string"
+          },
+          "templateId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "code",
+          "locationId",
+          "templateId"
+        ],
+        "additionalProperties": false
+      },
+      "Batch": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "articleId": {
+            "type": "string"
+          },
+          "locationId": {
+            "type": "string"
+          },
+          "lotNumber": {
+            "type": "string"
+          },
+          "expiresAt": {
+            "type": "string",
+            "format": "date"
+          },
+          "quantity": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "article": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              },
+              "unit": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "name",
+              "unit"
+            ],
+            "additionalProperties": false
+          },
+          "location": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "name"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "id",
+          "articleId",
+          "locationId",
+          "lotNumber",
+          "expiresAt",
+          "quantity",
+          "article",
+          "location"
+        ],
+        "additionalProperties": false
+      },
+      "CreateBatchRequest": {
+        "type": "object",
+        "properties": {
+          "articleId": {
+            "type": "string"
+          },
+          "locationId": {
+            "type": "string"
+          },
+          "lotNumber": {
+            "type": "string"
+          },
+          "expiresAt": {
+            "type": "string",
+            "format": "date"
+          },
+          "quantity": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "articleId",
+          "locationId",
+          "lotNumber",
+          "expiresAt",
+          "quantity"
+        ],
+        "additionalProperties": false
+      },
+      "BatchCorrectionRequest": {
+        "type": "object",
+        "properties": {
+          "reason": {
+            "type": "string"
+          },
+          "quantity": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "lotNumber": {
+            "type": "string"
+          },
+          "expiresAt": {
+            "type": "string",
+            "format": "date"
+          },
+          "locationId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "reason"
+        ],
+        "additionalProperties": false
+      },
+      "InventoryMovement": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "batchId": {
+            "type": "string"
+          },
+          "articleId": {
+            "type": "string"
+          },
+          "locationId": {
+            "type": "string"
+          },
+          "replenishmentOrderId": {
+            "type": "string"
+          },
+          "templatePositionId": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          },
+          "quantity": {
+            "type": "integer"
+          },
+          "actorLabel": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          },
+          "metadata": {
+            "type": "object",
+            "additionalProperties": true
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "batchId",
+          "articleId",
+          "locationId",
+          "type",
+          "quantity",
+          "actorLabel",
+          "createdAt"
+        ],
+        "additionalProperties": false
+      },
+      "ExpiryWarning": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "articleId": {
+            "type": "string"
+          },
+          "locationId": {
+            "type": "string"
+          },
+          "lotNumber": {
+            "type": "string"
+          },
+          "expiresAt": {
+            "type": "string",
+            "format": "date"
+          },
+          "quantity": {
+            "type": "integer"
+          },
+          "article": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              },
+              "unit": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "name",
+              "unit"
+            ],
+            "additionalProperties": false
+          },
+          "location": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "name"
+            ],
+            "additionalProperties": false
+          },
+          "severity": {
+            "type": "string",
+            "enum": [
+              "EXPIRED",
+              "EXPIRING_SOON"
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "articleId",
+          "locationId",
+          "lotNumber",
+          "expiresAt",
+          "quantity",
+          "article",
+          "location",
+          "severity"
+        ],
+        "additionalProperties": false
+      },
+      "PublicKitResponse": {
+        "type": "object",
+        "properties": {
+          "kit": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              },
+              "code": {
+                "type": "string"
+              },
+              "status": {
+                "$ref": "#/components/schemas/KitOperationalStatus"
+              }
+            },
+            "required": [
+              "id",
+              "name",
+              "code",
+              "status"
+            ],
+            "additionalProperties": false
+          },
+          "template": {
+            "$ref": "#/components/schemas/KitTemplate"
+          }
+        },
+        "required": [
+          "kit",
+          "template"
+        ],
+        "additionalProperties": false
+      },
+      "CheckPositionInput": {
+        "type": "object",
+        "properties": {
+          "templatePositionId": {
+            "type": "string"
+          },
+          "countedQuantity": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "discardedExpiredQuantity": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "note": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "templatePositionId",
+          "countedQuantity",
+          "discardedExpiredQuantity"
+        ],
+        "additionalProperties": false
+      },
+      "CompleteCheckRequest": {
+        "type": "object",
+        "properties": {
+          "checkerName": {
+            "type": "string"
+          },
+          "selectedStatus": {
+            "$ref": "#/components/schemas/KitOperationalStatus"
+          },
+          "statusReason": {
+            "type": "string"
+          },
+          "signaturePngDataUrl": {
+            "type": "string"
+          },
+          "positions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CheckPositionInput"
+            }
+          }
+        },
+        "required": [
+          "checkerName",
+          "selectedStatus",
+          "signaturePngDataUrl",
+          "positions"
+        ],
+        "additionalProperties": false
+      },
+      "CheckEvaluation": {
+        "type": "object",
+        "properties": {
+          "warnings": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "warnings"
+        ],
+        "additionalProperties": false
+      },
+      "CheckResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "kitId": {
+            "type": "string"
+          },
+          "checkerName": {
+            "type": "string"
+          },
+          "selectedStatus": {
+            "$ref": "#/components/schemas/KitOperationalStatus"
+          },
+          "effectiveStatus": {
+            "$ref": "#/components/schemas/KitOperationalStatus"
+          },
+          "statusReason": {
+            "type": "string"
+          },
+          "warnings": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "signaturePngDataUrl": {
+            "type": "string"
+          },
+          "signatureHash": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "kitId",
+          "checkerName",
+          "selectedStatus",
+          "effectiveStatus",
+          "warnings",
+          "signaturePngDataUrl",
+          "signatureHash",
+          "createdAt"
+        ],
+        "additionalProperties": false
+      },
+      "ReplenishmentOrderItem": {
+        "type": "object",
+        "properties": {
+          "articleId": {
+            "type": "string"
+          },
+          "articleName": {
+            "type": "string"
+          },
+          "templatePositionId": {
+            "type": "string"
+          },
+          "requestedQuantity": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "fulfilledQuantity": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "unit": {
+            "type": "string"
+          },
+          "reason": {
+            "$ref": "#/components/schemas/ReplenishmentReason"
+          },
+          "critical": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "articleId",
+          "articleName",
+          "templatePositionId",
+          "requestedQuantity",
+          "fulfilledQuantity",
+          "unit",
+          "reason",
+          "critical"
+        ],
+        "additionalProperties": false
+      },
+      "ReplenishmentOrder": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "kitId": {
+            "type": "string"
+          },
+          "checkId": {
+            "type": "string"
+          },
+          "status": {
+            "$ref": "#/components/schemas/ReplenishmentStatus"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "kit": {
+            "$ref": "#/components/schemas/KitSummary"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ReplenishmentOrderItem"
+            }
+          }
+        },
+        "required": [
+          "id",
+          "kitId",
+          "status",
+          "createdAt",
+          "updatedAt",
+          "items"
+        ],
+        "additionalProperties": false
+      },
+      "CompleteCheckResponse": {
+        "type": "object",
+        "properties": {
+          "check": {
+            "$ref": "#/components/schemas/CheckResponse"
+          },
+          "evaluation": {
+            "$ref": "#/components/schemas/CheckEvaluation"
+          },
+          "replenishmentOrder": {
+            "$ref": "#/components/schemas/ReplenishmentOrder"
+          }
+        },
+        "required": [
+          "check",
+          "evaluation"
+        ],
+        "additionalProperties": false
+      },
+      "FulfillOrderItemRequest": {
+        "type": "object",
+        "properties": {
+          "itemId": {
+            "type": "string"
+          },
+          "batchId": {
+            "type": "string"
+          },
+          "quantity": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "itemId",
+          "batchId",
+          "quantity"
+        ],
+        "additionalProperties": false
+      },
+      "FulfillOrderRequest": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FulfillOrderItemRequest"
+            }
+          }
+        },
+        "required": [
+          "items"
+        ],
+        "additionalProperties": false
+      },
+      "FulfillOrderResponse": {
+        "type": "object",
+        "properties": {
+          "order": {
+            "$ref": "#/components/schemas/ReplenishmentOrder"
+          },
+          "completed": {
+            "type": "boolean"
+          },
+          "remainingQuantity": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "order",
+          "completed",
+          "remainingQuantity"
+        ],
+        "additionalProperties": false
+      },
+      "AuditEvent": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "actorType": {
+            "type": "string",
+            "enum": [
+              "SYSTEM",
+              "USER",
+              "PUBLIC_CHECKER"
+            ]
+          },
+          "actorLabel": {
+            "type": "string"
+          },
+          "action": {
+            "type": "string"
+          },
+          "entityType": {
+            "type": "string"
+          },
+          "entityId": {
+            "type": "string"
+          },
+          "payload": {
+            "type": "object",
+            "additionalProperties": true
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "actorType",
+          "actorLabel",
+          "action",
+          "entityType",
+          "entityId",
+          "payload",
+          "createdAt"
+        ],
+        "additionalProperties": false
+      },
+      "OkResponse": {
+        "type": "object",
+        "properties": {
+          "ok": {
+            "type": "boolean",
+            "enum": [
+              true
+            ]
+          }
+        },
+        "required": [
+          "ok"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  "security": [
+    {
+      "sessionCookie": []
+    }
+  ],
+  "paths": {
+    "/auth/setup/status": {
+      "get": {
+        "tags": [
+          "Auth"
+        ],
+        "operationId": "AuthController_setupStatus",
+        "security": [],
+        "responses": {
+          "200": {
+            "description": "Setup status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SetupStatus"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/setup/first-admin": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "operationId": "AuthController_createFirstAdmin",
+        "security": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FirstAdminRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "First admin created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FirstAdminResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/login": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "operationId": "AuthController_login",
+        "security": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Login result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoginResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/invitations/{token}": {
+      "get": {
+        "tags": [
+          "Auth"
+        ],
+        "operationId": "AuthController_invitation",
+        "security": [],
+        "parameters": [
+          {
+            "name": "token",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Invitation preview",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InvitationPreview"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/invitations/accept": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "operationId": "AuthController_acceptInvitation",
+        "security": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AcceptInvitationRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Invitation accepted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AcceptInvitationResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/password-reset/request": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "operationId": "AuthController_requestPasswordReset",
+        "security": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PasswordResetRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Password reset requested",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PasswordResetRequestResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/password-reset/{token}": {
+      "get": {
+        "tags": [
+          "Auth"
+        ],
+        "operationId": "AuthController_passwordReset",
+        "security": [],
+        "parameters": [
+          {
+            "name": "token",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Password reset preview",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PasswordResetPreview"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/password-reset/confirm": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "operationId": "AuthController_confirmPasswordReset",
+        "security": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PasswordResetConfirmRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Password reset confirmed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OkResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/session": {
+      "get": {
+        "tags": [
+          "Auth"
+        ],
+        "operationId": "AuthController_session",
+        "responses": {
+          "200": {
+            "description": "Active session",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SessionResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/logout": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "operationId": "AuthController_logout",
+        "responses": {
+          "201": {
+            "description": "Logged out",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OkResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/2fa/totp/setup": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "operationId": "AuthController_setupTotp",
+        "responses": {
+          "201": {
+            "description": "TOTP setup",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TotpSetupResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/2fa/totp/enable": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "operationId": "AuthController_enableTotp",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EnableTotpRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "TOTP enabled",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OkResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/2fa/email/start": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "operationId": "AuthController_startEmailTwoFactor",
+        "responses": {
+          "201": {
+            "description": "Email 2FA challenge started",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EmailTwoFactorStartResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/2fa/email/enable": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "operationId": "AuthController_enableEmailTwoFactor",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EnableEmailTwoFactorRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Email 2FA enabled",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OkResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/2fa/disable": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "operationId": "AuthController_disableTwoFactor",
+        "responses": {
+          "201": {
+            "description": "2FA disabled",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OkResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/invite": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "operationId": "AuthController_invite",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/InviteUserRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Invitation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InviteUserResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/users": {
+      "get": {
+        "tags": [
+          "Auth"
+        ],
+        "operationId": "AuthController_users",
+        "responses": {
+          "200": {
+            "description": "Users",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/UserSummary"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/users/{id}/active": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "operationId": "AuthController_setUserActive",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SetUserActiveRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "User activation updated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OkResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/catalog/articles": {
+      "get": {
+        "tags": [
+          "Stammdaten"
+        ],
+        "operationId": "CatalogController_articles",
+        "responses": {
+          "200": {
+            "description": "Articles",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Article"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Stammdaten"
+        ],
+        "operationId": "CatalogController_createArticle",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateArticleRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Article created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Article"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/catalog/articles/{id}": {
+      "patch": {
+        "tags": [
+          "Stammdaten"
+        ],
+        "operationId": "CatalogController_updateArticle",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateArticleRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Article updated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Article"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/catalog/locations": {
+      "get": {
+        "tags": [
+          "Stammdaten"
+        ],
+        "operationId": "CatalogController_locations",
+        "responses": {
+          "200": {
+            "description": "Locations",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Location"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Stammdaten"
+        ],
+        "operationId": "CatalogController_createLocation",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateLocationRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Location created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Location"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/catalog/locations/{id}": {
+      "patch": {
+        "tags": [
+          "Stammdaten"
+        ],
+        "operationId": "CatalogController_updateLocation",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateLocationRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Location updated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Location"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/catalog/templates": {
+      "get": {
+        "tags": [
+          "Stammdaten"
+        ],
+        "operationId": "CatalogController_templates",
+        "responses": {
+          "200": {
+            "description": "Templates",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/KitTemplate"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Stammdaten"
+        ],
+        "operationId": "CatalogController_createTemplate",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateTemplateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Template created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/KitTemplate"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/catalog/templates/{id}/revise": {
+      "post": {
+        "tags": [
+          "Stammdaten"
+        ],
+        "operationId": "CatalogController_reviseTemplate",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReviseTemplateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Template revised",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/KitTemplate"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/catalog/kits": {
+      "get": {
+        "tags": [
+          "Stammdaten"
+        ],
+        "operationId": "CatalogController_kits",
+        "responses": {
+          "200": {
+            "description": "Kits",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Kit"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Stammdaten"
+        ],
+        "operationId": "CatalogController_createKit",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateKitRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Kit created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Kit"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/catalog/kits/{id}": {
+      "patch": {
+        "tags": [
+          "Stammdaten"
+        ],
+        "operationId": "CatalogController_updateKit",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateKitRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Kit updated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Kit"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/catalog/kits/{id}/rotate-token": {
+      "post": {
+        "tags": [
+          "Stammdaten"
+        ],
+        "operationId": "CatalogController_rotateToken",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Kit token rotated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Kit"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/inventory/batches": {
+      "get": {
+        "tags": [
+          "Lager"
+        ],
+        "operationId": "InventoryController_batches",
+        "responses": {
+          "200": {
+            "description": "Batches",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Batch"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Lager"
+        ],
+        "operationId": "InventoryController_createBatch",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateBatchRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Batch created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Batch"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/inventory/batches/{id}/movements": {
+      "get": {
+        "tags": [
+          "Lager"
+        ],
+        "operationId": "InventoryController_movements",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Batch movements",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/InventoryMovement"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/inventory/batches/{id}/corrections": {
+      "post": {
+        "tags": [
+          "Lager"
+        ],
+        "operationId": "InventoryController_correctBatch",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BatchCorrectionRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Batch corrected",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Batch"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/inventory/expiry-warnings": {
+      "get": {
+        "tags": [
+          "Lager"
+        ],
+        "operationId": "InventoryController_expiryWarnings",
+        "responses": {
+          "200": {
+            "description": "Expiry warnings",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ExpiryWarning"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/public/kits/{token}": {
+      "get": {
+        "tags": [
+          "Öffentliche Checks"
+        ],
+        "operationId": "PublicChecksController_getPublicKit",
+        "security": [],
+        "parameters": [
+          {
+            "name": "token",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Public kit",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublicKitResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/public/kits/{token}/checks": {
+      "post": {
+        "tags": [
+          "Öffentliche Checks"
+        ],
+        "operationId": "PublicChecksController_completeCheck",
+        "security": [],
+        "parameters": [
+          {
+            "name": "token",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CompleteCheckRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Check completed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CompleteCheckResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/replenishment-orders": {
+      "get": {
+        "tags": [
+          "Nachfüllaufträge"
+        ],
+        "operationId": "ReplenishmentController_list",
+        "responses": {
+          "200": {
+            "description": "Replenishment orders",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ReplenishmentOrder"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/replenishment-orders/{id}/start": {
+      "post": {
+        "tags": [
+          "Nachfüllaufträge"
+        ],
+        "operationId": "ReplenishmentController_start",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Order started",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReplenishmentOrder"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/replenishment-orders/{id}/fulfill": {
+      "post": {
+        "tags": [
+          "Nachfüllaufträge"
+        ],
+        "operationId": "ReplenishmentController_fulfill",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FulfillOrderRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Fulfillment booked",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FulfillOrderResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/replenishment-orders/{id}/cancel": {
+      "post": {
+        "tags": [
+          "Nachfüllaufträge"
+        ],
+        "operationId": "ReplenishmentController_cancel",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Order cancelled",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReplenishmentOrder"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/audit": {
+      "get": {
+        "tags": [
+          "Audit"
+        ],
+        "operationId": "AuditController_list",
+        "responses": {
+          "200": {
+            "description": "Audit events",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/AuditEvent"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/reports/csv/inventory": {
+      "get": {
+        "tags": [
+          "Reports"
+        ],
+        "operationId": "ReportsController_inventoryCsv",
+        "responses": {
+          "200": {
+            "description": "Binary report",
+            "content": {
+              "text/csv": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/reports/csv/replenishment": {
+      "get": {
+        "tags": [
+          "Reports"
+        ],
+        "operationId": "ReportsController_replenishmentCsv",
+        "responses": {
+          "200": {
+            "description": "Binary report",
+            "content": {
+              "text/csv": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/reports/qr-label/{kitId}.pdf": {
+      "get": {
+        "tags": [
+          "Reports"
+        ],
+        "operationId": "ReportsController_qrLabel",
+        "parameters": [
+          {
+            "name": "kitId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "format",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "a4",
+                "label"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Binary report",
+            "content": {
+              "application/pdf": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/reports/replenishment/{orderId}.pdf": {
+      "get": {
+        "tags": [
+          "Reports"
+        ],
+        "operationId": "ReportsController_replenishment",
+        "parameters": [
+          {
+            "name": "orderId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Binary report",
+            "content": {
+              "application/pdf": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

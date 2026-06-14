@@ -1,0 +1,220 @@
+import { Injectable, UnauthorizedException } from "@nestjs/common";
+import { compare, hash } from "bcryptjs";
+import { randomBytes, createHash } from "node:crypto";
+import { authenticator } from "otplib";
+import type { Response } from "express";
+import type { TwoFactorMethod, User, UserRole } from "@prisma/client";
+import { EMAIL_2FA_TTL_MS, INVITATION_TTL_MS, PASSWORD_RESET_TTL_MS, SESSION_COOKIE_NAME, SESSION_TTL_MS } from "./auth.constants.js";
+import { PrismaService } from "../persistence/prisma.service.js";
+
+export interface AuthenticatedUser {
+  id: string;
+  email: string;
+  displayName: string;
+  role: UserRole;
+  twoFactorEnabled: boolean;
+  twoFactorMethod?: TwoFactorMethod;
+}
+
+@Injectable()
+export class AuthService {
+  constructor(private readonly prisma: PrismaService) {}
+
+  hashPassword(password: string): Promise<string> {
+    return hash(password, 12);
+  }
+
+  async verifyPassword(password: string, passwordHash: string | null): Promise<boolean> {
+    if (!passwordHash) {
+      return false;
+    }
+    return compare(password, passwordHash);
+  }
+
+  async createSession(response: Response, userId: string): Promise<void> {
+    const token = randomBytes(32).toString("base64url");
+    const expiresAt = new Date(Date.now() + SESSION_TTL_MS);
+    await this.prisma.userSession.create({
+      data: {
+        userId,
+        tokenHash: this.hashSessionToken(token),
+        expiresAt
+      }
+    });
+    response.cookie(SESSION_COOKIE_NAME, token, {
+      httpOnly: true,
+      sameSite: "lax",
+      secure: process.env.NODE_ENV === "production",
+      expires: expiresAt,
+      path: "/"
+    });
+  }
+
+  async destroySession(response: Response, token: string | undefined): Promise<void> {
+    if (token) {
+      await this.prisma.userSession.deleteMany({ where: { tokenHash: this.hashSessionToken(token) } });
+    }
+    response.clearCookie(SESSION_COOKIE_NAME, { path: "/" });
+  }
+
+  async authenticateSession(token: string | undefined): Promise<AuthenticatedUser | null> {
+    if (!token) {
+      return null;
+    }
+    const session = await this.prisma.userSession.findUnique({
+      where: { tokenHash: this.hashSessionToken(token) },
+      include: { user: true }
+    });
+    if (!session || session.expiresAt <= new Date() || !session.user.active) {
+      if (session) {
+        await this.prisma.userSession.delete({ where: { id: session.id } }).catch(() => undefined);
+      }
+      return null;
+    }
+    return this.toAuthenticatedUser(session.user);
+  }
+
+  createTwoFactorSetup(user: Pick<User, "email">): { secret: string; otpauthUrl: string } {
+    const secret = authenticator.generateSecret();
+    return {
+      secret,
+      otpauthUrl: authenticator.keyuri(user.email, "RescueBase", secret)
+    };
+  }
+
+  verifyTotp(code: string, secret: string | null): boolean {
+    if (!secret) {
+      throw new UnauthorizedException("2FA ist nicht eingerichtet.");
+    }
+    return authenticator.check(code, secret);
+  }
+
+  async createInvitation(userId: string): Promise<{ token: string; expiresAt: Date }> {
+    const token = randomBytes(32).toString("base64url");
+    const expiresAt = new Date(Date.now() + INVITATION_TTL_MS);
+    await this.prisma.userInvitation.create({
+      data: {
+        userId,
+        tokenHash: this.hashOpaqueToken(token),
+        expiresAt
+      }
+    });
+    return { token, expiresAt };
+  }
+
+  async consumeInvitation(token: string): Promise<(Pick<User, "id" | "email" | "displayName" | "role"> & { invitationId: string }) | null> {
+    const invitation = await this.prisma.userInvitation.findUnique({
+      where: { tokenHash: this.hashOpaqueToken(token) },
+      include: { user: true }
+    });
+    if (!invitation || invitation.acceptedAt || invitation.expiresAt <= new Date()) {
+      return null;
+    }
+    return {
+      id: invitation.user.id,
+      email: invitation.user.email,
+      displayName: invitation.user.displayName,
+      role: invitation.user.role,
+      invitationId: invitation.id
+    };
+  }
+
+  async markInvitationAccepted(invitationId: string): Promise<void> {
+    await this.prisma.userInvitation.update({
+      where: { id: invitationId },
+      data: { acceptedAt: new Date() }
+    });
+  }
+
+  async createPasswordResetToken(userId: string): Promise<{ token: string; expiresAt: Date }> {
+    const token = randomBytes(32).toString("base64url");
+    const expiresAt = new Date(Date.now() + PASSWORD_RESET_TTL_MS);
+    await this.prisma.passwordResetToken.create({
+      data: {
+        userId,
+        tokenHash: this.hashOpaqueToken(token),
+        expiresAt
+      }
+    });
+    return { token, expiresAt };
+  }
+
+  async getPasswordReset(token: string): Promise<(Pick<User, "id" | "email" | "displayName"> & { resetId: string }) | null> {
+    const reset = await this.prisma.passwordResetToken.findUnique({
+      where: { tokenHash: this.hashOpaqueToken(token) },
+      include: { user: true }
+    });
+    if (!reset || reset.consumedAt || reset.expiresAt <= new Date()) {
+      return null;
+    }
+    return {
+      id: reset.user.id,
+      email: reset.user.email,
+      displayName: reset.user.displayName,
+      resetId: reset.id
+    };
+  }
+
+  async consumePasswordReset(resetId: string): Promise<void> {
+    await this.prisma.passwordResetToken.update({
+      where: { id: resetId },
+      data: { consumedAt: new Date() }
+    });
+  }
+
+  async createEmailTwoFactorChallenge(userId: string): Promise<{ challengeId: string; code: string; expiresAt: Date }> {
+    const code = `${Math.floor(100000 + Math.random() * 900000)}`;
+    const expiresAt = new Date(Date.now() + EMAIL_2FA_TTL_MS);
+    await this.prisma.emailTwoFactorChallenge.updateMany({
+      where: { userId, consumedAt: null, expiresAt: { gt: new Date() } },
+      data: { consumedAt: new Date() }
+    });
+    const challenge = await this.prisma.emailTwoFactorChallenge.create({
+      data: {
+        userId,
+        codeHash: this.hashOpaqueToken(code),
+        expiresAt
+      }
+    });
+    return { challengeId: challenge.id, code, expiresAt };
+  }
+
+  async verifyEmailTwoFactorChallenge(challengeId: string, code: string): Promise<boolean> {
+    const challenge = await this.prisma.emailTwoFactorChallenge.findUnique({ where: { id: challengeId } });
+    if (!challenge || challenge.consumedAt || challenge.expiresAt <= new Date()) {
+      return false;
+    }
+    const valid = challenge.codeHash === this.hashOpaqueToken(code);
+    if (!valid) {
+      return false;
+    }
+    await this.prisma.emailTwoFactorChallenge.update({
+      where: { id: challenge.id },
+      data: { consumedAt: new Date() }
+    });
+    return true;
+  }
+
+  async destroyUserSessions(userId: string): Promise<void> {
+    await this.prisma.userSession.deleteMany({ where: { userId } });
+  }
+
+  toAuthenticatedUser(user: Pick<User, "id" | "email" | "displayName" | "role" | "twoFactorEnabled" | "twoFactorMethod">): AuthenticatedUser {
+    return {
+      id: user.id,
+      email: user.email,
+      displayName: user.displayName,
+      role: user.role,
+      twoFactorEnabled: user.twoFactorEnabled,
+      twoFactorMethod: user.twoFactorMethod ?? undefined
+    };
+  }
+
+  private hashSessionToken(token: string): string {
+    return createHash("sha256").update(token).digest("hex");
+  }
+
+  hashOpaqueToken(token: string): string {
+    return createHash("sha256").update(token).digest("hex");
+  }
+}

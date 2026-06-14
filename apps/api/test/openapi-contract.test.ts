@@ -1,0 +1,98 @@
+import { rescueBaseOpenApiDocument } from "../src/openapi/document";
+
+describe("RescueBase OpenAPI contract", () => {
+  it("defines JSON schemas for generated frontend types", () => {
+    expect(Object.keys(rescueBaseOpenApiDocument.components?.schemas ?? {})).toEqual(
+      expect.arrayContaining([
+        "Article",
+        "CreateArticleRequest",
+        "CreateLocationRequest",
+        "CreateTemplateRequest",
+        "CreateBatchRequest",
+        "CreateKitRequest",
+        "UpdateArticleRequest",
+        "UpdateLocationRequest",
+        "ReviseTemplateRequest",
+        "UpdateKitRequest",
+        "BatchCorrectionRequest",
+        "InventoryMovement",
+        "CompleteCheckRequest",
+        "FulfillOrderRequest",
+        "ReplenishmentOrder"
+      ])
+    );
+  });
+
+  it("exposes complete admin master-data write operations", () => {
+    expect(rescueBaseOpenApiDocument.paths["/catalog/locations"]?.post).toMatchObject({
+      operationId: "CatalogController_createLocation",
+      requestBody: expect.any(Object)
+    });
+    expect(rescueBaseOpenApiDocument.paths["/catalog/templates"]?.post).toMatchObject({
+      operationId: "CatalogController_createTemplate",
+      requestBody: expect.any(Object)
+    });
+    expect(rescueBaseOpenApiDocument.paths["/catalog/articles/{id}"]?.patch).toMatchObject({
+      operationId: "CatalogController_updateArticle",
+      requestBody: expect.any(Object)
+    });
+    expect(rescueBaseOpenApiDocument.paths["/catalog/locations/{id}"]?.patch).toMatchObject({
+      operationId: "CatalogController_updateLocation",
+      requestBody: expect.any(Object)
+    });
+    expect(rescueBaseOpenApiDocument.paths["/catalog/templates/{id}/revise"]?.post).toMatchObject({
+      operationId: "CatalogController_reviseTemplate",
+      requestBody: expect.any(Object)
+    });
+    expect(rescueBaseOpenApiDocument.paths["/catalog/kits/{id}"]?.patch).toMatchObject({
+      operationId: "CatalogController_updateKit",
+      requestBody: expect.any(Object)
+    });
+  });
+
+  it("describes public QR check, replenishment fulfillment, and batch correction request bodies", () => {
+    expect(rescueBaseOpenApiDocument.paths["/public/kits/{token}/checks"]?.post).toMatchObject({
+      operationId: "PublicChecksController_completeCheck",
+      requestBody: expect.any(Object)
+    });
+    expect(rescueBaseOpenApiDocument.paths["/replenishment-orders/{id}/fulfill"]?.post).toMatchObject({
+      operationId: "ReplenishmentController_fulfill",
+      requestBody: expect.any(Object)
+    });
+    expect(rescueBaseOpenApiDocument.paths["/inventory/batches/{id}/corrections"]?.post).toMatchObject({
+      operationId: "InventoryController_correctBatch",
+      requestBody: expect.any(Object)
+    });
+    expect(rescueBaseOpenApiDocument.paths["/inventory/batches/{id}/movements"]?.get).toMatchObject({
+      operationId: "InventoryController_movements"
+    });
+  });
+
+  it("describes invitation, password reset, and both 2FA enrollment flows", () => {
+    expect(rescueBaseOpenApiDocument.paths["/auth/invitations/accept"]?.post).toMatchObject({
+      operationId: "AuthController_acceptInvitation",
+      requestBody: expect.any(Object)
+    });
+    expect(rescueBaseOpenApiDocument.paths["/auth/password-reset/confirm"]?.post).toMatchObject({
+      operationId: "AuthController_confirmPasswordReset",
+      requestBody: expect.any(Object)
+    });
+    expect(rescueBaseOpenApiDocument.paths["/auth/2fa/totp/enable"]?.post).toMatchObject({
+      operationId: "AuthController_enableTotp",
+      requestBody: expect.any(Object)
+    });
+    expect(rescueBaseOpenApiDocument.paths["/auth/2fa/email/enable"]?.post).toMatchObject({
+      operationId: "AuthController_enableEmailTwoFactor",
+      requestBody: expect.any(Object)
+    });
+  });
+
+  it("describes QR reports with selectable print format", () => {
+    expect(rescueBaseOpenApiDocument.paths["/reports/qr-label/{kitId}.pdf"]?.get).toMatchObject({
+      operationId: "ReportsController_qrLabel",
+      parameters: expect.arrayContaining([
+        expect.objectContaining({ name: "format", in: "query" })
+      ])
+    });
+  });
+});

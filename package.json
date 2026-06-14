@@ -1,0 +1,38 @@
+{
+  "name": "rescuebase",
+  "version": "0.1.0",
+  "private": true,
+  "description": "RescueBase MVP for Sanitätslager, Sanitätsrucksack checks and replenishment orders.",
+  "workspaces": [
+    "apps/api",
+    "apps/web",
+    "packages/domain"
+  ],
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "build": "npm run build -w @rescuebase/domain && npm run build -w @rescuebase/api && npm run build -w @rescuebase/web",
+    "test": "npm run test --workspaces --if-present",
+    "lint": "npm run lint --workspaces --if-present",
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "test:e2e": "playwright test",
+    "generate:openapi": "npm run generate:openapi -w @rescuebase/api",
+    "generate:api-client": "npm run generate:openapi && openapi-typescript apps/api/openapi.json -o apps/web/src/lib/generated-api.d.ts",
+    "dev:api": "npm run dev -w @rescuebase/api",
+    "dev:web": "npm run dev -w @rescuebase/web",
+    "admin:reset": "node scripts/reset-admin.mjs",
+    "prisma:generate": "npm run prisma:generate -w @rescuebase/api",
+    "prisma:deploy": "npm run prisma:deploy -w @rescuebase/api",
+    "prisma:seed": "npm run prisma:seed -w @rescuebase/api"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.1",
+    "@playwright/test": "^1.60.0",
+    "eslint": "^9.39.1",
+    "openapi-typescript": "^7.13.0",
+    "prettier": "^3.6.2",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.48.1"
+  }
+}

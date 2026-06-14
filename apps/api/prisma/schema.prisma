@@ -1,0 +1,280 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  ADMIN
+  WAREHOUSE
+}
+
+enum KitOperationalStatus {
+  READY
+  CONDITIONAL
+  NOT_READY
+}
+
+enum ReplenishmentStatus {
+  OPEN
+  IN_PROGRESS
+  DONE
+  CANCELLED
+}
+
+enum AuditActorType {
+  SYSTEM
+  USER
+  PUBLIC_CHECKER
+}
+
+enum TwoFactorMethod {
+  TOTP
+  EMAIL
+}
+
+model User {
+  id               String   @id @default(cuid())
+  email            String   @unique
+  displayName      String
+  passwordHash     String?
+  role             UserRole
+  twoFactorSecret  String?
+  twoFactorEnabled Boolean  @default(false)
+  twoFactorMethod  TwoFactorMethod?
+  active           Boolean  @default(true)
+  sessions         UserSession[]
+  invitations      UserInvitation[]
+  passwordResets   PasswordResetToken[]
+  emailChallenges  EmailTwoFactorChallenge[]
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+}
+
+model UserSession {
+  id        String   @id @default(cuid())
+  userId    String
+  tokenHash String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@index([expiresAt])
+}
+
+model UserInvitation {
+  id         String   @id @default(cuid())
+  userId      String
+  tokenHash   String   @unique
+  expiresAt   DateTime
+  acceptedAt  DateTime?
+  createdAt   DateTime @default(now())
+  user        User     @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@index([expiresAt])
+}
+
+model PasswordResetToken {
+  id         String   @id @default(cuid())
+  userId      String
+  tokenHash   String   @unique
+  expiresAt   DateTime
+  consumedAt  DateTime?
+  createdAt   DateTime @default(now())
+  user        User     @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@index([expiresAt])
+}
+
+model EmailTwoFactorChallenge {
+  id         String   @id @default(cuid())
+  userId      String
+  codeHash    String
+  expiresAt   DateTime
+  consumedAt  DateTime?
+  createdAt   DateTime @default(now())
+  user        User     @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@index([expiresAt])
+}
+
+model Location {
+  id        String   @id @default(cuid())
+  name      String
+  kind      String
+  batches   Batch[]
+  kits      Kit[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Article {
+  id              String             @id @default(cuid())
+  name            String
+  unit            String
+  barcode         String?
+  criticalDefault Boolean            @default(false)
+  batches         Batch[]
+  templateItems   TemplatePosition[]
+  createdAt       DateTime           @default(now())
+  updatedAt       DateTime           @updatedAt
+}
+
+model Batch {
+  id         String   @id @default(cuid())
+  articleId  String
+  locationId String
+  lotNumber  String
+  expiresAt  DateTime
+  quantity   Int
+  article    Article  @relation(fields: [articleId], references: [id])
+  location   Location @relation(fields: [locationId], references: [id])
+  movements  InventoryMovement[]
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([articleId, expiresAt])
+  @@index([locationId])
+}
+
+model KitTemplate {
+  id        String             @id @default(cuid())
+  name      String
+  version   Int
+  positions TemplatePosition[]
+  kits      Kit[]
+  createdAt DateTime           @default(now())
+  updatedAt DateTime           @updatedAt
+
+  @@unique([name, version])
+}
+
+model TemplatePosition {
+  id               String      @id @default(cuid())
+  templateId       String
+  articleId        String
+  moduleName       String?
+  requiredQuantity Int
+  critical         Boolean     @default(false)
+  template         KitTemplate @relation(fields: [templateId], references: [id])
+  article          Article     @relation(fields: [articleId], references: [id])
+}
+
+model Kit {
+  id             String               @id @default(cuid())
+  name           String
+  code           String               @unique
+  locationId     String
+  templateId     String
+  status         KitOperationalStatus @default(READY)
+  publicToken    String               @unique
+  tokenRotatedAt DateTime             @default(now())
+  location       Location             @relation(fields: [locationId], references: [id])
+  template       KitTemplate          @relation(fields: [templateId], references: [id])
+  checks         Check[]
+  orders         ReplenishmentOrder[]
+  createdAt      DateTime             @default(now())
+  updatedAt      DateTime             @updatedAt
+}
+
+model Check {
+  id                  String               @id @default(cuid())
+  kitId               String
+  checkerName         String
+  selectedStatus      KitOperationalStatus
+  effectiveStatus     KitOperationalStatus
+  statusReason        String?
+  warningsJson        Json
+  signaturePngDataUrl String               @db.LongText
+  signatureHash       String
+  kit                 Kit                  @relation(fields: [kitId], references: [id])
+  positions           CheckPosition[]
+  order               ReplenishmentOrder?
+  createdAt           DateTime             @default(now())
+}
+
+model CheckPosition {
+  id                       String @id @default(cuid())
+  checkId                  String
+  templatePositionId       String
+  articleId                String
+  articleName              String
+  moduleName               String?
+  unit                     String
+  requiredQuantity         Int
+  countedQuantity          Int
+  discardedExpiredQuantity Int
+  missingQuantity          Int
+  surplusQuantity          Int
+  critical                 Boolean
+  note                     String?
+  check                    Check  @relation(fields: [checkId], references: [id])
+
+  @@index([checkId])
+}
+
+model ReplenishmentOrder {
+  id        String                @id @default(cuid())
+  kitId     String
+  checkId   String                @unique
+  status    ReplenishmentStatus   @default(OPEN)
+  kit       Kit                   @relation(fields: [kitId], references: [id])
+  check     Check                 @relation(fields: [checkId], references: [id])
+  items     ReplenishmentItem[]
+  createdAt DateTime              @default(now())
+  updatedAt DateTime              @updatedAt
+}
+
+model ReplenishmentItem {
+  id                   String             @id @default(cuid())
+  orderId              String
+  articleId            String
+  articleName          String
+  templatePositionId   String
+  requestedQuantity    Int
+  fulfilledQuantity    Int                @default(0)
+  reason               String
+  unit                 String
+  critical             Boolean            @default(false)
+  order                ReplenishmentOrder @relation(fields: [orderId], references: [id])
+}
+
+model InventoryMovement {
+  id                   String   @id @default(cuid())
+  batchId              String
+  articleId            String
+  locationId           String
+  replenishmentOrderId String?
+  templatePositionId   String?
+  type                 String
+  quantity             Int
+  actorLabel           String
+  reason               String?
+  metadata             Json?
+  createdAt            DateTime @default(now())
+  batch                Batch    @relation(fields: [batchId], references: [id])
+
+  @@index([batchId])
+  @@index([replenishmentOrderId])
+}
+
+model AuditEvent {
+  id         String         @id @default(cuid())
+  actorType  AuditActorType
+  actorLabel String
+  action     String
+  entityType String
+  entityId   String
+  payload    Json
+  createdAt  DateTime       @default(now())
+
+  @@index([entityType, entityId])
+  @@index([createdAt])
+}

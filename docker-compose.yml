@@ -1,0 +1,70 @@
+services:
+  mariadb:
+    image: mariadb:11.4
+    restart: unless-stopped
+    ports:
+      - "3306:3306"
+    environment:
+      MARIADB_DATABASE: rescuebase
+      MARIADB_USER: rescuebase
+      MARIADB_PASSWORD: rescuebase
+      MARIADB_ROOT_PASSWORD: rescuebase-root
+    volumes:
+      - mariadb-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  api:
+    build:
+      context: .
+      dockerfile: infra/docker/api.Dockerfile
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      API_PORT: 3000
+      DATABASE_URL: mysql://rescuebase:rescuebase@mariadb:3306/rescuebase
+      APP_PUBLIC_URL: ${APP_PUBLIC_URL:-http://localhost}
+      JWT_SECRET: ${JWT_SECRET:-change-me}
+      MAIL_PROVIDER: ${MAIL_PROVIDER:-console}
+      MAIL_FROM: ${MAIL_FROM:-RescueBase <noreply@example.org>}
+      SMTP_HOST: ${SMTP_HOST:-}
+      SMTP_PORT: ${SMTP_PORT:-587}
+      SMTP_SECURE: ${SMTP_SECURE:-false}
+      SMTP_USER: ${SMTP_USER:-}
+      SMTP_PASSWORD: ${SMTP_PASSWORD:-}
+      RESCUEBASE_SEED_DEV_DATA: ${RESCUEBASE_SEED_DEV_DATA:-false}
+    depends_on:
+      mariadb:
+        condition: service_healthy
+
+  web:
+    build:
+      context: .
+      dockerfile: infra/docker/web.Dockerfile
+    restart: unless-stopped
+    depends_on:
+      - api
+
+  caddy:
+    image: caddy:2.10
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      APP_DOMAIN: ${APP_DOMAIN:-localhost}
+    volumes:
+      - ./infra/caddy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+      - caddy-config:/config
+    depends_on:
+      - api
+      - web
+
+volumes:
+  mariadb-data:
+  caddy-data:
+  caddy-config:
