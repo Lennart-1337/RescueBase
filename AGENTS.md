@@ -5,3 +5,4 @@
 5. Use "Umlaute" like ö,ä,ü,ß when you need them
 6. Nutze Sub Agents wenn es Sinn macht
 7. Use a maintainable file structure when you touch a file wish isnt maintanable split it in a good folderstructure wish follows best practices.
+8. Stick to english file and variable naming
