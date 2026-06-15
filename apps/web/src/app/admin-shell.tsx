@@ -30,27 +30,27 @@ export function AdminShell({ children, user }: { children: ReactNode; user: Auth
             <ClipboardList />
             Aufträge
           </Link>
-          <Link to="/admin/rucksaecke" activeProps={{ className: "active" }}>
+          <Link to="/admin/kits" activeProps={{ className: "active" }}>
             <PackageCheck />
             Rucksäcke
           </Link>
-          <Link to="/admin/lager" activeProps={{ className: "active" }}>
+          <Link to="/admin/inventory" activeProps={{ className: "active" }}>
             <Archive />
             Lager
           </Link>
           {user.role === "ADMIN" ? (
-            <Link to="/admin/stammdaten" activeProps={{ className: "active" }}>
+            <Link to="/admin/master-data" activeProps={{ className: "active" }}>
               <Settings />
               Stammdaten
             </Link>
           ) : null}
           {user.role === "ADMIN" ? (
-            <Link to="/admin/benutzer" activeProps={{ className: "active" }}>
+            <Link to="/admin/users" activeProps={{ className: "active" }}>
               <Users />
               Benutzer
             </Link>
           ) : null}
-          <Link to="/admin/konto" activeProps={{ className: "active" }}>
+          <Link to="/admin/account" activeProps={{ className: "active" }}>
             <ShieldCheck />
             Sicherheit
           </Link>

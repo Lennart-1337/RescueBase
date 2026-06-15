@@ -1,56 +1,25 @@
-import { Test } from "@nestjs/testing";
 import type { INestApplication } from "@nestjs/common";
-import { execFileSync } from "node:child_process";
 import { jest } from "@jest/globals";
-import cookieParser from "cookie-parser";
 import request from "supertest";
-import { AppModule } from "../src/modules/app.module.js";
-import { createMysqlTestEnvironment } from "./mysql-test-environment.js";
+import { bootstrapTestApp } from "./bootstrap-test-app.js";
 
 jest.setTimeout(30_000);
 
 describe("public check flow", () => {
   let app: INestApplication;
-  let database: Awaited<ReturnType<typeof createMysqlTestEnvironment>> | undefined;
-  let testcontainersUnavailable: string | undefined;
+  let closeApp: (() => Promise<void>) | undefined;
 
   beforeAll(async () => {
-    try {
-      database = await createMysqlTestEnvironment("rescuebase_test");
-    } catch (error) {
-      testcontainersUnavailable = error instanceof Error ? error.message : "Container runtime unavailable.";
-      if (process.env.REQUIRE_TESTCONTAINERS === "true") {
-        throw error;
-      }
-      return;
-    }
-    process.env.DATABASE_URL = database.databaseUrl;
-    execFileSync("npx", ["prisma", "migrate", "deploy"], {
-      cwd: process.cwd(),
-      env: { ...process.env, DATABASE_URL: process.env.DATABASE_URL },
-      stdio: "inherit"
-    });
-    execFileSync("npm", ["run", "prisma:seed:dev"], {
-      cwd: process.cwd(),
-      env: { ...process.env, DATABASE_URL: process.env.DATABASE_URL },
-      stdio: "inherit"
-    });
-
-    const moduleRef = await Test.createTestingModule({ imports: [AppModule] }).compile();
-    app = moduleRef.createNestApplication();
-    app.use(cookieParser());
-    await app.init();
+    const harness = await bootstrapTestApp({ databaseName: "rescuebase_test" });
+    app = harness.app;
+    closeApp = harness.close;
   });
 
   afterAll(async () => {
-    await app?.close();
-    await database?.stop();
+    await closeApp?.();
   });
 
   it("creates a replenishment order, books a partial batch fulfillment and exposes audit plus reports", async () => {
-    if (skipWhenContainerRuntimeIsUnavailable(testcontainersUnavailable)) {
-      return;
-    }
     const server = app.getHttpServer();
     const agent = request.agent(server);
     await agent
@@ -117,9 +86,6 @@ describe("public check flow", () => {
   });
 
   it("rejects overbooking a charge", async () => {
-    if (skipWhenContainerRuntimeIsUnavailable(testcontainersUnavailable)) {
-      return;
-    }
     const server = app.getHttpServer();
     const agent = request.agent(server);
     await agent
@@ -135,9 +101,6 @@ describe("public check flow", () => {
   });
 
   it("updates master data, revises templates, corrects batches, and renders both QR PDF formats", async () => {
-    if (skipWhenContainerRuntimeIsUnavailable(testcontainersUnavailable)) {
-      return;
-    }
     const server = app.getHttpServer();
     const agent = request.agent(server);
     await agent
@@ -215,11 +178,3 @@ describe("public check flow", () => {
       .expect(200);
   });
 });
-
-function skipWhenContainerRuntimeIsUnavailable(reason: string | undefined): boolean {
-  if (!reason) {
-    return false;
-  }
-  console.warn(`Skipping MariaDB integration test: ${reason}`);
-  return true;
-}

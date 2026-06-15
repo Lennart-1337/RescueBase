@@ -1,60 +1,30 @@
-import { Test } from "@nestjs/testing";
 import type { INestApplication } from "@nestjs/common";
-import { execFileSync } from "node:child_process";
 import { jest } from "@jest/globals";
-import cookieParser from "cookie-parser";
 import { authenticator } from "otplib";
 import request from "supertest";
-import { AppModule } from "../src/modules/app.module.js";
-import { createMysqlTestEnvironment } from "./mysql-test-environment.js";
+import { bootstrapTestApp } from "./bootstrap-test-app.js";
 
 jest.setTimeout(30_000);
 
 describe("auth lifecycle", () => {
   let app: INestApplication;
-  let database: Awaited<ReturnType<typeof createMysqlTestEnvironment>> | undefined;
-  let testcontainersUnavailable: string | undefined;
+  let closeApp: (() => Promise<void>) | undefined;
 
   beforeAll(async () => {
-    process.env.MAIL_PROVIDER = "console";
-    process.env.APP_PUBLIC_URL = "http://localhost:5173";
-    try {
-      database = await createMysqlTestEnvironment("rescuebase_auth_test");
-    } catch (error) {
-      testcontainersUnavailable = error instanceof Error ? error.message : "Container runtime unavailable.";
-      if (process.env.REQUIRE_TESTCONTAINERS === "true") {
-        throw error;
-      }
-      return;
-    }
-    process.env.DATABASE_URL = database.databaseUrl;
-    execFileSync("npx", ["prisma", "migrate", "deploy"], {
-      cwd: process.cwd(),
-      env: { ...process.env, DATABASE_URL: process.env.DATABASE_URL },
-      stdio: "inherit"
+    const harness = await bootstrapTestApp({
+      appPublicUrl: "http://localhost:5173",
+      databaseName: "rescuebase_auth_test",
+      mailProvider: "console"
     });
-    execFileSync("npm", ["run", "prisma:seed:dev"], {
-      cwd: process.cwd(),
-      env: { ...process.env, DATABASE_URL: process.env.DATABASE_URL },
-      stdio: "inherit"
-    });
-
-    const moduleRef = await Test.createTestingModule({ imports: [AppModule] }).compile();
-    app = moduleRef.createNestApplication();
-    app.use(cookieParser());
-    await app.init();
+    app = harness.app;
+    closeApp = harness.close;
   });
 
   afterAll(async () => {
-    await app?.close();
-    await database?.stop();
+    await closeApp?.();
   });
 
   it("invites, activates, resets password, and handles both email and TOTP 2FA", async () => {
-    if (skipWhenContainerRuntimeIsUnavailable(testcontainersUnavailable)) {
-      return;
-    }
-
     const server = app.getHttpServer();
     const admin = request.agent(server);
     await admin.post("/auth/login").send({ email: "admin@rescuebase.local", password: "rescuebase-admin" }).expect(201);
@@ -135,11 +105,3 @@ describe("auth lifecycle", () => {
     }).expect(201);
   });
 });
-
-function skipWhenContainerRuntimeIsUnavailable(reason: string | undefined): boolean {
-  if (!reason) {
-    return false;
-  }
-  console.warn(`Skipping MariaDB integration test: ${reason}`);
-  return true;
-}

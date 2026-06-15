@@ -9,36 +9,35 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as PasswortVergessenRouteImport } from './routes/passwort-vergessen'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as PasswortZuruecksetzenTokenRouteImport } from './routes/passwort-zuruecksetzen/$token'
-import { Route as EinladungTokenRouteImport } from './routes/einladung/$token'
+import { Route as PasswordResetIndexRouteImport } from './routes/password-reset/index'
+import { Route as PasswordResetTokenRouteImport } from './routes/password-reset/$token'
+import { Route as InvitationTokenRouteImport } from './routes/invitation/$token'
 import { Route as CheckTokenRouteImport } from './routes/check/$token'
-import { Route as AdminStammdatenRouteImport } from './routes/admin/stammdaten'
-import { Route as AdminRucksaeckeRouteImport } from './routes/admin/rucksaecke'
-import { Route as AdminLagerRouteImport } from './routes/admin/lager'
-import { Route as AdminKontoRouteImport } from './routes/admin/konto'
-import { Route as AdminBenutzerRouteImport } from './routes/admin/benutzer'
+import { Route as AdminUsersRouteImport } from './routes/admin/users'
+import { Route as AdminMasterDataRouteImport } from './routes/admin/master-data'
+import { Route as AdminKitsRouteImport } from './routes/admin/kits'
+import { Route as AdminInventoryRouteImport } from './routes/admin/inventory'
+import { Route as AdminAccountRouteImport } from './routes/admin/account'
 
-const PasswortVergessenRoute = PasswortVergessenRouteImport.update({
-  id: '/passwort-vergessen',
-  path: '/passwort-vergessen',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const PasswortZuruecksetzenTokenRoute =
-  PasswortZuruecksetzenTokenRouteImport.update({
-    id: '/passwort-zuruecksetzen/$token',
-    path: '/passwort-zuruecksetzen/$token',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const EinladungTokenRoute = EinladungTokenRouteImport.update({
-  id: '/einladung/$token',
-  path: '/einladung/$token',
+const PasswordResetIndexRoute = PasswordResetIndexRouteImport.update({
+  id: '/password-reset/',
+  path: '/password-reset/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PasswordResetTokenRoute = PasswordResetTokenRouteImport.update({
+  id: '/password-reset/$token',
+  path: '/password-reset/$token',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const InvitationTokenRoute = InvitationTokenRouteImport.update({
+  id: '/invitation/$token',
+  path: '/invitation/$token',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CheckTokenRoute = CheckTokenRouteImport.update({
@@ -46,130 +45,123 @@ const CheckTokenRoute = CheckTokenRouteImport.update({
   path: '/check/$token',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AdminStammdatenRoute = AdminStammdatenRouteImport.update({
-  id: '/admin/stammdaten',
-  path: '/admin/stammdaten',
+const AdminUsersRoute = AdminUsersRouteImport.update({
+  id: '/admin/users',
+  path: '/admin/users',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AdminRucksaeckeRoute = AdminRucksaeckeRouteImport.update({
-  id: '/admin/rucksaecke',
-  path: '/admin/rucksaecke',
+const AdminMasterDataRoute = AdminMasterDataRouteImport.update({
+  id: '/admin/master-data',
+  path: '/admin/master-data',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AdminLagerRoute = AdminLagerRouteImport.update({
-  id: '/admin/lager',
-  path: '/admin/lager',
+const AdminKitsRoute = AdminKitsRouteImport.update({
+  id: '/admin/kits',
+  path: '/admin/kits',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AdminKontoRoute = AdminKontoRouteImport.update({
-  id: '/admin/konto',
-  path: '/admin/konto',
+const AdminInventoryRoute = AdminInventoryRouteImport.update({
+  id: '/admin/inventory',
+  path: '/admin/inventory',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AdminBenutzerRoute = AdminBenutzerRouteImport.update({
-  id: '/admin/benutzer',
-  path: '/admin/benutzer',
+const AdminAccountRoute = AdminAccountRouteImport.update({
+  id: '/admin/account',
+  path: '/admin/account',
   getParentRoute: () => rootRouteImport,
 } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/passwort-vergessen': typeof PasswortVergessenRoute
-  '/admin/benutzer': typeof AdminBenutzerRoute
-  '/admin/konto': typeof AdminKontoRoute
-  '/admin/lager': typeof AdminLagerRoute
-  '/admin/rucksaecke': typeof AdminRucksaeckeRoute
-  '/admin/stammdaten': typeof AdminStammdatenRoute
+  '/admin/account': typeof AdminAccountRoute
+  '/admin/inventory': typeof AdminInventoryRoute
+  '/admin/kits': typeof AdminKitsRoute
+  '/admin/master-data': typeof AdminMasterDataRoute
+  '/admin/users': typeof AdminUsersRoute
   '/check/$token': typeof CheckTokenRoute
-  '/einladung/$token': typeof EinladungTokenRoute
-  '/passwort-zuruecksetzen/$token': typeof PasswortZuruecksetzenTokenRoute
+  '/invitation/$token': typeof InvitationTokenRoute
+  '/password-reset/$token': typeof PasswordResetTokenRoute
+  '/password-reset/': typeof PasswordResetIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/passwort-vergessen': typeof PasswortVergessenRoute
-  '/admin/benutzer': typeof AdminBenutzerRoute
-  '/admin/konto': typeof AdminKontoRoute
-  '/admin/lager': typeof AdminLagerRoute
-  '/admin/rucksaecke': typeof AdminRucksaeckeRoute
-  '/admin/stammdaten': typeof AdminStammdatenRoute
+  '/admin/account': typeof AdminAccountRoute
+  '/admin/inventory': typeof AdminInventoryRoute
+  '/admin/kits': typeof AdminKitsRoute
+  '/admin/master-data': typeof AdminMasterDataRoute
+  '/admin/users': typeof AdminUsersRoute
   '/check/$token': typeof CheckTokenRoute
-  '/einladung/$token': typeof EinladungTokenRoute
-  '/passwort-zuruecksetzen/$token': typeof PasswortZuruecksetzenTokenRoute
+  '/invitation/$token': typeof InvitationTokenRoute
+  '/password-reset/$token': typeof PasswordResetTokenRoute
+  '/password-reset': typeof PasswordResetIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/passwort-vergessen': typeof PasswortVergessenRoute
-  '/admin/benutzer': typeof AdminBenutzerRoute
-  '/admin/konto': typeof AdminKontoRoute
-  '/admin/lager': typeof AdminLagerRoute
-  '/admin/rucksaecke': typeof AdminRucksaeckeRoute
-  '/admin/stammdaten': typeof AdminStammdatenRoute
+  '/admin/account': typeof AdminAccountRoute
+  '/admin/inventory': typeof AdminInventoryRoute
+  '/admin/kits': typeof AdminKitsRoute
+  '/admin/master-data': typeof AdminMasterDataRoute
+  '/admin/users': typeof AdminUsersRoute
   '/check/$token': typeof CheckTokenRoute
-  '/einladung/$token': typeof EinladungTokenRoute
-  '/passwort-zuruecksetzen/$token': typeof PasswortZuruecksetzenTokenRoute
+  '/invitation/$token': typeof InvitationTokenRoute
+  '/password-reset/$token': typeof PasswordResetTokenRoute
+  '/password-reset/': typeof PasswordResetIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
-    | '/passwort-vergessen'
-    | '/admin/benutzer'
-    | '/admin/konto'
-    | '/admin/lager'
-    | '/admin/rucksaecke'
-    | '/admin/stammdaten'
+    | '/admin/account'
+    | '/admin/inventory'
+    | '/admin/kits'
+    | '/admin/master-data'
+    | '/admin/users'
     | '/check/$token'
-    | '/einladung/$token'
-    | '/passwort-zuruecksetzen/$token'
+    | '/invitation/$token'
+    | '/password-reset/$token'
+    | '/password-reset/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
-    | '/passwort-vergessen'
-    | '/admin/benutzer'
-    | '/admin/konto'
-    | '/admin/lager'
-    | '/admin/rucksaecke'
-    | '/admin/stammdaten'
+    | '/admin/account'
+    | '/admin/inventory'
+    | '/admin/kits'
+    | '/admin/master-data'
+    | '/admin/users'
     | '/check/$token'
-    | '/einladung/$token'
-    | '/passwort-zuruecksetzen/$token'
+    | '/invitation/$token'
+    | '/password-reset/$token'
+    | '/password-reset'
   id:
     | '__root__'
     | '/'
-    | '/passwort-vergessen'
-    | '/admin/benutzer'
-    | '/admin/konto'
-    | '/admin/lager'
-    | '/admin/rucksaecke'
-    | '/admin/stammdaten'
+    | '/admin/account'
+    | '/admin/inventory'
+    | '/admin/kits'
+    | '/admin/master-data'
+    | '/admin/users'
     | '/check/$token'
-    | '/einladung/$token'
-    | '/passwort-zuruecksetzen/$token'
+    | '/invitation/$token'
+    | '/password-reset/$token'
+    | '/password-reset/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  PasswortVergessenRoute: typeof PasswortVergessenRoute
-  AdminBenutzerRoute: typeof AdminBenutzerRoute
-  AdminKontoRoute: typeof AdminKontoRoute
-  AdminLagerRoute: typeof AdminLagerRoute
-  AdminRucksaeckeRoute: typeof AdminRucksaeckeRoute
-  AdminStammdatenRoute: typeof AdminStammdatenRoute
+  AdminAccountRoute: typeof AdminAccountRoute
+  AdminInventoryRoute: typeof AdminInventoryRoute
+  AdminKitsRoute: typeof AdminKitsRoute
+  AdminMasterDataRoute: typeof AdminMasterDataRoute
+  AdminUsersRoute: typeof AdminUsersRoute
   CheckTokenRoute: typeof CheckTokenRoute
-  EinladungTokenRoute: typeof EinladungTokenRoute
-  PasswortZuruecksetzenTokenRoute: typeof PasswortZuruecksetzenTokenRoute
+  InvitationTokenRoute: typeof InvitationTokenRoute
+  PasswordResetTokenRoute: typeof PasswordResetTokenRoute
+  PasswordResetIndexRoute: typeof PasswordResetIndexRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/passwort-vergessen': {
-      id: '/passwort-vergessen'
-      path: '/passwort-vergessen'
-      fullPath: '/passwort-vergessen'
-      preLoaderRoute: typeof PasswortVergessenRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/': {
       id: '/'
       path: '/'
@@ -177,18 +169,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/passwort-zuruecksetzen/$token': {
-      id: '/passwort-zuruecksetzen/$token'
-      path: '/passwort-zuruecksetzen/$token'
-      fullPath: '/passwort-zuruecksetzen/$token'
-      preLoaderRoute: typeof PasswortZuruecksetzenTokenRouteImport
+    '/password-reset/': {
+      id: '/password-reset/'
+      path: '/password-reset'
+      fullPath: '/password-reset/'
+      preLoaderRoute: typeof PasswordResetIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/einladung/$token': {
-      id: '/einladung/$token'
-      path: '/einladung/$token'
-      fullPath: '/einladung/$token'
-      preLoaderRoute: typeof EinladungTokenRouteImport
+    '/password-reset/$token': {
+      id: '/password-reset/$token'
+      path: '/password-reset/$token'
+      fullPath: '/password-reset/$token'
+      preLoaderRoute: typeof PasswordResetTokenRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/invitation/$token': {
+      id: '/invitation/$token'
+      path: '/invitation/$token'
+      fullPath: '/invitation/$token'
+      preLoaderRoute: typeof InvitationTokenRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/check/$token': {
@@ -198,39 +197,39 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CheckTokenRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/admin/stammdaten': {
-      id: '/admin/stammdaten'
-      path: '/admin/stammdaten'
-      fullPath: '/admin/stammdaten'
-      preLoaderRoute: typeof AdminStammdatenRouteImport
+    '/admin/users': {
+      id: '/admin/users'
+      path: '/admin/users'
+      fullPath: '/admin/users'
+      preLoaderRoute: typeof AdminUsersRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/admin/rucksaecke': {
-      id: '/admin/rucksaecke'
-      path: '/admin/rucksaecke'
-      fullPath: '/admin/rucksaecke'
-      preLoaderRoute: typeof AdminRucksaeckeRouteImport
+    '/admin/master-data': {
+      id: '/admin/master-data'
+      path: '/admin/master-data'
+      fullPath: '/admin/master-data'
+      preLoaderRoute: typeof AdminMasterDataRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/admin/lager': {
-      id: '/admin/lager'
-      path: '/admin/lager'
-      fullPath: '/admin/lager'
-      preLoaderRoute: typeof AdminLagerRouteImport
+    '/admin/kits': {
+      id: '/admin/kits'
+      path: '/admin/kits'
+      fullPath: '/admin/kits'
+      preLoaderRoute: typeof AdminKitsRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/admin/konto': {
-      id: '/admin/konto'
-      path: '/admin/konto'
-      fullPath: '/admin/konto'
-      preLoaderRoute: typeof AdminKontoRouteImport
+    '/admin/inventory': {
+      id: '/admin/inventory'
+      path: '/admin/inventory'
+      fullPath: '/admin/inventory'
+      preLoaderRoute: typeof AdminInventoryRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/admin/benutzer': {
-      id: '/admin/benutzer'
-      path: '/admin/benutzer'
-      fullPath: '/admin/benutzer'
-      preLoaderRoute: typeof AdminBenutzerRouteImport
+    '/admin/account': {
+      id: '/admin/account'
+      path: '/admin/account'
+      fullPath: '/admin/account'
+      preLoaderRoute: typeof AdminAccountRouteImport
       parentRoute: typeof rootRouteImport
     }
   }
@@ -238,15 +237,15 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  PasswortVergessenRoute: PasswortVergessenRoute,
-  AdminBenutzerRoute: AdminBenutzerRoute,
-  AdminKontoRoute: AdminKontoRoute,
-  AdminLagerRoute: AdminLagerRoute,
-  AdminRucksaeckeRoute: AdminRucksaeckeRoute,
-  AdminStammdatenRoute: AdminStammdatenRoute,
+  AdminAccountRoute: AdminAccountRoute,
+  AdminInventoryRoute: AdminInventoryRoute,
+  AdminKitsRoute: AdminKitsRoute,
+  AdminMasterDataRoute: AdminMasterDataRoute,
+  AdminUsersRoute: AdminUsersRoute,
   CheckTokenRoute: CheckTokenRoute,
-  EinladungTokenRoute: EinladungTokenRoute,
-  PasswortZuruecksetzenTokenRoute: PasswortZuruecksetzenTokenRoute,
+  InvitationTokenRoute: InvitationTokenRoute,
+  PasswordResetTokenRoute: PasswordResetTokenRoute,
+  PasswordResetIndexRoute: PasswordResetIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

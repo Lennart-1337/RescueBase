@@ -205,7 +205,7 @@ export class AuthController {
     }
 
     const reset = await this.auth.createPasswordResetToken(user.id);
-    const resetUrl = `${process.env.APP_PUBLIC_URL ?? "http://localhost:5173"}/passwort-zuruecksetzen/${reset.token}`;
+    const resetUrl = `${process.env.APP_PUBLIC_URL ?? "http://localhost:5173"}/password-reset/${reset.token}`;
     const delivery = await this.mail.sendPasswordReset(user.email, resetUrl);
     await this.audit.record({
       actorType: "SYSTEM",
@@ -393,7 +393,7 @@ export class AuthController {
       }
     });
     const invitation = await this.auth.createInvitation(user.id);
-    const invitationUrl = `${process.env.APP_PUBLIC_URL ?? "http://localhost:5173"}/einladung/${invitation.token}`;
+    const invitationUrl = `${process.env.APP_PUBLIC_URL ?? "http://localhost:5173"}/invitation/${invitation.token}`;
     const delivery = await this.mail.sendInvitation(user.email, invitationUrl);
     await this.audit.record({
       actorType: "USER",
