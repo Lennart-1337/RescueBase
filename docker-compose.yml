@@ -28,13 +28,8 @@ services:
       DATABASE_URL: mysql://${MARIADB_USER:-rescuebase}:${MARIADB_PASSWORD:-rescuebase}@mariadb:3306/${MARIADB_DATABASE:-rescuebase}
       APP_PUBLIC_URL: ${APP_PUBLIC_URL:-http://localhost}
       JWT_SECRET: ${JWT_SECRET:-change-me}
-      MAIL_PROVIDER: ${MAIL_PROVIDER:-console}
-      MAIL_FROM: ${MAIL_FROM:-RescueBase <noreply@example.org>}
-      SMTP_HOST: ${SMTP_HOST:-}
-      SMTP_PORT: ${SMTP_PORT:-587}
-      SMTP_SECURE: ${SMTP_SECURE:-false}
-      SMTP_USER: ${SMTP_USER:-}
-      SMTP_PASSWORD: ${SMTP_PASSWORD:-}
+      RESEND_API_KEY: ${RESEND_API_KEY:-}
+      RESEND_FROM: ${RESEND_FROM:-RescueBase <noreply@example.org>}
       RESCUEBASE_SEED_DEV_DATA: ${RESCUEBASE_SEED_DEV_DATA:-false}
     depends_on:
       mariadb:

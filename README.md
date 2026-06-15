@@ -68,7 +68,7 @@ types, so path, request-body and response drift is caught by TypeScript. CI runs
 
 ## Production Notes
 
-Use `.env.example` as the baseline. Production deployments should set a strong `JWT_SECRET`, switch `MAIL_PROVIDER=smtp`, configure the `SMTP_*` variables, and enable encrypted backups.
+Use `.env.example` as the baseline. Production deployments should set a strong `JWT_SECRET`, configure `RESEND_API_KEY` plus `RESEND_FROM`, and enable encrypted backups.
 
 ## Staging on Windows Server 2025
 

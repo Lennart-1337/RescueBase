@@ -7,11 +7,11 @@ import { createMysqlTestEnvironment } from "./mysql-test-environment.js";
 type BootstrapOptions = {
   appPublicUrl?: string;
   databaseName: string;
-  mailProvider?: string;
 };
 
 export async function bootstrapTestApp(options: BootstrapOptions) {
-  process.env.MAIL_PROVIDER = options.mailProvider ?? process.env.MAIL_PROVIDER ?? "console";
+  delete process.env.RESEND_API_KEY;
+  process.env.RESEND_FROM = process.env.RESEND_FROM ?? "RescueBase Test <noreply@example.org>";
   process.env.APP_PUBLIC_URL = options.appPublicUrl ?? process.env.APP_PUBLIC_URL ?? "http://localhost:5173";
 
   const database = await createMysqlTestEnvironment(options.databaseName);

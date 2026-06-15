@@ -13,8 +13,7 @@ describe("auth lifecycle", () => {
   beforeAll(async () => {
     const harness = await bootstrapTestApp({
       appPublicUrl: "http://localhost:5173",
-      databaseName: "rescuebase_auth_test",
-      mailProvider: "console"
+      databaseName: "rescuebase_auth_test"
     });
     app = harness.app;
     closeApp = harness.close;
