@@ -3,6 +3,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ErrorPanel, LoadingPanel } from "../components/state-panels";
 import { rescueBaseApi } from "../lib/api";
 import { toError } from "../app/formatters";
+import type { Kit } from "../lib/types";
 import { KitFormPanel } from "./kits/kit-form-panel";
 import { KitListPanel } from "./kits/kit-list-panel";
 
@@ -18,7 +19,15 @@ export function KitsPage() {
   const templates = useQuery({ queryKey: ["templates"], queryFn: rescueBaseApi.templates });
   const createMutation = useMutation({ mutationFn: rescueBaseApi.createKit, onSuccess: async () => queryClient.invalidateQueries({ queryKey: ["kits"] }) });
   const updateMutation = useMutation({ mutationFn: ({ body, id }: { body: { name: string; code: string; locationId: string; templateId: string }; id: string }) => rescueBaseApi.updateKit(id, body), onSuccess: async () => queryClient.invalidateQueries({ queryKey: ["kits"] }) });
-  const rotateMutation = useMutation({ mutationFn: rescueBaseApi.rotateKitToken, onSuccess: async () => queryClient.invalidateQueries({ queryKey: ["kits"] }) });
+  const rotateMutation = useMutation({
+    mutationFn: rescueBaseApi.rotateKitToken,
+    onSuccess: async (rotatedKit) => {
+      queryClient.setQueryData<Kit[] | undefined>(["kits"], (current) =>
+        current?.map((kit) => (kit.id === rotatedKit.id ? rotatedKit : kit)) ?? current
+      );
+      await queryClient.invalidateQueries({ queryKey: ["kits"] });
+    }
+  });
 
   function resetForm() {
     setEditingId(null);

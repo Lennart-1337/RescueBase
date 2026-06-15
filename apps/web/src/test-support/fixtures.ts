@@ -2,8 +2,11 @@ export const kit = {
   id: "kit-rucksack-1",
   name: "Rucksack Fahrzeug 1",
   code: "SAN-RS-001",
+  locationId: "loc-rtw-1",
+  templateId: "template-san-a-v1",
   status: "READY",
   publicToken: "SAN-RS-001-ZUGANG-2026",
+  tokenRotatedAt: "2026-06-11T00:00:00.000Z",
   location: { id: "loc-rtw-1", name: "Fahrzeug 1" },
   template: { id: "template-san-a-v1", name: "Sanitätsrucksack A", version: 1, positions: [] }
 };
