@@ -1240,12 +1240,6 @@
           "checkerName": {
             "type": "string"
           },
-          "selectedStatus": {
-            "$ref": "#/components/schemas/KitOperationalStatus"
-          },
-          "statusReason": {
-            "type": "string"
-          },
           "signaturePngDataUrl": {
             "type": "string"
           },
@@ -1258,7 +1252,6 @@
         },
         "required": [
           "checkerName",
-          "selectedStatus",
           "signaturePngDataUrl",
           "positions"
         ],
@@ -1291,14 +1284,8 @@
           "checkerName": {
             "type": "string"
           },
-          "selectedStatus": {
-            "$ref": "#/components/schemas/KitOperationalStatus"
-          },
           "effectiveStatus": {
             "$ref": "#/components/schemas/KitOperationalStatus"
-          },
-          "statusReason": {
-            "type": "string"
           },
           "warnings": {
             "type": "array",
@@ -1321,7 +1308,6 @@
           "id",
           "kitId",
           "checkerName",
-          "selectedStatus",
           "effectiveStatus",
           "warnings",
           "signaturePngDataUrl",

@@ -3,7 +3,6 @@ import { ApiTags } from "@nestjs/swagger";
 import { createHash } from "node:crypto";
 import {
   createSignatureHashPayload,
-  deriveKitStatusFromEvaluation,
   evaluateCheck,
   type CheckCompletionInput
 } from "@rescuebase/domain";
@@ -47,7 +46,7 @@ export class PublicChecksController {
     const completedAtIso = completedAt.toISOString();
     const input: CheckCompletionInput = { ...body, kitId: kit.id };
     const evaluation = evaluateCheck(template.positions, input);
-    const effectiveStatus = deriveKitStatusFromEvaluation(evaluation);
+    const effectiveStatus = evaluation.effectiveStatus;
     const signatureHash = createHash("sha256")
       .update(createSignatureHashPayload(input, completedAtIso))
       .update(body.signaturePngDataUrl)
@@ -58,9 +57,8 @@ export class PublicChecksController {
         data: {
           kitId: kit.id,
           checkerName: body.checkerName,
-          selectedStatus: body.selectedStatus,
+          selectedStatus: effectiveStatus,
           effectiveStatus,
-          statusReason: body.statusReason,
           warningsJson: evaluation.warnings,
           signaturePngDataUrl: body.signaturePngDataUrl,
           signatureHash,
@@ -122,7 +120,6 @@ export class PublicChecksController {
         entityId: kit.id,
         payload: {
           checkId: check.id,
-          selectedStatus: body.selectedStatus,
           effectiveStatus,
           replenishmentOrderId: replenishmentOrder?.id
         }
@@ -136,9 +133,7 @@ export class PublicChecksController {
         id: result.check.id,
         kitId: result.check.kitId,
         checkerName: result.check.checkerName,
-        selectedStatus: result.check.selectedStatus,
         effectiveStatus: result.check.effectiveStatus,
-        statusReason: result.check.statusReason ?? undefined,
         warnings: evaluation.warnings,
         signaturePngDataUrl: result.check.signaturePngDataUrl,
         signatureHash: result.check.signatureHash,

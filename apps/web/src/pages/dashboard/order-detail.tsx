@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
-import { Truck } from "lucide-react";
+import { Download, Truck } from "lucide-react";
 import { InlineError } from "../../components/state-panels";
-import { Badge, Button } from "../../components/ui";
+import { AnchorButton, Badge, Button } from "../../components/ui";
 import { Stepper } from "../../components/stepper";
 import type { Batch, ReplenishmentOrder } from "../../lib/types";
 
@@ -13,6 +13,7 @@ export function OrderDetail(props: {
   isSubmitting: boolean;
   onFulfill: (items: Array<{ itemId: string; batchId: string; quantity: number }>) => void;
   order: ReplenishmentOrder;
+  pdfHref: string;
   selectedBatchQuantity: (batches: Batch[], batchId: string) => number;
 }) {
   const [draft, setDraft] = useState<Record<string, { batchId: string; quantity: number }>>({});
@@ -22,7 +23,13 @@ export function OrderDetail(props: {
 
   return (
     <div className="order-detail">
-      <div className="panel-header"><div><h2>{props.order.kit?.name ?? props.order.kitId}</h2><p>{props.order.id} · Restmenge {remaining}</p></div><Badge tone={props.order.status === "OPEN" ? "warning" : props.order.status === "DONE" ? "ready" : "info"}>{props.formatStatus(props.order.status)}</Badge></div>
+      <div className="panel-header">
+        <div><h2>{props.order.kit?.name ?? props.order.kitId}</h2><p>{props.order.id} · Restmenge {remaining}</p></div>
+        <div className="topbar-actions">
+          <AnchorButton href={props.pdfHref} variant="secondary"><Download data-icon="inline-start" />PDF</AnchorButton>
+          <Badge tone={props.order.status === "OPEN" ? "warning" : props.order.status === "DONE" ? "ready" : "info"}>{props.formatStatus(props.order.status)}</Badge>
+        </div>
+      </div>
       <div className="fulfillment-list">
         {props.order.items.map((item) => {
           const openQuantity = item.requestedQuantity - item.fulfilledQuantity;

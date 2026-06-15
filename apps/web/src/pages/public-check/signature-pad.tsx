@@ -1,7 +1,10 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type PropsWithChildren } from "react";
 import { Button, Panel } from "../../components/ui";
 
-export function SignaturePad({ onChange }: { onChange: (signature: string) => void }) {
+export function SignaturePad({
+  children,
+  onChange
+}: PropsWithChildren<{ onChange: (signature: string) => void }>) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const isDrawingRef = useRef(false);
   const [hasInk, setHasInk] = useState(false);
@@ -22,6 +25,7 @@ export function SignaturePad({ onChange }: { onChange: (signature: string) => vo
         <div><h2>Unterschrift</h2><p>Name, Zeitstempel und Signatur werden 3 Jahre gespeichert.</p></div>
         <Button onClick={clear} type="button" variant="ghost">Löschen</Button>
       </div>
+      {children ? <div className="signature-panel-fields">{children}</div> : null}
       <canvas ref={canvasRef} aria-label="Unterschriftenfeld" height="220" onPointerCancel={endStroke} onPointerDown={startStroke} onPointerMove={drawStroke} onPointerUp={endStroke} width="640" />
       {!hasInk ? <p className="form-hint">Bitte im Feld unterschreiben.</p> : null}
     </Panel>

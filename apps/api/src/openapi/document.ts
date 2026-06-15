@@ -303,11 +303,9 @@ const rescueBaseOpenApiDocumentDefinition = {
       }, ["templatePositionId", "countedQuantity", "discardedExpiredQuantity"]),
       CompleteCheckRequest: objectSchema({
         checkerName: { type: "string" },
-        selectedStatus: ref("KitOperationalStatus"),
-        statusReason: { type: "string" },
         signaturePngDataUrl: { type: "string" },
         positions: arrayOf(ref("CheckPositionInput"))
-      }, ["checkerName", "selectedStatus", "signaturePngDataUrl", "positions"]),
+      }, ["checkerName", "signaturePngDataUrl", "positions"]),
       CheckEvaluation: objectSchema({
         warnings: arrayOf({ type: "string" })
       }, ["warnings"]),
@@ -315,14 +313,12 @@ const rescueBaseOpenApiDocumentDefinition = {
         id: { type: "string" },
         kitId: { type: "string" },
         checkerName: { type: "string" },
-        selectedStatus: ref("KitOperationalStatus"),
         effectiveStatus: ref("KitOperationalStatus"),
-        statusReason: { type: "string" },
         warnings: arrayOf({ type: "string" }),
         signaturePngDataUrl: { type: "string" },
         signatureHash: { type: "string" },
         createdAt: { type: "string", format: "date-time" }
-      }, ["id", "kitId", "checkerName", "selectedStatus", "effectiveStatus", "warnings", "signaturePngDataUrl", "signatureHash", "createdAt"]),
+      }, ["id", "kitId", "checkerName", "effectiveStatus", "warnings", "signaturePngDataUrl", "signatureHash", "createdAt"]),
       ReplenishmentOrderItem: objectSchema({
         articleId: { type: "string" },
         articleName: { type: "string" },

@@ -35,7 +35,6 @@ describe("public check flow", () => {
       .post("/public/kits/SAN-RS-001-ZUGANG-2026/checks")
       .send({
         checkerName: "Mara Müller",
-        selectedStatus: "CONDITIONAL",
         signaturePngDataUrl: "data:image/png;base64,abc",
         positions: [
           { templatePositionId: "pos-bandage", countedQuantity: 5, discardedExpiredQuantity: 1 },
@@ -45,6 +44,7 @@ describe("public check flow", () => {
       })
       .expect(201);
 
+    expect(completed.body.check.effectiveStatus).toBe("CONDITIONAL");
     expect(completed.body.replenishmentOrder.items).toEqual([
       expect.objectContaining({ articleName: "Verbandpäckchen mittel", requestedQuantity: 2 })
     ]);

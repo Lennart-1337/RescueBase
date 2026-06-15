@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { groupTemplatePositions, type GroupedTemplatePosition } from "./check";
+import { groupTemplatePositions, summarizeCheck, type GroupedTemplatePosition } from "./check";
 
 describe("groupTemplatePositions", () => {
   it("groups positions with the same module together while preserving item order inside the module", () => {
@@ -29,6 +29,29 @@ describe("groupTemplatePositions", () => {
         positions: [position("1", "Handschuhe", " "), position("2", "Beatmungstuch")]
       }
     ]);
+  });
+
+  it("marks the kit conditional when only non-critical material is missing", () => {
+    const summary = summarizeCheck(
+      [position("1", "Handschuhe"), { ...position("2", "Beatmungstuch"), requiredQuantity: 2 }],
+      [
+        { templatePositionId: "1", countedQuantity: 1, discardedExpiredQuantity: 0, note: "" },
+        { templatePositionId: "2", countedQuantity: 1, discardedExpiredQuantity: 0, note: "" }
+      ]
+    );
+
+    expect(summary.effectiveStatus).toBe("CONDITIONAL");
+    expect(summary.warnings).toContain("Es fehlen Materialien, aber keine kritische Position.");
+  });
+
+  it("marks the kit not ready when a critical position is incomplete", () => {
+    const summary = summarizeCheck(
+      [{ ...position("1", "Tourniquet"), critical: true }],
+      [{ templatePositionId: "1", countedQuantity: 0, discardedExpiredQuantity: 0, note: "" }]
+    );
+
+    expect(summary.effectiveStatus).toBe("NOT_READY");
+    expect(summary.criticalMissing).toBe(true);
   });
 });
 
