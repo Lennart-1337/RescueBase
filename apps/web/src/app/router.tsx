@@ -56,7 +56,7 @@ function RootRoute() {
 }
 
 function DashboardRoute() {
-  return <AdminRoute>{(user) => <AdminDashboard />}</AdminRoute>;
+  return <AdminRoute>{() => <AdminDashboard />}</AdminRoute>;
 }
 
 function KitsRoute() {

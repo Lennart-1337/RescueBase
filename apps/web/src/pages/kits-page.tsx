@@ -88,7 +88,7 @@ export function KitsPage() {
           <Field label="Name">
             <input value={name} onChange={(event) => setName(event.target.value)} />
           </Field>
-          <Field label="Code">
+          <Field label="Rucksackkennung">
             <input value={code} onChange={(event) => setCode(event.target.value)} />
           </Field>
           <Field label="Standort">

@@ -142,7 +142,7 @@ export function InventoryPage() {
               ))}
             </select>
           </Field>
-          <Field label="Charge">
+          <Field label="Chargennummer">
             <input value={lotNumber} onChange={(event) => setLotNumber(event.target.value)} />
           </Field>
           <Field label="Ablaufdatum">
@@ -213,7 +213,7 @@ export function InventoryPage() {
                 <Archive />
               </div>
               <div className="form-grid form-grid-two">
-                <Field label="Charge">
+                <Field label="Chargennummer">
                   <input value={correctionLotNumber} onChange={(event) => setCorrectionLotNumber(event.target.value)} />
                 </Field>
                 <Field label="Lagerort">

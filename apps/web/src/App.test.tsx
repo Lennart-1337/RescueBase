@@ -326,7 +326,7 @@ describe("RescueBase web app", () => {
     await renderApp();
 
     expect(await screen.findByRole("heading", { name: "Lager" })).toBeInTheDocument();
-    await changeValue(screen.getByLabelText("Charge"), "RD-2028-02");
+    await changeValue(screen.getByLabelText("Chargennummer"), "RD-2028-02");
     await changeValue(screen.getByLabelText("Ablaufdatum"), "2028-02-29");
     await changeValue(screen.getByLabelText("Menge"), "25");
     await clickElement(screen.getByRole("button", { name: /Charge erfassen/ }));
@@ -364,7 +364,7 @@ describe("RescueBase web app", () => {
     await clickElement(await screen.findByRole("button", { name: /Korrigieren/ }));
     const correctionPanel = (await screen.findByRole("heading", { name: "Chargenkorrektur" })).closest("section");
     expect(correctionPanel).not.toBeNull();
-    await changeValue(within(correctionPanel as HTMLElement).getByLabelText("Charge"), "VB-2026-04A");
+    await changeValue(within(correctionPanel as HTMLElement).getByLabelText("Chargennummer"), "VB-2026-04A");
     await changeValue(within(correctionPanel as HTMLElement).getByLabelText("Begründung"), "Inventur");
     await clickElement(within(correctionPanel as HTMLElement).getByRole("button", { name: /Korrektur buchen/ }));
 

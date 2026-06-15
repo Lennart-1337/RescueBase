@@ -15,7 +15,6 @@ import {
   formatReason,
   formatStatus,
   selectedBatchQuantity,
-  statusLabels,
   toError,
   useDashboardData
 } from "../app/shared";
