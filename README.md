@@ -72,26 +72,29 @@ Use `.env.example` as the baseline. Production deployments should set a strong `
 
 ## Staging on Windows Server 2025
 
-RescueBase staging targets Windows Server 2025 as a WSL2 host for the existing Linux Docker Compose stack. The server runs Ubuntu 24.04 inside WSL, Docker Engine and Compose plugin inside that distro, and publishes only `80/443` through Caddy.
+RescueBase staging can run directly from a Windows checkout with Docker Desktop in Linux-container mode. The Windows host runs Docker Desktop, keeps the repository checkout locally, and starts the published GHCR images through Docker Compose.
 
 ### Required server assets
 
-- A Windows Server 2025 host with WSL2 enabled
+- A Windows Server 2025 host with Docker Desktop installed and running in Linux-container mode
 - A public DNS record for the staging domain
-- A private checkout of this repository inside WSL at `/opt/rescuebase/staging`
+- A private checkout of this repository on the Windows filesystem
 - A `.env.staging` file based on `.env.staging.example`
+- A Cloudflare Origin Certificate and matching private key on the Windows filesystem
 - `GHCR_USERNAME` and `GHCR_TOKEN` available to the Windows operator shell
-- An age identity file matching `AGE_IDENTITY_FILE` for restore operations
+- An age identity file on the Windows filesystem matching `AGE_IDENTITY_HOST_FILE` for restore operations
 
 ### First bootstrap
 
-From an elevated PowerShell session on the server:
+From PowerShell in the repository checkout:
 
 ```powershell
-.\scripts\windows-staging\bootstrap-wsl-staging.ps1 -RepositoryUrl https://github.com/<owner>/<repo>.git
+.\scripts\windows-staging\bootstrap-docker-desktop-staging.ps1
 ```
 
-Then create `/opt/rescuebase/staging/.env.staging` inside WSL from `.env.staging.example`, set the real secrets, and confirm the server can `git fetch` the private repository plus `docker login ghcr.io`.
+Then edit `.env.staging`, set the real secrets, set `CLOUDFLARE_ORIGIN_CERT_HOST_FILE` and `CLOUDFLARE_ORIGIN_KEY_HOST_FILE` to the Windows paths of your Cloudflare Origin Certificate and key, set `AGE_IDENTITY_HOST_FILE` if you later enable encrypted restore, and keep `AGE_IDENTITY_FILE` as the container path `/run/secrets/staging.agekey`.
+
+If you want backups disabled for now, leave `BACKUP_AGE_RECIPIENT=` empty and keep `AGE_IDENTITY_HOST_FILE=./keys/restore-disabled.txt`.
 
 ### Staging deploy and rollback
 
@@ -109,7 +112,26 @@ Rollback or promotion to a pinned immutable image tag:
 .\scripts\windows-staging\deploy-staging.ps1 -ImageTag staging-202606141030-abcd123
 ```
 
-The deploy wrapper updates the WSL checkout, logs into GHCR, pulls the images referenced by `.env.staging`, starts the stack with `--no-build`, and prints the effective `IMAGE_TAG`.
+The deploy wrapper updates the Windows checkout, logs into GHCR, pulls the images referenced by `.env.staging`, starts the stack with `--no-build`, and prints the effective `IMAGE_TAG`.
+
+### Cloudflare Full (strict)
+
+RescueBase staging is designed to sit behind Cloudflare with SSL mode `Full (strict)`. Use a proxied DNS record for your staging hostname and install a Cloudflare Origin Certificate plus private key on the Windows host. The staging Caddy service mounts those files and terminates HTTPS directly on the origin.
+
+Example values in `.env.staging`:
+
+```env
+APP_DOMAIN=rescuebasestaging.example.org
+APP_PUBLIC_URL=https://rescuebasestaging.example.org
+CLOUDFLARE_ORIGIN_CERT_HOST_FILE=C:/Users/Administrator/Desktop/RescueBase/infra/caddy/origin-cert.pem
+CLOUDFLARE_ORIGIN_KEY_HOST_FILE=C:/Users/Administrator/Desktop/RescueBase/infra/caddy/origin-key.pem
+```
+
+After placing the certificate and key, recreate Caddy:
+
+```powershell
+docker compose --env-file .env.staging -f docker-compose.yml -f docker-compose.staging.yml up -d --force-recreate caddy
+```
 
 ### Backups and restore
 
@@ -119,7 +141,7 @@ Run a manual encrypted backup:
 .\scripts\windows-staging\backup-staging.ps1
 ```
 
-Restore from a backup file already present in `/opt/rescuebase/staging/backups`:
+Restore from a backup file already present in the checkout-local `backups\` directory:
 
 ```powershell
 .\scripts\windows-staging\restore-staging.ps1 -BackupFile rescuebase-20260614T020000Z.sql.gz.age
@@ -132,7 +154,9 @@ Program/script: powershell.exe
 Arguments: -NoProfile -ExecutionPolicy Bypass -File C:\path\to\repo\scripts\windows-staging\backup-staging.ps1
 ```
 
-The backup container writes compressed SQL dumps under `backups/` and encrypts them to `.age` when `BACKUP_AGE_RECIPIENT` is configured. Restore accepts either `.sql.gz` or `.sql.gz.age`.
+The backup container writes compressed SQL dumps under `backups/` in the repository checkout and encrypts them to `.age` when `BACKUP_AGE_RECIPIENT` is configured. Restore accepts either `.sql.gz` or `.sql.gz.age`.
+
+If `BACKUP_AGE_RECIPIENT` is empty, backup output stays as plain `.sql.gz` and no age key is required for deploy.
 
 ### GHCR staging publish
 

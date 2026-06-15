@@ -29,6 +29,12 @@ services:
     build: !reset null
     pull_policy: always
 
+  caddy:
+    command: ["caddy", "run", "--config", "/srv/caddy-config/Caddyfile.staging", "--adapter", "caddyfile"]
+    volumes:
+      - ${CLOUDFLARE_ORIGIN_CERT_HOST_FILE}:/srv/caddy-config/origin-cert.pem:ro
+      - ${CLOUDFLARE_ORIGIN_KEY_HOST_FILE}:/srv/caddy-config/origin-key.pem:ro
+
   backup:
     image: ${API_IMAGE}:${IMAGE_TAG}
     pull_policy: always
@@ -53,11 +59,11 @@ services:
     command: ["sh", "/app/infra/backups/restore-mariadb.sh"]
     environment:
       DATABASE_URL: mysql://${MARIADB_USER}:${MARIADB_PASSWORD}@mariadb:3306/${MARIADB_DATABASE}
-      AGE_IDENTITY_FILE: ${AGE_IDENTITY_FILE}
+      AGE_IDENTITY_FILE: ${AGE_IDENTITY_FILE:-/run/secrets/staging.agekey}
       BACKUP_FILE: ${BACKUP_FILE:-}
     volumes:
       - ./backups:/backups
-      - ${AGE_IDENTITY_FILE}:${AGE_IDENTITY_FILE}:ro
+      - ${AGE_IDENTITY_HOST_FILE:-./keys/restore-disabled.txt}:${AGE_IDENTITY_FILE:-/run/secrets/staging.agekey}:ro
     depends_on:
       mariadb:
         condition: service_healthy

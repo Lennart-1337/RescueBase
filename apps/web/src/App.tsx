@@ -19,12 +19,9 @@ import {
   Copy,
   Download,
   ExternalLink,
-  FileText,
   History,
   KeyRound,
-  Layers3,
   LogOut,
-  MapPin,
   Mail,
   Minus,
   Pencil,
@@ -53,7 +50,7 @@ import type {
   PublicKitResponse,
   ReplenishmentOrder
 } from "./lib/types";
-import { AnchorButton, Badge, Button, Field, Panel, cn } from "./components/ui";
+import { AnchorButton, Badge, Button, Dialog, Field, Panel, Tabs, cn } from "./components/ui";
 import "./styles.css";
 
 const statusLabels: Record<KitOperationalStatus, string> = {
@@ -1080,6 +1077,7 @@ function InventoryPage() {
 }
 
 function MasterDataPage({ user }: { user: AuthenticatedUser }) {
+  const [activeTab, setActiveTab] = useState<"articles" | "locations" | "templates">("articles");
   const queryClient = useQueryClient();
   const articles = useQuery({ queryKey: ["articles"], queryFn: rescueBaseApi.articles });
   const locations = useQuery({ queryKey: ["locations"], queryFn: rescueBaseApi.locations });
@@ -1155,30 +1153,56 @@ function MasterDataPage({ user }: { user: AuthenticatedUser }) {
           <p>Artikel, Lagerorte und versionierte Rucksackvorlagen.</p>
         </div>
       </header>
-      <section className="admin-grid">
+      <Tabs
+        items={[
+          { label: "Artikel", value: "articles" },
+          { label: "Lagerorte", value: "locations" },
+          { label: "Rucksackvorlagen", value: "templates" }
+        ]}
+        label="Stammdatenbereiche"
+        onChange={(value) => setActiveTab(value as "articles" | "locations" | "templates")}
+        value={activeTab}
+      />
+      {activeTab === "articles" ? (
         <ArticlePanel
           articles={articles.data}
           error={createArticle.error || updateArticle.error ? toError(createArticle.error ?? updateArticle.error) : null}
           isSubmitting={createArticle.isPending || updateArticle.isPending}
-          onCreate={(body) => createArticle.mutate(body)}
-          onSave={(id, body) => updateArticle.mutate({ id, body })}
+          onCreate={async (body) => {
+            await createArticle.mutateAsync(body);
+          }}
+          onSave={async (id, body) => {
+            await updateArticle.mutateAsync({ id, body });
+          }}
         />
+      ) : null}
+      {activeTab === "locations" ? (
         <LocationPanel
           error={createLocation.error || updateLocation.error ? toError(createLocation.error ?? updateLocation.error) : null}
           isSubmitting={createLocation.isPending || updateLocation.isPending}
           locations={locations.data}
-          onCreate={(body) => createLocation.mutate(body)}
-          onSave={(id, body) => updateLocation.mutate({ id, body })}
+          onCreate={async (body) => {
+            await createLocation.mutateAsync(body);
+          }}
+          onSave={async (id, body) => {
+            await updateLocation.mutateAsync({ id, body });
+          }}
         />
-      </section>
-      <TemplatePanel
-        articles={articles.data}
-        error={createTemplate.error || reviseTemplate.error ? toError(createTemplate.error ?? reviseTemplate.error) : null}
-        isSubmitting={createTemplate.isPending || reviseTemplate.isPending}
-        onCreate={(body) => createTemplate.mutate(body)}
-        onRevise={(id, body) => reviseTemplate.mutate({ id, body })}
-        templates={templates.data}
-      />
+      ) : null}
+      {activeTab === "templates" ? (
+        <TemplatePanel
+          articles={articles.data}
+          error={createTemplate.error || reviseTemplate.error ? toError(createTemplate.error ?? reviseTemplate.error) : null}
+          isSubmitting={createTemplate.isPending || reviseTemplate.isPending}
+          onCreate={async (body) => {
+            await createTemplate.mutateAsync(body);
+          }}
+          onRevise={async (id, body) => {
+            await reviseTemplate.mutateAsync({ id, body });
+          }}
+          templates={templates.data}
+        />
+      ) : null}
     </>
   );
 }
@@ -1193,9 +1217,10 @@ function ArticlePanel({
   articles: Article[];
   error: Error | null;
   isSubmitting: boolean;
-  onCreate: (body: { name: string; unit: string; barcode?: string; criticalDefault: boolean }) => void;
-  onSave: (id: string, body: { name: string; unit: string; barcode?: string; criticalDefault: boolean }) => void;
+  onCreate: (body: { name: string; unit: string; barcode?: string; criticalDefault: boolean }) => Promise<unknown>;
+  onSave: (id: string, body: { name: string; unit: string; barcode?: string; criticalDefault: boolean }) => Promise<unknown>;
 }) {
+  const [isOpen, setIsOpen] = useState(false);
   const [name, setName] = useState("");
   const [unit, setUnit] = useState("Stück");
   const [barcode, setBarcode] = useState("");
@@ -1211,6 +1236,30 @@ function ArticlePanel({
     setCriticalDefault(false);
   }
 
+  function closeDialog() {
+    setIsOpen(false);
+    resetForm();
+  }
+
+  async function submitArticle() {
+    if (!canSubmit) {
+      return;
+    }
+
+    const body = { name, unit, barcode: barcode.trim() || undefined, criticalDefault };
+
+    try {
+      if (editingId) {
+        await onSave(editingId, body);
+      } else {
+        await onCreate(body);
+      }
+      closeDialog();
+    } catch {
+      return;
+    }
+  }
+
   return (
     <Panel>
       <div className="panel-header">
@@ -1218,47 +1267,16 @@ function ArticlePanel({
           <h2>Artikel</h2>
           <p>Materialstamm mit Einheit, optionalem Barcode und Kritikalität.</p>
         </div>
-        <FileText />
-      </div>
-      <div className="form-grid form-grid-two">
-        <Field label="Name">
-          <input value={name} onChange={(event) => setName(event.target.value)} />
-        </Field>
-        <Field label="Einheit">
-          <input value={unit} onChange={(event) => setUnit(event.target.value)} />
-        </Field>
-        <Field label="Barcode/DataMatrix">
-          <input value={barcode} onChange={(event) => setBarcode(event.target.value)} />
-        </Field>
-        <label className="check-field">
-          <input checked={criticalDefault} type="checkbox" onChange={(event) => setCriticalDefault(event.target.checked)} />
-          <span>Kritisch als Standard</span>
-        </label>
-      </div>
-      {error ? <InlineError error={error} /> : null}
-      <div className="form-actions">
         <Button
-          disabled={!canSubmit || isSubmitting}
           onClick={() => {
-            const body = { name, unit, barcode: barcode.trim() || undefined, criticalDefault };
-            if (editingId) {
-              onSave(editingId, body);
-            } else {
-              onCreate(body);
-            }
             resetForm();
+            setIsOpen(true);
           }}
           type="button"
         >
-          {editingId ? <Save data-icon="inline-start" /> : <Plus data-icon="inline-start" />}
-          {editingId ? "Artikel speichern" : "Artikel anlegen"}
+          <Plus data-icon="inline-start" />
+          Artikel hinzufügen
         </Button>
-        {editingId ? (
-          <Button onClick={resetForm} type="button" variant="ghost">
-            <X data-icon="inline-start" />
-            Abbrechen
-          </Button>
-        ) : null}
       </div>
       {articles.length === 0 ? <div className="compact-list-empty">Noch keine Artikel angelegt.</div> : null}
       <div className="compact-list">
@@ -1277,6 +1295,7 @@ function ArticlePanel({
                   setUnit(article.unit);
                   setBarcode(article.barcode ?? "");
                   setCriticalDefault(article.criticalDefault);
+                  setIsOpen(true);
                 }}
                 type="button"
                 variant="ghost"
@@ -1288,6 +1307,41 @@ function ArticlePanel({
           </div>
         ))}
       </div>
+      <Dialog
+        actions={
+          <>
+            <Button disabled={isSubmitting} onClick={closeDialog} type="button" variant="ghost">
+              <X data-icon="inline-start" />
+              Abbrechen
+            </Button>
+            <Button disabled={!canSubmit || isSubmitting} onClick={() => void submitArticle()} type="button">
+              {editingId ? <Save data-icon="inline-start" /> : <Plus data-icon="inline-start" />}
+              {editingId ? "Artikel speichern" : "Artikel anlegen"}
+            </Button>
+          </>
+        }
+        description="Pflegen Sie Materialstammdaten mit Einheit, optionalem Barcode und Standard-Kritikalität."
+        onClose={closeDialog}
+        open={isOpen}
+        title={editingId ? "Artikel bearbeiten" : "Artikel anlegen"}
+      >
+        <div className="form-grid form-grid-two">
+          <Field label="Name">
+            <input value={name} onChange={(event) => setName(event.target.value)} />
+          </Field>
+          <Field label="Einheit">
+            <input value={unit} onChange={(event) => setUnit(event.target.value)} />
+          </Field>
+          <Field label="Barcode/DataMatrix">
+            <input value={barcode} onChange={(event) => setBarcode(event.target.value)} />
+          </Field>
+          <label className="check-field">
+            <input checked={criticalDefault} type="checkbox" onChange={(event) => setCriticalDefault(event.target.checked)} />
+            <span>Kritisch als Standard</span>
+          </label>
+        </div>
+        {error ? <InlineError error={error} /> : null}
+      </Dialog>
     </Panel>
   );
 }
@@ -1302,9 +1356,10 @@ function LocationPanel({
   error: Error | null;
   isSubmitting: boolean;
   locations: Location[];
-  onCreate: (body: { name: string; kind: string }) => void;
-  onSave: (id: string, body: { name: string; kind: string }) => void;
+  onCreate: (body: { name: string; kind: string }) => Promise<unknown>;
+  onSave: (id: string, body: { name: string; kind: string }) => Promise<unknown>;
 }) {
+  const [isOpen, setIsOpen] = useState(false);
   const [name, setName] = useState("");
   const [kind, setKind] = useState("STORAGE");
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -1316,6 +1371,30 @@ function LocationPanel({
     setKind("STORAGE");
   }
 
+  function closeDialog() {
+    setIsOpen(false);
+    resetForm();
+  }
+
+  async function submitLocation() {
+    if (!canSubmit) {
+      return;
+    }
+
+    const body = { name, kind };
+
+    try {
+      if (editingId) {
+        await onSave(editingId, body);
+      } else {
+        await onCreate(body);
+      }
+      closeDialog();
+    } catch {
+      return;
+    }
+  }
+
   return (
     <Panel>
       <div className="panel-header">
@@ -1323,44 +1402,16 @@ function LocationPanel({
           <h2>Lagerorte</h2>
           <p>Standorte für Chargen und physische Rucksäcke.</p>
         </div>
-        <MapPin />
-      </div>
-      <div className="form-grid form-grid-two">
-        <Field label="Name">
-          <input value={name} onChange={(event) => setName(event.target.value)} />
-        </Field>
-        <Field label="Typ">
-          <select value={kind} onChange={(event) => setKind(event.target.value)}>
-            <option value="STORAGE">Lager</option>
-            <option value="VEHICLE">Fahrzeug</option>
-            <option value="ROOM">Raum</option>
-          </select>
-        </Field>
-      </div>
-      {error ? <InlineError error={error} /> : null}
-      <div className="form-actions">
         <Button
-          disabled={!canSubmit || isSubmitting}
           onClick={() => {
-            const body = { name, kind };
-            if (editingId) {
-              onSave(editingId, body);
-            } else {
-              onCreate(body);
-            }
             resetForm();
+            setIsOpen(true);
           }}
           type="button"
         >
-          {editingId ? <Save data-icon="inline-start" /> : <Plus data-icon="inline-start" />}
-          {editingId ? "Lagerort speichern" : "Lagerort anlegen"}
+          <Plus data-icon="inline-start" />
+          Lagerort hinzufügen
         </Button>
-        {editingId ? (
-          <Button onClick={resetForm} type="button" variant="ghost">
-            <X data-icon="inline-start" />
-            Abbrechen
-          </Button>
-        ) : null}
       </div>
       {locations.length === 0 ? <div className="compact-list-empty">Noch keine Lagerorte angelegt.</div> : null}
       <div className="compact-list">
@@ -1376,6 +1427,7 @@ function LocationPanel({
                   setEditingId(location.id);
                   setName(location.name);
                   setKind(location.kind);
+                  setIsOpen(true);
                 }}
                 type="button"
                 variant="ghost"
@@ -1387,6 +1439,38 @@ function LocationPanel({
           </div>
         ))}
       </div>
+      <Dialog
+        actions={
+          <>
+            <Button disabled={isSubmitting} onClick={closeDialog} type="button" variant="ghost">
+              <X data-icon="inline-start" />
+              Abbrechen
+            </Button>
+            <Button disabled={!canSubmit || isSubmitting} onClick={() => void submitLocation()} type="button">
+              {editingId ? <Save data-icon="inline-start" /> : <Plus data-icon="inline-start" />}
+              {editingId ? "Lagerort speichern" : "Lagerort anlegen"}
+            </Button>
+          </>
+        }
+        description="Pflegen Sie Lager, Fahrzeuge und Räume als nutzbare Orte für Bestand und Rucksäcke."
+        onClose={closeDialog}
+        open={isOpen}
+        title={editingId ? "Lagerort bearbeiten" : "Lagerort anlegen"}
+      >
+        <div className="form-grid form-grid-two">
+          <Field label="Name">
+            <input value={name} onChange={(event) => setName(event.target.value)} />
+          </Field>
+          <Field label="Typ">
+            <select value={kind} onChange={(event) => setKind(event.target.value)}>
+              <option value="STORAGE">Lager</option>
+              <option value="VEHICLE">Fahrzeug</option>
+              <option value="ROOM">Raum</option>
+            </select>
+          </Field>
+        </div>
+        {error ? <InlineError error={error} /> : null}
+      </Dialog>
     </Panel>
   );
 }
@@ -1405,13 +1489,14 @@ function TemplatePanel({
   onCreate: (body: {
     name: string;
     positions: Array<{ articleId: string; moduleName?: string; requiredQuantity: number; critical: boolean }>;
-  }) => void;
+  }) => Promise<unknown>;
   onRevise: (
     id: string,
     body: { positions: Array<{ articleId: string; moduleName?: string; requiredQuantity: number; critical: boolean }> }
-  ) => void;
+  ) => Promise<unknown>;
   templates: KitTemplate[];
 }) {
+  const [isOpen, setIsOpen] = useState(false);
   const [name, setName] = useState("");
   const [editingTemplateId, setEditingTemplateId] = useState<string | null>(null);
   const [positions, setPositions] = useState<Array<{ articleId: string; moduleName: string; requiredQuantity: number; critical: boolean }>>([
@@ -1443,100 +1528,48 @@ function TemplatePanel({
     setPositions([{ articleId: articles[0]?.id ?? "", moduleName: "", requiredQuantity: 1, critical: false }]);
   }
 
+  function closeDialog() {
+    setIsOpen(false);
+    resetForm();
+  }
+
+  async function submitTemplate() {
+    if (!canCreate) {
+      return;
+    }
+
+    try {
+      if (editingTemplateId) {
+        await onRevise(editingTemplateId, { positions: normalizedPositions });
+      } else {
+        await onCreate({ name, positions: normalizedPositions });
+      }
+      closeDialog();
+    } catch {
+      return;
+    }
+  }
+
   return (
     <Panel>
       <div className="panel-header">
         <div>
           <h2>Rucksackvorlagen</h2>
-          <p>{editingTemplateId ? "Bearbeiten erzeugt immer eine neue Vorlagenversion." : "Neue Speichervorgänge erzeugen eine weitere Vorlagenversion pro Namen."}</p>
+          <p>Versionierte Soll-Listen mit Artikeln, Modulen und kritischen Positionen.</p>
         </div>
-        <Layers3 />
+        <Button
+          disabled={articles.length === 0}
+          onClick={() => {
+            resetForm();
+            setIsOpen(true);
+          }}
+          type="button"
+        >
+          <Plus data-icon="inline-start" />
+          Vorlage hinzufügen
+        </Button>
       </div>
-      <div className="template-form">
-        <Field label="Vorlagenname">
-          <input disabled={Boolean(editingTemplateId)} value={name} onChange={(event) => setName(event.target.value)} />
-        </Field>
-        <div className="template-position-list">
-          {positions.map((position, index) => (
-            <div className="template-position-row" key={index}>
-              <Field label="Artikel">
-                <select
-                  disabled={articles.length === 0}
-                  value={position.articleId || articles[0]?.id || ""}
-                  onChange={(event) => updatePosition(index, { articleId: event.target.value })}
-                >
-                  {articles.map((article) => (
-                    <option key={article.id} value={article.id}>{article.name}</option>
-                  ))}
-                </select>
-              </Field>
-              <Field label="Modul">
-                <input value={position.moduleName} onChange={(event) => updatePosition(index, { moduleName: event.target.value })} />
-              </Field>
-              <Field label="Sollmenge">
-                <input
-                  min="1"
-                  type="number"
-                  value={position.requiredQuantity}
-                  onChange={(event) => updatePosition(index, { requiredQuantity: Number(event.target.value) })}
-                />
-              </Field>
-              <label className="check-field template-critical">
-                <input
-                  checked={position.critical}
-                  type="checkbox"
-                  onChange={(event) => updatePosition(index, { critical: event.target.checked })}
-                />
-                <span>Kritisch</span>
-              </label>
-              <Button
-                disabled={positions.length === 1}
-                onClick={() => setPositions((current) => current.filter((_, currentIndex) => currentIndex !== index))}
-                type="button"
-                variant="ghost"
-              >
-                Entfernen
-              </Button>
-            </div>
-          ))}
-        </div>
-        <div className="form-actions split-actions">
-          <Button
-            disabled={articles.length === 0}
-            onClick={() => setPositions((current) => [
-              ...current,
-              { articleId: articles[0]?.id ?? "", moduleName: "", requiredQuantity: 1, critical: false }
-            ])}
-            type="button"
-            variant="secondary"
-          >
-            <Plus data-icon="inline-start" />
-            Position hinzufügen
-          </Button>
-          <Button
-            disabled={!canCreate || isSubmitting}
-            onClick={() => {
-              if (editingTemplateId) {
-                onRevise(editingTemplateId, { positions: normalizedPositions });
-              } else {
-                onCreate({ name, positions: normalizedPositions });
-              }
-              resetForm();
-            }}
-            type="button"
-          >
-            {editingTemplateId ? "Neue Version speichern" : "Vorlage speichern"}
-          </Button>
-          {editingTemplateId ? (
-            <Button onClick={resetForm} type="button" variant="ghost">
-              <X data-icon="inline-start" />
-              Abbrechen
-            </Button>
-          ) : null}
-        </div>
-        {articles.length === 0 ? <InlineError error={new Error("Legen Sie zuerst mindestens einen Artikel an.")} /> : null}
-        {error ? <InlineError error={error} /> : null}
-      </div>
+      {articles.length === 0 ? <div className="compact-list-empty">Vorlagen benötigen zuerst mindestens einen Artikel.</div> : null}
       {templates.length === 0 ? <div className="compact-list-empty">Noch keine Vorlagen angelegt.</div> : null}
       <div className="compact-list">
         {templates.map((template) => (
@@ -1557,17 +1590,110 @@ function TemplatePanel({
                     requiredQuantity: position.requiredQuantity,
                     critical: position.critical
                   })));
+                  setIsOpen(true);
                 }}
                 type="button"
                 variant="ghost"
               >
                 <Pencil data-icon="inline-start" />
-                Neue Version ableiten
+                Bearbeiten
               </Button>
             </div>
           </div>
         ))}
       </div>
+      <Dialog
+        actions={
+          <>
+            <Button disabled={isSubmitting} onClick={closeDialog} type="button" variant="ghost">
+              <X data-icon="inline-start" />
+              Abbrechen
+            </Button>
+            <Button disabled={!canCreate || isSubmitting} onClick={() => void submitTemplate()} type="button">
+              {editingTemplateId ? <Save data-icon="inline-start" /> : <Plus data-icon="inline-start" />}
+              {editingTemplateId ? "Neue Version speichern" : "Vorlage speichern"}
+            </Button>
+          </>
+        }
+        description={
+          editingTemplateId
+            ? "Bestehende Vorlagen bleiben historisch erhalten. Änderungen werden als neue Version gespeichert."
+            : "Definieren Sie Sollmengen, optionale Module und kritische Positionen für neue Rucksäcke."
+        }
+        onClose={closeDialog}
+        open={isOpen}
+        title={editingTemplateId ? "Rucksackvorlage bearbeiten" : "Rucksackvorlage anlegen"}
+      >
+        <div className="template-form">
+          <Field label="Vorlagenname">
+            <input disabled={Boolean(editingTemplateId)} value={name} onChange={(event) => setName(event.target.value)} />
+          </Field>
+          <div className="template-position-list">
+            {positions.map((position, index) => (
+              <div className="template-position-row" key={index}>
+                <Field label="Artikel">
+                  <select
+                    disabled={articles.length === 0}
+                    value={position.articleId || articles[0]?.id || ""}
+                    onChange={(event) => updatePosition(index, { articleId: event.target.value })}
+                  >
+                    {articles.map((article) => (
+                      <option key={article.id} value={article.id}>
+                        {article.name}
+                      </option>
+                    ))}
+                  </select>
+                </Field>
+                <Field label="Modul">
+                  <input value={position.moduleName} onChange={(event) => updatePosition(index, { moduleName: event.target.value })} />
+                </Field>
+                <Field label="Sollmenge">
+                  <input
+                    min="1"
+                    type="number"
+                    value={position.requiredQuantity}
+                    onChange={(event) => updatePosition(index, { requiredQuantity: Number(event.target.value) })}
+                  />
+                </Field>
+                <label className="check-field template-critical">
+                  <input
+                    checked={position.critical}
+                    type="checkbox"
+                    onChange={(event) => updatePosition(index, { critical: event.target.checked })}
+                  />
+                  <span>Kritisch</span>
+                </label>
+                <Button
+                  disabled={positions.length === 1}
+                  onClick={() => setPositions((current) => current.filter((_, currentIndex) => currentIndex !== index))}
+                  type="button"
+                  variant="ghost"
+                >
+                  Entfernen
+                </Button>
+              </div>
+            ))}
+          </div>
+          <div className="form-actions split-actions">
+            <Button
+              disabled={articles.length === 0}
+              onClick={() =>
+                setPositions((current) => [
+                  ...current,
+                  { articleId: articles[0]?.id ?? "", moduleName: "", requiredQuantity: 1, critical: false }
+                ])
+              }
+              type="button"
+              variant="secondary"
+            >
+              <Plus data-icon="inline-start" />
+              Position hinzufügen
+            </Button>
+          </div>
+          {articles.length === 0 ? <InlineError error={new Error("Legen Sie zuerst mindestens einen Artikel an.")} /> : null}
+          {error ? <InlineError error={error} /> : null}
+        </div>
+      </Dialog>
     </Panel>
   );
 

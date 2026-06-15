@@ -50,6 +50,7 @@ services:
 
   caddy:
     image: caddy:2.10
+    command: ["caddy", "run", "--config", "/srv/caddy-config/Caddyfile", "--adapter", "caddyfile"]
     restart: unless-stopped
     ports:
       - "80:80"
@@ -57,7 +58,7 @@ services:
     environment:
       APP_DOMAIN: ${APP_DOMAIN:-localhost}
     volumes:
-      - ./infra/caddy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - ./infra/caddy:/srv/caddy-config:ro
       - caddy-data:/data
       - caddy-config:/config
     depends_on:

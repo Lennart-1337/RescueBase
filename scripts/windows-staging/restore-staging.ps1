@@ -1,16 +1,17 @@
 param(
   [Parameter(Mandatory = $true)][string]$BackupFile,
-  [string]$DistroName = "Ubuntu-24.04",
-  [string]$ProjectDir = "/opt/rescuebase/staging",
+  [string]$ProjectDir = (Resolve-Path (Join-Path $PSScriptRoot "..\..")).Path,
   [string]$EnvFile = ".env.staging"
 )
 
-$restoreCommand = @"
-set -eu
-export PROJECT_DIR='$ProjectDir'
-export ENV_FILE='$EnvFile'
-export BACKUP_FILE='$BackupFile'
-bash '$ProjectDir/scripts/staging/restore.sh'
-"@
+$ResolvedProjectDir = (Resolve-Path $ProjectDir).Path
+$ResolvedEnvFile = if ([IO.Path]::IsPathRooted($EnvFile)) { $EnvFile } else { Join-Path $ResolvedProjectDir $EnvFile }
+$ComposeArgs = @("--project-directory", $ResolvedProjectDir, "--env-file", $ResolvedEnvFile, "-f", "docker-compose.yml", "-f", "docker-compose.staging.yml")
+$TargetFile = if ($BackupFile.StartsWith("/backups/")) { $BackupFile } else { "/backups/$BackupFile" }
 
-wsl.exe -d $DistroName -- bash -lc $restoreCommand
+if (-not (Test-Path $ResolvedEnvFile)) {
+  throw "Environment file not found: $ResolvedEnvFile"
+}
+
+docker compose @ComposeArgs up -d mariadb
+docker compose --profile ops @ComposeArgs run --rm -e "BACKUP_FILE=$TargetFile" restore
