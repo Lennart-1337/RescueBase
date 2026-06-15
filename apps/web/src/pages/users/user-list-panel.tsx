@@ -1,11 +1,12 @@
-import { Badge, Button, Panel } from "../../components/ui";
+import { Plus } from "lucide-react";
 import { InlineError } from "../../components/state-panels";
+import { Badge, Button, Panel } from "../../components/ui";
 import type { UserSummary } from "../../lib/types";
 
-export function UserListPanel(props: { error: Error | null; isSubmitting: boolean; onToggle: (id: string, active: boolean) => void; users: UserSummary[] }) {
+export function UserListPanel(props: { error: Error | null; isSubmitting: boolean; onInviteClick: () => void; onToggle: (id: string, active: boolean) => void; users: UserSummary[] }) {
   return (
     <Panel>
-      <div className="panel-header"><div><h2>Benutzerkonten</h2><p>Aktivierung, Deaktivierung und 2FA-Status.</p></div><Badge tone="info">{props.users.length} Konten</Badge></div>
+      <div className="panel-header"><div><h2>Benutzerkonten</h2><p>Aktivierung, Deaktivierung und 2FA-Status.</p></div><div className="topbar-actions"><Badge tone="info">{props.users.length} Konten</Badge><Button onClick={props.onInviteClick} type="button"><Plus data-icon="inline-start" />Benutzer einladen</Button></div></div>
       <div className="table">
         {props.users.map((entry) => (
           <div className="table-row user-row" key={entry.id}>

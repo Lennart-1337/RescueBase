@@ -812,7 +812,13 @@ export interface components {
             id: string;
             name: string;
             unit: string;
+            manufacturer?: string;
+            manufacturerPartNumber?: string;
+            category?: string;
             barcode?: string;
+            sterile: boolean;
+            storageNotes?: string;
+            notes?: string;
             criticalDefault: boolean;
             /** Format: date-time */
             createdAt?: string;
@@ -822,13 +828,25 @@ export interface components {
         CreateArticleRequest: {
             name: string;
             unit: string;
+            manufacturer?: string;
+            manufacturerPartNumber?: string;
+            category?: string;
             barcode?: string;
+            sterile: boolean;
+            storageNotes?: string;
+            notes?: string;
             criticalDefault: boolean;
         };
         UpdateArticleRequest: {
             name: string;
             unit: string;
+            manufacturer?: string;
+            manufacturerPartNumber?: string;
+            category?: string;
             barcode?: string;
+            sterile: boolean;
+            storageNotes?: string;
+            notes?: string;
             criticalDefault: boolean;
         };
         Location: {

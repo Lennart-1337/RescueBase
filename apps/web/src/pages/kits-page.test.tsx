@@ -51,7 +51,7 @@ describe("KitsPage", () => {
     }));
 
     await renderAppAt("/admin/kits");
-    await screen.findByRole("heading", { name: "Rucksäcke" });
+    await screen.findByRole("heading", { level: 1, name: "Rucksäcke" });
 
     const row = screen.getByText("Rucksack Fahrzeug 1").closest(".table-row") as HTMLElement;
     await clickElement(within(row).getByRole("button", { name: /Rotieren/ }));
@@ -68,6 +68,34 @@ describe("KitsPage", () => {
         "/api/reports/qr-label/kit-rucksack-1.pdf?format=a4&rev=2026-06-15T20%3A00%3A00.000Z"
       )
     );
+  });
+
+  it("opens an edit dialog with the current kit values", async () => {
+    vi.stubGlobal("fetch", vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+      const url = typeof input === "string" ? input : input instanceof URL ? input.pathname : input.url;
+      const pathname = url.startsWith("http") ? new URL(url).pathname : url;
+      const method = init?.method ?? "GET";
+
+      if (pathname === "/api/auth/setup/status") return jsonResponse({ initialized: true, firstAdminEmail: "admin@rescuebase.local" });
+      if (pathname === "/api/auth/session") {
+        return jsonResponse({ user: { id: "user-admin", email: "admin@rescuebase.local", displayName: "Admin", role: "ADMIN", twoFactorEnabled: false } });
+      }
+      if (pathname === "/api/catalog/kits" && method === "GET") return jsonResponse([kit]);
+      if (pathname === "/api/catalog/locations") return jsonResponse([kit.location]);
+      if (pathname === "/api/catalog/templates") return jsonResponse([kit.template]);
+
+      return new Response(JSON.stringify({ message: `No test route for ${pathname}` }), { status: 404, headers: { "content-type": "application/json" } });
+    }));
+
+    await renderAppAt("/admin/kits");
+    await screen.findByRole("heading", { level: 1, name: "Rucksäcke" });
+    await clickElement(screen.getByRole("button", { name: "Bearbeiten" }));
+
+    const dialog = await screen.findByRole("dialog", { name: "Rucksack bearbeiten" });
+    expect(within(dialog).getByLabelText("Name")).toHaveValue("Rucksack Fahrzeug 1");
+    expect(within(dialog).getByLabelText("Rucksackkennung")).toHaveValue("SAN-RS-001");
+    expect(within(dialog).getByLabelText("Standort")).toHaveValue("loc-rtw-1");
+    expect(within(dialog).getByLabelText("Vorlage")).toHaveValue("template-san-a-v1");
   });
 });
 

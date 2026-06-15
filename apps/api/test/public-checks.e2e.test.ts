@@ -113,7 +113,13 @@ describe("public check flow", () => {
       .send({
         name: "Verbandpäckchen groß",
         unit: "Stück",
+        manufacturer: "MediSafe",
+        manufacturerPartNumber: "VB-2000",
+        category: "Verbandmaterial",
         barcode: "040000000099",
+        sterile: true,
+        storageNotes: "Trocken lagern",
+        notes: "Nur originalverpackt einlagern",
         criticalDefault: true
       })
       .expect(200);

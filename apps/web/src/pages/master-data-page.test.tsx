@@ -13,9 +13,20 @@ describe("MasterDataPage", () => {
     const dialog = await screen.findByRole("dialog", { name: "Artikel anlegen" });
     await changeValue(within(dialog).getByLabelText("Name"), "Rettungsdecke");
     await changeValue(within(dialog).getByLabelText("Einheit"), "Stück");
+    await changeValue(within(dialog).getByLabelText("Hersteller"), "Acme Medical");
+    await changeValue(within(dialog).getByLabelText("Kategorie"), "Verbrauchsmaterial");
     await changeValue(within(dialog).getByLabelText("Barcode/DataMatrix"), "040000000099");
+    await clickElement(within(dialog).getByLabelText("Steril"));
     await clickElement(within(dialog).getByRole("button", { name: /Artikel anlegen/ }));
-    await waitFor(() => expect(postedBody("/api/catalog/articles")).toEqual({ name: "Rettungsdecke", unit: "Stück", barcode: "040000000099", criticalDefault: false }));
+    await waitFor(() => expect(postedBody("/api/catalog/articles")).toEqual({
+      name: "Rettungsdecke",
+      unit: "Stück",
+      manufacturer: "Acme Medical",
+      category: "Verbrauchsmaterial",
+      barcode: "040000000099",
+      sterile: true,
+      criticalDefault: false
+    }));
   });
 
   it("edits existing articles from the admin master data screen", async () => {
@@ -25,9 +36,23 @@ describe("MasterDataPage", () => {
     await clickElement(await screen.findByRole("button", { name: /Bearbeiten/ }));
     const dialog = await screen.findByRole("dialog", { name: "Artikel bearbeiten" });
     await changeValue(within(dialog).getByLabelText("Name"), "Verbandpäckchen groß");
+    await changeValue(within(dialog).getByLabelText("Hersteller"), "MediSafe");
+    await changeValue(within(dialog).getByLabelText("Hersteller-Art.-Nr."), "VB-2000");
     await changeValue(within(dialog).getByLabelText("Barcode/DataMatrix"), "040000000099");
+    await changeValue(within(dialog).getByLabelText("Lagerhinweise"), "Trocken lagern");
     await clickElement(within(dialog).getByRole("button", { name: /Artikel speichern/ }));
-    await waitFor(() => expect(requestBody("/api/catalog/articles/article-bandage", "PATCH")).toEqual({ name: "Verbandpäckchen groß", unit: "Stück", barcode: "040000000099", criticalDefault: false }));
+    await waitFor(() => expect(requestBody("/api/catalog/articles/article-bandage", "PATCH")).toEqual({
+      name: "Verbandpäckchen groß",
+      unit: "Stück",
+      manufacturer: "MediSafe",
+      manufacturerPartNumber: "VB-2000",
+      category: "Verbandmaterial",
+      barcode: "040000000099",
+      sterile: true,
+      storageNotes: "Trocken lagern",
+      notes: "Einzeln steril verpackt",
+      criticalDefault: false
+    }));
   });
 
   it("submits new locations from the dedicated lagerorte tab modal", async () => {

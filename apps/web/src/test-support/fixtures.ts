@@ -21,7 +21,19 @@ export const batch = {
   location: { id: "loc-main", name: "Hauptlager" }
 };
 
-export const article = { id: "article-bandage", name: "Verbandpäckchen mittel", unit: "Stück", criticalDefault: false };
+export const article = {
+  id: "article-bandage",
+  name: "Verbandpäckchen mittel",
+  unit: "Stück",
+  manufacturer: "MediSafe",
+  manufacturerPartNumber: "VB-1000",
+  category: "Verbandmaterial",
+  barcode: "040000000001",
+  sterile: true,
+  storageNotes: "Trocken lagern",
+  notes: "Einzeln steril verpackt",
+  criticalDefault: false
+};
 export const location = { id: "loc-main", name: "Hauptlager", kind: "STORAGE" };
 
 export const order = {

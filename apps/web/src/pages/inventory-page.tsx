@@ -15,6 +15,8 @@ export function InventoryPage() {
   const [lotNumber, setLotNumber] = useState("");
   const [expiresAt, setExpiresAt] = useState("");
   const [quantity, setQuantity] = useState(0);
+  const [createOpen, setCreateOpen] = useState(false);
+  const [correctionOpen, setCorrectionOpen] = useState(false);
   const [selectedBatchId, setSelectedBatchId] = useState<string | null>(null);
   const [correctionQuantity, setCorrectionQuantity] = useState(0);
   const [correctionLotNumber, setCorrectionLotNumber] = useState("");
@@ -25,12 +27,9 @@ export function InventoryPage() {
   const batches = useQuery({ queryKey: ["batches"], queryFn: rescueBaseApi.batches });
   const articles = useQuery({ queryKey: ["articles"], queryFn: rescueBaseApi.articles });
   const locations = useQuery({ queryKey: ["locations"], queryFn: rescueBaseApi.locations });
-  const movements = useQuery({ queryKey: ["batch-movements", selectedBatchId], queryFn: () => rescueBaseApi.batchMovements(selectedBatchId ?? ""), enabled: Boolean(selectedBatchId) });
-  const createMutation = useMutation({ mutationFn: rescueBaseApi.createBatch, onSuccess: async () => { setLotNumber(""); setExpiresAt(""); setQuantity(0); await queryClient.invalidateQueries({ queryKey: ["batches"] }); } });
-  const correctionMutation = useMutation({
-    mutationFn: ({ body, id }: { body: { reason: string; quantity?: number; lotNumber?: string; expiresAt?: string; locationId?: string }; id: string }) => rescueBaseApi.correctBatch(id, body),
-    onSuccess: async () => { await Promise.all([queryClient.invalidateQueries({ queryKey: ["batches"] }), queryClient.invalidateQueries({ queryKey: ["batch-movements", selectedBatchId] })]); setCorrectionReason(""); }
-  });
+  const movements = useQuery({ queryKey: ["batch-movements", selectedBatchId], queryFn: () => rescueBaseApi.batchMovements(selectedBatchId ?? ""), enabled: Boolean(selectedBatchId && correctionOpen) });
+  const createMutation = useMutation({ mutationFn: rescueBaseApi.createBatch, onSuccess: async () => { setLotNumber(""); setExpiresAt(""); setQuantity(0); setCreateOpen(false); await queryClient.invalidateQueries({ queryKey: ["batches"] }); } });
+  const correctionMutation = useMutation({ mutationFn: ({ body, id }: { body: { reason: string; quantity?: number; lotNumber?: string; expiresAt?: string; locationId?: string }; id: string }) => rescueBaseApi.correctBatch(id, body), onSuccess: async () => { await Promise.all([queryClient.invalidateQueries({ queryKey: ["batches"] }), queryClient.invalidateQueries({ queryKey: ["batch-movements", selectedBatchId] })]); setCorrectionReason(""); setCorrectionOpen(false); } });
   const selectedBatch = batches.data?.find((batch) => batch.id === selectedBatchId) ?? null;
   const expiring = batches.data?.filter((batch) => daysUntil(batch.expiresAt) <= 90) ?? [];
 
@@ -49,11 +48,9 @@ export function InventoryPage() {
     <>
       <header className="topbar"><div><h1>Lager</h1><p>Bestand nach Artikel, Lagerort, Charge und Ablaufdatum.</p></div><div className="topbar-actions"><AnchorButton href={rescueBaseApi.reportUrl("/reports/csv/inventory")} variant="secondary"><Download data-icon="inline-start" />CSV Bestand</AnchorButton></div></header>
       <section className="metric-grid metric-grid-compact" aria-label="Lagerkennzahlen"><Metric icon={<Archive />} label="Chargen" tone="info" value={String(batches.data.length)} /><Metric icon={<AlertTriangle />} label="Ablaufwarnungen" tone="danger" value={String(expiring.length)} /></section>
-      <BatchCreatePanel articleId={articleId} articles={articles.data} createError={createMutation.error ?? null} expiresAt={expiresAt} locationId={locationId} locations={locations.data} lotNumber={lotNumber} onArticleChange={setArticleId} onCreate={() => createMutation.mutate({ articleId: articleId || articles.data[0]?.id || "", expiresAt, locationId: locationId || locations.data[0]?.id || "", lotNumber, quantity })} onExpiresAtChange={setExpiresAt} onLocationChange={setLocationId} onLotNumberChange={setLotNumber} onQuantityChange={setQuantity} quantity={quantity} />
-      <section className="workbench">
-        <BatchListPanel batches={batches.data} onSelect={setSelectedBatchId} selectedBatchId={selectedBatchId} />
-        <BatchCorrectionPanel correctionError={correctionMutation.error ? toError(correctionMutation.error) : null} correctionExpiresAt={correctionExpiresAt} correctionLocationId={correctionLocationId} correctionLotNumber={correctionLotNumber} correctionQuantity={correctionQuantity} correctionReason={correctionReason} locations={locations.data} movements={movements} onExpiresAtChange={setCorrectionExpiresAt} onLocationChange={setCorrectionLocationId} onLotNumberChange={setCorrectionLotNumber} onQuantityChange={setCorrectionQuantity} onReasonChange={setCorrectionReason} onSubmit={() => selectedBatch && correctionMutation.mutate({ body: { expiresAt: correctionExpiresAt, locationId: correctionLocationId, lotNumber: correctionLotNumber.trim(), quantity: correctionQuantity, reason: correctionReason }, id: selectedBatch.id })} selectedBatch={selectedBatch} />
-      </section>
+      <BatchListPanel batches={batches.data} onCreate={() => setCreateOpen(true)} onSelect={(id) => { setSelectedBatchId(id); setCorrectionOpen(true); }} selectedBatchId={selectedBatchId} />
+      <BatchCreatePanel articleId={articleId} articles={articles.data} createError={createMutation.error ?? null} expiresAt={expiresAt} isOpen={createOpen} locationId={locationId} locations={locations.data} lotNumber={lotNumber} onArticleChange={setArticleId} onClose={() => setCreateOpen(false)} onCreate={() => createMutation.mutate({ articleId: articleId || articles.data[0]?.id || "", expiresAt, locationId: locationId || locations.data[0]?.id || "", lotNumber, quantity })} onExpiresAtChange={setExpiresAt} onLocationChange={setLocationId} onLotNumberChange={setLotNumber} onQuantityChange={setQuantity} quantity={quantity} />
+      <BatchCorrectionPanel correctionError={correctionMutation.error ? toError(correctionMutation.error) : null} correctionExpiresAt={correctionExpiresAt} correctionLocationId={correctionLocationId} correctionLotNumber={correctionLotNumber} correctionQuantity={correctionQuantity} correctionReason={correctionReason} isOpen={correctionOpen} locations={locations.data} movements={movements} onClose={() => setCorrectionOpen(false)} onExpiresAtChange={setCorrectionExpiresAt} onLocationChange={setCorrectionLocationId} onLotNumberChange={setCorrectionLotNumber} onQuantityChange={setCorrectionQuantity} onReasonChange={setCorrectionReason} onSubmit={() => selectedBatch && correctionMutation.mutate({ body: { expiresAt: correctionExpiresAt, locationId: correctionLocationId, lotNumber: correctionLotNumber.trim(), quantity: correctionQuantity, reason: correctionReason }, id: selectedBatch.id })} selectedBatch={selectedBatch} />
     </>
   );
 }

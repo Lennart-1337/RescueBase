@@ -1,10 +1,10 @@
 import { useState } from "react";
-import { Plus, Users } from "lucide-react";
+import { Plus, X } from "lucide-react";
 import { InlineError } from "../../components/state-panels";
-import { Badge, Button, Field, Panel } from "../../components/ui";
+import { Badge, Button, Dialog, Field } from "../../components/ui";
 import type { InviteUserRequest } from "../../lib/types";
 
-export function UserInvitationPanel(props: { error: Error | null; isSubmitting: boolean; onInvite: (body: InviteUserRequest) => Promise<{ debugUrl?: string; invitationUrl: string }> }) {
+export function UserInvitationPanel(props: { error: Error | null; isOpen: boolean; isSubmitting: boolean; onClose: () => void; onInvite: (body: InviteUserRequest) => Promise<{ debugUrl?: string; invitationUrl: string }> }) {
   const [displayName, setDisplayName] = useState("");
   const [email, setEmail] = useState("");
   const [role, setRole] = useState<"ADMIN" | "WAREHOUSE">("WAREHOUSE");
@@ -19,8 +19,7 @@ export function UserInvitationPanel(props: { error: Error | null; isSubmitting: 
   }
 
   return (
-    <Panel>
-      <div className="panel-header"><div><h2>Benutzer einladen</h2><p>Einladungen laufen per E-Mail-Link mit eigenem Passwort-Setup.</p></div><Users /></div>
+    <Dialog actions={<><Button onClick={props.onClose} type="button" variant="ghost"><X data-icon="inline-start" />Schließen</Button><Button disabled={!displayName.trim() || !email.trim() || props.isSubmitting} onClick={() => void invite()} type="button"><Plus data-icon="inline-start" />Einladung senden</Button></>} description="Einladungen laufen per E-Mail-Link mit eigenem Passwort-Setup." onClose={props.onClose} open={props.isOpen} title="Benutzer einladen">
       <div className="form-grid form-grid-three">
         <Field label="Name"><input value={displayName} onChange={(event) => setDisplayName(event.target.value)} /></Field>
         <Field label="E-Mail"><input type="email" value={email} onChange={(event) => setEmail(event.target.value)} /></Field>
@@ -28,8 +27,7 @@ export function UserInvitationPanel(props: { error: Error | null; isSubmitting: 
       </div>
       {props.error ? <InlineError error={props.error} /> : null}
       {debugInvitationUrl ? <p className="debug-hint">Lokaler Einladungslink: {debugInvitationUrl}</p> : null}
-      <div className="form-actions"><Button disabled={!displayName.trim() || !email.trim() || props.isSubmitting} onClick={() => void invite()} type="button"><Plus data-icon="inline-start" />Einladung senden</Button></div>
       <Badge tone="info">Nur Admins können Einladungen verwalten</Badge>
-    </Panel>
+    </Dialog>
   );
 }

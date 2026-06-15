@@ -1,14 +1,25 @@
 import { Link } from "@tanstack/react-router";
-import { ExternalLink, Pencil, QrCode, RotateCw } from "lucide-react";
+import { ExternalLink, Pencil, Plus, QrCode, RotateCw } from "lucide-react";
 import { statusLabels } from "../../app/formatters";
 import { InlineError } from "../../components/state-panels";
 import { AnchorButton, Badge, Button, Panel } from "../../components/ui";
 import { rescueBaseApi } from "../../lib/api";
 import type { Kit } from "../../lib/types";
 
-export function KitListPanel(props: { kits: Kit[]; onEdit: (kit: Kit) => void; onRotate: (id: string) => void; rotateError: Error | null; rotatePending: boolean }) {
+export function KitListPanel(props: {
+  kits: Kit[];
+  onCreate: () => void;
+  onEdit: (kit: Kit) => void;
+  onRotate: (id: string) => void;
+  rotateError: Error | null;
+  rotatePending: boolean;
+}) {
   return (
     <Panel>
+      <div className="panel-header">
+        <div><h2>Rucksäcke</h2><p>Verwalten Sie physische Rucksäcke, QR-Dokumente und öffentliche Check-Zugänge.</p></div>
+        <Button onClick={props.onCreate} type="button"><Plus data-icon="inline-start" />Rucksack hinzufügen</Button>
+      </div>
       <div className="table">
         {props.kits.map((kit) => (
           <div className="table-row kit-row" key={kit.id}>
@@ -30,9 +41,6 @@ export function KitListPanel(props: { kits: Kit[]; onEdit: (kit: Kit) => void; o
 }
 
 function qrPdfUrl(kitId: string, format: "a4" | "label", tokenRotatedAt: string) {
-  const search = new URLSearchParams({
-    format,
-    rev: tokenRotatedAt
-  });
+  const search = new URLSearchParams({ format, rev: tokenRotatedAt });
   return rescueBaseApi.reportUrl(`/reports/qr-label/${kitId}.pdf?${search.toString()}`);
 }

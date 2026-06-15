@@ -9,10 +9,12 @@ describe("InventoryPage", () => {
     stubFetch(baseInventoryRoutes());
     await renderAppAt("/admin/inventory");
     await screen.findByRole("heading", { name: "Lager" });
-    await changeValue(screen.getByLabelText("Chargennummer"), "RD-2028-02");
-    await changeValue(screen.getByLabelText("Ablaufdatum"), "2028-02-29");
-    await changeValue(screen.getByLabelText("Menge"), "25");
-    await clickElement(screen.getByRole("button", { name: /Charge erfassen/ }));
+    await clickElement(screen.getByRole("button", { name: /Charge hinzufügen/ }));
+    const dialog = await screen.findByRole("dialog", { name: "Charge erfassen" });
+    await changeValue(within(dialog).getByLabelText("Chargennummer"), "RD-2028-02");
+    await changeValue(within(dialog).getByLabelText("Ablaufdatum"), "2028-02-29");
+    await changeValue(within(dialog).getByLabelText("Menge"), "25");
+    await clickElement(within(dialog).getByRole("button", { name: /Charge erfassen/ }));
     await waitFor(() => expect(postedBody("/api/inventory/batches")).toEqual({ articleId: "article-bandage", locationId: "loc-main", lotNumber: "RD-2028-02", expiresAt: "2028-02-29", quantity: 25 }));
   });
 
@@ -21,11 +23,20 @@ describe("InventoryPage", () => {
     await renderAppAt("/admin/inventory");
     await screen.findByRole("heading", { name: "Lager" });
     await clickElement(await screen.findByRole("button", { name: /Korrigieren/ }));
-    const correctionPanel = (await screen.findByRole("heading", { name: "Chargenkorrektur" })).closest("section");
-    await changeValue(within(correctionPanel as HTMLElement).getByLabelText("Chargennummer"), "VB-2026-04A");
-    await changeValue(within(correctionPanel as HTMLElement).getByLabelText("Begründung"), "Inventur");
-    await clickElement(within(correctionPanel as HTMLElement).getByRole("button", { name: /Korrektur buchen/ }));
+    const dialog = await screen.findByRole("dialog", { name: "Chargenkorrektur" });
+    await changeValue(within(dialog).getByLabelText("Chargennummer"), "VB-2026-04A");
+    await changeValue(within(dialog).getByLabelText("Begründung"), "Inventur");
+    await clickElement(within(dialog).getByRole("button", { name: /Korrektur buchen/ }));
     await waitFor(() => expect(postedBody("/api/inventory/batches/batch-bandage-1/corrections")).toEqual({ reason: "Inventur", quantity: 120, lotNumber: "VB-2026-04A", expiresAt: "2027-04-30" }));
+  });
+
+  it("hides empty batches by default and can show them with a filter", async () => {
+    stubFetch({ ...baseInventoryRoutes(), "/api/inventory/batches": [batch, { ...batch, id: "batch-empty-1", lotNumber: "VB-ALT-0", quantity: 0 }] });
+    await renderAppAt("/admin/inventory");
+    await screen.findByRole("heading", { name: "Lager" });
+    expect(screen.queryByText(/VB-ALT-0/)).toBeNull();
+    await clickElement(screen.getByLabelText("Chargen mit Menge 0 anzeigen"));
+    expect(screen.getByText(/VB-ALT-0/)).toBeInTheDocument();
   });
 });
 
