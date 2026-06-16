@@ -3,14 +3,16 @@ import { ApiTags } from "@nestjs/swagger";
 import { createHash } from "node:crypto";
 import {
   createSignatureHashPayload,
-  deriveKitStatusFromEvaluation,
   evaluateCheck,
   type CheckCompletionInput
 } from "@rescuebase/domain";
 import { AuditService } from "../services/audit.service.js";
 import { PrismaService } from "../persistence/prisma.service.js";
-import { mapOrder, mapTemplate, toIsoDateTime } from "../persistence/mappers.js";
+import { mapOrder, mapTemplate, toIsoDateTime, type KitRecord } from "../persistence/mappers.js";
 import { PublicRoute } from "../auth/auth.decorators.js";
+
+type PublicCheckTransaction = Pick<PrismaService, "check" | "kit" | "replenishmentOrder" | "auditEvent">;
+type PublicKitRecord = Omit<KitRecord, "location">;
 
 @ApiTags("Öffentliche Checks")
 @PublicRoute()
@@ -44,20 +46,19 @@ export class PublicChecksController {
     const completedAtIso = completedAt.toISOString();
     const input: CheckCompletionInput = { ...body, kitId: kit.id };
     const evaluation = evaluateCheck(template.positions, input);
-    const effectiveStatus = deriveKitStatusFromEvaluation(evaluation);
+    const effectiveStatus = evaluation.effectiveStatus;
     const signatureHash = createHash("sha256")
       .update(createSignatureHashPayload(input, completedAtIso))
       .update(body.signaturePngDataUrl)
       .digest("hex");
 
-    const result = await this.prisma.$transaction(async (tx) => {
+    const result = await this.prisma.$transaction(async (tx: PublicCheckTransaction) => {
       const check = await tx.check.create({
         data: {
           kitId: kit.id,
           checkerName: body.checkerName,
-          selectedStatus: body.selectedStatus,
+          selectedStatus: effectiveStatus,
           effectiveStatus,
-          statusReason: body.statusReason,
           warningsJson: evaluation.warnings,
           signaturePngDataUrl: body.signaturePngDataUrl,
           signatureHash,
@@ -119,7 +120,6 @@ export class PublicChecksController {
         entityId: kit.id,
         payload: {
           checkId: check.id,
-          selectedStatus: body.selectedStatus,
           effectiveStatus,
           replenishmentOrderId: replenishmentOrder?.id
         }
@@ -133,9 +133,7 @@ export class PublicChecksController {
         id: result.check.id,
         kitId: result.check.kitId,
         checkerName: result.check.checkerName,
-        selectedStatus: result.check.selectedStatus,
         effectiveStatus: result.check.effectiveStatus,
-        statusReason: result.check.statusReason ?? undefined,
         warnings: evaluation.warnings,
         signaturePngDataUrl: result.check.signaturePngDataUrl,
         signatureHash: result.check.signatureHash,
@@ -147,8 +145,8 @@ export class PublicChecksController {
     };
   }
 
-  private async findKitByToken(token: string) {
-    const kit = await this.prisma.kit.findUnique({
+  private async findKitByToken(token: string): Promise<PublicKitRecord> {
+    const kit: PublicKitRecord | null = await this.prisma.kit.findUnique({
       where: { publicToken: token },
       include: {
         template: { include: { positions: { include: { article: true } } } }

@@ -32,7 +32,6 @@ function checkInput(overrides: Partial<CheckCompletionInput> = {}): CheckComplet
   return {
     kitId: "kit-1",
     checkerName: "Mara Müller",
-    selectedStatus: "CONDITIONAL",
     signaturePngDataUrl: "data:image/png;base64,abc",
     positions: [
       {
@@ -66,20 +65,14 @@ describe("RescueBase domain rules", () => {
         reason: "SHORTAGE_AND_DISCARDED_EXPIRED"
       })
     ]);
+    expect(evaluation.effectiveStatus).toBe("CONDITIONAL");
   });
 
-  it("warns when a checker marks a kit ready despite shortages", () => {
-    const evaluation = evaluateCheck(
-      positions,
-      checkInput({
-        selectedStatus: "READY",
-        statusReason: ""
-      })
-    );
+  it("marks a kit conditional when only non-critical material is missing", () => {
+    const evaluation = evaluateCheck(positions, checkInput());
 
-    expect(evaluation.requiresReason).toBe(true);
-    expect(evaluation.warnings).toContain("Fehlmengen sprechen gegen den Status bereit.");
-    expect(evaluation.warnings).toContain("Status bereit trotz Abweichung benötigt eine Begründung.");
+    expect(evaluation.effectiveStatus).toBe("CONDITIONAL");
+    expect(evaluation.warnings).toContain("Es fehlen Materialien, aber keine kritische Position.");
   });
 
   it("derives not ready from critical shortages", () => {
@@ -94,6 +87,7 @@ describe("RescueBase domain rules", () => {
     );
 
     expect(deriveKitStatusFromEvaluation(evaluation)).toBe("NOT_READY");
+    expect(evaluation.warnings).toContain("Mindestens eine kritische Position ist unvollständig.");
   });
 
   it("allows partial replenishment and keeps the order in progress", () => {

@@ -1,8 +1,6 @@
 import { Injectable, Logger } from "@nestjs/common";
-import nodemailer from "nodemailer";
 
 export interface MailDeliveryResult {
-  provider: "console" | "smtp";
   debugCode?: string;
   debugUrl?: string;
 }
@@ -10,7 +8,6 @@ export interface MailDeliveryResult {
 @Injectable()
 export class MailService {
   private readonly logger = new Logger(MailService.name);
-  private transporterPromise: Promise<nodemailer.Transporter> | null = null;
 
   async sendInvitation(email: string, invitationUrl: string): Promise<MailDeliveryResult> {
     return this.send({
@@ -40,42 +37,31 @@ export class MailService {
   }
 
   private async send(input: { email: string; subject: string; text: string; debugUrl?: string; debugCode?: string }): Promise<MailDeliveryResult> {
-    const provider = (process.env.MAIL_PROVIDER ?? "console").toLowerCase();
-    if (provider === "smtp") {
-      const transporter = await this.getTransporter();
-      await transporter.sendMail({
-        from: process.env.MAIL_FROM ?? "RescueBase <noreply@example.org>",
-        to: input.email,
+    const apiKey = process.env.RESEND_API_KEY?.trim();
+    if (!apiKey) {
+      this.logger.log(`MAIL ${input.subject} -> ${input.email}\n${input.text}`);
+      return {
+        debugCode: input.debugCode,
+        debugUrl: input.debugUrl
+      };
+    }
+
+    const response = await fetch("https://api.resend.com/emails", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        from: process.env.RESEND_FROM ?? "RescueBase <noreply@example.org>",
+        to: [input.email],
         subject: input.subject,
         text: input.text
-      });
-      return { provider: "smtp" };
+      })
+    });
+    if (!response.ok) {
+      throw new Error(`Resend mail delivery failed with status ${response.status}: ${await response.text()}`);
     }
-
-    this.logger.log(`MAIL ${input.subject} -> ${input.email}\n${input.text}`);
-    return {
-      provider: "console",
-      debugCode: input.debugCode,
-      debugUrl: input.debugUrl
-    };
-  }
-
-  private getTransporter(): Promise<nodemailer.Transporter> {
-    if (!this.transporterPromise) {
-      this.transporterPromise = Promise.resolve(
-        nodemailer.createTransport({
-          host: process.env.SMTP_HOST,
-          port: Number(process.env.SMTP_PORT ?? 587),
-          secure: process.env.SMTP_SECURE === "true",
-          auth: process.env.SMTP_USER
-            ? {
-              user: process.env.SMTP_USER,
-              pass: process.env.SMTP_PASSWORD
-            }
-            : undefined
-        })
-      );
-    }
-    return this.transporterPromise;
+    return {};
   }
 }

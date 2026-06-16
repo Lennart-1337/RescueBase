@@ -1,5 +1,5 @@
 import { SetMetadata } from "@nestjs/common";
-import type { UserRole } from "@prisma/client";
+import type { UserRole } from "@rescuebase/domain";
 
 export const IS_PUBLIC_ROUTE = "isPublicRoute";
 export const REQUIRED_ROLES = "requiredRoles";

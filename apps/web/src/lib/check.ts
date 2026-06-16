@@ -37,9 +37,8 @@ export function groupTemplatePositions(positions: TemplatePosition[]): GroupedTe
 
 export function summarizeCheck(
   positions: TemplatePosition[],
-  lines: CheckLineState[],
-  selectedStatus: KitOperationalStatus
-): { missingCount: number; discardedCount: number; criticalMissing: boolean; warnings: string[]; requiresReason: boolean } {
+  lines: CheckLineState[]
+): { missingCount: number; discardedCount: number; criticalMissing: boolean; effectiveStatus: KitOperationalStatus; warnings: string[] } {
   const linesById = new Map(lines.map((line) => [line.templatePositionId, line]));
   let missingCount = 0;
   let discardedCount = 0;
@@ -58,18 +57,21 @@ export function summarizeCheck(
   });
 
   const warnings: string[] = [];
-  if (criticalMissing && selectedStatus !== "NOT_READY") {
-    warnings.push("Kritische Fehlmenge: Status prüfen.");
+  if (criticalMissing) {
+    warnings.push("Mindestens eine kritische Position ist unvollständig.");
   }
-  if ((missingCount > 0 || discardedCount > 0) && selectedStatus === "READY") {
-    warnings.push("Bereit trotz Fehlmenge oder Verwurf benötigt eine Begründung.");
+  if (!criticalMissing && missingCount > 0) {
+    warnings.push("Es fehlen Materialien, aber keine kritische Position.");
+  }
+  if (discardedCount > 0) {
+    warnings.push("Abgelaufenes Material wurde verworfen und muss nachgefüllt werden.");
   }
 
   return {
     missingCount,
     discardedCount,
     criticalMissing,
-    warnings,
-    requiresReason: warnings.length > 0 && selectedStatus === "READY"
+    effectiveStatus: criticalMissing ? "NOT_READY" : missingCount > 0 || discardedCount > 0 ? "CONDITIONAL" : "READY",
+    warnings
   };
 }

@@ -520,7 +520,25 @@
           "unit": {
             "type": "string"
           },
+          "manufacturer": {
+            "type": "string"
+          },
+          "manufacturerPartNumber": {
+            "type": "string"
+          },
+          "category": {
+            "type": "string"
+          },
           "barcode": {
+            "type": "string"
+          },
+          "sterile": {
+            "type": "boolean"
+          },
+          "storageNotes": {
+            "type": "string"
+          },
+          "notes": {
             "type": "string"
           },
           "criticalDefault": {
@@ -539,6 +557,7 @@
           "id",
           "name",
           "unit",
+          "sterile",
           "criticalDefault"
         ],
         "additionalProperties": false
@@ -552,7 +571,25 @@
           "unit": {
             "type": "string"
           },
+          "manufacturer": {
+            "type": "string"
+          },
+          "manufacturerPartNumber": {
+            "type": "string"
+          },
+          "category": {
+            "type": "string"
+          },
           "barcode": {
+            "type": "string"
+          },
+          "sterile": {
+            "type": "boolean"
+          },
+          "storageNotes": {
+            "type": "string"
+          },
+          "notes": {
             "type": "string"
           },
           "criticalDefault": {
@@ -562,6 +599,7 @@
         "required": [
           "name",
           "unit",
+          "sterile",
           "criticalDefault"
         ],
         "additionalProperties": false
@@ -575,7 +613,25 @@
           "unit": {
             "type": "string"
           },
+          "manufacturer": {
+            "type": "string"
+          },
+          "manufacturerPartNumber": {
+            "type": "string"
+          },
+          "category": {
+            "type": "string"
+          },
           "barcode": {
+            "type": "string"
+          },
+          "sterile": {
+            "type": "boolean"
+          },
+          "storageNotes": {
+            "type": "string"
+          },
+          "notes": {
             "type": "string"
           },
           "criticalDefault": {
@@ -585,6 +641,7 @@
         "required": [
           "name",
           "unit",
+          "sterile",
           "criticalDefault"
         ],
         "additionalProperties": false
@@ -1240,12 +1297,6 @@
           "checkerName": {
             "type": "string"
           },
-          "selectedStatus": {
-            "$ref": "#/components/schemas/KitOperationalStatus"
-          },
-          "statusReason": {
-            "type": "string"
-          },
           "signaturePngDataUrl": {
             "type": "string"
           },
@@ -1258,7 +1309,6 @@
         },
         "required": [
           "checkerName",
-          "selectedStatus",
           "signaturePngDataUrl",
           "positions"
         ],
@@ -1291,14 +1341,8 @@
           "checkerName": {
             "type": "string"
           },
-          "selectedStatus": {
-            "$ref": "#/components/schemas/KitOperationalStatus"
-          },
           "effectiveStatus": {
             "$ref": "#/components/schemas/KitOperationalStatus"
-          },
-          "statusReason": {
-            "type": "string"
           },
           "warnings": {
             "type": "array",
@@ -1321,7 +1365,6 @@
           "id",
           "kitId",
           "checkerName",
-          "selectedStatus",
           "effectiveStatus",
           "warnings",
           "signaturePngDataUrl",

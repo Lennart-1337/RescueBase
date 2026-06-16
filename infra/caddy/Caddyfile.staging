@@ -1,0 +1,16 @@
+{$APP_DOMAIN} {
+  tls /srv/caddy-config/origin-cert.pem /srv/caddy-config/origin-key.pem
+  encode zstd gzip
+
+  handle_path /api/* {
+    reverse_proxy api:3000
+  }
+
+  handle /docs* {
+    reverse_proxy api:3000
+  }
+
+  handle {
+    reverse_proxy web:80
+  }
+}

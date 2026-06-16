@@ -1,0 +1,29 @@
+services:
+  mariadb:
+    ports: !reset []
+
+  api:
+    image: ${API_IMAGE}:${IMAGE_TAG}
+    build: !reset null
+    pull_policy: always
+    environment:
+      NODE_ENV: production
+      APP_PUBLIC_URL: ${APP_PUBLIC_URL}
+      JWT_SECRET: ${JWT_SECRET}
+      RESEND_API_KEY: ${RESEND_API_KEY}
+      RESEND_FROM: ${RESEND_FROM}
+      DATABASE_URL: mysql://${MARIADB_USER}:${MARIADB_PASSWORD}@mariadb:3306/${MARIADB_DATABASE}
+      RESCUEBASE_SEED_DEV_DATA: "false"
+
+  web:
+    image: ${WEB_IMAGE}:${IMAGE_TAG}
+    build: !reset null
+    pull_policy: always
+
+  caddy:
+    command: ["caddy", "run", "--config", "/srv/caddy-config/Caddyfile.production", "--adapter", "caddyfile"]
+    environment:
+      APP_DOMAIN: ${APP_DOMAIN}
+    volumes:
+      - ${CLOUDFLARE_ORIGIN_CERT_HOST_FILE}:/srv/certs/origin-cert.pem:ro
+      - ${CLOUDFLARE_ORIGIN_KEY_HOST_FILE}:/srv/certs/origin-key.pem:ro

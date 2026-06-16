@@ -2,10 +2,22 @@ import { Injectable, UnauthorizedException } from "@nestjs/common";
 import { compare, hash } from "bcryptjs";
 import { randomBytes, createHash } from "node:crypto";
 import { authenticator } from "otplib";
+import type { TwoFactorMethod, UserRole } from "@rescuebase/domain";
 import type { Response } from "express";
-import type { TwoFactorMethod, User, UserRole } from "@prisma/client";
 import { EMAIL_2FA_TTL_MS, INVITATION_TTL_MS, PASSWORD_RESET_TTL_MS, SESSION_COOKIE_NAME, SESSION_TTL_MS } from "./auth.constants.js";
 import { PrismaService } from "../persistence/prisma.service.js";
+
+type UserEmail = { email: string };
+type UserInvitation = { id: string; email: string; displayName: string; role: UserRole };
+type UserPasswordReset = { id: string; email: string; displayName: string };
+type UserSessionView = {
+  id: string;
+  email: string;
+  displayName: string;
+  role: UserRole;
+  twoFactorEnabled: boolean;
+  twoFactorMethod: TwoFactorMethod | null;
+};
 
 export interface AuthenticatedUser {
   id: string;
@@ -74,7 +86,7 @@ export class AuthService {
     return this.toAuthenticatedUser(session.user);
   }
 
-  createTwoFactorSetup(user: Pick<User, "email">): { secret: string; otpauthUrl: string } {
+  createTwoFactorSetup(user: UserEmail): { secret: string; otpauthUrl: string } {
     const secret = authenticator.generateSecret();
     return {
       secret,
@@ -102,7 +114,7 @@ export class AuthService {
     return { token, expiresAt };
   }
 
-  async consumeInvitation(token: string): Promise<(Pick<User, "id" | "email" | "displayName" | "role"> & { invitationId: string }) | null> {
+  async consumeInvitation(token: string): Promise<(UserInvitation & { invitationId: string }) | null> {
     const invitation = await this.prisma.userInvitation.findUnique({
       where: { tokenHash: this.hashOpaqueToken(token) },
       include: { user: true }
@@ -139,7 +151,7 @@ export class AuthService {
     return { token, expiresAt };
   }
 
-  async getPasswordReset(token: string): Promise<(Pick<User, "id" | "email" | "displayName"> & { resetId: string }) | null> {
+  async getPasswordReset(token: string): Promise<(UserPasswordReset & { resetId: string }) | null> {
     const reset = await this.prisma.passwordResetToken.findUnique({
       where: { tokenHash: this.hashOpaqueToken(token) },
       include: { user: true }
@@ -199,7 +211,7 @@ export class AuthService {
     await this.prisma.userSession.deleteMany({ where: { userId } });
   }
 
-  toAuthenticatedUser(user: Pick<User, "id" | "email" | "displayName" | "role" | "twoFactorEnabled" | "twoFactorMethod">): AuthenticatedUser {
+  toAuthenticatedUser(user: UserSessionView): AuthenticatedUser {
     return {
       id: user.id,
       email: user.email,

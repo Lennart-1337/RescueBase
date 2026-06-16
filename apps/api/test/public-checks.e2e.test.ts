@@ -1,61 +1,25 @@
-import { Test } from "@nestjs/testing";
 import type { INestApplication } from "@nestjs/common";
-import { execFileSync } from "node:child_process";
 import { jest } from "@jest/globals";
-import cookieParser from "cookie-parser";
-import { MySqlContainer, type StartedMySqlContainer } from "@testcontainers/mysql";
-import { PrismaClient } from "@prisma/client";
 import request from "supertest";
-import { AppModule } from "../src/modules/app.module.js";
-import { seedRescueBaseDevelopmentData } from "../src/persistence/seed.js";
+import { bootstrapTestApp } from "./bootstrap-test-app.js";
 
 jest.setTimeout(30_000);
 
 describe("public check flow", () => {
   let app: INestApplication;
-  let database: StartedMySqlContainer | undefined;
-  let testcontainersUnavailable: string | undefined;
+  let closeApp: (() => Promise<void>) | undefined;
 
   beforeAll(async () => {
-    try {
-      database = await new MySqlContainer("mariadb:11.4")
-        .withDatabase("rescuebase_test")
-        .withUsername("rescuebase")
-        .withUserPassword("rescuebase")
-        .withRootPassword("rescuebase-root")
-        .start();
-    } catch (error) {
-      testcontainersUnavailable = error instanceof Error ? error.message : "Container runtime unavailable.";
-      if (process.env.REQUIRE_TESTCONTAINERS === "true") {
-        throw error;
-      }
-      return;
-    }
-    process.env.DATABASE_URL = database.getConnectionUri();
-    execFileSync("npx", ["prisma", "migrate", "deploy"], {
-      cwd: process.cwd(),
-      env: { ...process.env, DATABASE_URL: process.env.DATABASE_URL },
-      stdio: "inherit"
-    });
-    const prisma = new PrismaClient({ datasourceUrl: process.env.DATABASE_URL });
-    await seedRescueBaseDevelopmentData(prisma);
-    await prisma.$disconnect();
-
-    const moduleRef = await Test.createTestingModule({ imports: [AppModule] }).compile();
-    app = moduleRef.createNestApplication();
-    app.use(cookieParser());
-    await app.init();
+    const harness = await bootstrapTestApp({ databaseName: "rescuebase_test" });
+    app = harness.app;
+    closeApp = harness.close;
   });
 
   afterAll(async () => {
-    await app?.close();
-    await database?.stop();
+    await closeApp?.();
   });
 
   it("creates a replenishment order, books a partial batch fulfillment and exposes audit plus reports", async () => {
-    if (skipWhenContainerRuntimeIsUnavailable(testcontainersUnavailable)) {
-      return;
-    }
     const server = app.getHttpServer();
     const agent = request.agent(server);
     await agent
@@ -71,7 +35,6 @@ describe("public check flow", () => {
       .post("/public/kits/SAN-RS-001-ZUGANG-2026/checks")
       .send({
         checkerName: "Mara Müller",
-        selectedStatus: "CONDITIONAL",
         signaturePngDataUrl: "data:image/png;base64,abc",
         positions: [
           { templatePositionId: "pos-bandage", countedQuantity: 5, discardedExpiredQuantity: 1 },
@@ -81,6 +44,7 @@ describe("public check flow", () => {
       })
       .expect(201);
 
+    expect(completed.body.check.effectiveStatus).toBe("CONDITIONAL");
     expect(completed.body.replenishmentOrder.items).toEqual([
       expect.objectContaining({ articleName: "Verbandpäckchen mittel", requestedQuantity: 2 })
     ]);
@@ -122,9 +86,6 @@ describe("public check flow", () => {
   });
 
   it("rejects overbooking a charge", async () => {
-    if (skipWhenContainerRuntimeIsUnavailable(testcontainersUnavailable)) {
-      return;
-    }
     const server = app.getHttpServer();
     const agent = request.agent(server);
     await agent
@@ -140,9 +101,6 @@ describe("public check flow", () => {
   });
 
   it("updates master data, revises templates, corrects batches, and renders both QR PDF formats", async () => {
-    if (skipWhenContainerRuntimeIsUnavailable(testcontainersUnavailable)) {
-      return;
-    }
     const server = app.getHttpServer();
     const agent = request.agent(server);
     await agent
@@ -155,7 +113,13 @@ describe("public check flow", () => {
       .send({
         name: "Verbandpäckchen groß",
         unit: "Stück",
+        manufacturer: "MediSafe",
+        manufacturerPartNumber: "VB-2000",
+        category: "Verbandmaterial",
         barcode: "040000000099",
+        sterile: true,
+        storageNotes: "Trocken lagern",
+        notes: "Nur originalverpackt einlagern",
         criticalDefault: true
       })
       .expect(200);
@@ -220,11 +184,3 @@ describe("public check flow", () => {
       .expect(200);
   });
 });
-
-function skipWhenContainerRuntimeIsUnavailable(reason: string | undefined): boolean {
-  if (!reason) {
-    return false;
-  }
-  console.warn(`Skipping MariaDB integration test: ${reason}`);
-  return true;
-}

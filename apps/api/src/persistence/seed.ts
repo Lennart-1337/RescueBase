@@ -50,7 +50,12 @@ export async function seedRescueBaseDevelopmentData(prisma: PrismaClient): Promi
       id: "article-bandage",
       name: "Verbandpäckchen mittel",
       unit: "Stück",
+      manufacturer: "MediSafe",
+      manufacturerPartNumber: "VB-1000",
+      category: "Verbandmaterial",
       barcode: "040000000001",
+      sterile: true,
+      storageNotes: "Trocken lagern",
       criticalDefault: false
     }
   });
@@ -61,7 +66,12 @@ export async function seedRescueBaseDevelopmentData(prisma: PrismaClient): Promi
       id: "article-tourniquet",
       name: "Tourniquet",
       unit: "Stück",
+      manufacturer: "Rescue Tech",
+      manufacturerPartNumber: "TQ-TACT-01",
+      category: "Medizinprodukt",
       barcode: "040000000002",
+      sterile: false,
+      notes: "Nur durch eingewiesenes Personal verwenden",
       criticalDefault: true
     }
   });
@@ -72,7 +82,12 @@ export async function seedRescueBaseDevelopmentData(prisma: PrismaClient): Promi
       id: "article-gloves",
       name: "Einmalhandschuhe Größe M",
       unit: "Paar",
+      manufacturer: "SafeHands",
+      manufacturerPartNumber: "GL-M-200",
+      category: "Schutzausrüstung",
       barcode: "040000000003",
+      sterile: false,
+      storageNotes: "Vor Hitze schützen",
       criticalDefault: false
     }
   });

@@ -812,7 +812,13 @@ export interface components {
             id: string;
             name: string;
             unit: string;
+            manufacturer?: string;
+            manufacturerPartNumber?: string;
+            category?: string;
             barcode?: string;
+            sterile: boolean;
+            storageNotes?: string;
+            notes?: string;
             criticalDefault: boolean;
             /** Format: date-time */
             createdAt?: string;
@@ -822,13 +828,25 @@ export interface components {
         CreateArticleRequest: {
             name: string;
             unit: string;
+            manufacturer?: string;
+            manufacturerPartNumber?: string;
+            category?: string;
             barcode?: string;
+            sterile: boolean;
+            storageNotes?: string;
+            notes?: string;
             criticalDefault: boolean;
         };
         UpdateArticleRequest: {
             name: string;
             unit: string;
+            manufacturer?: string;
+            manufacturerPartNumber?: string;
+            category?: string;
             barcode?: string;
+            sterile: boolean;
+            storageNotes?: string;
+            notes?: string;
             criticalDefault: boolean;
         };
         Location: {
@@ -1000,8 +1018,6 @@ export interface components {
         };
         CompleteCheckRequest: {
             checkerName: string;
-            selectedStatus: components["schemas"]["KitOperationalStatus"];
-            statusReason?: string;
             signaturePngDataUrl: string;
             positions: components["schemas"]["CheckPositionInput"][];
         };
@@ -1012,9 +1028,7 @@ export interface components {
             id: string;
             kitId: string;
             checkerName: string;
-            selectedStatus: components["schemas"]["KitOperationalStatus"];
             effectiveStatus: components["schemas"]["KitOperationalStatus"];
-            statusReason?: string;
             warnings: string[];
             signaturePngDataUrl: string;
             signatureHash: string;

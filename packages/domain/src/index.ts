@@ -1,3 +1,5 @@
+export type UserRole = "ADMIN" | "WAREHOUSE";
+export type TwoFactorMethod = "TOTP" | "EMAIL";
 export type KitOperationalStatus = "READY" | "CONDITIONAL" | "NOT_READY";
 export type ReplenishmentStatus = "OPEN" | "IN_PROGRESS" | "DONE" | "CANCELLED";
 export type AuditActorType = "SYSTEM" | "USER" | "PUBLIC_CHECKER";
@@ -22,8 +24,6 @@ export interface CheckPositionInput {
 export interface CheckCompletionInput {
   kitId: string;
   checkerName: string;
-  selectedStatus: KitOperationalStatus;
-  statusReason?: string;
   signaturePngDataUrl: string;
   positions: CheckPositionInput[];
 }
@@ -48,8 +48,7 @@ export interface EvaluatedCheckPosition {
 export interface CheckEvaluation {
   kitId: string;
   checkerName: string;
-  selectedStatus: KitOperationalStatus;
-  requiresReason: boolean;
+  effectiveStatus: KitOperationalStatus;
   warnings: string[];
   positions: EvaluatedCheckPosition[];
   replenishmentItems: ReplenishmentDraftItem[];
@@ -124,18 +123,13 @@ export function evaluateCheck(
     } satisfies EvaluatedCheckPosition;
   });
 
-  const warnings = buildStatusWarnings(input.selectedStatus, positions);
-  const requiresReason = input.selectedStatus === "READY" && warnings.length > 0;
-
-  if (requiresReason && !input.statusReason?.trim()) {
-    warnings.push("Status bereit trotz Abweichung benötigt eine Begründung.");
-  }
+  const effectiveStatus = deriveKitStatusFromPositions(positions);
+  const warnings = buildIssueWarnings(positions);
 
   return {
     kitId: input.kitId,
     checkerName: input.checkerName.trim(),
-    selectedStatus: input.selectedStatus,
-    requiresReason,
+    effectiveStatus,
     warnings,
     positions,
     replenishmentItems: positions.filter((position) => position.needsReplenishment).map(toReplenishmentDraft)
@@ -174,25 +168,13 @@ export function applyFulfillment(
 }
 
 export function deriveKitStatusFromEvaluation(evaluation: CheckEvaluation): KitOperationalStatus {
-  const hasCriticalShortage = evaluation.positions.some((position) => position.critical && position.hasShortage);
-  const hasAnyIssue = evaluation.positions.some((position) => position.hasShortage || position.discardedExpiredQuantity > 0);
-
-  if (hasCriticalShortage) {
-    return "NOT_READY";
-  }
-
-  if (hasAnyIssue) {
-    return "CONDITIONAL";
-  }
-
-  return "READY";
+  return deriveKitStatusFromPositions(evaluation.positions);
 }
 
 export function createSignatureHashPayload(input: CheckCompletionInput, evaluatedAtIso: string): string {
   return JSON.stringify({
     kitId: input.kitId,
     checkerName: input.checkerName.trim(),
-    selectedStatus: input.selectedStatus,
     evaluatedAtIso,
     positions: input.positions
       .map((position) => ({
@@ -225,25 +207,37 @@ function toReplenishmentDraft(position: EvaluatedCheckPosition): ReplenishmentDr
   };
 }
 
-function buildStatusWarnings(
-  selectedStatus: KitOperationalStatus,
-  positions: EvaluatedCheckPosition[]
-): string[] {
+function deriveKitStatusFromPositions(positions: EvaluatedCheckPosition[]): KitOperationalStatus {
+  const hasCriticalShortage = positions.some((position) => position.critical && position.hasShortage);
+  const hasAnyIssue = positions.some((position) => position.hasShortage || position.discardedExpiredQuantity > 0);
+
+  if (hasCriticalShortage) {
+    return "NOT_READY";
+  }
+
+  if (hasAnyIssue) {
+    return "CONDITIONAL";
+  }
+
+  return "READY";
+}
+
+function buildIssueWarnings(positions: EvaluatedCheckPosition[]): string[] {
   const criticalShortages = positions.filter((position) => position.critical && position.hasShortage);
   const shortages = positions.filter((position) => position.hasShortage);
   const discarded = positions.filter((position) => position.discardedExpiredQuantity > 0);
   const warnings: string[] = [];
 
-  if (criticalShortages.length > 0 && selectedStatus !== "NOT_READY") {
-    warnings.push("Kritische Fehlmengen sprechen für nicht einsatzbereit.");
+  if (criticalShortages.length > 0) {
+    warnings.push("Mindestens eine kritische Position ist unvollständig.");
   }
 
-  if (shortages.length > 0 && selectedStatus === "READY") {
-    warnings.push("Fehlmengen sprechen gegen den Status bereit.");
+  if (shortages.length > 0 && criticalShortages.length === 0) {
+    warnings.push("Es fehlen Materialien, aber keine kritische Position.");
   }
 
-  if (discarded.length > 0 && selectedStatus === "READY") {
-    warnings.push("Verworfenes abgelaufenes Material muss nachgefüllt werden.");
+  if (discarded.length > 0) {
+    warnings.push("Abgelaufenes Material wurde verworfen und muss nachgefüllt werden.");
   }
 
   return warnings;

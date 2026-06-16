@@ -10,14 +10,28 @@ import {
   UnauthorizedException
 } from "@nestjs/common";
 import { ApiTags } from "@nestjs/swagger";
+import type { TwoFactorMethod, UserRole } from "@rescuebase/domain";
 import type { Request, Response } from "express";
-import type { TwoFactorMethod, UserRole } from "@prisma/client";
 import { AuditService } from "../services/audit.service.js";
 import { MailService } from "../services/mail.service.js";
 import { PrismaService } from "../persistence/prisma.service.js";
 import { PublicRoute, Roles } from "../auth/auth.decorators.js";
 import { AuthService } from "../auth/auth.service.js";
 import type { AuthenticatedRequest } from "../auth/auth.guard.js";
+
+type AdminUserListItem = {
+  id: string;
+  email: string;
+  displayName: string;
+  role: UserRole;
+  active: boolean;
+  twoFactorEnabled: boolean;
+  twoFactorMethod?: TwoFactorMethod;
+};
+
+type AdminUserRecord = Omit<AdminUserListItem, "twoFactorMethod"> & {
+  twoFactorMethod: TwoFactorMethod | null;
+};
 
 @ApiTags("Auth")
 @Controller("auth")
@@ -191,7 +205,7 @@ export class AuthController {
     }
 
     const reset = await this.auth.createPasswordResetToken(user.id);
-    const resetUrl = `${process.env.APP_PUBLIC_URL ?? "http://localhost:5173"}/passwort-zuruecksetzen/${reset.token}`;
+    const resetUrl = `${process.env.APP_PUBLIC_URL ?? "http://localhost:5173"}/password-reset/${reset.token}`;
     const delivery = await this.mail.sendPasswordReset(user.email, resetUrl);
     await this.audit.record({
       actorType: "SYSTEM",
@@ -312,27 +326,19 @@ export class AuthController {
 
   @Roles("ADMIN")
   @Get("users")
-  async users(): Promise<Array<{
-    id: string;
-    email: string;
-    displayName: string;
-    role: UserRole;
-    active: boolean;
-    twoFactorEnabled: boolean;
-    twoFactorMethod?: TwoFactorMethod;
-  }>> {
-    const users = await this.prisma.user.findMany({
+  async users(): Promise<AdminUserListItem[]> {
+    const users: AdminUserRecord[] = await this.prisma.user.findMany({
       orderBy: [{ role: "asc" }, { email: "asc" }]
     });
-    return users.map((user) => ({
+    return users.map((user): AdminUserListItem => ({
       id: user.id,
       email: user.email,
-        displayName: user.displayName,
-        role: user.role,
-        active: user.active,
-        twoFactorEnabled: user.twoFactorEnabled,
-        twoFactorMethod: user.twoFactorMethod ?? undefined
-      }));
+      displayName: user.displayName,
+      role: user.role,
+      active: user.active,
+      twoFactorEnabled: user.twoFactorEnabled,
+      twoFactorMethod: user.twoFactorMethod ?? undefined
+    }));
   }
 
   @Roles("ADMIN")
@@ -387,7 +393,7 @@ export class AuthController {
       }
     });
     const invitation = await this.auth.createInvitation(user.id);
-    const invitationUrl = `${process.env.APP_PUBLIC_URL ?? "http://localhost:5173"}/einladung/${invitation.token}`;
+    const invitationUrl = `${process.env.APP_PUBLIC_URL ?? "http://localhost:5173"}/invitation/${invitation.token}`;
     const delivery = await this.mail.sendInvitation(user.email, invitationUrl);
     await this.audit.record({
       actorType: "USER",

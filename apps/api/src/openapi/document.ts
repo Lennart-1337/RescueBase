@@ -145,23 +145,41 @@ const rescueBaseOpenApiDocumentDefinition = {
         id: { type: "string" },
         name: { type: "string" },
         unit: { type: "string" },
+        manufacturer: { type: "string" },
+        manufacturerPartNumber: { type: "string" },
+        category: { type: "string" },
         barcode: { type: "string" },
+        sterile: { type: "boolean" },
+        storageNotes: { type: "string" },
+        notes: { type: "string" },
         criticalDefault: { type: "boolean" },
         createdAt: { type: "string", format: "date-time" },
         updatedAt: { type: "string", format: "date-time" }
-      }, ["id", "name", "unit", "criticalDefault"]),
+      }, ["id", "name", "unit", "sterile", "criticalDefault"]),
       CreateArticleRequest: objectSchema({
         name: { type: "string" },
         unit: { type: "string" },
+        manufacturer: { type: "string" },
+        manufacturerPartNumber: { type: "string" },
+        category: { type: "string" },
         barcode: { type: "string" },
+        sterile: { type: "boolean" },
+        storageNotes: { type: "string" },
+        notes: { type: "string" },
         criticalDefault: { type: "boolean" }
-      }, ["name", "unit", "criticalDefault"]),
+      }, ["name", "unit", "sterile", "criticalDefault"]),
       UpdateArticleRequest: objectSchema({
         name: { type: "string" },
         unit: { type: "string" },
+        manufacturer: { type: "string" },
+        manufacturerPartNumber: { type: "string" },
+        category: { type: "string" },
         barcode: { type: "string" },
+        sterile: { type: "boolean" },
+        storageNotes: { type: "string" },
+        notes: { type: "string" },
         criticalDefault: { type: "boolean" }
-      }, ["name", "unit", "criticalDefault"]),
+      }, ["name", "unit", "sterile", "criticalDefault"]),
       Location: objectSchema({
         id: { type: "string" },
         name: { type: "string" },
@@ -303,11 +321,9 @@ const rescueBaseOpenApiDocumentDefinition = {
       }, ["templatePositionId", "countedQuantity", "discardedExpiredQuantity"]),
       CompleteCheckRequest: objectSchema({
         checkerName: { type: "string" },
-        selectedStatus: ref("KitOperationalStatus"),
-        statusReason: { type: "string" },
         signaturePngDataUrl: { type: "string" },
         positions: arrayOf(ref("CheckPositionInput"))
-      }, ["checkerName", "selectedStatus", "signaturePngDataUrl", "positions"]),
+      }, ["checkerName", "signaturePngDataUrl", "positions"]),
       CheckEvaluation: objectSchema({
         warnings: arrayOf({ type: "string" })
       }, ["warnings"]),
@@ -315,14 +331,12 @@ const rescueBaseOpenApiDocumentDefinition = {
         id: { type: "string" },
         kitId: { type: "string" },
         checkerName: { type: "string" },
-        selectedStatus: ref("KitOperationalStatus"),
         effectiveStatus: ref("KitOperationalStatus"),
-        statusReason: { type: "string" },
         warnings: arrayOf({ type: "string" }),
         signaturePngDataUrl: { type: "string" },
         signatureHash: { type: "string" },
         createdAt: { type: "string", format: "date-time" }
-      }, ["id", "kitId", "checkerName", "selectedStatus", "effectiveStatus", "warnings", "signaturePngDataUrl", "signatureHash", "createdAt"]),
+      }, ["id", "kitId", "checkerName", "effectiveStatus", "warnings", "signaturePngDataUrl", "signatureHash", "createdAt"]),
       ReplenishmentOrderItem: objectSchema({
         articleId: { type: "string" },
         articleName: { type: "string" },

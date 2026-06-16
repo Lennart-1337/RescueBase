@@ -2,8 +2,10 @@ import { BadRequestException, Body, Controller, Get, NotFoundException, Param, P
 import { ApiTags } from "@nestjs/swagger";
 import { AuditService } from "../services/audit.service.js";
 import { PrismaService } from "../persistence/prisma.service.js";
-import { mapBatch, mapMovement } from "../persistence/mappers.js";
+import { mapBatch, mapMovement, type BatchRecord, type MovementRecord } from "../persistence/mappers.js";
 import { Roles } from "../auth/auth.decorators.js";
+
+type InventoryBatchCorrectionTransaction = Pick<PrismaService, "batch" | "inventoryMovement" | "auditEvent">;
 
 @ApiTags("Lager")
 @Roles("ADMIN", "WAREHOUSE")
@@ -28,12 +30,12 @@ export class InventoryController {
     const warningLimit = new Date();
     warningLimit.setDate(warningLimit.getDate() + 90);
 
-    const batches = await this.prisma.batch.findMany({
+    const batches: BatchRecord[] = await this.prisma.batch.findMany({
       where: { expiresAt: { lte: warningLimit } },
       include: { article: true, location: true },
       orderBy: { expiresAt: "asc" }
     });
-    return batches.map((batch) => ({
+    return batches.map((batch: BatchRecord) => ({
       ...mapBatch(batch),
       severity: batch.expiresAt < new Date() ? "EXPIRED" : "EXPIRING_SOON"
     }));
@@ -92,7 +94,7 @@ export class InventoryController {
     if (!batch) {
       throw new NotFoundException("Charge nicht gefunden.");
     }
-    const movements = await this.prisma.inventoryMovement.findMany({
+    const movements: MovementRecord[] = await this.prisma.inventoryMovement.findMany({
       where: { batchId: id },
       orderBy: { createdAt: "desc" }
     });
@@ -126,7 +128,7 @@ export class InventoryController {
       }
     }
 
-    const batch = await this.prisma.$transaction(async (tx) => {
+    const batch = await this.prisma.$transaction(async (tx: InventoryBatchCorrectionTransaction) => {
       const updated = await tx.batch.update({
         where: { id },
         data: patch.data,
@@ -166,7 +168,7 @@ export class InventoryController {
   }
 
   private normalizeCorrectionPatch(
-    existing: Awaited<ReturnType<PrismaService["batch"]["findUnique"]>> & { article: { id: string; name: string; unit: string }; location: { id: string; name: string } },
+    existing: BatchRecord,
     body: { quantity?: number; lotNumber?: string; expiresAt?: string; locationId?: string }
   ) {
     const data: Record<string, Date | number | string> = {};

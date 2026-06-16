@@ -30,6 +30,9 @@ export class ReportsController {
     const pdf = await this.reports.qrLabelPdf(kitId, (format ?? "a4") as "a4" | "label");
     response.setHeader("content-type", "application/pdf");
     response.setHeader("content-disposition", `inline; filename="qr-${kitId}.pdf"`);
+    response.setHeader("cache-control", "no-store, max-age=0");
+    response.setHeader("pragma", "no-cache");
+    response.setHeader("expires", "0");
     response.send(pdf);
   }
 

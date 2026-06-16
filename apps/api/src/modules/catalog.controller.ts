@@ -22,17 +22,12 @@ export class CatalogController {
   }
 
   @Post("articles")
-  async createArticle(@Body() body: { name: string; unit: string; barcode?: string; criticalDefault?: boolean }) {
+  async createArticle(@Body() body: ArticleWriteBody) {
     if (!body.name?.trim() || !body.unit?.trim()) {
       throw new BadRequestException("Artikelname und Einheit sind erforderlich.");
     }
     const article = await this.prisma.article.create({
-      data: {
-        name: body.name.trim(),
-        unit: body.unit.trim(),
-        barcode: body.barcode?.trim() || undefined,
-        criticalDefault: Boolean(body.criticalDefault)
-      }
+      data: toArticleWriteData(body)
     });
     await this.audit.record({
       actorType: "USER",
@@ -46,7 +41,7 @@ export class CatalogController {
   }
 
   @Patch("articles/:id")
-  async updateArticle(@Param("id") id: string, @Body() body: { name: string; unit: string; barcode?: string; criticalDefault?: boolean }) {
+  async updateArticle(@Param("id") id: string, @Body() body: ArticleWriteBody) {
     if (!body.name?.trim() || !body.unit?.trim()) {
       throw new BadRequestException("Artikelname und Einheit sind erforderlich.");
     }
@@ -56,12 +51,7 @@ export class CatalogController {
     }
     const article = await this.prisma.article.update({
       where: { id },
-      data: {
-        name: body.name.trim(),
-        unit: body.unit.trim(),
-        barcode: body.barcode?.trim() || null,
-        criticalDefault: Boolean(body.criticalDefault)
-      }
+      data: toArticleWriteData(body)
     });
     await this.audit.record({
       actorType: "USER",
@@ -380,6 +370,39 @@ export class CatalogController {
 
     return positionPayload;
   }
+}
+
+type ArticleWriteBody = {
+  name: string;
+  unit: string;
+  manufacturer?: string;
+  manufacturerPartNumber?: string;
+  category?: string;
+  barcode?: string;
+  sterile?: boolean;
+  storageNotes?: string;
+  notes?: string;
+  criticalDefault?: boolean;
+};
+
+function toArticleWriteData(body: ArticleWriteBody) {
+  return {
+    name: body.name.trim(),
+    unit: body.unit.trim(),
+    manufacturer: optionalText(body.manufacturer),
+    manufacturerPartNumber: optionalText(body.manufacturerPartNumber),
+    category: optionalText(body.category),
+    barcode: optionalText(body.barcode),
+    sterile: Boolean(body.sterile),
+    storageNotes: optionalText(body.storageNotes),
+    notes: optionalText(body.notes),
+    criticalDefault: Boolean(body.criticalDefault)
+  };
+}
+
+function optionalText(value?: string) {
+  const normalized = value?.trim();
+  return normalized ? normalized : null;
 }
 
 function isPrismaUniqueError(error: unknown): boolean {

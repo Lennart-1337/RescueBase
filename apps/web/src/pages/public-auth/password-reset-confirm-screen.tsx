@@ -1,0 +1,32 @@
+import { useState } from "react";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { useNavigate } from "@tanstack/react-router";
+import { KeyRound } from "lucide-react";
+import { toError } from "../../app/formatters";
+import { ErrorPanel, InlineError, LoadingPanel } from "../../components/state-panels";
+import { Button, Field, Panel } from "../../components/ui";
+import { rescueBaseApi } from "../../lib/api";
+
+export function PasswordResetConfirmScreen({ token }: { token: string }) {
+  const navigate = useNavigate();
+  const preview = useQuery({ queryKey: ["password-reset-preview", token], queryFn: () => rescueBaseApi.passwordResetPreview(token) });
+  const [password, setPassword] = useState("");
+  const [passwordRepeat, setPasswordRepeat] = useState("");
+  const mutation = useMutation({ mutationFn: rescueBaseApi.confirmPasswordReset, onSuccess: async () => navigate({ to: "/" }) });
+
+  if (preview.isLoading) return <LoadingPanel label="Reset-Link wird geprüft" />;
+  if (preview.isError || !preview.data) return <ErrorPanel error={toError(preview.error)} onRetry={() => void preview.refetch()} />;
+
+  return (
+    <Panel className="auth-panel">
+      <div className="panel-header"><div><h2>Neues Passwort setzen</h2><p>{preview.data.email}</p></div><KeyRound /></div>
+      <div className="auth-form">
+        <Field label="Passwort"><input type="password" value={password} onChange={(event) => setPassword(event.target.value)} /></Field>
+        <Field label="Passwort wiederholen"><input type="password" value={passwordRepeat} onChange={(event) => setPasswordRepeat(event.target.value)} /></Field>
+        <p className="form-hint">Mindestens 12 Zeichen.</p>
+        {mutation.error ? <InlineError error={mutation.error} /> : null}
+        <Button disabled={password.length < 12 || password !== passwordRepeat || mutation.isPending} onClick={() => mutation.mutate({ password, token })} type="button">Passwort speichern</Button>
+      </div>
+    </Panel>
+  );
+}

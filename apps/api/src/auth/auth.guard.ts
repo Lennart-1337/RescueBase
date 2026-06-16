@@ -1,7 +1,7 @@
 import { CanActivate, ExecutionContext, ForbiddenException, Injectable, UnauthorizedException } from "@nestjs/common";
 import { Reflector } from "@nestjs/core";
+import type { UserRole } from "@rescuebase/domain";
 import type { Request } from "express";
-import type { UserRole } from "@prisma/client";
 import { IS_PUBLIC_ROUTE, REQUIRED_ROLES } from "./auth.decorators.js";
 import { SESSION_COOKIE_NAME } from "./auth.constants.js";
 import { AuthService, type AuthenticatedUser } from "./auth.service.js";
