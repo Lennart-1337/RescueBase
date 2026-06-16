@@ -1,0 +1,18 @@
+services:
+  mariadb:
+    ports: !reset []
+
+  api:
+    environment:
+      NODE_ENV: production
+      APP_PUBLIC_URL: ${APP_PUBLIC_URL}
+      JWT_SECRET: ${JWT_SECRET}
+      RESCUEBASE_SEED_DEV_DATA: "false"
+
+  caddy:
+    command: ["caddy", "run", "--config", "/srv/caddy-config/Caddyfile.production", "--adapter", "caddyfile"]
+    environment:
+      APP_DOMAIN: ${APP_DOMAIN}
+    volumes:
+      - ${CLOUDFLARE_ORIGIN_CERT_HOST_FILE}:/srv/certs/origin-cert.pem:ro
+      - ${CLOUDFLARE_ORIGIN_KEY_HOST_FILE}:/srv/certs/origin-key.pem:ro

@@ -1,0 +1,17 @@
+{$APP_DOMAIN} {
+  tls /srv/certs/origin-cert.pem /srv/certs/origin-key.pem
+
+  encode zstd gzip
+
+  handle_path /api/* {
+    reverse_proxy api:3000
+  }
+
+  handle /docs* {
+    reverse_proxy api:3000
+  }
+
+  handle {
+    reverse_proxy web:80
+  }
+}
