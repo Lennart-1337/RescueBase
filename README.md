@@ -66,9 +66,57 @@ types, so path, request-body and response drift is caught by TypeScript. CI runs
 - Lagerwarte fulfill replenishment orders partially or fully. Only warehouse actions change stock.
 - Audit events record relevant domain changes.
 
-## Production Notes
+## Production on Linux with GHCR
 
-Use `.env.example` as the baseline. Production deployments should set a strong `JWT_SECRET`, configure `RESEND_API_KEY` plus `RESEND_FROM`, and enable encrypted backups.
+Use `.env.production.example` as the baseline for production. The recommended production flow is:
+
+- push to `main`
+- let CI pass
+- let `Publish Production Images` push Linux `amd64` images to private GHCR
+- let the server pull images from GHCR instead of building them locally
+
+The production environment file must set at least:
+
+- `APP_DOMAIN`
+- `APP_PUBLIC_URL`
+- `JWT_SECRET`
+- `MARIADB_DATABASE`
+- `MARIADB_USER`
+- `MARIADB_PASSWORD`
+- `MARIADB_ROOT_PASSWORD`
+- `RESEND_API_KEY`
+- `RESEND_FROM`
+- `API_IMAGE`
+- `WEB_IMAGE`
+- `IMAGE_TAG`
+- `CLOUDFLARE_ORIGIN_CERT_HOST_FILE`
+- `CLOUDFLARE_ORIGIN_KEY_HOST_FILE`
+
+Recommended image values:
+
+- `API_IMAGE=ghcr.io/<owner>/rescuebase-api`
+- `WEB_IMAGE=ghcr.io/<owner>/rescuebase-web`
+- `IMAGE_TAG=production-latest`
+
+The production compose overlay keeps MariaDB internal-only, uses the GHCR images for `api` and `web`, and mounts a Cloudflare Origin Certificate into Caddy for `Full (strict)`.
+
+### Production deploy
+
+On the server:
+
+```bash
+export GHCR_USERNAME="<ghcr-user>"
+export GHCR_TOKEN="<ghcr-read-token>"
+sh scripts/production/deploy.sh
+```
+
+Rollback or promotion to a pinned image tag:
+
+```bash
+IMAGE_TAG_OVERRIDE=prod-202606160945-abcd123 sh scripts/production/deploy.sh
+```
+
+The deploy script updates the `main` checkout, logs into GHCR, pulls the production images referenced by `.env.production`, starts the stack with `--no-build`, and prints the effective `IMAGE_TAG`.
 
 ## Staging on Windows Server 2025
 

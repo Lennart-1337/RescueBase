@@ -1,0 +1,61 @@
+name: Publish Production Images
+
+on:
+  workflow_run:
+    workflows: ["CI"]
+    types: [completed]
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  publish:
+    if: >-
+      ${{
+        github.event.workflow_run.conclusion == 'success' &&
+        github.event.workflow_run.head_branch == 'main'
+      }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
+
+      - uses: docker/setup-buildx-action@v3
+
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - id: meta
+        run: |
+          owner="$(echo '${{ github.repository_owner }}' | tr '[:upper:]' '[:lower:]')"
+          short_sha="$(echo '${{ github.event.workflow_run.head_sha }}' | cut -c1-7)"
+          release_tag="prod-$(date -u +%Y%m%d%H%M)-${short_sha}"
+          echo "owner=$owner" >> "$GITHUB_OUTPUT"
+          echo "release_tag=$release_tag" >> "$GITHUB_OUTPUT"
+
+      - uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: infra/docker/api.Dockerfile
+          platforms: linux/amd64
+          push: true
+          provenance: false
+          tags: |
+            ghcr.io/${{ steps.meta.outputs.owner }}/rescuebase-api:${{ steps.meta.outputs.release_tag }}
+            ghcr.io/${{ steps.meta.outputs.owner }}/rescuebase-api:production-latest
+
+      - uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: infra/docker/web.Dockerfile
+          platforms: linux/amd64
+          push: true
+          provenance: false
+          tags: |
+            ghcr.io/${{ steps.meta.outputs.owner }}/rescuebase-web:${{ steps.meta.outputs.release_tag }}
+            ghcr.io/${{ steps.meta.outputs.owner }}/rescuebase-web:production-latest
