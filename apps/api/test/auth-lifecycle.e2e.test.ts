@@ -26,8 +26,9 @@ describe("auth lifecycle", () => {
 
   it("invites, activates, resets password, and handles both email and TOTP 2FA", async () => {
     const server = app.getHttpServer();
+    const prisma = app.get(PrismaService);
     const admin = request.agent(server);
-    await admin.post("/auth/login").send({ email: "admin@rescuebase.local", password: "rescuebase-admin" }).expect(201);
+    await loginAs(admin, prisma, { email: "admin@rescuebase.local", password: "rescuebase-admin" });
 
     const invitation = await admin.post("/auth/invite").send({
       email: "lager-neu@rescuebase.local",
@@ -109,7 +110,7 @@ describe("auth lifecycle", () => {
     const server = app.getHttpServer();
     const prisma = app.get(PrismaService);
     const admin = request.agent(server);
-    await admin.post("/auth/login").send({ email: "admin@rescuebase.local", password: "rescuebase-admin" }).expect(201);
+    await loginAs(admin, prisma, { email: "admin@rescuebase.local", password: "rescuebase-admin" });
 
     const invitation = await admin.post("/auth/invite").send({
       email: "softdelete@rescuebase.local",
@@ -147,3 +148,42 @@ describe("auth lifecycle", () => {
     expect(row.active).toBe(false);
   });
 });
+
+async function loginAs(
+  agent: ReturnType<typeof request.agent>,
+  prisma: PrismaService,
+  credentials: { email: string; password: string }
+) {
+  const response = await agent.post("/auth/login").send(credentials).expect(201);
+  if (!response.body.requiresTwoFactor) {
+    return response.body;
+  }
+
+  if (response.body.twoFactorMethod === "TOTP") {
+    const user = await prisma.user.findFirstOrThrow({ where: { email: credentials.email } });
+    const secret = user.twoFactorSecret;
+    if (!secret) {
+      throw new Error("Expected a TOTP secret for the current user.");
+    }
+    return agent
+      .post("/auth/login")
+      .send({
+        ...credentials,
+        twoFactorCode: authenticator.generate(secret)
+      })
+      .expect(201);
+  }
+
+  if (response.body.twoFactorMethod === "EMAIL") {
+    return agent
+      .post("/auth/login")
+      .send({
+        ...credentials,
+        emailChallengeId: response.body.emailChallengeId,
+        twoFactorCode: response.body.debugCode
+      })
+      .expect(201);
+  }
+
+  throw new Error(`Unsupported two-factor method: ${response.body.twoFactorMethod ?? "unknown"}`);
+}
