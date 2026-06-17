@@ -31,7 +31,7 @@ jobs:
           cp apps/api/openapi.json .artifacts/api-client/apps/api/openapi.json
           cp apps/web/src/lib/generated-api.d.ts .artifacts/api-client/apps/web/src/lib/generated-api.d.ts
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: api-client
           path: .artifacts/api-client
@@ -87,7 +87,7 @@ jobs:
           cache: npm
 
       - run: npm ci
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           name: api-client
           path: .artifacts/api-client
