@@ -420,15 +420,20 @@ a {
 
 .badge {
   min-height: 26px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
+  display: inline-grid;
+  place-items: center;
   border-radius: 999px;
   padding: 0 10px;
   font-size: 12px;
   font-weight: 800;
-  line-height: 1;
   white-space: nowrap;
+  vertical-align: middle;
+}
+
+.badge-label {
+  display: block;
+  line-height: 1;
+  transform: translateY(1px);
 }
 
 .badge-neutral { background: #f2f4f7; color: #344054; }

@@ -32,11 +32,16 @@ export function Panel({ className, ...props }: HTMLAttributes<HTMLElement>) {
 }
 
 export function Badge({
+  children,
   className,
   tone = "neutral",
   ...props
 }: HTMLAttributes<HTMLSpanElement> & { tone?: "neutral" | "ready" | "warning" | "danger" | "info" }) {
-  return <span className={cn("badge", `badge-${tone}`, className)} {...props} />;
+  return (
+    <span className={cn("badge", `badge-${tone}`, className)} {...props}>
+      <span className="badge-label">{children}</span>
+    </span>
+  );
 }
 
 export function Field({ label, children }: PropsWithChildren<{ label: string }>) {
