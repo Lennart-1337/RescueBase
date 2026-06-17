@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Pencil, Plus, Save, ShieldCheck, X } from "lucide-react";
+import { Pencil, Plus, Save, X } from "lucide-react";
 import { InlineError } from "../../components/state-panels";
 import { Badge, Button, Dialog, Field, Panel } from "../../components/ui";
 import type { Article, Location } from "../../lib/types";

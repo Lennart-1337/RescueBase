@@ -1,4 +1,4 @@
-import { screen, within } from "@testing-library/react";
+import { screen } from "@testing-library/react";
 import { clickElement, renderAppAt, resetTestBrowser, stubFetch } from "../test-support/app-test-helpers";
 
 describe("AccountPage", () => {
