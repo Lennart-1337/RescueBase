@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Pencil, Plus, Save, X } from "lucide-react";
 import { ListFilterBar } from "../../components/list-filter-bar";
+import { SearchableSelect } from "../../components/searchable-select";
 import { InlineError } from "../../components/state-panels";
 import { Badge, Button, Dialog, Field, Panel } from "../../components/ui";
 import type { Article, Location } from "../../lib/types";
@@ -80,8 +81,8 @@ export function DevicePanel(props: {
       </div>
       <ListFilterBar countLabel={`${props.devices.length}/${props.totalCount} sichtbar`} onReset={props.onResetFilters}>
         <Field label="Suche"><input onChange={(event) => props.onFilterChange({ q: event.target.value })} placeholder="Name, Serien- oder Inventarnummer" value={props.filters.q} /></Field>
-        <Field label="Standort"><select onChange={(event) => props.onFilterChange({ locationId: event.target.value })} value={props.filters.locationId}><option value="">Alle Standorte</option>{props.locations.map((location) => <option key={location.id} value={location.id}>{location.name}</option>)}</select></Field>
-        <Field label="Artikel"><select onChange={(event) => props.onFilterChange({ articleId: event.target.value })} value={props.filters.articleId}><option value="">Alle Artikel</option>{props.articles.map((article) => <option key={article.id} value={article.id}>{article.name}</option>)}</select></Field>
+        <Field label="Standort"><SearchableSelect emptyLabel="Alle Standorte" onChange={(value) => props.onFilterChange({ locationId: value })} options={[{ label: "Alle Standorte", value: "" }, ...props.locations.map((location) => ({ label: location.name, value: location.id }))]} value={props.filters.locationId} /></Field>
+        <Field label="Artikel"><SearchableSelect emptyLabel="Alle Artikel" onChange={(value) => props.onFilterChange({ articleId: value })} options={[{ label: "Alle Artikel", value: "" }, ...props.articles.map((article) => ({ label: article.name, value: article.id }))]} value={props.filters.articleId} /></Field>
         <Field label="Status"><select onChange={(event) => props.onFilterChange({ active: event.target.value })} value={props.filters.active}><option value="">Alle Stati</option><option value="active">Aktiv</option><option value="inactive">Inaktiv</option></select></Field>
       </ListFilterBar>
       {props.devices.length === 0 ? <div className="compact-list-empty">Noch keine Geräte angelegt.</div> : null}
@@ -110,8 +111,8 @@ export function DevicePanel(props: {
       >
         <div className="form-grid form-grid-three">
           <Field label="Name"><input value={draft.name} onChange={(event) => setDraft((current) => ({ ...current, name: event.target.value }))} /></Field>
-          <Field label="Artikel"><select value={draft.articleId} onChange={(event) => setDraft((current) => ({ ...current, articleId: event.target.value }))}>{props.articles.map((article) => <option key={article.id} value={article.id}>{article.name}</option>)}</select></Field>
-          <Field label="Lagerort"><select value={draft.locationId} onChange={(event) => setDraft((current) => ({ ...current, locationId: event.target.value }))}>{props.locations.map((location) => <option key={location.id} value={location.id}>{location.name}</option>)}</select></Field>
+          <Field label="Artikel"><SearchableSelect onChange={(value) => setDraft((current) => ({ ...current, articleId: value }))} options={props.articles.map((article) => ({ label: article.name, value: article.id }))} value={draft.articleId} /></Field>
+          <Field label="Lagerort"><SearchableSelect onChange={(value) => setDraft((current) => ({ ...current, locationId: value }))} options={props.locations.map((location) => ({ label: location.name, value: location.id }))} value={draft.locationId} /></Field>
           <Field label="Seriennummer"><input value={draft.serialNumber ?? ""} onChange={(event) => setDraft((current) => ({ ...current, serialNumber: event.target.value }))} /></Field>
           <Field label="Inventarnummer"><input value={draft.inventoryNumber ?? ""} onChange={(event) => setDraft((current) => ({ ...current, inventoryNumber: event.target.value }))} /></Field>
           <Field label="Last STK"><input type="date" value={draft.lastStkAt ?? ""} onChange={(event) => setDraft((current) => ({ ...current, lastStkAt: event.target.value }))} /></Field>

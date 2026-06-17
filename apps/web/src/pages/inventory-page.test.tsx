@@ -51,7 +51,7 @@ describe("InventoryPage", () => {
     await renderAppAt("/admin/inventory?q=RTW&locationId=loc-vehicle");
     await screen.findByRole("heading", { name: "Lager" });
     expect(screen.getByLabelText("Suche")).toHaveValue("RTW");
-    expect(screen.getByLabelText("Standort")).toHaveValue("loc-vehicle");
+    expect(screen.getByLabelText("Standort")).toHaveValue("Fahrzeug 1");
     expect(screen.getByText(/RTW-2027-01/)).toBeInTheDocument();
     expect(screen.queryByText(/VB-2026-04/)).toBeNull();
 

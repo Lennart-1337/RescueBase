@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Pencil, Plus, Save, Trash2, X } from "lucide-react";
+import { SearchableSelect } from "../../components/searchable-select";
 import { InlineError } from "../../components/state-panels";
 import { Badge, Button, Dialog, Field, Panel } from "../../components/ui";
 import type { Article, CreateTemplateRequest, KitTemplate, ReviseTemplateRequest } from "../../lib/types";
@@ -96,7 +97,7 @@ export function TemplatePanel(props: {
           <div className="template-position-list">
             {positions.map((position, index) => (
               <div className="template-position-row" key={index}>
-                <Field label="Artikel"><select disabled={props.articles.length === 0} onChange={(event) => updatePosition(index, { articleId: event.target.value })} value={position.articleId || props.articles[0]?.id || ""}>{props.articles.map((article) => <option key={article.id} value={article.id}>{article.name}</option>)}</select></Field>
+                <Field label="Artikel"><SearchableSelect disabled={props.articles.length === 0} onChange={(value) => updatePosition(index, { articleId: value })} options={props.articles.map((article) => ({ label: article.name, value: article.id }))} value={position.articleId || props.articles[0]?.id || ""} /></Field>
                 <Field label="Modul"><input onChange={(event) => updatePosition(index, { moduleName: event.target.value })} value={position.moduleName} /></Field>
                 <Field label="Sollmenge"><input min="1" onChange={(event) => updatePosition(index, { requiredQuantity: Number(event.target.value) })} type="number" value={position.requiredQuantity} /></Field>
                 <label className="check-field template-critical"><input checked={position.critical} onChange={(event) => updatePosition(index, { critical: event.target.checked })} type="checkbox" /><span>Kritisch</span></label>

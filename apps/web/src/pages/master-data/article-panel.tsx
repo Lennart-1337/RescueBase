@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Pencil, Plus, Save, Trash2, X } from "lucide-react";
 import { ListFilterBar } from "../../components/list-filter-bar";
+import { SearchableSelect } from "../../components/searchable-select";
 import type { Article, CreateArticleRequest, UpdateArticleRequest } from "../../lib/types";
 import { InlineError } from "../../components/state-panels";
 import { Badge, Button, Dialog, Field, Panel } from "../../components/ui";
@@ -53,7 +54,7 @@ export function ArticlePanel(props: {
 }) {
   const [draft, setDraft] = useState(emptyDraft());
   const canSubmit = Boolean(draft.name.trim() && draft.unit.trim() && intervalsValid(draft));
-  const categories = [...new Set(props.articles.map((entry) => entry.category).filter(Boolean))].sort((left, right) => String(left).localeCompare(String(right), "de-DE"));
+  const categories = [...new Set(props.articles.map((entry) => entry.category).filter((entry): entry is string => Boolean(entry)))].sort((left, right) => left.localeCompare(right, "de-DE"));
 
   function openForCreate() { setDraft({ ...emptyDraft(), isOpen: true }); }
   function openForEdit(article: Article) {
@@ -112,7 +113,7 @@ export function ArticlePanel(props: {
       <div className="panel-header"><div><h2>Artikel</h2><p>Materialstamm mit Herstellerdaten, MPDG, STK und MTK.</p></div><Button onClick={openForCreate} type="button"><Plus data-icon="inline-start" />Artikel hinzufügen</Button></div>
       <ListFilterBar countLabel={`${props.articles.length}/${props.totalCount} sichtbar`} fieldsClassName="form-grid-three" onReset={props.onResetFilters}>
         <Field label="Suche"><input onChange={(event) => props.onFilterChange({ q: event.target.value })} placeholder="Name, Hersteller oder Barcode" value={props.filters.q} /></Field>
-        <Field label="Kategorie"><select onChange={(event) => props.onFilterChange({ category: event.target.value })} value={props.filters.category}><option value="">Alle Kategorien</option>{categories.map((category) => <option key={category} value={category}>{category}</option>)}</select></Field>
+        <Field label="Kategorie"><SearchableSelect emptyLabel="Alle Kategorien" onChange={(value) => props.onFilterChange({ category: value })} options={[{ label: "Alle Kategorien", value: "" }, ...categories.map((category) => ({ label: category, value: category }))]} value={props.filters.category} /></Field>
         <div className="form-grid">
           <label className="check-field"><input checked={props.filters.medicalDevice} onChange={(event) => props.onFilterChange({ medicalDevice: event.target.checked })} type="checkbox" /><span>MPDG</span></label>
           <label className="check-field"><input checked={props.filters.stkRequired} onChange={(event) => props.onFilterChange({ stkRequired: event.target.checked })} type="checkbox" /><span>STK</span></label>

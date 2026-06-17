@@ -2,6 +2,7 @@ import { Link } from "@tanstack/react-router";
 import { ExternalLink, Pencil, Plus, QrCode, RotateCw, Trash2 } from "lucide-react";
 import { statusLabels } from "../../app/formatters";
 import { ListFilterBar } from "../../components/list-filter-bar";
+import { SearchableSelect } from "../../components/searchable-select";
 import { InlineError } from "../../components/state-panels";
 import { AnchorButton, Badge, Button, Field, Panel } from "../../components/ui";
 import { rescueBaseApi } from "../../lib/api";
@@ -43,8 +44,8 @@ export function KitListPanel(props: {
       </div>
       <ListFilterBar countLabel={`${props.kits.length}/${props.totalCount} sichtbar`} onReset={props.onResetFilters}>
         <Field label="Suche"><input onChange={(event) => props.onFilterChange({ q: event.target.value })} placeholder="Name oder Kennung" value={props.filters.q} /></Field>
-        <Field label="Standort"><select onChange={(event) => props.onFilterChange({ locationId: event.target.value })} value={props.filters.locationId}><option value="">Alle Standorte</option>{props.locations.map((location) => <option key={location.id} value={location.id}>{location.name}</option>)}</select></Field>
-        <Field label="Vorlage"><select onChange={(event) => props.onFilterChange({ templateId: event.target.value })} value={props.filters.templateId}><option value="">Alle Vorlagen</option>{props.templates.map((template) => <option key={template.id} value={template.id}>{template.name} v{template.version}</option>)}</select></Field>
+        <Field label="Standort"><SearchableSelect emptyLabel="Alle Standorte" onChange={(value) => props.onFilterChange({ locationId: value })} options={[{ label: "Alle Standorte", value: "" }, ...props.locations.map((location) => ({ label: location.name, value: location.id }))]} value={props.filters.locationId} /></Field>
+        <Field label="Vorlage"><SearchableSelect emptyLabel="Alle Vorlagen" onChange={(value) => props.onFilterChange({ templateId: value })} options={[{ label: "Alle Vorlagen", value: "" }, ...props.templates.map((template) => ({ label: `${template.name} v${template.version}`, value: template.id, keywords: [template.name] }))]} value={props.filters.templateId} /></Field>
         <Field label="Status"><select onChange={(event) => props.onFilterChange({ status: event.target.value })} value={props.filters.status}><option value="">Alle Stati</option><option value="READY">Bereit</option><option value="CONDITIONAL">Bedingt einsatzbereit</option><option value="NOT_READY">Nicht einsatzbereit</option></select></Field>
       </ListFilterBar>
       <div className="table">

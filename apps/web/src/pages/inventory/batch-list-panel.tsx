@@ -1,6 +1,7 @@
 import { History, Plus, Trash2 } from "lucide-react";
 import { daysUntil, formatDate } from "../../app/formatters";
 import { ListFilterBar } from "../../components/list-filter-bar";
+import { SearchableSelect } from "../../components/searchable-select";
 import { InlineError } from "../../components/state-panels";
 import { Badge, Button, Field, Panel } from "../../components/ui";
 import type { Article, Batch, Location } from "../../lib/types";
@@ -39,8 +40,8 @@ export function BatchListPanel(props: {
       <div className="panel-header"><div><h2>Bestandschargen</h2><p>Filtern Sie Bestand nach Suchbegriff, Artikel und Lagerort.</p></div><Button onClick={props.onCreate} type="button"><Plus data-icon="inline-start" />Charge hinzufügen</Button></div>
       <ListFilterBar countLabel={`${props.batches.length}/${props.totalCount} sichtbar`} onReset={props.onResetFilters}>
         <Field label="Suche"><input onChange={(event) => props.onFilterChange({ q: event.target.value })} placeholder="Artikel oder Charge" value={props.filters.q} /></Field>
-        <Field label="Standort"><select onChange={(event) => props.onFilterChange({ locationId: event.target.value })} value={props.filters.locationId}><option value="">Alle Standorte</option>{props.locations.map((location) => <option key={location.id} value={location.id}>{location.name}</option>)}</select></Field>
-        <Field label="Artikel"><select onChange={(event) => props.onFilterChange({ articleId: event.target.value })} value={props.filters.articleId}><option value="">Alle Artikel</option>{props.articles.map((article) => <option key={article.id} value={article.id}>{article.name}</option>)}</select></Field>
+        <Field label="Standort"><SearchableSelect emptyLabel="Alle Standorte" onChange={(value) => props.onFilterChange({ locationId: value })} options={[{ label: "Alle Standorte", value: "" }, ...props.locations.map((location) => ({ label: location.name, value: location.id }))]} value={props.filters.locationId} /></Field>
+        <Field label="Artikel"><SearchableSelect emptyLabel="Alle Artikel" onChange={(value) => props.onFilterChange({ articleId: value })} options={[{ label: "Alle Artikel", value: "" }, ...props.articles.map((article) => ({ label: article.name, value: article.id }))]} value={props.filters.articleId} /></Field>
         <label className="check-field"><input checked={props.filters.showEmpty} onChange={(event) => props.onFilterChange({ showEmpty: event.target.checked })} type="checkbox" /><span>Chargen mit Menge 0 anzeigen</span></label>
       </ListFilterBar>
       <div className="table">

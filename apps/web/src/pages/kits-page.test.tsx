@@ -94,8 +94,8 @@ describe("KitsPage", () => {
     const dialog = await screen.findByRole("dialog", { name: "Rucksack bearbeiten" });
     expect(within(dialog).getByLabelText("Name")).toHaveValue("Rucksack Fahrzeug 1");
     expect(within(dialog).getByLabelText("Rucksackkennung")).toHaveValue("SAN-RS-001");
-    expect(within(dialog).getByLabelText("Standort")).toHaveValue("loc-rtw-1");
-    expect(within(dialog).getByLabelText("Vorlage")).toHaveValue("template-san-a-v1");
+    expect(within(dialog).getByLabelText("Standort")).toHaveValue("Fahrzeug 1");
+    expect(within(dialog).getByLabelText("Vorlage")).toHaveValue("Sanitätsrucksack A v1");
   });
 
   it("soft-deletes kits after confirmation", async () => {

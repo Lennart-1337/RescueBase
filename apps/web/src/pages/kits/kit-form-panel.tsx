@@ -1,4 +1,5 @@
 import { PackageCheck, Plus, Save, X } from "lucide-react";
+import { SearchableSelect } from "../../components/searchable-select";
 import { InlineError } from "../../components/state-panels";
 import { Button, Dialog, Field } from "../../components/ui";
 import type { KitTemplate, Location } from "../../lib/types";
@@ -36,8 +37,8 @@ export function KitFormPanel(props: {
       <div className="form-grid form-grid-two">
         <Field label="Name"><input value={props.name} onChange={(event) => props.onNameChange(event.target.value)} /></Field>
         <Field label="Rucksackkennung"><input value={props.code} onChange={(event) => props.onCodeChange(event.target.value)} /></Field>
-        <Field label="Standort"><select value={selectedLocationId} onChange={(event) => props.onLocationChange(event.target.value)}>{props.locations.map((location) => <option key={location.id} value={location.id}>{location.name}</option>)}</select></Field>
-        <Field label="Vorlage"><select value={selectedTemplateId} onChange={(event) => props.onTemplateChange(event.target.value)}>{props.templates.map((template) => <option key={template.id} value={template.id}>{template.name} v{template.version}</option>)}</select></Field>
+        <Field label="Standort"><SearchableSelect onChange={props.onLocationChange} options={props.locations.map((location) => ({ label: location.name, value: location.id }))} value={selectedLocationId} /></Field>
+        <Field label="Vorlage"><SearchableSelect onChange={props.onTemplateChange} options={props.templates.map((template) => ({ label: `${template.name} v${template.version}`, value: template.id, keywords: [template.name] }))} value={selectedTemplateId} /></Field>
       </div>
       <div className="debug-hint"><PackageCheck data-icon="inline-start" /> QR/NFC-Zugang, Status und öffentlicher Token bleiben workflow-gesteuert.</div>
       {props.error ? <InlineError error={props.error} /> : null}
