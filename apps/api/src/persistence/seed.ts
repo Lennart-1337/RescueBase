@@ -71,6 +71,9 @@ export async function seedRescueBaseDevelopmentData(prisma: PrismaClient): Promi
       category: "Medizinprodukt",
       barcode: "040000000002",
       sterile: false,
+      medicalDevice: true,
+      stkRequired: true,
+      stkIntervalMonths: 12,
       notes: "Nur durch eingewiesenes Personal verwenden",
       criticalDefault: true
     }

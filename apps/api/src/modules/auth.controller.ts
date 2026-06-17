@@ -2,7 +2,9 @@ import {
   BadRequestException,
   Body,
   Controller,
+  Delete,
   Get,
+  NotFoundException,
   Param,
   Post,
   Req,
@@ -46,7 +48,7 @@ export class AuthController {
   @PublicRoute()
   @Get("setup/status")
   async setupStatus(): Promise<{ initialized: boolean; firstAdminEmail?: string }> {
-    const firstAdmin = await this.prisma.user.findFirst({ where: { role: "ADMIN" } });
+    const firstAdmin = await this.prisma.user.findFirst({ where: { role: "ADMIN", deletedAt: null } });
     return { initialized: Boolean(firstAdmin), firstAdminEmail: firstAdmin?.email };
   }
 
@@ -56,7 +58,7 @@ export class AuthController {
     @Body() body: { email: string; displayName: string; password: string },
     @Res({ passthrough: true }) response: Response
   ): Promise<{ ok: true; userId: string; user: ReturnType<AuthService["toAuthenticatedUser"]> extends infer U ? U : never }> {
-    const existingAdmin = await this.prisma.user.findFirst({ where: { role: "ADMIN" } });
+    const existingAdmin = await this.prisma.user.findFirst({ where: { role: "ADMIN", deletedAt: null } });
     if (existingAdmin) {
       throw new UnauthorizedException("Erstadmin ist bereits eingerichtet.");
     }
@@ -101,7 +103,7 @@ export class AuthController {
     debugCode?: string;
     user?: ReturnType<AuthService["toAuthenticatedUser"]> extends infer U ? U : never;
   }> {
-    const user = await this.prisma.user.findFirst({ where: { email: body.email.trim(), active: true } });
+    const user = await this.prisma.user.findFirst({ where: { email: body.email.trim(), active: true, deletedAt: null } });
     if (!user || !(await this.auth.verifyPassword(body.password, user.passwordHash))) {
       throw new UnauthorizedException("E-Mail oder Passwort ist falsch.");
     }
@@ -198,7 +200,7 @@ export class AuthController {
   @Post("password-reset/request")
   async requestPasswordReset(@Body() body: { email: string }): Promise<{ ok: true; debugUrl?: string }> {
     const user = await this.prisma.user.findFirst({
-      where: { email: body.email.trim(), active: true, passwordHash: { not: null } }
+      where: { email: body.email.trim(), active: true, passwordHash: { not: null }, deletedAt: null }
     });
     if (!user) {
       return { ok: true };
@@ -328,6 +330,7 @@ export class AuthController {
   @Get("users")
   async users(): Promise<AdminUserListItem[]> {
     const users: AdminUserRecord[] = await this.prisma.user.findMany({
+      where: { deletedAt: null },
       orderBy: [{ role: "asc" }, { email: "asc" }]
     });
     return users.map((user): AdminUserListItem => ({
@@ -347,8 +350,12 @@ export class AuthController {
     if (typeof body.active !== "boolean") {
       throw new BadRequestException("Aktiv-Status muss gesetzt sein.");
     }
+    const existing = await this.prisma.user.findFirst({ where: { id, deletedAt: null } });
+    if (!existing) {
+      throw new NotFoundException("Benutzerkonto nicht gefunden.");
+    }
     const user = await this.prisma.user.update({
-      where: { id },
+      where: { id: existing.id },
       data: { active: body.active }
     });
     if (!body.active) {
@@ -360,6 +367,40 @@ export class AuthController {
       action: body.active ? "USER_REACTIVATED" : "USER_DEACTIVATED",
       entityType: "User",
       entityId: user.id
+    });
+    return { ok: true };
+  }
+
+  @Roles("ADMIN")
+  @Delete("users/:id")
+  async deleteUser(@Param("id") id: string, @Req() request: AuthenticatedRequest): Promise<{ ok: true }> {
+    if (id === request.user?.id) {
+      throw new BadRequestException("Das eigene Benutzerkonto kann nicht gelöscht werden.");
+    }
+    const user = await this.prisma.user.findFirst({ where: { id, deletedAt: null } });
+    if (!user) {
+      throw new NotFoundException("Benutzerkonto nicht gefunden.");
+    }
+    if (user.role === "ADMIN" && user.active) {
+      const activeAdminCount = await this.prisma.user.count({ where: { role: "ADMIN", active: true, deletedAt: null } });
+      if (activeAdminCount <= 1) {
+        throw new BadRequestException("Das letzte aktive Adminkonto kann nicht gelöscht werden.");
+      }
+    }
+
+    const deletedAt = new Date();
+    await this.prisma.user.update({
+      where: { id: user.id },
+      data: { active: false, deletedAt }
+    });
+    await this.auth.destroyUserSessions(user.id);
+    await this.audit.record({
+      actorType: "USER",
+      actorLabel: request.user?.email ?? "Admin",
+      action: "USER_DELETED",
+      entityType: "User",
+      entityId: user.id,
+      payload: { email: user.email, deletedAt: deletedAt.toISOString() }
     });
     return { ok: true };
   }

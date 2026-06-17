@@ -535,6 +535,21 @@
           "sterile": {
             "type": "boolean"
           },
+          "medicalDevice": {
+            "type": "boolean"
+          },
+          "stkRequired": {
+            "type": "boolean"
+          },
+          "stkIntervalMonths": {
+            "type": "integer"
+          },
+          "mtkRequired": {
+            "type": "boolean"
+          },
+          "mtkIntervalMonths": {
+            "type": "integer"
+          },
           "storageNotes": {
             "type": "string"
           },
@@ -586,6 +601,21 @@
           "sterile": {
             "type": "boolean"
           },
+          "medicalDevice": {
+            "type": "boolean"
+          },
+          "stkRequired": {
+            "type": "boolean"
+          },
+          "stkIntervalMonths": {
+            "type": "integer"
+          },
+          "mtkRequired": {
+            "type": "boolean"
+          },
+          "mtkIntervalMonths": {
+            "type": "integer"
+          },
           "storageNotes": {
             "type": "string"
           },
@@ -627,6 +657,21 @@
           },
           "sterile": {
             "type": "boolean"
+          },
+          "medicalDevice": {
+            "type": "boolean"
+          },
+          "stkRequired": {
+            "type": "boolean"
+          },
+          "stkIntervalMonths": {
+            "type": "integer"
+          },
+          "mtkRequired": {
+            "type": "boolean"
+          },
+          "mtkIntervalMonths": {
+            "type": "integer"
           },
           "storageNotes": {
             "type": "string"
@@ -2095,6 +2140,36 @@
         }
       }
     },
+    "/auth/users/{id}": {
+      "delete": {
+        "tags": [
+          "Auth"
+        ],
+        "operationId": "AuthController_deleteUser",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User deleted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OkResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/catalog/articles": {
       "get": {
         "tags": [
@@ -2179,6 +2254,34 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/Article"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Stammdaten"
+        ],
+        "operationId": "CatalogController_deleteArticle",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Article deleted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OkResponse"
                 }
               }
             }
@@ -2270,6 +2373,34 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/Location"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Stammdaten"
+        ],
+        "operationId": "CatalogController_deleteLocation",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Location deleted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OkResponse"
                 }
               }
             }
@@ -2368,6 +2499,36 @@
         }
       }
     },
+    "/catalog/templates/{id}": {
+      "delete": {
+        "tags": [
+          "Stammdaten"
+        ],
+        "operationId": "CatalogController_deleteTemplate",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Template deleted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OkResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/catalog/kits": {
       "get": {
         "tags": [
@@ -2452,6 +2613,34 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/Kit"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Stammdaten"
+        ],
+        "operationId": "CatalogController_deleteKit",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Kit deleted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OkResponse"
                 }
               }
             }
@@ -2566,6 +2755,36 @@
                   "items": {
                     "$ref": "#/components/schemas/InventoryMovement"
                   }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/inventory/batches/{id}": {
+      "delete": {
+        "tags": [
+          "Lager"
+        ],
+        "operationId": "InventoryController_deleteBatch",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Batch deleted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OkResponse"
                 }
               }
             }

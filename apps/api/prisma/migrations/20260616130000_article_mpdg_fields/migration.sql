@@ -1,0 +1,6 @@
+ALTER TABLE `Article`
+  ADD COLUMN `medicalDevice` BOOLEAN NOT NULL DEFAULT false,
+  ADD COLUMN `stkRequired` BOOLEAN NOT NULL DEFAULT false,
+  ADD COLUMN `stkIntervalMonths` INTEGER NULL,
+  ADD COLUMN `mtkRequired` BOOLEAN NOT NULL DEFAULT false,
+  ADD COLUMN `mtkIntervalMonths` INTEGER NULL;

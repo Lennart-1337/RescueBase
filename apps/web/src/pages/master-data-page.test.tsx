@@ -1,6 +1,6 @@
 import { screen, waitFor, within } from "@testing-library/react";
 import { article, kit, location } from "../test-support/fixtures";
-import { changeValue, clickElement, postedBody, renderAppAt, requestBody, resetTestBrowser, stubFetch } from "../test-support/app-test-helpers";
+import { changeValue, clickElement, getActiveRouter, postedBody, renderAppAt, requestBody, resetTestBrowser, stubFetch, wasRequested } from "../test-support/app-test-helpers";
 
 describe("MasterDataPage", () => {
   afterEach(resetTestBrowser);
@@ -17,6 +17,11 @@ describe("MasterDataPage", () => {
     await changeValue(within(dialog).getByLabelText("Kategorie"), "Verbrauchsmaterial");
     await changeValue(within(dialog).getByLabelText("Barcode/DataMatrix"), "040000000099");
     await clickElement(within(dialog).getByLabelText("Steril"));
+    await clickElement(within(dialog).getByLabelText("Medizinprodukt (MPDG)"));
+    await clickElement(within(dialog).getByLabelText("STK erforderlich"));
+    await changeValue(within(dialog).getByLabelText("STK-Intervall (Monate)"), "12");
+    await clickElement(within(dialog).getByLabelText("MTK erforderlich"));
+    await changeValue(within(dialog).getByLabelText("MTK-Intervall (Monate)"), "24");
     await clickElement(within(dialog).getByRole("button", { name: /Artikel anlegen/ }));
     await waitFor(() => expect(postedBody("/api/catalog/articles")).toEqual({
       name: "Rettungsdecke",
@@ -25,6 +30,11 @@ describe("MasterDataPage", () => {
       category: "Verbrauchsmaterial",
       barcode: "040000000099",
       sterile: true,
+      medicalDevice: true,
+      stkRequired: true,
+      stkIntervalMonths: 12,
+      mtkRequired: true,
+      mtkIntervalMonths: 24,
       criticalDefault: false
     }));
   });
@@ -40,6 +50,9 @@ describe("MasterDataPage", () => {
     await changeValue(within(dialog).getByLabelText("Hersteller-Art.-Nr."), "VB-2000");
     await changeValue(within(dialog).getByLabelText("Barcode/DataMatrix"), "040000000099");
     await changeValue(within(dialog).getByLabelText("Lagerhinweise"), "Trocken lagern");
+    await clickElement(within(dialog).getByLabelText("Medizinprodukt (MPDG)"));
+    await clickElement(within(dialog).getByLabelText("STK erforderlich"));
+    await changeValue(within(dialog).getByLabelText("STK-Intervall (Monate)"), "12");
     await clickElement(within(dialog).getByRole("button", { name: /Artikel speichern/ }));
     await waitFor(() => expect(requestBody("/api/catalog/articles/article-bandage", "PATCH")).toEqual({
       name: "Verbandpäckchen groß",
@@ -49,6 +62,10 @@ describe("MasterDataPage", () => {
       category: "Verbandmaterial",
       barcode: "040000000099",
       sterile: true,
+      medicalDevice: true,
+      stkRequired: true,
+      stkIntervalMonths: 12,
+      mtkRequired: false,
       storageNotes: "Trocken lagern",
       notes: "Einzeln steril verpackt",
       criticalDefault: false
@@ -79,6 +96,70 @@ describe("MasterDataPage", () => {
     await clickElement(within(dialog).getByRole("button", { name: /Neue Version speichern/ }));
     await waitFor(() => expect(postedBody("/api/catalog/templates/template-san-a-v1/revise")).toEqual({ positions: [{ articleId: "article-bandage", moduleName: "Verband", requiredQuantity: 2, critical: false }] }));
   });
+
+  it("opens the new devices tab", async () => {
+    stubFetch(baseAdminRoutes());
+    await renderAppAt("/admin/master-data");
+    await screen.findByRole("heading", { name: "Stammdaten" });
+    await clickElement(screen.getByRole("tab", { name: "Geräte" }));
+    expect(await screen.findByRole("button", { name: /Gerät hinzufügen/ })).toBeInTheDocument();
+  });
+
+  it("restores the active master-data tab and device filters from the URL", async () => {
+    stubFetch({
+      ...baseAdminRoutes(),
+      "/api/catalog/devices": [
+        {
+          id: "device-1",
+          name: "Corpuls C3",
+          articleId: article.id,
+          locationId: location.id,
+          serialNumber: "SER-1",
+          inventoryNumber: "INV-1",
+          lastStkAt: null,
+          lastMtkAt: null,
+          stkIntervalMonths: null,
+          mtkIntervalMonths: null,
+          active: false,
+          notes: null,
+          article,
+          location
+        }
+      ]
+    });
+    await renderAppAt("/admin/master-data?tab=devices&active=inactive");
+    await screen.findByRole("heading", { name: "Stammdaten" });
+    expect(screen.getByRole("tab", { name: "Geräte" })).toHaveAttribute("aria-selected", "true");
+    expect(screen.getByLabelText("Status")).toHaveValue("inactive");
+    expect(screen.getByText("Corpuls C3")).toBeInTheDocument();
+
+    await clickElement(screen.getByRole("button", { name: "Filter zurücksetzen" }));
+    await waitFor(() => expect(getActiveRouter()?.state.location.search).toEqual({ tab: "devices" }));
+  });
+
+  it("soft-deletes master data entries after confirmation", async () => {
+    vi.spyOn(window, "confirm").mockReturnValue(true);
+    stubFetch({
+      ...baseAdminRoutes(),
+      "/api/catalog/articles/article-bandage": { ok: true },
+      "/api/catalog/locations/loc-main": { ok: true },
+      "/api/catalog/templates/template-san-a-v1": { ok: true }
+    });
+    await renderAppAt("/admin/master-data");
+    await screen.findByRole("heading", { name: "Stammdaten" });
+
+    await clickElement(screen.getByRole("button", { name: /Verbandpäckchen mittel löschen/ }));
+    await clickElement(screen.getByRole("tab", { name: "Lagerorte" }));
+    await clickElement(screen.getByRole("button", { name: /Hauptlager löschen/ }));
+    await clickElement(screen.getByRole("tab", { name: "Rucksackvorlagen" }));
+    await clickElement(screen.getByRole("button", { name: /Sanitätsrucksack A v1 löschen/ }));
+
+    await waitFor(() => {
+      expect(wasRequested("/api/catalog/articles/article-bandage", "DELETE")).toBe(true);
+      expect(wasRequested("/api/catalog/locations/loc-main", "DELETE")).toBe(true);
+      expect(wasRequested("/api/catalog/templates/template-san-a-v1", "DELETE")).toBe(true);
+    });
+  });
 });
 
 function baseAdminRoutes() {
@@ -87,6 +168,7 @@ function baseAdminRoutes() {
     "/api/auth/session": { user: { id: "user-admin", email: "admin@rescuebase.local", displayName: "Admin", role: "ADMIN", twoFactorEnabled: false } },
     "/api/catalog/articles": [article],
     "/api/catalog/locations": [location],
-    "/api/catalog/templates": [kit.template]
+    "/api/catalog/templates": [kit.template],
+    "/api/catalog/devices": []
   };
 }

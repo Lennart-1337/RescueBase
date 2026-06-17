@@ -146,8 +146,8 @@ export class PublicChecksController {
   }
 
   private async findKitByToken(token: string): Promise<PublicKitRecord> {
-    const kit: PublicKitRecord | null = await this.prisma.kit.findUnique({
-      where: { publicToken: token },
+    const kit: PublicKitRecord | null = await this.prisma.kit.findFirst({
+      where: { publicToken: token, deletedAt: null },
       include: {
         template: { include: { positions: { include: { article: true } } } }
       }

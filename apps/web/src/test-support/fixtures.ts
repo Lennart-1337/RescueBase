@@ -30,6 +30,11 @@ export const article = {
   category: "Verbandmaterial",
   barcode: "040000000001",
   sterile: true,
+  medicalDevice: false,
+  stkRequired: false,
+  stkIntervalMonths: null,
+  mtkRequired: false,
+  mtkIntervalMonths: null,
   storageNotes: "Trocken lagern",
   notes: "Einzeln steril verpackt",
   criticalDefault: false

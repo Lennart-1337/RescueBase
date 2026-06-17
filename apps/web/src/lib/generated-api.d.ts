@@ -292,6 +292,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/auth/users/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete: operations["AuthController_deleteUser"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/catalog/articles": {
         parameters: {
             query?: never;
@@ -318,7 +334,7 @@ export interface paths {
         get?: never;
         put?: never;
         post?: never;
-        delete?: never;
+        delete: operations["CatalogController_deleteArticle"];
         options?: never;
         head?: never;
         patch: operations["CatalogController_updateArticle"];
@@ -350,7 +366,7 @@ export interface paths {
         get?: never;
         put?: never;
         post?: never;
-        delete?: never;
+        delete: operations["CatalogController_deleteLocation"];
         options?: never;
         head?: never;
         patch: operations["CatalogController_updateLocation"];
@@ -388,6 +404,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/catalog/templates/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete: operations["CatalogController_deleteTemplate"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/catalog/kits": {
         parameters: {
             query?: never;
@@ -414,7 +446,7 @@ export interface paths {
         get?: never;
         put?: never;
         post?: never;
-        delete?: never;
+        delete: operations["CatalogController_deleteKit"];
         options?: never;
         head?: never;
         patch: operations["CatalogController_updateKit"];
@@ -463,6 +495,22 @@ export interface paths {
         put?: never;
         post?: never;
         delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/inventory/batches/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete: operations["InventoryController_deleteBatch"];
         options?: never;
         head?: never;
         patch?: never;
@@ -817,6 +865,11 @@ export interface components {
             category?: string;
             barcode?: string;
             sterile: boolean;
+            medicalDevice?: boolean;
+            stkRequired?: boolean;
+            stkIntervalMonths?: number;
+            mtkRequired?: boolean;
+            mtkIntervalMonths?: number;
             storageNotes?: string;
             notes?: string;
             criticalDefault: boolean;
@@ -833,6 +886,11 @@ export interface components {
             category?: string;
             barcode?: string;
             sterile: boolean;
+            medicalDevice?: boolean;
+            stkRequired?: boolean;
+            stkIntervalMonths?: number;
+            mtkRequired?: boolean;
+            mtkIntervalMonths?: number;
             storageNotes?: string;
             notes?: string;
             criticalDefault: boolean;
@@ -845,6 +903,11 @@ export interface components {
             category?: string;
             barcode?: string;
             sterile: boolean;
+            medicalDevice?: boolean;
+            stkRequired?: boolean;
+            stkIntervalMonths?: number;
+            mtkRequired?: boolean;
+            mtkIntervalMonths?: number;
             storageNotes?: string;
             notes?: string;
             criticalDefault: boolean;
@@ -1504,6 +1567,28 @@ export interface operations {
             };
         };
     };
+    AuthController_deleteUser: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description User deleted */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OkResponse"];
+                };
+            };
+        };
+    };
     CatalogController_articles: {
         parameters: {
             query?: never;
@@ -1544,6 +1629,28 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["Article"];
+                };
+            };
+        };
+    };
+    CatalogController_deleteArticle: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Article deleted */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OkResponse"];
                 };
             };
         };
@@ -1614,6 +1721,28 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["Location"];
+                };
+            };
+        };
+    };
+    CatalogController_deleteLocation: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Location deleted */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OkResponse"];
                 };
             };
         };
@@ -1714,6 +1843,28 @@ export interface operations {
             };
         };
     };
+    CatalogController_deleteTemplate: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Template deleted */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OkResponse"];
+                };
+            };
+        };
+    };
     CatalogController_kits: {
         parameters: {
             query?: never;
@@ -1754,6 +1905,28 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["Kit"];
+                };
+            };
+        };
+    };
+    CatalogController_deleteKit: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Kit deleted */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OkResponse"];
                 };
             };
         };
@@ -1868,6 +2041,28 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["InventoryMovement"][];
+                };
+            };
+        };
+    };
+    InventoryController_deleteBatch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Batch deleted */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OkResponse"];
                 };
             };
         };

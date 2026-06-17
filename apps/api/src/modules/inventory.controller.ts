@@ -1,5 +1,6 @@
-import { BadRequestException, Body, Controller, Get, NotFoundException, Param, Post } from "@nestjs/common";
+import { BadRequestException, Body, Controller, Delete, Get, NotFoundException, Param, Post } from "@nestjs/common";
 import { ApiTags } from "@nestjs/swagger";
+import { AlertsService } from "../services/alerts.service.js";
 import { AuditService } from "../services/audit.service.js";
 import { PrismaService } from "../persistence/prisma.service.js";
 import { mapBatch, mapMovement, type BatchRecord, type MovementRecord } from "../persistence/mappers.js";
@@ -13,12 +14,14 @@ type InventoryBatchCorrectionTransaction = Pick<PrismaService, "batch" | "invent
 export class InventoryController {
   constructor(
     private readonly prisma: PrismaService,
-    private readonly audit: AuditService
+    private readonly audit: AuditService,
+    private readonly alerts: AlertsService
   ) {}
 
   @Get("batches")
   async batches() {
     const batches = await this.prisma.batch.findMany({
+      where: { deletedAt: null },
       include: { article: true, location: true },
       orderBy: [{ article: { name: "asc" } }, { expiresAt: "asc" }]
     });
@@ -31,7 +34,7 @@ export class InventoryController {
     warningLimit.setDate(warningLimit.getDate() + 90);
 
     const batches: BatchRecord[] = await this.prisma.batch.findMany({
-      where: { expiresAt: { lte: warningLimit } },
+      where: { expiresAt: { lte: warningLimit }, deletedAt: null },
       include: { article: true, location: true },
       orderBy: { expiresAt: "asc" }
     });
@@ -51,6 +54,7 @@ export class InventoryController {
     if (Number.isNaN(expiresAt.getTime())) {
       throw new BadRequestException("Ablaufdatum ist ungültig.");
     }
+    await this.assertBatchReferences(body.articleId, body.locationId);
 
     const batch = await this.prisma.batch.create({
       data: {
@@ -85,12 +89,13 @@ export class InventoryController {
       entityId: batch.id,
       payload: batch
     });
+    await this.alerts.syncAlerts("batch-created");
     return mapBatch(batch);
   }
 
   @Get("batches/:id/movements")
   async movements(@Param("id") id: string) {
-    const batch = await this.prisma.batch.findUnique({ where: { id } });
+    const batch = await this.prisma.batch.findFirst({ where: { id, deletedAt: null } });
     if (!batch) {
       throw new NotFoundException("Charge nicht gefunden.");
     }
@@ -109,8 +114,8 @@ export class InventoryController {
     if (!body.reason?.trim()) {
       throw new BadRequestException("Eine Begründung ist erforderlich.");
     }
-    const existing = await this.prisma.batch.findUnique({
-      where: { id },
+    const existing = await this.prisma.batch.findFirst({
+      where: { id, deletedAt: null },
       include: { article: true, location: true }
     });
     if (!existing) {
@@ -122,7 +127,7 @@ export class InventoryController {
       throw new BadRequestException("Es wurde keine Änderung an der Charge angegeben.");
     }
     if (typeof patch.next.locationId === "string") {
-      const location = await this.prisma.location.findUnique({ where: { id: patch.next.locationId } });
+      const location = await this.prisma.location.findFirst({ where: { id: patch.next.locationId, deletedAt: null } });
       if (!location) {
         throw new BadRequestException("Lagerort nicht gefunden.");
       }
@@ -164,7 +169,34 @@ export class InventoryController {
       return updated;
     });
 
+    await this.alerts.syncAlerts("batch-corrected");
+
     return mapBatch(batch);
+  }
+
+  @Delete("batches/:id")
+  async deleteBatch(@Param("id") id: string): Promise<{ ok: true }> {
+    const batch = await this.prisma.batch.findFirst({ where: { id, deletedAt: null }, include: { article: true, location: true } });
+    if (!batch) {
+      throw new NotFoundException("Charge nicht gefunden.");
+    }
+    const deletedAt = new Date();
+    await this.prisma.batch.update({ where: { id }, data: { deletedAt } });
+    await this.audit.record({
+      actorType: "USER",
+      actorLabel: "Lagerteam",
+      action: "BATCH_DELETED",
+      entityType: "Batch",
+      entityId: id,
+      payload: {
+        articleName: batch.article.name,
+        lotNumber: batch.lotNumber,
+        locationName: batch.location.name,
+        deletedAt: deletedAt.toISOString()
+      }
+    });
+    await this.alerts.syncAlerts("batch-deleted");
+    return { ok: true };
   }
 
   private normalizeCorrectionPatch(
@@ -231,5 +263,18 @@ export class InventoryController {
       changes,
       quantityDelta: typeof next.quantity === "number" ? Number(next.quantity) - existing.quantity : 0
     };
+  }
+
+  private async assertBatchReferences(articleId: string, locationId: string): Promise<void> {
+    const [article, location] = await Promise.all([
+      this.prisma.article.findFirst({ where: { id: articleId, deletedAt: null }, select: { id: true } }),
+      this.prisma.location.findFirst({ where: { id: locationId, deletedAt: null }, select: { id: true } })
+    ]);
+    if (!article) {
+      throw new BadRequestException("Artikel nicht gefunden.");
+    }
+    if (!location) {
+      throw new BadRequestException("Lagerort nicht gefunden.");
+    }
   }
 }

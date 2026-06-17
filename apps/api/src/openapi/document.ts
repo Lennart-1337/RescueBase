@@ -150,6 +150,11 @@ const rescueBaseOpenApiDocumentDefinition = {
         category: { type: "string" },
         barcode: { type: "string" },
         sterile: { type: "boolean" },
+        medicalDevice: { type: "boolean" },
+        stkRequired: { type: "boolean" },
+        stkIntervalMonths: { type: "integer" },
+        mtkRequired: { type: "boolean" },
+        mtkIntervalMonths: { type: "integer" },
         storageNotes: { type: "string" },
         notes: { type: "string" },
         criticalDefault: { type: "boolean" },
@@ -164,6 +169,11 @@ const rescueBaseOpenApiDocumentDefinition = {
         category: { type: "string" },
         barcode: { type: "string" },
         sterile: { type: "boolean" },
+        medicalDevice: { type: "boolean" },
+        stkRequired: { type: "boolean" },
+        stkIntervalMonths: { type: "integer" },
+        mtkRequired: { type: "boolean" },
+        mtkIntervalMonths: { type: "integer" },
         storageNotes: { type: "string" },
         notes: { type: "string" },
         criticalDefault: { type: "boolean" }
@@ -176,6 +186,11 @@ const rescueBaseOpenApiDocumentDefinition = {
         category: { type: "string" },
         barcode: { type: "string" },
         sterile: { type: "boolean" },
+        medicalDevice: { type: "boolean" },
+        stkRequired: { type: "boolean" },
+        stkIntervalMonths: { type: "integer" },
+        mtkRequired: { type: "boolean" },
+        mtkIntervalMonths: { type: "integer" },
         storageNotes: { type: "string" },
         notes: { type: "string" },
         criticalDefault: { type: "boolean" }
@@ -408,19 +423,22 @@ const rescueBaseOpenApiDocumentDefinition = {
     "/auth/invite": { post: operation("Auth", "AuthController_invite", request("InviteUserRequest"), response(201, "Invitation", ref("InviteUserResponse"))) },
     "/auth/users": { get: operation("Auth", "AuthController_users", {}, response(200, "Users", arrayOf(ref("UserSummary")))) },
     "/auth/users/{id}/active": { post: operation("Auth", "AuthController_setUserActive", { ...pathParam("id"), ...request("SetUserActiveRequest") }, response(201, "User activation updated", ref("OkResponse"))) },
+    "/auth/users/{id}": { delete: operation("Auth", "AuthController_deleteUser", pathParam("id"), response(200, "User deleted", ref("OkResponse"))) },
     "/catalog/articles": {
       get: operation("Stammdaten", "CatalogController_articles", {}, response(200, "Articles", arrayOf(ref("Article")))),
       post: operation("Stammdaten", "CatalogController_createArticle", request("CreateArticleRequest"), response(201, "Article created", ref("Article")))
     },
     "/catalog/articles/{id}": {
-      patch: operation("Stammdaten", "CatalogController_updateArticle", { ...pathParam("id"), ...request("UpdateArticleRequest") }, response(200, "Article updated", ref("Article")))
+      patch: operation("Stammdaten", "CatalogController_updateArticle", { ...pathParam("id"), ...request("UpdateArticleRequest") }, response(200, "Article updated", ref("Article"))),
+      delete: operation("Stammdaten", "CatalogController_deleteArticle", pathParam("id"), response(200, "Article deleted", ref("OkResponse")))
     },
     "/catalog/locations": {
       get: operation("Stammdaten", "CatalogController_locations", {}, response(200, "Locations", arrayOf(ref("Location")))),
       post: operation("Stammdaten", "CatalogController_createLocation", request("CreateLocationRequest"), response(201, "Location created", ref("Location")))
     },
     "/catalog/locations/{id}": {
-      patch: operation("Stammdaten", "CatalogController_updateLocation", { ...pathParam("id"), ...request("UpdateLocationRequest") }, response(200, "Location updated", ref("Location")))
+      patch: operation("Stammdaten", "CatalogController_updateLocation", { ...pathParam("id"), ...request("UpdateLocationRequest") }, response(200, "Location updated", ref("Location"))),
+      delete: operation("Stammdaten", "CatalogController_deleteLocation", pathParam("id"), response(200, "Location deleted", ref("OkResponse")))
     },
     "/catalog/templates": {
       get: operation("Stammdaten", "CatalogController_templates", {}, response(200, "Templates", arrayOf(ref("KitTemplate")))),
@@ -429,12 +447,16 @@ const rescueBaseOpenApiDocumentDefinition = {
     "/catalog/templates/{id}/revise": {
       post: operation("Stammdaten", "CatalogController_reviseTemplate", { ...pathParam("id"), ...request("ReviseTemplateRequest") }, response(201, "Template revised", ref("KitTemplate")))
     },
+    "/catalog/templates/{id}": {
+      delete: operation("Stammdaten", "CatalogController_deleteTemplate", pathParam("id"), response(200, "Template deleted", ref("OkResponse")))
+    },
     "/catalog/kits": {
       get: operation("Stammdaten", "CatalogController_kits", {}, response(200, "Kits", arrayOf(ref("Kit")))),
       post: operation("Stammdaten", "CatalogController_createKit", request("CreateKitRequest"), response(201, "Kit created", ref("Kit")))
     },
     "/catalog/kits/{id}": {
-      patch: operation("Stammdaten", "CatalogController_updateKit", { ...pathParam("id"), ...request("UpdateKitRequest") }, response(200, "Kit updated", ref("Kit")))
+      patch: operation("Stammdaten", "CatalogController_updateKit", { ...pathParam("id"), ...request("UpdateKitRequest") }, response(200, "Kit updated", ref("Kit"))),
+      delete: operation("Stammdaten", "CatalogController_deleteKit", pathParam("id"), response(200, "Kit deleted", ref("OkResponse")))
     },
     "/catalog/kits/{id}/rotate-token": {
       post: operation("Stammdaten", "CatalogController_rotateToken", pathParam("id"), response(201, "Kit token rotated", ref("Kit")))
@@ -445,6 +467,9 @@ const rescueBaseOpenApiDocumentDefinition = {
     },
     "/inventory/batches/{id}/movements": {
       get: operation("Lager", "InventoryController_movements", pathParam("id"), response(200, "Batch movements", arrayOf(ref("InventoryMovement"))))
+    },
+    "/inventory/batches/{id}": {
+      delete: operation("Lager", "InventoryController_deleteBatch", pathParam("id"), response(200, "Batch deleted", ref("OkResponse")))
     },
     "/inventory/batches/{id}/corrections": {
       post: operation("Lager", "InventoryController_correctBatch", { ...pathParam("id"), ...request("BatchCorrectionRequest") }, response(201, "Batch corrected", ref("Batch")))

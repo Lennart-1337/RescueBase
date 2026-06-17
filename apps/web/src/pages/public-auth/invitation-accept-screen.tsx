@@ -13,7 +13,7 @@ export function InvitationAcceptScreen({ token }: { token: string }) {
   const [displayName, setDisplayName] = useState("");
   const [password, setPassword] = useState("");
   const [passwordRepeat, setPasswordRepeat] = useState("");
-  const accept = useMutation({ mutationFn: rescueBaseApi.acceptInvitation, onSuccess: async () => navigate({ to: "/" }) });
+  const accept = useMutation({ mutationFn: rescueBaseApi.acceptInvitation, onSuccess: async () => navigate({ search: {}, to: "/" }) });
 
   useEffect(() => { if (invitation.data?.displayName) setDisplayName(invitation.data.displayName); }, [invitation.data?.displayName]);
   if (invitation.isLoading) return <LoadingPanel label="Einladung wird geprüft" />;

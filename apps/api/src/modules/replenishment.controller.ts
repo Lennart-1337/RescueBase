@@ -91,7 +91,7 @@ export class ReplenishmentController {
         if (!orderItem) {
           throw new BadRequestException("Auftragsposition nicht gefunden.");
         }
-        const batch = await tx.batch.findUnique({ where: { id: item.batchId } });
+        const batch = await tx.batch.findFirst({ where: { id: item.batchId, deletedAt: null } });
         if (!batch) {
           throw new BadRequestException("Charge nicht gefunden.");
         }
@@ -212,7 +212,7 @@ export class ReplenishmentController {
         throw new BadRequestException("Nachfüllmenge überschreitet die offene Menge.");
       }
 
-      const batch = await this.prisma.batch.findUnique({ where: { id: item.batchId } });
+      const batch = await this.prisma.batch.findFirst({ where: { id: item.batchId, deletedAt: null } });
       if (!batch) {
         throw new BadRequestException("Charge nicht gefunden.");
       }

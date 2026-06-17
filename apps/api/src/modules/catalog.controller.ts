@@ -1,4 +1,4 @@
-import { BadRequestException, Body, Controller, Get, NotFoundException, Param, Patch, Post } from "@nestjs/common";
+import { BadRequestException, Body, Controller, Delete, Get, NotFoundException, Param, Patch, Post } from "@nestjs/common";
 import { ApiTags } from "@nestjs/swagger";
 import { randomBytes } from "node:crypto";
 import { AuditService } from "../services/audit.service.js";
@@ -18,7 +18,7 @@ export class CatalogController {
   @Roles("ADMIN", "WAREHOUSE")
   @Get("articles")
   articles() {
-    return this.prisma.article.findMany({ orderBy: { name: "asc" } });
+    return this.prisma.article.findMany({ where: { deletedAt: null }, orderBy: { name: "asc" } });
   }
 
   @Post("articles")
@@ -45,7 +45,7 @@ export class CatalogController {
     if (!body.name?.trim() || !body.unit?.trim()) {
       throw new BadRequestException("Artikelname und Einheit sind erforderlich.");
     }
-    const existing = await this.prisma.article.findUnique({ where: { id } });
+    const existing = await this.prisma.article.findFirst({ where: { id, deletedAt: null } });
     if (!existing) {
       throw new NotFoundException("Artikel nicht gefunden.");
     }
@@ -64,10 +64,36 @@ export class CatalogController {
     return article;
   }
 
+  @Delete("articles/:id")
+  async deleteArticle(@Param("id") id: string): Promise<{ ok: true }> {
+    const article = await this.prisma.article.findFirst({ where: { id, deletedAt: null } });
+    if (!article) {
+      throw new NotFoundException("Artikel nicht gefunden.");
+    }
+    const activeBatchCount = await this.prisma.batch.count({ where: { articleId: id, deletedAt: null } });
+    const activeTemplatePositionCount = await this.prisma.templatePosition.count({
+      where: { articleId: id, template: { deletedAt: null } }
+    });
+    if (activeBatchCount > 0 || activeTemplatePositionCount > 0) {
+      throw new BadRequestException("Artikel kann erst gelöscht werden, wenn keine aktiven Chargen oder Vorlagenpositionen darauf verweisen.");
+    }
+    const deletedAt = new Date();
+    await this.prisma.article.update({ where: { id }, data: { deletedAt } });
+    await this.audit.record({
+      actorType: "USER",
+      actorLabel: "Admin",
+      action: "ARTICLE_DELETED",
+      entityType: "Article",
+      entityId: id,
+      payload: { name: article.name, deletedAt: deletedAt.toISOString() }
+    });
+    return { ok: true };
+  }
+
   @Roles("ADMIN", "WAREHOUSE")
   @Get("locations")
   locations() {
-    return this.prisma.location.findMany({ orderBy: { name: "asc" } });
+    return this.prisma.location.findMany({ where: { deletedAt: null }, orderBy: { name: "asc" } });
   }
 
   @Post("locations")
@@ -97,7 +123,7 @@ export class CatalogController {
     if (!body.name?.trim() || !body.kind?.trim()) {
       throw new BadRequestException("Name und Typ des Lagerorts sind erforderlich.");
     }
-    const existing = await this.prisma.location.findUnique({ where: { id } });
+    const existing = await this.prisma.location.findFirst({ where: { id, deletedAt: null } });
     if (!existing) {
       throw new NotFoundException("Lagerort nicht gefunden.");
     }
@@ -119,10 +145,35 @@ export class CatalogController {
     return location;
   }
 
+  @Delete("locations/:id")
+  async deleteLocation(@Param("id") id: string): Promise<{ ok: true }> {
+    const location = await this.prisma.location.findFirst({ where: { id, deletedAt: null } });
+    if (!location) {
+      throw new NotFoundException("Lagerort nicht gefunden.");
+    }
+    const activeBatchCount = await this.prisma.batch.count({ where: { locationId: id, deletedAt: null } });
+    const activeKitCount = await this.prisma.kit.count({ where: { locationId: id, deletedAt: null } });
+    if (activeBatchCount > 0 || activeKitCount > 0) {
+      throw new BadRequestException("Lagerort kann erst gelöscht werden, wenn keine aktiven Chargen oder Rucksäcke darauf verweisen.");
+    }
+    const deletedAt = new Date();
+    await this.prisma.location.update({ where: { id }, data: { deletedAt } });
+    await this.audit.record({
+      actorType: "USER",
+      actorLabel: "Admin",
+      action: "LOCATION_DELETED",
+      entityType: "Location",
+      entityId: id,
+      payload: { name: location.name, deletedAt: deletedAt.toISOString() }
+    });
+    return { ok: true };
+  }
+
   @Roles("ADMIN", "WAREHOUSE")
   @Get("templates")
   async templates() {
     const templates = await this.prisma.kitTemplate.findMany({
+      where: { deletedAt: null },
       include: { positions: { include: { article: true } } },
       orderBy: [{ name: "asc" }, { version: "desc" }]
     });
@@ -181,8 +232,8 @@ export class CatalogController {
     @Param("id") id: string,
     @Body() body: { positions: Array<{ articleId: string; moduleName?: string; requiredQuantity: number; critical?: boolean }> }
   ) {
-    const existing = await this.prisma.kitTemplate.findUnique({
-      where: { id },
+    const existing = await this.prisma.kitTemplate.findFirst({
+      where: { id, deletedAt: null },
       include: { positions: { include: { article: true } } }
     });
     if (!existing) {
@@ -215,10 +266,34 @@ export class CatalogController {
     return mapTemplate(template);
   }
 
+  @Delete("templates/:id")
+  async deleteTemplate(@Param("id") id: string): Promise<{ ok: true }> {
+    const template = await this.prisma.kitTemplate.findFirst({ where: { id, deletedAt: null } });
+    if (!template) {
+      throw new NotFoundException("Rucksackvorlage nicht gefunden.");
+    }
+    const activeKitCount = await this.prisma.kit.count({ where: { templateId: id, deletedAt: null } });
+    if (activeKitCount > 0) {
+      throw new BadRequestException("Rucksackvorlage kann erst gelöscht werden, wenn keine aktiven Rucksäcke darauf verweisen.");
+    }
+    const deletedAt = new Date();
+    await this.prisma.kitTemplate.update({ where: { id }, data: { deletedAt } });
+    await this.audit.record({
+      actorType: "USER",
+      actorLabel: "Admin",
+      action: "TEMPLATE_DELETED",
+      entityType: "KitTemplate",
+      entityId: id,
+      payload: { name: template.name, version: template.version, deletedAt: deletedAt.toISOString() }
+    });
+    return { ok: true };
+  }
+
   @Roles("ADMIN", "WAREHOUSE")
   @Get("kits")
   async kits() {
     const kits = await this.prisma.kit.findMany({
+      where: { deletedAt: null },
       include: {
         location: true,
         template: { include: { positions: { include: { article: true } } } }
@@ -233,6 +308,7 @@ export class CatalogController {
     if (!body.name?.trim() || !body.code?.trim() || !body.locationId || !body.templateId) {
       throw new BadRequestException("Name, Code, Lagerort und Vorlage sind erforderlich.");
     }
+    await this.assertKitReferences(body.locationId, body.templateId);
     const kit = await this.prisma.kit.create({
       data: {
         name: body.name.trim(),
@@ -263,8 +339,8 @@ export class CatalogController {
     if (!body.name?.trim() || !body.code?.trim() || !body.locationId || !body.templateId) {
       throw new BadRequestException("Name, Code, Lagerort und Vorlage sind erforderlich.");
     }
-    const existing = await this.prisma.kit.findUnique({
-      where: { id },
+    const existing = await this.prisma.kit.findFirst({
+      where: { id, deletedAt: null },
       include: {
         location: true,
         template: { include: { positions: { include: { article: true } } } }
@@ -273,6 +349,7 @@ export class CatalogController {
     if (!existing) {
       throw new NotFoundException("Rucksack nicht gefunden.");
     }
+    await this.assertKitReferences(body.locationId, body.templateId);
     const kit = await this.prisma.kit.update({
       where: { id },
       data: {
@@ -312,7 +389,7 @@ export class CatalogController {
 
   @Post("kits/:id/rotate-token")
   async rotateToken(@Param("id") id: string) {
-    const existing = await this.prisma.kit.findUnique({ where: { id } });
+    const existing = await this.prisma.kit.findFirst({ where: { id, deletedAt: null } });
     if (!existing) {
       throw new NotFoundException("Rucksack nicht gefunden.");
     }
@@ -335,6 +412,31 @@ export class CatalogController {
       entityId: kit.id
     });
     return mapKit(kit);
+  }
+
+  @Delete("kits/:id")
+  async deleteKit(@Param("id") id: string): Promise<{ ok: true }> {
+    const kit = await this.prisma.kit.findFirst({ where: { id, deletedAt: null } });
+    if (!kit) {
+      throw new NotFoundException("Rucksack nicht gefunden.");
+    }
+    const openOrderCount = await this.prisma.replenishmentOrder.count({
+      where: { kitId: id, status: { in: ["OPEN", "IN_PROGRESS"] } }
+    });
+    if (openOrderCount > 0) {
+      throw new BadRequestException("Rucksack kann erst gelöscht werden, wenn keine offenen Nachfüllaufträge existieren.");
+    }
+    const deletedAt = new Date();
+    await this.prisma.kit.update({ where: { id }, data: { deletedAt } });
+    await this.audit.record({
+      actorType: "USER",
+      actorLabel: "Admin",
+      action: "KIT_DELETED",
+      entityType: "Kit",
+      entityId: id,
+      payload: { name: kit.name, code: kit.code, deletedAt: deletedAt.toISOString() }
+    });
+    return { ok: true };
   }
 
   private async nextTemplateVersion(name: string): Promise<number> {
@@ -362,13 +464,26 @@ export class CatalogController {
 
     const articleIds = [...new Set(positionPayload.map((position) => position.articleId))];
     const knownArticleCount = await this.prisma.article.count({
-      where: { id: { in: articleIds } }
+      where: { id: { in: articleIds }, deletedAt: null }
     });
     if (knownArticleCount !== articleIds.length) {
       throw new BadRequestException("Mindestens eine Vorlagenposition verweist auf einen unbekannten Artikel.");
     }
 
     return positionPayload;
+  }
+
+  private async assertKitReferences(locationId: string, templateId: string): Promise<void> {
+    const [location, template] = await Promise.all([
+      this.prisma.location.findFirst({ where: { id: locationId, deletedAt: null }, select: { id: true } }),
+      this.prisma.kitTemplate.findFirst({ where: { id: templateId, deletedAt: null }, select: { id: true } })
+    ]);
+    if (!location) {
+      throw new BadRequestException("Lagerort nicht gefunden.");
+    }
+    if (!template) {
+      throw new BadRequestException("Rucksackvorlage nicht gefunden.");
+    }
   }
 }
 
@@ -380,12 +495,19 @@ type ArticleWriteBody = {
   category?: string;
   barcode?: string;
   sterile?: boolean;
+  medicalDevice?: boolean;
+  stkRequired?: boolean;
+  stkIntervalMonths?: number | string;
+  mtkRequired?: boolean;
+  mtkIntervalMonths?: number | string;
   storageNotes?: string;
   notes?: string;
   criticalDefault?: boolean;
 };
 
 function toArticleWriteData(body: ArticleWriteBody) {
+  const stkRequired = Boolean(body.stkRequired);
+  const mtkRequired = Boolean(body.mtkRequired);
   return {
     name: body.name.trim(),
     unit: body.unit.trim(),
@@ -394,10 +516,30 @@ function toArticleWriteData(body: ArticleWriteBody) {
     category: optionalText(body.category),
     barcode: optionalText(body.barcode),
     sterile: Boolean(body.sterile),
+    medicalDevice: Boolean(body.medicalDevice),
+    stkRequired,
+    stkIntervalMonths: normalizeControlInterval(body.stkIntervalMonths, stkRequired, "STK"),
+    mtkRequired,
+    mtkIntervalMonths: normalizeControlInterval(body.mtkIntervalMonths, mtkRequired, "MTK"),
     storageNotes: optionalText(body.storageNotes),
     notes: optionalText(body.notes),
     criticalDefault: Boolean(body.criticalDefault)
   };
+}
+
+function normalizeControlInterval(value: number | string | undefined, required: boolean, label: string) {
+  if (!required) {
+    if (value !== undefined && String(value).trim() !== "") {
+      throw new BadRequestException(`${label}-Intervall darf nur gesetzt werden, wenn ${label} erforderlich ist.`);
+    }
+    return null;
+  }
+
+  const normalized = Number(value);
+  if (!Number.isInteger(normalized) || normalized <= 0) {
+    throw new BadRequestException(`${label}-Intervall muss eine positive ganze Zahl in Monaten sein.`);
+  }
+  return normalized;
 }
 
 function optionalText(value?: string) {

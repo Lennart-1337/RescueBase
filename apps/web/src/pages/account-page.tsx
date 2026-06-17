@@ -1,4 +1,5 @@
 import type { AuthenticatedUser } from "../lib/types";
+import { AccountAlertsPanel } from "./account/account-alerts-panel";
 import { AccountEmailPanel } from "./account/account-email-panel";
 import { AccountStatusPanel } from "./account/account-status-panel";
 import { AccountTotpPanel } from "./account/account-totp-panel";
@@ -11,6 +12,7 @@ export function AccountPage({ user }: { user: AuthenticatedUser }) {
         <AccountStatusPanel user={user} />
         <AccountTotpPanel />
       </section>
+      <AccountAlertsPanel />
       <AccountEmailPanel />
     </>
   );

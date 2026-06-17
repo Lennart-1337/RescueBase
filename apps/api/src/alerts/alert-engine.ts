@@ -1,0 +1,151 @@
+const warningWindowDays = 90;
+
+export type AlertCategory = "EXPIRY" | "STK_DUE" | "MTK_DUE";
+export type AlertSource = "BATCH" | "MEDICAL_DEVICE";
+
+export type AlertWarning = {
+  category: AlertCategory;
+  sourceType: AlertSource;
+  sourceId: string;
+  locationId: string | null;
+  locationName: string | null;
+  title: string;
+  details: string;
+  dueAt: string;
+  metadata: Record<string, unknown>;
+};
+
+type BatchInput = {
+  id: string;
+  articleId: string;
+  articleName: string;
+  locationId: string;
+  locationName: string;
+  lotNumber: string;
+  expiresAt: Date;
+  quantity: number;
+};
+
+type DeviceInput = {
+  id: string;
+  articleId: string;
+  articleName: string;
+  locationId: string;
+  locationName: string;
+  name: string;
+  serialNumber: string | null;
+  inventoryNumber: string | null;
+  lastStkAt: Date | null;
+  lastMtkAt: Date | null;
+  stkIntervalMonths: number | null;
+  mtkIntervalMonths: number | null;
+  article: {
+    stkRequired: boolean;
+    mtkRequired: boolean;
+    stkIntervalMonths: number | null;
+    mtkIntervalMonths: number | null;
+  };
+};
+
+export function buildAlertWarnings(input: { batches: BatchInput[]; devices: DeviceInput[] }, now = new Date(), alertDays = warningWindowDays): AlertWarning[] {
+  return [
+    ...input.batches.flatMap((batch) => buildBatchWarnings(batch, now, alertDays)),
+    ...input.devices.flatMap((device) => buildDeviceWarnings(device, now, alertDays))
+  ];
+}
+
+export function computeControlDueDate(lastControlAt: Date | null, intervalMonths: number, now = new Date()): string {
+  if (!lastControlAt) {
+    return now.toISOString();
+  }
+  return addMonths(lastControlAt, intervalMonths).toISOString();
+}
+
+function buildBatchWarnings(batch: BatchInput, now: Date, alertDays: number): AlertWarning[] {
+  const daysUntilExpiry = daysBetween(now, batch.expiresAt);
+  if (daysUntilExpiry > alertDays) {
+    return [];
+  }
+  return [{
+    category: "EXPIRY",
+    sourceType: "BATCH",
+    sourceId: batch.id,
+    locationId: batch.locationId,
+    locationName: batch.locationName,
+    title: `Ablaufwarnung: ${batch.articleName}`,
+    details: `${batch.quantity} ${batch.articleName} in Charge ${batch.lotNumber} laufen am ${batch.expiresAt.toISOString().slice(0, 10)} ab.`,
+    dueAt: batch.expiresAt.toISOString(),
+    metadata: {
+      articleId: batch.articleId,
+      lotNumber: batch.lotNumber,
+      quantity: batch.quantity
+    }
+  }];
+}
+
+function buildDeviceWarnings(device: DeviceInput, now: Date, alertDays: number): AlertWarning[] {
+  const warnings: AlertWarning[] = [];
+  if (device.article.stkRequired) {
+    const interval = device.stkIntervalMonths ?? device.article.stkIntervalMonths;
+    if (interval) {
+      const dueAt = device.lastStkAt ? addMonths(device.lastStkAt, interval) : now;
+      if (daysBetween(now, dueAt) <= alertDays) {
+        warnings.push(deviceWarning(device, "STK_DUE", "STK fällig", dueAt, {
+          lastControlAt: device.lastStkAt?.toISOString() ?? null,
+          intervalMonths: interval
+        }));
+      }
+    }
+  }
+  if (device.article.mtkRequired) {
+    const interval = device.mtkIntervalMonths ?? device.article.mtkIntervalMonths;
+    if (interval) {
+      const dueAt = device.lastMtkAt ? addMonths(device.lastMtkAt, interval) : now;
+      if (daysBetween(now, dueAt) <= alertDays) {
+        warnings.push(deviceWarning(device, "MTK_DUE", "MTK fällig", dueAt, {
+          lastControlAt: device.lastMtkAt?.toISOString() ?? null,
+          intervalMonths: interval
+        }));
+      }
+    }
+  }
+  return warnings;
+}
+
+function deviceWarning(device: DeviceInput, category: AlertCategory, titlePrefix: string, dueAt: Date, metadata: Record<string, unknown>): AlertWarning {
+  return {
+    category,
+    sourceType: "MEDICAL_DEVICE",
+    sourceId: device.id,
+    locationId: device.locationId,
+    locationName: device.locationName,
+    title: `${titlePrefix}: ${device.name}`,
+    details: `${device.name}${device.serialNumber ? ` · S/N ${device.serialNumber}` : ""}${device.inventoryNumber ? ` · Inv. ${device.inventoryNumber}` : ""} ist am ${dueAt.toISOString().slice(0, 10)} fällig.`,
+    dueAt: dueAt.toISOString(),
+    metadata: {
+      articleId: device.articleId,
+      deviceName: device.name,
+      ...metadata
+    }
+  };
+}
+
+function addMonths(date: Date, months: number): Date {
+  const result = new Date(date.getTime());
+  const targetMonth = result.getUTCMonth() + months;
+  const targetDay = result.getUTCDate();
+  result.setUTCDate(1);
+  result.setUTCMonth(targetMonth);
+  const maxDay = daysInMonth(result.getUTCFullYear(), result.getUTCMonth());
+  result.setUTCDate(Math.min(targetDay, maxDay));
+  return result;
+}
+
+function daysBetween(from: Date, to: Date): number {
+  const millisPerDay = 86_400_000;
+  return Math.ceil((to.getTime() - from.getTime()) / millisPerDay);
+}
+
+function daysInMonth(year: number, monthZeroBased: number): number {
+  return new Date(Date.UTC(year, monthZeroBased + 1, 0)).getUTCDate();
+}

@@ -36,6 +36,12 @@ enum TwoFactorMethod {
   EMAIL
 }
 
+enum AlertCategory {
+  EXPIRY
+  STK_DUE
+  MTK_DUE
+}
+
 model User {
   id               String   @id @default(cuid())
   email            String   @unique
@@ -50,8 +56,12 @@ model User {
   invitations      UserInvitation[]
   passwordResets   PasswordResetToken[]
   emailChallenges  EmailTwoFactorChallenge[]
+  alertSubscriptions AlertSubscription[]
+  deletedAt        DateTime?
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
+
+  @@index([deletedAt])
 }
 
 model UserSession {
@@ -111,26 +121,41 @@ model Location {
   kind      String
   batches   Batch[]
   kits      Kit[]
+  medicalDevices MedicalDevice[]
+  alertSubscriptions AlertSubscription[]
+  alertEvents AlertEvent[]
+  deletedAt DateTime?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@index([deletedAt])
 }
 
 model Article {
-  id              String             @id @default(cuid())
-  name            String
-  unit            String
-  manufacturer    String?
+  id                    String             @id @default(cuid())
+  name                  String
+  unit                  String
+  manufacturer          String?
   manufacturerPartNumber String?
-  category        String?
-  barcode         String?
-  sterile         Boolean            @default(false)
-  storageNotes    String?            @db.Text
-  notes           String?            @db.Text
-  criticalDefault Boolean            @default(false)
-  batches         Batch[]
-  templateItems   TemplatePosition[]
-  createdAt       DateTime           @default(now())
-  updatedAt       DateTime           @updatedAt
+  category              String?
+  barcode               String?
+  sterile               Boolean            @default(false)
+  medicalDevice         Boolean            @default(false)
+  stkRequired           Boolean            @default(false)
+  stkIntervalMonths     Int?
+  mtkRequired           Boolean            @default(false)
+  mtkIntervalMonths     Int?
+  storageNotes         String?            @db.Text
+  notes                String?            @db.Text
+  criticalDefault      Boolean            @default(false)
+  batches              Batch[]
+  medicalDevices       MedicalDevice[]
+  templateItems        TemplatePosition[]
+  deletedAt            DateTime?
+  createdAt            DateTime           @default(now())
+  updatedAt            DateTime           @updatedAt
+
+  @@index([deletedAt])
 }
 
 model Batch {
@@ -143,11 +168,13 @@ model Batch {
   article    Article  @relation(fields: [articleId], references: [id])
   location   Location @relation(fields: [locationId], references: [id])
   movements  InventoryMovement[]
+  deletedAt  DateTime?
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
 
   @@index([articleId, expiresAt])
   @@index([locationId])
+  @@index([deletedAt])
 }
 
 model KitTemplate {
@@ -156,10 +183,12 @@ model KitTemplate {
   version   Int
   positions TemplatePosition[]
   kits      Kit[]
+  deletedAt DateTime?
   createdAt DateTime           @default(now())
   updatedAt DateTime           @updatedAt
 
   @@unique([name, version])
+  @@index([deletedAt])
 }
 
 model TemplatePosition {
@@ -186,8 +215,11 @@ model Kit {
   template       KitTemplate          @relation(fields: [templateId], references: [id])
   checks         Check[]
   orders         ReplenishmentOrder[]
+  deletedAt      DateTime?
   createdAt      DateTime             @default(now())
   updatedAt      DateTime             @updatedAt
+
+  @@index([deletedAt])
 }
 
 model Check {
@@ -283,4 +315,71 @@ model AuditEvent {
 
   @@index([entityType, entityId])
   @@index([createdAt])
+}
+
+model MedicalDevice {
+  id                String   @id @default(cuid())
+  articleId         String
+  locationId        String
+  name              String
+  serialNumber      String?
+  inventoryNumber   String?
+  lastStkAt         DateTime?
+  lastMtkAt         DateTime?
+  stkIntervalMonths Int?
+  mtkIntervalMonths Int?
+  active            Boolean  @default(true)
+  notes             String?  @db.Text
+  article           Article  @relation(fields: [articleId], references: [id])
+  location          Location @relation(fields: [locationId], references: [id])
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@index([articleId])
+  @@index([locationId])
+}
+
+model AlertSubscription {
+  id         String      @id @default(cuid())
+  userId     String
+  category   AlertCategory
+  locationId String?
+  user       User        @relation(fields: [userId], references: [id])
+  location   Location?   @relation(fields: [locationId], references: [id])
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
+
+  @@index([userId])
+  @@index([category, locationId])
+}
+
+model AlertEvent {
+  id                  String        @id @default(cuid())
+  category            AlertCategory
+  sourceType          String
+  sourceId            String
+  locationId          String?
+  location            Location?     @relation(fields: [locationId], references: [id])
+  title               String
+  details             String        @db.Text
+  dueAt               DateTime?
+  firstSeenAt         DateTime
+  lastSeenAt          DateTime
+  resolvedAt          DateTime?
+  lastImmediateSentAt DateTime?
+  lastDigestSentAt    DateTime?
+  metadata            Json?
+  createdAt           DateTime      @default(now())
+  updatedAt           DateTime      @updatedAt
+
+  @@unique([category, sourceType, sourceId])
+  @@index([category, locationId])
+  @@index([resolvedAt])
+}
+
+model AlertJobState {
+  id        String   @id
+  lastRunAt DateTime?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }

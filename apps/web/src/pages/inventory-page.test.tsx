@@ -1,6 +1,6 @@
 import { screen, waitFor, within } from "@testing-library/react";
 import { article, batch, location } from "../test-support/fixtures";
-import { changeValue, clickElement, postedBody, renderAppAt, resetTestBrowser, stubFetch } from "../test-support/app-test-helpers";
+import { changeValue, clickElement, getActiveRouter, postedBody, renderAppAt, resetTestBrowser, stubFetch, wasRequested } from "../test-support/app-test-helpers";
 
 describe("InventoryPage", () => {
   afterEach(resetTestBrowser);
@@ -37,6 +37,38 @@ describe("InventoryPage", () => {
     expect(screen.queryByText(/VB-ALT-0/)).toBeNull();
     await clickElement(screen.getByLabelText("Chargen mit Menge 0 anzeigen"));
     expect(screen.getByText(/VB-ALT-0/)).toBeInTheDocument();
+  });
+
+  it("restores inventory filters from the URL and can reset them", async () => {
+    stubFetch({
+      ...baseInventoryRoutes(),
+      "/api/inventory/batches": [
+        batch,
+        { ...batch, id: "batch-vehicle-1", lotNumber: "RTW-2027-01", locationId: "loc-vehicle", location: { id: "loc-vehicle", name: "Fahrzeug 1" } }
+      ],
+      "/api/catalog/locations": [location, { id: "loc-vehicle", name: "Fahrzeug 1", kind: "VEHICLE" }]
+    });
+    await renderAppAt("/admin/inventory?q=RTW&locationId=loc-vehicle");
+    await screen.findByRole("heading", { name: "Lager" });
+    expect(screen.getByLabelText("Suche")).toHaveValue("RTW");
+    expect(screen.getByLabelText("Standort")).toHaveValue("loc-vehicle");
+    expect(screen.getByText(/RTW-2027-01/)).toBeInTheDocument();
+    expect(screen.queryByText(/VB-2026-04/)).toBeNull();
+
+    await clickElement(screen.getByRole("button", { name: "Filter zurücksetzen" }));
+
+    await waitFor(() => expect(screen.getByLabelText("Suche")).toHaveValue(""));
+    expect(screen.getByText(/VB-2026-04/)).toBeInTheDocument();
+    expect(getActiveRouter()?.state.location.search).toEqual({});
+  });
+
+  it("soft-deletes batches after confirmation", async () => {
+    vi.spyOn(window, "confirm").mockReturnValue(true);
+    stubFetch({ ...baseInventoryRoutes(), "/api/inventory/batches/batch-bandage-1": { ok: true } });
+    await renderAppAt("/admin/inventory");
+    await screen.findByRole("heading", { name: "Lager" });
+    await clickElement(screen.getByRole("button", { name: /Charge VB-2026-04 löschen/ }));
+    await waitFor(() => expect(wasRequested("/api/inventory/batches/batch-bandage-1", "DELETE")).toBe(true));
   });
 });
 

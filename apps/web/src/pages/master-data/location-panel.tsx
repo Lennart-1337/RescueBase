@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Pencil, Plus, Save, X } from "lucide-react";
+import { Pencil, Plus, Save, Trash2, X } from "lucide-react";
 import { locationKindLabel } from "../../app/formatters";
 import { InlineError } from "../../components/state-panels";
 import { Button, Dialog, Field, Panel } from "../../components/ui";
@@ -10,6 +10,7 @@ export function LocationPanel(props: {
   isSubmitting: boolean;
   locations: Location[];
   onCreate: (body: CreateLocationRequest) => Promise<unknown>;
+  onDelete: (id: string) => void;
   onSave: (id: string, body: UpdateLocationRequest) => Promise<unknown>;
 }) {
   const [isOpen, setIsOpen] = useState(false);
@@ -40,6 +41,12 @@ export function LocationPanel(props: {
     }
   }
 
+  function confirmDelete(location: Location) {
+    if (window.confirm(`Lagerort "${location.name}" wirklich löschen?`)) {
+      props.onDelete(location.id);
+    }
+  }
+
   return (
     <Panel>
       <div className="panel-header">
@@ -56,6 +63,7 @@ export function LocationPanel(props: {
             <span><strong>{location.name}</strong><small>{locationKindLabel(location.kind)}</small></span>
             <div className="row-actions">
               <Button onClick={() => openForEdit(location)} type="button" variant="ghost"><Pencil data-icon="inline-start" />Bearbeiten</Button>
+              <Button aria-label={`${location.name} löschen`} disabled={props.isSubmitting} onClick={() => confirmDelete(location)} type="button" variant="danger"><Trash2 data-icon="inline-start" />Löschen</Button>
             </div>
           </div>
         ))}

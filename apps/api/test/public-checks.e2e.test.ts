@@ -118,11 +118,28 @@ describe("public check flow", () => {
         category: "Verbandmaterial",
         barcode: "040000000099",
         sterile: true,
+        medicalDevice: true,
+        stkRequired: true,
+        stkIntervalMonths: 12,
+        mtkRequired: false,
         storageNotes: "Trocken lagern",
         notes: "Nur originalverpackt einlagern",
         criticalDefault: true
       })
       .expect(200);
+
+    const articles = await agent.get("/catalog/articles").expect(200);
+    expect(articles.body).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          id: "article-bandage",
+          medicalDevice: true,
+          stkRequired: true,
+          stkIntervalMonths: 12,
+          mtkRequired: false
+        })
+      ])
+    );
 
     await agent
       .patch("/catalog/locations/loc-main")
@@ -182,5 +199,82 @@ describe("public check flow", () => {
       .get("/reports/qr-label/kit-rucksack-1.pdf?format=label")
       .expect("content-type", /application\/pdf/)
       .expect(200);
+  });
+
+  it("rejects medical device articles without required STK or MTK intervals", async () => {
+    const server = app.getHttpServer();
+    const agent = request.agent(server);
+    await agent.post("/auth/login").send({ email: "admin@rescuebase.local", password: "rescuebase-admin" }).expect(201);
+
+    await agent
+      .patch("/catalog/articles/article-bandage")
+      .send({
+        name: "Verbandpäckchen mittel",
+        unit: "Stück",
+        medicalDevice: true,
+        stkRequired: true,
+        mtkRequired: false,
+        sterile: true,
+        criticalDefault: false
+      })
+      .expect(400);
+  });
+
+  it("soft-deletes operational catalog records from normal reads", async () => {
+    const server = app.getHttpServer();
+    const agent = request.agent(server);
+    await agent.post("/auth/login").send({ email: "admin@rescuebase.local", password: "rescuebase-admin" }).expect(201);
+
+    const article = await agent.post("/catalog/articles").send({
+      name: "Softdelete-Testartikel",
+      unit: "Stück",
+      sterile: false,
+      medicalDevice: false,
+      stkRequired: false,
+      mtkRequired: false,
+      criticalDefault: false
+    }).expect(201);
+    const location = await agent.post("/catalog/locations").send({ name: "Softdelete-Lager", kind: "ROOM" }).expect(201);
+    const template = await agent.post("/catalog/templates").send({
+      name: "Softdelete-Vorlage",
+      positions: [{ articleId: article.body.id, requiredQuantity: 1, critical: false }]
+    }).expect(201);
+    const kit = await agent.post("/catalog/kits").send({
+      name: "Softdelete-Rucksack",
+      code: "SOFTDELETE-RS",
+      locationId: location.body.id,
+      templateId: template.body.id
+    }).expect(201);
+    const batch = await agent.post("/inventory/batches").send({
+      articleId: article.body.id,
+      locationId: location.body.id,
+      lotNumber: "SOFT-1",
+      expiresAt: "2028-01-31",
+      quantity: 3
+    }).expect(201);
+
+    await request(server).get(`/public/kits/${kit.body.publicToken}`).expect(200);
+    await agent.delete(`/inventory/batches/${batch.body.id}`).expect(200);
+    await agent.delete(`/catalog/kits/${kit.body.id}`).expect(200);
+    await agent.delete(`/catalog/templates/${template.body.id}`).expect(200);
+    await agent.delete(`/catalog/locations/${location.body.id}`).expect(200);
+    await agent.delete(`/catalog/articles/${article.body.id}`).expect(200);
+
+    await request(server).get(`/public/kits/${kit.body.publicToken}`).expect(404);
+    expect((await agent.get("/inventory/batches").expect(200)).body).not.toEqual(expect.arrayContaining([
+      expect.objectContaining({ id: batch.body.id })
+    ]));
+    expect((await agent.get("/catalog/kits").expect(200)).body).not.toEqual(expect.arrayContaining([
+      expect.objectContaining({ id: kit.body.id })
+    ]));
+    expect((await agent.get("/catalog/templates").expect(200)).body).not.toEqual(expect.arrayContaining([
+      expect.objectContaining({ id: template.body.id })
+    ]));
+    expect((await agent.get("/catalog/locations").expect(200)).body).not.toEqual(expect.arrayContaining([
+      expect.objectContaining({ id: location.body.id })
+    ]));
+    expect((await agent.get("/catalog/articles").expect(200)).body).not.toEqual(expect.arrayContaining([
+      expect.objectContaining({ id: article.body.id })
+    ]));
   });
 });

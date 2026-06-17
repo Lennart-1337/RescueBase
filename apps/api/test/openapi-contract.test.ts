@@ -87,6 +87,18 @@ describe("RescueBase OpenAPI contract", () => {
     });
   });
 
+  it("includes MPDG and STK/MTK metadata on articles", () => {
+    expect(rescueBaseOpenApiDocument.components?.schemas?.Article).toMatchObject({
+      properties: expect.objectContaining({
+        medicalDevice: expect.any(Object),
+        stkRequired: expect.any(Object),
+        stkIntervalMonths: expect.any(Object),
+        mtkRequired: expect.any(Object),
+        mtkIntervalMonths: expect.any(Object)
+      })
+    });
+  });
+
   it("describes QR reports with selectable print format", () => {
     expect(rescueBaseOpenApiDocument.paths["/reports/qr-label/{kitId}.pdf"]?.get).toMatchObject({
       operationId: "ReportsController_qrLabel",

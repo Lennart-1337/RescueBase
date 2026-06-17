@@ -26,20 +26,20 @@ export function AdminShell({ children, user }: { children: ReactNode; user: Auth
           </div>
         </div>
         <nav className="nav-list" aria-label="Hauptnavigation">
-          <Link to="/" activeProps={{ className: "active" }} activeOptions={{ exact: true }}>
+          <Link search={{}} to="/" activeProps={{ className: "active" }} activeOptions={{ exact: true }}>
             <ClipboardList />
             Aufträge
           </Link>
-          <Link to="/admin/kits" activeProps={{ className: "active" }}>
+          <Link search={{}} to="/admin/kits" activeProps={{ className: "active" }}>
             <PackageCheck />
             Rucksäcke
           </Link>
-          <Link to="/admin/inventory" activeProps={{ className: "active" }}>
+          <Link search={{}} to="/admin/inventory" activeProps={{ className: "active" }}>
             <Archive />
             Lager
           </Link>
           {user.role === "ADMIN" ? (
-            <Link to="/admin/master-data" activeProps={{ className: "active" }}>
+            <Link search={{ tab: "articles" }} to="/admin/master-data" activeProps={{ className: "active" }}>
               <Settings />
               Stammdaten
             </Link>
