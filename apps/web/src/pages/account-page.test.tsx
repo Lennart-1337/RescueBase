@@ -1,4 +1,4 @@
-import { screen } from "@testing-library/react";
+import { screen, within } from "@testing-library/react";
 import { clickElement, renderAppAt, resetTestBrowser, stubFetch } from "../test-support/app-test-helpers";
 
 describe("AccountPage", () => {
@@ -28,6 +28,26 @@ describe("AccountPage", () => {
     await renderAppAt("/admin/account");
     const globalCheckbox = (await screen.findAllByRole("checkbox", { name: /Alle Standorte/ }))[0]!;
     await clickElement(globalCheckbox);
-    expect(await screen.findByText("Es gibt 1 aktive Alarmregeln.")).toBeInTheDocument();
+    expect(await screen.findByText("1 Regel aktiv")).toBeInTheDocument();
+  });
+
+  it("groups alarm preferences by category with clear global and location choices", async () => {
+    stubFetch({
+      "/api/auth/setup/status": { initialized: true, firstAdminEmail: "admin@rescuebase.local" },
+      "/api/auth/session": { user: { id: "user-admin", email: "admin@rescuebase.local", displayName: "Admin", role: "ADMIN", twoFactorEnabled: false } },
+      "/api/catalog/locations": [
+        { id: "loc-main", name: "Hauptlager", kind: "STORAGE" },
+        { id: "loc-home", name: "zu Hause", kind: "STORAGE" }
+      ],
+      "/api/alerts/subscriptions/me": []
+    });
+
+    await renderAppAt("/admin/account");
+
+    const expiryGroup = await screen.findByRole("group", { name: "Ablauf" });
+    expect(within(expiryGroup).getByText("Gilt für alle aktuellen und zukünftigen Standorte.")).toBeInTheDocument();
+    expect(within(expiryGroup).getByRole("checkbox", { name: /Alle Standorte/ })).toBeInTheDocument();
+    expect(within(expiryGroup).getByRole("checkbox", { name: /Hauptlager/ })).toBeInTheDocument();
+    expect(within(expiryGroup).getByRole("checkbox", { name: /zu Hause/ })).toBeInTheDocument();
   });
 });

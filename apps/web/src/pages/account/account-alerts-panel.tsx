@@ -5,11 +5,12 @@ import { rescueBaseApi } from "../../lib/api";
 import { getMyAlertSubscriptions, saveMyAlertSubscriptions } from "../../lib/extra-api";
 import { InlineError, LoadingPanel } from "../../components/state-panels";
 import { Badge, Button, Panel } from "../../components/ui";
+import { AlertPreferenceCard, type AlertCategoryOption } from "./alert-preference-card";
 
-const categories = [
-  { key: "EXPIRY" as const, label: "Ablauf" },
-  { key: "STK_DUE" as const, label: "STK" },
-  { key: "MTK_DUE" as const, label: "MTK" }
+const categories: AlertCategoryOption[] = [
+  { key: "EXPIRY", label: "Ablauf", description: "Warnungen zu Artikeln, die bald ablaufen oder abgelaufen sind." },
+  { key: "STK_DUE", label: "STK", description: "Erinnerungen für fällige sicherheitstechnische Kontrollen." },
+  { key: "MTK_DUE", label: "MTK", description: "Erinnerungen für fällige messtechnische Kontrollen." }
 ];
 
 export function AccountAlertsPanel() {
@@ -57,33 +58,38 @@ export function AccountAlertsPanel() {
   return (
     <Panel>
       <div className="panel-header">
-        <div><h2>Alarm-E-Mails</h2><p>Wählen Sie, welche Warnungen Sie global oder standortbezogen erhalten.</p></div>
+        <div>
+          <h2>Alarm-E-Mails</h2>
+          <p>Wählen Sie pro Alarmtyp, ob Sie alle Standorte oder nur einzelne Standorte abonnieren.</p>
+        </div>
         <BellRing />
       </div>
-      <div className="compact-list-empty" style={{ marginBottom: "0.75rem" }}>Es gibt {selected.size} aktive Alarmregeln.</div>
-      <div className="alert-subscription-grid">
-        <div className="alert-subscription-head">Kategorie</div>
-        <div className="alert-subscription-head">Global</div>
-        {locationOptions.map((location) => <div className="alert-subscription-head" key={location.id}>{location.name}</div>)}
-        {categories.map((row) => (
-          <div className="alert-subscription-row" key={row.key}>
-            <div className="alert-subscription-label"><strong>{row.label}</strong></div>
-            <label className="alert-subscription-cell">
-              <input checked={selected.has(subscriptionKey(row.key, null))} onChange={() => toggle(row.key, null)} type="checkbox" />
-              <span>Alle Standorte</span>
-            </label>
-            {locationOptions.map((location) => (
-              <label className="alert-subscription-cell" key={`${row.key}-${location.id}`}>
-                <input checked={selected.has(subscriptionKey(row.key, location.id))} onChange={() => toggle(row.key, location.id)} type="checkbox" />
-                <span>{location.name}</span>
-              </label>
-            ))}
-          </div>
+      <div className="alert-subscription-summary">
+        <Badge tone={selected.size > 0 ? "info" : "neutral"}>{formatRuleCount(selected.size)}</Badge>
+        <span>Globale Regeln gelten auch für künftig angelegte Standorte.</span>
+      </div>
+      <div className="alert-category-grid">
+        {categories.map((category) => (
+          <AlertPreferenceCard
+            category={category}
+            key={category.key}
+            locations={locationOptions}
+            onToggle={toggle}
+            selected={selected}
+            subscriptionKey={subscriptionKey}
+          />
         ))}
       </div>
-      <div className="form-actions">
-        <div className="field"><span>Hinweis</span><div className="field-help">Benutzer erhalten nur E-Mails, wenn sie für die Kategorie mindestens global oder standortbezogen angemeldet sind.</div></div>
-        <div className="row-actions"><Badge tone="info">{selected.size} Regeln</Badge><Button disabled={save.isPending} onClick={submit} type="button"><Save data-icon="inline-start" />Speichern</Button></div>
+      <div className="form-actions alert-actions">
+        <div className="field">
+          <span>Hinweis</span>
+          <div className="field-help">E-Mails werden nur für aktivierte Alarmtypen und die ausgewählten Standorte gesendet.</div>
+        </div>
+        <div className="row-actions">
+          <Button disabled={save.isPending} onClick={submit} type="button">
+            <Save data-icon="inline-start" />{save.isPending ? "Speichert..." : "Speichern"}
+          </Button>
+        </div>
       </div>
       {save.error ? <InlineError error={save.error} /> : null}
     </Panel>
@@ -92,4 +98,8 @@ export function AccountAlertsPanel() {
 
 function subscriptionKey(category: string, locationId?: string | null) {
   return `${category}:${locationId ?? "global"}`;
+}
+
+function formatRuleCount(count: number) {
+  return count === 1 ? "1 Regel aktiv" : `${count} Regeln aktiv`;
 }
