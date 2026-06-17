@@ -3,7 +3,7 @@ import type { paths } from "./generated-api";
 const apiBase = "/api";
 const json = "application/json";
 
-type HttpMethod = "get" | "post" | "patch";
+type HttpMethod = "get" | "post" | "patch" | "delete";
 type PathFor<Method extends HttpMethod> = {
   [Path in keyof paths]: paths[Path][Method] extends never | undefined ? never : Path
 }[keyof paths];
@@ -61,6 +61,13 @@ export const openApiClient = {
       headers: { "content-type": json },
       body: body === undefined ? undefined : JSON.stringify(body)
     });
+  },
+
+  delete<Path extends PathFor<"delete">>(
+    path: Path,
+    options?: PathParameters<Operation<Path, "delete">> extends never ? undefined : { params: PathParameters<Operation<Path, "delete">> }
+  ): Promise<JsonResponse<Operation<Path, "delete">>> {
+    return requestJson(buildPath(path, options?.params), { method: "DELETE" });
   }
 };
 

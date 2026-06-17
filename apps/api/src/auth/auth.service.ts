@@ -17,6 +17,7 @@ type UserSessionView = {
   role: UserRole;
   twoFactorEnabled: boolean;
   twoFactorMethod: TwoFactorMethod | null;
+  deletedAt?: Date | null;
 };
 
 export interface AuthenticatedUser {
@@ -77,7 +78,7 @@ export class AuthService {
       where: { tokenHash: this.hashSessionToken(token) },
       include: { user: true }
     });
-    if (!session || session.expiresAt <= new Date() || !session.user.active) {
+    if (!session || session.expiresAt <= new Date() || !session.user.active || session.user.deletedAt) {
       if (session) {
         await this.prisma.userSession.delete({ where: { id: session.id } }).catch(() => undefined);
       }
@@ -119,7 +120,7 @@ export class AuthService {
       where: { tokenHash: this.hashOpaqueToken(token) },
       include: { user: true }
     });
-    if (!invitation || invitation.acceptedAt || invitation.expiresAt <= new Date()) {
+    if (!invitation || invitation.acceptedAt || invitation.expiresAt <= new Date() || invitation.user.deletedAt) {
       return null;
     }
     return {
@@ -156,7 +157,7 @@ export class AuthService {
       where: { tokenHash: this.hashOpaqueToken(token) },
       include: { user: true }
     });
-    if (!reset || reset.consumedAt || reset.expiresAt <= new Date()) {
+    if (!reset || reset.consumedAt || reset.expiresAt <= new Date() || reset.user.deletedAt) {
       return null;
     }
     return {

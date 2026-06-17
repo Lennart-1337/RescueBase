@@ -34,6 +34,15 @@ export function requestBody(pathname: string, method: string) {
   return call?.[1]?.body ? JSON.parse(String(call[1].body)) : undefined;
 }
 
+export function wasRequested(pathname: string, method: string) {
+  const calls = (fetch as unknown as { mock: { calls: Array<[RequestInfo | URL, RequestInit | undefined]> } }).mock.calls;
+  return calls.some(([input, init]) => {
+    const url = typeof input === "string" ? input : input instanceof URL ? input.pathname : input.url;
+    const path = url.startsWith("http") ? new URL(url).pathname : url;
+    return path === pathname && (init?.method ?? "GET") === method;
+  });
+}
+
 export async function renderAppAt(pathname: string) {
   history.pushState({}, "", pathname);
   activeRouter = createAppMemoryRouter(pathname);

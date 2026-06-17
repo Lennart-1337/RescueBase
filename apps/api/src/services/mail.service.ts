@@ -1,4 +1,5 @@
 import { Injectable, Logger } from "@nestjs/common";
+import type { AlertWarning } from "../alerts/alert-engine.js";
 
 export interface MailDeliveryResult {
   debugCode?: string;
@@ -8,6 +9,10 @@ export interface MailDeliveryResult {
 @Injectable()
 export class MailService {
   private readonly logger = new Logger(MailService.name);
+
+  sendCustom(input: { email: string; subject: string; text: string; debugUrl?: string; debugCode?: string }): Promise<MailDeliveryResult> {
+    return this.send(input);
+  }
 
   async sendInvitation(email: string, invitationUrl: string): Promise<MailDeliveryResult> {
     return this.send({
@@ -33,6 +38,16 @@ export class MailService {
       subject: "RescueBase Sicherheitscode",
       text: `Ihr RescueBase-Sicherheitscode lautet: ${code}\n`,
       debugCode: code
+    });
+  }
+
+  async sendAlert(email: string, subject: string, warnings: AlertWarning[], detailsUrl: string): Promise<MailDeliveryResult> {
+    const lines = warnings.map((warning) => `- ${warning.title} (${warning.locationName ?? "ohne Standort"}) · Fällig: ${warning.dueAt.slice(0, 10)}`);
+    return this.send({
+      email,
+      subject,
+      text: [`RescueBase Warnung`, "", ...lines, "", `Details: ${detailsUrl}`].join("\n"),
+      debugUrl: detailsUrl
     });
   }
 

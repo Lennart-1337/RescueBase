@@ -1,13 +1,16 @@
 import { Module } from "@nestjs/common";
 import { APP_GUARD } from "@nestjs/core";
 import { AuthController } from "./auth.controller.js";
+import { AlertsController } from "./alerts.controller.js";
 import { AuditController } from "./audit.controller.js";
 import { CatalogController } from "./catalog.controller.js";
+import { MedicalDevicesController } from "./medical-devices.controller.js";
 import { InventoryController } from "./inventory.controller.js";
 import { PublicChecksController } from "./public-checks.controller.js";
 import { ReplenishmentController } from "./replenishment.controller.js";
 import { ReportsController } from "./reports.controller.js";
 import { AuditService } from "../services/audit.service.js";
+import { AlertsService } from "../services/alerts.service.js";
 import { MailService } from "../services/mail.service.js";
 import { ReportService } from "../services/report.service.js";
 import { PrismaService } from "../persistence/prisma.service.js";
@@ -17,8 +20,10 @@ import { AuthService } from "../auth/auth.service.js";
 @Module({
   controllers: [
     AuthController,
+    AlertsController,
     AuditController,
     CatalogController,
+    MedicalDevicesController,
     InventoryController,
     PublicChecksController,
     ReplenishmentController,
@@ -28,6 +33,7 @@ import { AuthService } from "../auth/auth.service.js";
     PrismaService,
     AuthService,
     AuditService,
+    AlertsService,
     MailService,
     ReportService,
     { provide: APP_GUARD, useClass: AuthGuard }

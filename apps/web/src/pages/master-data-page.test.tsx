@@ -96,6 +96,14 @@ describe("MasterDataPage", () => {
     await clickElement(within(dialog).getByRole("button", { name: /Neue Version speichern/ }));
     await waitFor(() => expect(postedBody("/api/catalog/templates/template-san-a-v1/revise")).toEqual({ positions: [{ articleId: "article-bandage", moduleName: "Verband", requiredQuantity: 2, critical: false }] }));
   });
+
+  it("opens the new devices tab", async () => {
+    stubFetch(baseAdminRoutes());
+    await renderAppAt("/admin/master-data");
+    await screen.findByRole("heading", { name: "Stammdaten" });
+    await clickElement(screen.getByRole("tab", { name: "Geräte" }));
+    expect(await screen.findByRole("button", { name: /Gerät hinzufügen/ })).toBeInTheDocument();
+  });
 });
 
 function baseAdminRoutes() {
@@ -104,6 +112,7 @@ function baseAdminRoutes() {
     "/api/auth/session": { user: { id: "user-admin", email: "admin@rescuebase.local", displayName: "Admin", role: "ADMIN", twoFactorEnabled: false } },
     "/api/catalog/articles": [article],
     "/api/catalog/locations": [location],
-    "/api/catalog/templates": [kit.template]
+    "/api/catalog/templates": [kit.template],
+    "/api/catalog/devices": []
   };
 }

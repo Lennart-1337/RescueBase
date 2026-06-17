@@ -6,6 +6,7 @@ import { daysUntil, formatReason, formatStatus, toError } from "../app/formatter
 import { EmptyState, ErrorPanel, LoadingPanel, Metric } from "../components/state-panels";
 import { AnchorButton, Badge, Panel, cn } from "../components/ui";
 import { rescueBaseApi } from "../lib/api";
+import { AlertSummaryPanel } from "./dashboard/alert-summary-panel";
 import { OrderDetailDialog } from "./dashboard/order-detail-dialog";
 
 export function AdminDashboard() {
@@ -35,6 +36,7 @@ export function AdminDashboard() {
     <>
       <header className="topbar"><div><h1>Nachfüllzentrale</h1><p>Offene Mängel, chargengenaue Teilfüllungen und Ablaufwarnungen.</p></div><div className="topbar-actions"><AnchorButton href={rescueBaseApi.reportUrl("/reports/csv/replenishment")} variant="secondary">CSV Aufträge</AnchorButton></div></header>
       <section className="metric-grid" aria-label="Kennzahlen"><Metric icon={<ClipboardList />} label="Offene Aufträge" tone="warning" value={String(openOrders)} /><Metric icon={<PackageCheck />} label="Rucksäcke bereit" tone="ready" value={`${kits.filter((kit) => kit.status === "READY").length}/${kits.length}`} /><Metric icon={<AlertTriangle />} label="Ablaufwarnungen" tone="danger" value={String(expiringBatches)} /><Metric icon={<Archive />} label="Bestand gesamt" tone="info" value={String(stockTotal)} /></section>
+      <AlertSummaryPanel />
       <Panel className="orders-panel">
         <div className="panel-header"><div><h2>Nachfüllaufträge</h2><p>Teilfüllungen buchen konkrete Chargen aus dem Lager.</p></div><Badge tone="warning">{openOrders} offen</Badge></div>
         {orders.length > 0 ? <div className="order-list">{orders.map((order) => <button className={cn("order-row", selectedOrder?.id === order.id && "selected")} key={order.id} onClick={() => { setSelectedOrderId(order.id); setOrderOpen(true); }} type="button"><span><strong>{order.kit?.name ?? order.kitId}</strong><small>{order.items.length} Positionen · {formatStatus(order.status)}</small></span><Badge tone={order.status === "OPEN" ? "warning" : order.status === "DONE" ? "ready" : "info"}>{formatStatus(order.status)}</Badge></button>)}</div> : <EmptyState text="Aktuell gibt es keine offenen Nachfüllbedarfe." title="Keine Nachfüllaufträge" />}

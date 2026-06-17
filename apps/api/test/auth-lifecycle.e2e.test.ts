@@ -3,6 +3,7 @@ import { jest } from "@jest/globals";
 import { authenticator } from "otplib";
 import request from "supertest";
 import { bootstrapTestApp } from "./bootstrap-test-app.js";
+import { PrismaService } from "../src/persistence/prisma.service.js";
 
 jest.setTimeout(30_000);
 
@@ -102,5 +103,47 @@ describe("auth lifecycle", () => {
       password: "rescuebase-admin",
       twoFactorCode: authenticator.generate(totpSetup.body.secret)
     }).expect(201);
+  });
+
+  it("soft-deletes accounts and blocks normal account access", async () => {
+    const server = app.getHttpServer();
+    const prisma = app.get(PrismaService);
+    const admin = request.agent(server);
+    await admin.post("/auth/login").send({ email: "admin@rescuebase.local", password: "rescuebase-admin" }).expect(201);
+
+    const invitation = await admin.post("/auth/invite").send({
+      email: "softdelete@rescuebase.local",
+      displayName: "Soft Delete",
+      role: "WAREHOUSE"
+    }).expect(201);
+    const invitationToken = invitation.body.invitationUrl.split("/").pop();
+
+    const deletedUser = request.agent(server);
+    await deletedUser.post("/auth/invitations/accept").send({
+      token: invitationToken,
+      password: "rescuebase-softdelete"
+    }).expect(201);
+    await deletedUser.get("/auth/session").expect(200);
+
+    await admin.delete(`/auth/users/${invitation.body.id}`).expect(200);
+    await deletedUser.get("/auth/session").expect(401);
+    await request(server).post("/auth/login").send({
+      email: "softdelete@rescuebase.local",
+      password: "rescuebase-softdelete"
+    }).expect(401);
+
+    const reset = await request(server)
+      .post("/auth/password-reset/request")
+      .send({ email: "softdelete@rescuebase.local" })
+      .expect(201);
+    expect(reset.body.debugUrl).toBeUndefined();
+
+    const users = await admin.get("/auth/users").expect(200);
+    expect(users.body).not.toEqual(expect.arrayContaining([
+      expect.objectContaining({ email: "softdelete@rescuebase.local" })
+    ]));
+    const row = await prisma.user.findUniqueOrThrow({ where: { id: invitation.body.id } });
+    expect(row.deletedAt).toBeInstanceOf(Date);
+    expect(row.active).toBe(false);
   });
 });

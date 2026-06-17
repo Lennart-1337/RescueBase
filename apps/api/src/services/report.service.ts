@@ -25,6 +25,7 @@ export class ReportService {
   async inventoryCsv(): Promise<string> {
     const header = "Artikel,Lagerort,Charge,Ablaufdatum,Menge\n";
     const batches: BatchRecord[] = await this.prisma.batch.findMany({
+      where: { deletedAt: null },
       include: { article: true, location: true },
       orderBy: [{ article: { name: "asc" } }, { expiresAt: "asc" }]
     });
@@ -53,8 +54,8 @@ export class ReportService {
   }
 
   async qrLabelPdf(kitId: string, format: QrPdfFormat): Promise<Buffer> {
-    const kit = await this.prisma.kit.findUnique({
-      where: { id: kitId },
+    const kit = await this.prisma.kit.findFirst({
+      where: { id: kitId, deletedAt: null },
       include: { location: true, template: true }
     });
     if (!kit) {
