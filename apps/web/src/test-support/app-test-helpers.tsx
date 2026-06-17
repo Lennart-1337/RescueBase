@@ -3,6 +3,10 @@ import App, { createAppMemoryRouter } from "../App";
 
 let activeRouter: ReturnType<typeof createAppMemoryRouter> | undefined;
 
+export function getActiveRouter() {
+  return activeRouter;
+}
+
 export function resetTestBrowser() {
   activeRouter = undefined;
   vi.restoreAllMocks();

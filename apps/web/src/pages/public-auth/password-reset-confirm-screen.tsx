@@ -12,7 +12,7 @@ export function PasswordResetConfirmScreen({ token }: { token: string }) {
   const preview = useQuery({ queryKey: ["password-reset-preview", token], queryFn: () => rescueBaseApi.passwordResetPreview(token) });
   const [password, setPassword] = useState("");
   const [passwordRepeat, setPasswordRepeat] = useState("");
-  const mutation = useMutation({ mutationFn: rescueBaseApi.confirmPasswordReset, onSuccess: async () => navigate({ to: "/" }) });
+  const mutation = useMutation({ mutationFn: rescueBaseApi.confirmPasswordReset, onSuccess: async () => navigate({ search: {}, to: "/" }) });
 
   if (preview.isLoading) return <LoadingPanel label="Reset-Link wird geprüft" />;
   if (preview.isError || !preview.data) return <ErrorPanel error={toError(preview.error)} onRetry={() => void preview.refetch()} />;

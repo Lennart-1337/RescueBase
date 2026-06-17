@@ -1,5 +1,7 @@
 import { useState } from "react";
+import { useNavigate, useSearch } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { matchesFilterText, toOptionalString, withPrunedSearch } from "../app/filter-utils";
 import { toError } from "../app/formatters";
 import { ErrorPanel, LoadingPanel } from "../components/state-panels";
 import { rescueBaseApi } from "../lib/api";
@@ -15,6 +17,8 @@ export function KitsPage() {
   const [locationId, setLocationId] = useState("");
   const [templateId, setTemplateId] = useState("");
   const queryClient = useQueryClient();
+  const navigate = useNavigate({ from: "/admin/kits" });
+  const search = useSearch({ from: "/admin/kits" });
   const kits = useQuery({ queryKey: ["kits"], queryFn: rescueBaseApi.kits });
   const locations = useQuery({ queryKey: ["locations"], queryFn: rescueBaseApi.locations });
   const templates = useQuery({ queryKey: ["templates"], queryFn: rescueBaseApi.templates });
@@ -22,6 +26,12 @@ export function KitsPage() {
   const updateMutation = useMutation({ mutationFn: ({ body, id }: { body: { name: string; code: string; locationId: string; templateId: string }; id: string }) => rescueBaseApi.updateKit(id, body), onSuccess: async () => queryClient.invalidateQueries({ queryKey: ["kits"] }) });
   const rotateMutation = useMutation({ mutationFn: rescueBaseApi.rotateKitToken, onSuccess: async (rotatedKit) => { queryClient.setQueryData<Kit[] | undefined>(["kits"], (current) => current?.map((kit) => (kit.id === rotatedKit.id ? rotatedKit : kit)) ?? current); await queryClient.invalidateQueries({ queryKey: ["kits"] }); } });
   const deleteMutation = useMutation({ mutationFn: rescueBaseApi.deleteKit, onSuccess: async () => queryClient.invalidateQueries({ queryKey: ["kits"] }) });
+  const filters = {
+    locationId: search.locationId ?? "",
+    q: search.q ?? "",
+    status: search.status ?? "",
+    templateId: search.templateId ?? ""
+  };
 
   function resetForm() {
     setEditingId(null);
@@ -57,13 +67,40 @@ export function KitsPage() {
     if (succeeded) closeDialog();
   }
 
+  const filteredKits = (kits.data ?? []).filter((entry) => {
+    if (filters.locationId && entry.locationId !== filters.locationId) return false;
+    if (filters.templateId && entry.templateId !== filters.templateId) return false;
+    if (filters.status && entry.status !== filters.status) return false;
+    return matchesFilterText(filters.q, entry.name, entry.code);
+  });
+
+  function updateFilters(patch: Partial<typeof filters>) {
+    void navigate({
+      replace: true,
+      search: (current) => withPrunedSearch({
+        ...current,
+        locationId: toOptionalString(patch.locationId ?? filters.locationId),
+        q: toOptionalString(patch.q ?? filters.q),
+        status: toOptionalString(patch.status ?? filters.status),
+        templateId: toOptionalString(patch.templateId ?? filters.templateId)
+      })
+    });
+  }
+
+  function resetFilters() {
+    void navigate({
+      replace: true,
+      search: () => ({})
+    });
+  }
+
   if (kits.isLoading || locations.isLoading || templates.isLoading) return <LoadingPanel label="Rucksäcke werden geladen" />;
   if (kits.isError || locations.isError || templates.isError || !kits.data || !locations.data || !templates.data) return <ErrorPanel error={toError(kits.error ?? locations.error ?? templates.error)} onRetry={() => void Promise.all([kits.refetch(), locations.refetch(), templates.refetch()])} />;
 
   return (
     <>
       <header className="topbar"><div><h1>Rucksäcke</h1><p>QR/NFC-Zugänge und Einsatzstatus pro physischem Rucksack.</p></div></header>
-      <KitListPanel actionError={rotateMutation.error ?? deleteMutation.error ?? null} actionPending={rotateMutation.isPending || deleteMutation.isPending} kits={kits.data} onCreate={openForCreate} onDelete={(id) => deleteMutation.mutate(id)} onEdit={openForEdit} onRotate={(id) => rotateMutation.mutate(id)} />
+      <KitListPanel actionError={rotateMutation.error ?? deleteMutation.error ?? null} actionPending={rotateMutation.isPending || deleteMutation.isPending} filters={filters} kits={filteredKits} locations={locations.data} onCreate={openForCreate} onDelete={(id) => deleteMutation.mutate(id)} onEdit={openForEdit} onFilterChange={updateFilters} onResetFilters={resetFilters} onRotate={(id) => rotateMutation.mutate(id)} templates={templates.data} totalCount={kits.data.length} />
       <KitFormPanel code={code} editingId={editingId} error={createMutation.error || updateMutation.error ? toError(createMutation.error ?? updateMutation.error) : null} isOpen={isOpen} isSubmitting={createMutation.isPending || updateMutation.isPending} locationId={locationId} locations={locations.data} name={name} onClose={closeDialog} onCodeChange={setCode} onLocationChange={setLocationId} onNameChange={setName} onSubmit={() => void submit()} onTemplateChange={setTemplateId} templateId={templateId} templates={templates.data} />
     </>
   );

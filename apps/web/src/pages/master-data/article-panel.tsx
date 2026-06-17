@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Pencil, Plus, Save, Trash2, X } from "lucide-react";
+import { ListFilterBar } from "../../components/list-filter-bar";
 import type { Article, CreateArticleRequest, UpdateArticleRequest } from "../../lib/types";
 import { InlineError } from "../../components/state-panels";
 import { Badge, Button, Dialog, Field, Panel } from "../../components/ui";
@@ -27,13 +28,32 @@ type ArticleDraft = {
 export function ArticlePanel(props: {
   articles: Article[];
   error: Error | null;
+  filters: {
+    category: string;
+    criticalDefault: boolean;
+    medicalDevice: boolean;
+    mtkRequired: boolean;
+    q: string;
+    stkRequired: boolean;
+  };
   isSubmitting: boolean;
+  onFilterChange: (patch: Partial<{
+    category: string;
+    criticalDefault: boolean;
+    medicalDevice: boolean;
+    mtkRequired: boolean;
+    q: string;
+    stkRequired: boolean;
+  }>) => void;
+  onResetFilters: () => void;
   onCreate: (body: CreateArticleRequest) => Promise<unknown>;
   onDelete: (id: string) => void;
   onSave: (id: string, body: UpdateArticleRequest) => Promise<unknown>;
+  totalCount: number;
 }) {
   const [draft, setDraft] = useState(emptyDraft());
   const canSubmit = Boolean(draft.name.trim() && draft.unit.trim() && intervalsValid(draft));
+  const categories = [...new Set(props.articles.map((entry) => entry.category).filter(Boolean))].sort((left, right) => String(left).localeCompare(String(right), "de-DE"));
 
   function openForCreate() { setDraft({ ...emptyDraft(), isOpen: true }); }
   function openForEdit(article: Article) {
@@ -90,6 +110,16 @@ export function ArticlePanel(props: {
   return (
     <Panel>
       <div className="panel-header"><div><h2>Artikel</h2><p>Materialstamm mit Herstellerdaten, MPDG, STK und MTK.</p></div><Button onClick={openForCreate} type="button"><Plus data-icon="inline-start" />Artikel hinzufügen</Button></div>
+      <ListFilterBar countLabel={`${props.articles.length}/${props.totalCount} sichtbar`} fieldsClassName="form-grid-three" onReset={props.onResetFilters}>
+        <Field label="Suche"><input onChange={(event) => props.onFilterChange({ q: event.target.value })} placeholder="Name, Hersteller oder Barcode" value={props.filters.q} /></Field>
+        <Field label="Kategorie"><select onChange={(event) => props.onFilterChange({ category: event.target.value })} value={props.filters.category}><option value="">Alle Kategorien</option>{categories.map((category) => <option key={category} value={category}>{category}</option>)}</select></Field>
+        <div className="form-grid">
+          <label className="check-field"><input checked={props.filters.medicalDevice} onChange={(event) => props.onFilterChange({ medicalDevice: event.target.checked })} type="checkbox" /><span>MPDG</span></label>
+          <label className="check-field"><input checked={props.filters.stkRequired} onChange={(event) => props.onFilterChange({ stkRequired: event.target.checked })} type="checkbox" /><span>STK</span></label>
+          <label className="check-field"><input checked={props.filters.mtkRequired} onChange={(event) => props.onFilterChange({ mtkRequired: event.target.checked })} type="checkbox" /><span>MTK</span></label>
+          <label className="check-field"><input checked={props.filters.criticalDefault} onChange={(event) => props.onFilterChange({ criticalDefault: event.target.checked })} type="checkbox" /><span>Kritisch</span></label>
+        </div>
+      </ListFilterBar>
       {props.articles.length === 0 ? <div className="compact-list-empty">Noch keine Artikel angelegt.</div> : null}
       <div className="compact-list">{props.articles.map((article) => <div className="compact-list-row compact-list-row-actions" key={article.id}><span><strong>{article.name}</strong><small>{[article.unit, article.manufacturer, article.category].filter(Boolean).join(" · ")}</small></span><div className="row-actions">{article.medicalDevice ? <Badge tone="info">MPDG</Badge> : null}{article.stkRequired ? <Badge tone="info">STK {article.stkIntervalMonths ?? "?"}M</Badge> : null}{article.mtkRequired ? <Badge tone="info">MTK {article.mtkIntervalMonths ?? "?"}M</Badge> : null}{article.sterile ? <Badge tone="info">steril</Badge> : null}{article.criticalDefault ? <Badge tone="info">kritisch</Badge> : null}<Button onClick={() => openForEdit(article)} type="button" variant="ghost"><Pencil data-icon="inline-start" />Bearbeiten</Button><Button aria-label={`${article.name} löschen`} disabled={props.isSubmitting} onClick={() => confirmDelete(article)} type="button" variant="danger"><Trash2 data-icon="inline-start" />Löschen</Button></div></div>)}</div>
       <Dialog actions={<><Button disabled={props.isSubmitting} onClick={() => setDraft(emptyDraft())} type="button" variant="ghost"><X data-icon="inline-start" />Abbrechen</Button><Button disabled={!canSubmit || props.isSubmitting} onClick={() => void submit()} type="button">{draft.editingId ? <Save data-icon="inline-start" /> : <Plus data-icon="inline-start" />}{draft.editingId ? "Artikel speichern" : "Artikel anlegen"}</Button></>} description="Pflegen Sie Materialstammdaten für Medizinprodukte und Verbrauchsmaterial." onClose={() => setDraft(emptyDraft())} open={draft.isOpen} title={draft.editingId ? "Artikel bearbeiten" : "Artikel anlegen"}>

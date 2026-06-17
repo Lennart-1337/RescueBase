@@ -18,7 +18,7 @@ export function PasswordResetRequestScreen() {
         {mutation.data?.debugUrl ? <p className="debug-hint">Lokaler Reset-Link: {mutation.data.debugUrl}</p> : null}
         {mutation.error ? <InlineError error={mutation.error} /> : null}
         <Button disabled={!email.trim() || mutation.isPending} onClick={() => mutation.mutate({ email })} type="button">Reset-Link senden</Button>
-        <Link className="text-link" to="/">Zur Anmeldung</Link>
+        <Link className="text-link" search={{}} to="/">Zur Anmeldung</Link>
       </div>
     </Panel>
   );

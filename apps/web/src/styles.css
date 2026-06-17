@@ -640,6 +640,15 @@ a {
   grid-template-columns: 1.1fr 1.1fr 1fr 1fr 0.7fr;
 }
 
+.filter-bar {
+  padding-top: 14px;
+}
+
+.filter-bar-actions {
+  align-items: center;
+  padding-top: 0;
+}
+
 .form-actions {
   padding: 0 18px 18px;
   display: flex;

@@ -1,6 +1,6 @@
 import { screen, waitFor, within } from "@testing-library/react";
 import { article, kit, location } from "../test-support/fixtures";
-import { changeValue, clickElement, postedBody, renderAppAt, requestBody, resetTestBrowser, stubFetch, wasRequested } from "../test-support/app-test-helpers";
+import { changeValue, clickElement, getActiveRouter, postedBody, renderAppAt, requestBody, resetTestBrowser, stubFetch, wasRequested } from "../test-support/app-test-helpers";
 
 describe("MasterDataPage", () => {
   afterEach(resetTestBrowser);
@@ -103,6 +103,38 @@ describe("MasterDataPage", () => {
     await screen.findByRole("heading", { name: "Stammdaten" });
     await clickElement(screen.getByRole("tab", { name: "Geräte" }));
     expect(await screen.findByRole("button", { name: /Gerät hinzufügen/ })).toBeInTheDocument();
+  });
+
+  it("restores the active master-data tab and device filters from the URL", async () => {
+    stubFetch({
+      ...baseAdminRoutes(),
+      "/api/catalog/devices": [
+        {
+          id: "device-1",
+          name: "Corpuls C3",
+          articleId: article.id,
+          locationId: location.id,
+          serialNumber: "SER-1",
+          inventoryNumber: "INV-1",
+          lastStkAt: null,
+          lastMtkAt: null,
+          stkIntervalMonths: null,
+          mtkIntervalMonths: null,
+          active: false,
+          notes: null,
+          article,
+          location
+        }
+      ]
+    });
+    await renderAppAt("/admin/master-data?tab=devices&active=inactive");
+    await screen.findByRole("heading", { name: "Stammdaten" });
+    expect(screen.getByRole("tab", { name: "Geräte" })).toHaveAttribute("aria-selected", "true");
+    expect(screen.getByLabelText("Status")).toHaveValue("inactive");
+    expect(screen.getByText("Corpuls C3")).toBeInTheDocument();
+
+    await clickElement(screen.getByRole("button", { name: "Filter zurücksetzen" }));
+    await waitFor(() => expect(getActiveRouter()?.state.location.search).toEqual({ tab: "devices" }));
   });
 
   it("soft-deletes master data entries after confirmation", async () => {

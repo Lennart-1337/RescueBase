@@ -1,19 +1,33 @@
 import { Link } from "@tanstack/react-router";
 import { ExternalLink, Pencil, Plus, QrCode, RotateCw, Trash2 } from "lucide-react";
 import { statusLabels } from "../../app/formatters";
+import { ListFilterBar } from "../../components/list-filter-bar";
 import { InlineError } from "../../components/state-panels";
-import { AnchorButton, Badge, Button, Panel } from "../../components/ui";
+import { AnchorButton, Badge, Button, Field, Panel } from "../../components/ui";
 import { rescueBaseApi } from "../../lib/api";
-import type { Kit } from "../../lib/types";
+import type { Kit, KitTemplate, Location } from "../../lib/types";
+
+type KitFilters = {
+  locationId: string;
+  q: string;
+  status: string;
+  templateId: string;
+};
 
 export function KitListPanel(props: {
+  actionError: Error | null;
+  actionPending: boolean;
+  filters: KitFilters;
   kits: Kit[];
+  locations: Location[];
   onCreate: () => void;
   onDelete: (id: string) => void;
   onEdit: (kit: Kit) => void;
+  onFilterChange: (patch: Partial<KitFilters>) => void;
+  onResetFilters: () => void;
   onRotate: (id: string) => void;
-  actionError: Error | null;
-  actionPending: boolean;
+  templates: KitTemplate[];
+  totalCount: number;
 }) {
   function confirmDelete(kit: Kit) {
     if (window.confirm(`Rucksack "${kit.name}" wirklich löschen?`)) {
@@ -27,6 +41,12 @@ export function KitListPanel(props: {
         <div><h2>Rucksäcke</h2><p>Verwalten Sie physische Rucksäcke, QR-Dokumente und öffentliche Check-Zugänge.</p></div>
         <Button onClick={props.onCreate} type="button"><Plus data-icon="inline-start" />Rucksack hinzufügen</Button>
       </div>
+      <ListFilterBar countLabel={`${props.kits.length}/${props.totalCount} sichtbar`} onReset={props.onResetFilters}>
+        <Field label="Suche"><input onChange={(event) => props.onFilterChange({ q: event.target.value })} placeholder="Name oder Kennung" value={props.filters.q} /></Field>
+        <Field label="Standort"><select onChange={(event) => props.onFilterChange({ locationId: event.target.value })} value={props.filters.locationId}><option value="">Alle Standorte</option>{props.locations.map((location) => <option key={location.id} value={location.id}>{location.name}</option>)}</select></Field>
+        <Field label="Vorlage"><select onChange={(event) => props.onFilterChange({ templateId: event.target.value })} value={props.filters.templateId}><option value="">Alle Vorlagen</option>{props.templates.map((template) => <option key={template.id} value={template.id}>{template.name} v{template.version}</option>)}</select></Field>
+        <Field label="Status"><select onChange={(event) => props.onFilterChange({ status: event.target.value })} value={props.filters.status}><option value="">Alle Stati</option><option value="READY">Bereit</option><option value="CONDITIONAL">Bedingt einsatzbereit</option><option value="NOT_READY">Nicht einsatzbereit</option></select></Field>
+      </ListFilterBar>
       <div className="table">
         {props.kits.map((kit) => (
           <div className="table-row kit-row" key={kit.id}>
