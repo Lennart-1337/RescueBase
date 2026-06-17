@@ -419,15 +419,24 @@ a {
 }
 
 .badge {
-  min-height: 26px;
   display: inline-grid;
   place-items: center;
   border-radius: 999px;
-  padding: 0 10px;
   font-size: 12px;
   font-weight: 800;
   white-space: nowrap;
   vertical-align: middle;
+}
+
+.badge-md {
+  min-height: 26px;
+  padding: 0 10px;
+}
+
+.badge-sm {
+  min-height: 22px;
+  padding: 0 8px;
+  font-size: 11px;
 }
 
 .badge-label {

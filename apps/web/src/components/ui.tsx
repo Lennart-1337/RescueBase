@@ -6,6 +6,7 @@ import {
   type PropsWithChildren,
   type ReactNode
 } from "react";
+export { Badge } from "./badge";
 
 export function cn(...values: Array<string | false | null | undefined>): string {
   return values.filter(Boolean).join(" ");
@@ -29,19 +30,6 @@ export function AnchorButton({
 
 export function Panel({ className, ...props }: HTMLAttributes<HTMLElement>) {
   return <section className={cn("panel", className)} {...props} />;
-}
-
-export function Badge({
-  children,
-  className,
-  tone = "neutral",
-  ...props
-}: HTMLAttributes<HTMLSpanElement> & { tone?: "neutral" | "ready" | "warning" | "danger" | "info" }) {
-  return (
-    <span className={cn("badge", `badge-${tone}`, className)} {...props}>
-      <span className="badge-label">{children}</span>
-    </span>
-  );
 }
 
 export function Field({ label, children }: PropsWithChildren<{ label: string }>) {
