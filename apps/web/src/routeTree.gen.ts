@@ -19,6 +19,11 @@ import { Route as AdminMasterDataRouteImport } from './routes/admin/master-data'
 import { Route as AdminKitsRouteImport } from './routes/admin/kits'
 import { Route as AdminInventoryRouteImport } from './routes/admin/inventory'
 import { Route as AdminAccountRouteImport } from './routes/admin/account'
+import { Route as AdminMasterDataIndexRouteImport } from './routes/admin/master-data/index'
+import { Route as AdminMasterDataTemplatesRouteImport } from './routes/admin/master-data/templates'
+import { Route as AdminMasterDataLocationsRouteImport } from './routes/admin/master-data/locations'
+import { Route as AdminMasterDataDevicesRouteImport } from './routes/admin/master-data/devices'
+import { Route as AdminMasterDataArticlesRouteImport } from './routes/admin/master-data/articles'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -70,30 +75,66 @@ const AdminAccountRoute = AdminAccountRouteImport.update({
   path: '/admin/account',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminMasterDataIndexRoute = AdminMasterDataIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AdminMasterDataRoute,
+} as any)
+const AdminMasterDataTemplatesRoute =
+  AdminMasterDataTemplatesRouteImport.update({
+    id: '/templates',
+    path: '/templates',
+    getParentRoute: () => AdminMasterDataRoute,
+  } as any)
+const AdminMasterDataLocationsRoute =
+  AdminMasterDataLocationsRouteImport.update({
+    id: '/locations',
+    path: '/locations',
+    getParentRoute: () => AdminMasterDataRoute,
+  } as any)
+const AdminMasterDataDevicesRoute = AdminMasterDataDevicesRouteImport.update({
+  id: '/devices',
+  path: '/devices',
+  getParentRoute: () => AdminMasterDataRoute,
+} as any)
+const AdminMasterDataArticlesRoute = AdminMasterDataArticlesRouteImport.update({
+  id: '/articles',
+  path: '/articles',
+  getParentRoute: () => AdminMasterDataRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/admin/account': typeof AdminAccountRoute
   '/admin/inventory': typeof AdminInventoryRoute
   '/admin/kits': typeof AdminKitsRoute
-  '/admin/master-data': typeof AdminMasterDataRoute
+  '/admin/master-data': typeof AdminMasterDataRouteWithChildren
   '/admin/users': typeof AdminUsersRoute
   '/check/$token': typeof CheckTokenRoute
   '/invitation/$token': typeof InvitationTokenRoute
   '/password-reset/$token': typeof PasswordResetTokenRoute
   '/password-reset/': typeof PasswordResetIndexRoute
+  '/admin/master-data/articles': typeof AdminMasterDataArticlesRoute
+  '/admin/master-data/devices': typeof AdminMasterDataDevicesRoute
+  '/admin/master-data/locations': typeof AdminMasterDataLocationsRoute
+  '/admin/master-data/templates': typeof AdminMasterDataTemplatesRoute
+  '/admin/master-data/': typeof AdminMasterDataIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/admin/account': typeof AdminAccountRoute
   '/admin/inventory': typeof AdminInventoryRoute
   '/admin/kits': typeof AdminKitsRoute
-  '/admin/master-data': typeof AdminMasterDataRoute
   '/admin/users': typeof AdminUsersRoute
   '/check/$token': typeof CheckTokenRoute
   '/invitation/$token': typeof InvitationTokenRoute
   '/password-reset/$token': typeof PasswordResetTokenRoute
   '/password-reset': typeof PasswordResetIndexRoute
+  '/admin/master-data/articles': typeof AdminMasterDataArticlesRoute
+  '/admin/master-data/devices': typeof AdminMasterDataDevicesRoute
+  '/admin/master-data/locations': typeof AdminMasterDataLocationsRoute
+  '/admin/master-data/templates': typeof AdminMasterDataTemplatesRoute
+  '/admin/master-data': typeof AdminMasterDataIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -101,12 +142,17 @@ export interface FileRoutesById {
   '/admin/account': typeof AdminAccountRoute
   '/admin/inventory': typeof AdminInventoryRoute
   '/admin/kits': typeof AdminKitsRoute
-  '/admin/master-data': typeof AdminMasterDataRoute
+  '/admin/master-data': typeof AdminMasterDataRouteWithChildren
   '/admin/users': typeof AdminUsersRoute
   '/check/$token': typeof CheckTokenRoute
   '/invitation/$token': typeof InvitationTokenRoute
   '/password-reset/$token': typeof PasswordResetTokenRoute
   '/password-reset/': typeof PasswordResetIndexRoute
+  '/admin/master-data/articles': typeof AdminMasterDataArticlesRoute
+  '/admin/master-data/devices': typeof AdminMasterDataDevicesRoute
+  '/admin/master-data/locations': typeof AdminMasterDataLocationsRoute
+  '/admin/master-data/templates': typeof AdminMasterDataTemplatesRoute
+  '/admin/master-data/': typeof AdminMasterDataIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -121,18 +167,27 @@ export interface FileRouteTypes {
     | '/invitation/$token'
     | '/password-reset/$token'
     | '/password-reset/'
+    | '/admin/master-data/articles'
+    | '/admin/master-data/devices'
+    | '/admin/master-data/locations'
+    | '/admin/master-data/templates'
+    | '/admin/master-data/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/admin/account'
     | '/admin/inventory'
     | '/admin/kits'
-    | '/admin/master-data'
     | '/admin/users'
     | '/check/$token'
     | '/invitation/$token'
     | '/password-reset/$token'
     | '/password-reset'
+    | '/admin/master-data/articles'
+    | '/admin/master-data/devices'
+    | '/admin/master-data/locations'
+    | '/admin/master-data/templates'
+    | '/admin/master-data'
   id:
     | '__root__'
     | '/'
@@ -145,6 +200,11 @@ export interface FileRouteTypes {
     | '/invitation/$token'
     | '/password-reset/$token'
     | '/password-reset/'
+    | '/admin/master-data/articles'
+    | '/admin/master-data/devices'
+    | '/admin/master-data/locations'
+    | '/admin/master-data/templates'
+    | '/admin/master-data/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -152,7 +212,7 @@ export interface RootRouteChildren {
   AdminAccountRoute: typeof AdminAccountRoute
   AdminInventoryRoute: typeof AdminInventoryRoute
   AdminKitsRoute: typeof AdminKitsRoute
-  AdminMasterDataRoute: typeof AdminMasterDataRoute
+  AdminMasterDataRoute: typeof AdminMasterDataRouteWithChildren
   AdminUsersRoute: typeof AdminUsersRoute
   CheckTokenRoute: typeof CheckTokenRoute
   InvitationTokenRoute: typeof InvitationTokenRoute
@@ -232,15 +292,70 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminAccountRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/master-data/': {
+      id: '/admin/master-data/'
+      path: '/'
+      fullPath: '/admin/master-data/'
+      preLoaderRoute: typeof AdminMasterDataIndexRouteImport
+      parentRoute: typeof AdminMasterDataRoute
+    }
+    '/admin/master-data/templates': {
+      id: '/admin/master-data/templates'
+      path: '/templates'
+      fullPath: '/admin/master-data/templates'
+      preLoaderRoute: typeof AdminMasterDataTemplatesRouteImport
+      parentRoute: typeof AdminMasterDataRoute
+    }
+    '/admin/master-data/locations': {
+      id: '/admin/master-data/locations'
+      path: '/locations'
+      fullPath: '/admin/master-data/locations'
+      preLoaderRoute: typeof AdminMasterDataLocationsRouteImport
+      parentRoute: typeof AdminMasterDataRoute
+    }
+    '/admin/master-data/devices': {
+      id: '/admin/master-data/devices'
+      path: '/devices'
+      fullPath: '/admin/master-data/devices'
+      preLoaderRoute: typeof AdminMasterDataDevicesRouteImport
+      parentRoute: typeof AdminMasterDataRoute
+    }
+    '/admin/master-data/articles': {
+      id: '/admin/master-data/articles'
+      path: '/articles'
+      fullPath: '/admin/master-data/articles'
+      preLoaderRoute: typeof AdminMasterDataArticlesRouteImport
+      parentRoute: typeof AdminMasterDataRoute
+    }
   }
 }
+
+interface AdminMasterDataRouteChildren {
+  AdminMasterDataArticlesRoute: typeof AdminMasterDataArticlesRoute
+  AdminMasterDataDevicesRoute: typeof AdminMasterDataDevicesRoute
+  AdminMasterDataLocationsRoute: typeof AdminMasterDataLocationsRoute
+  AdminMasterDataTemplatesRoute: typeof AdminMasterDataTemplatesRoute
+  AdminMasterDataIndexRoute: typeof AdminMasterDataIndexRoute
+}
+
+const AdminMasterDataRouteChildren: AdminMasterDataRouteChildren = {
+  AdminMasterDataArticlesRoute: AdminMasterDataArticlesRoute,
+  AdminMasterDataDevicesRoute: AdminMasterDataDevicesRoute,
+  AdminMasterDataLocationsRoute: AdminMasterDataLocationsRoute,
+  AdminMasterDataTemplatesRoute: AdminMasterDataTemplatesRoute,
+  AdminMasterDataIndexRoute: AdminMasterDataIndexRoute,
+}
+
+const AdminMasterDataRouteWithChildren = AdminMasterDataRoute._addFileChildren(
+  AdminMasterDataRouteChildren,
+)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdminAccountRoute: AdminAccountRoute,
   AdminInventoryRoute: AdminInventoryRoute,
   AdminKitsRoute: AdminKitsRoute,
-  AdminMasterDataRoute: AdminMasterDataRoute,
+  AdminMasterDataRoute: AdminMasterDataRouteWithChildren,
   AdminUsersRoute: AdminUsersRoute,
   CheckTokenRoute: CheckTokenRoute,
   InvitationTokenRoute: InvitationTokenRoute,

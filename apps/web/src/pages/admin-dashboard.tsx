@@ -6,6 +6,7 @@ import { AlertTriangle, Archive, ClipboardList, PackageCheck } from "lucide-reac
 import { selectedBatchQuantity, useDashboardData } from "../app/dashboard-data";
 import { daysUntil, formatReason, formatStatus, toError } from "../app/formatters";
 import { ListFilterBar } from "../components/list-filter-bar";
+import { SearchableSelect } from "../components/searchable-select";
 import { EmptyState, ErrorPanel, LoadingPanel, Metric } from "../components/state-panels";
 import { AnchorButton, Badge, Field, Panel, cn } from "../components/ui";
 import { rescueBaseApi } from "../lib/api";
@@ -92,7 +93,7 @@ export function AdminDashboard() {
         <div className="panel-header"><div><h2>Nachfüllaufträge</h2><p>Teilfüllungen buchen konkrete Chargen aus dem Lager.</p></div><Badge tone="warning">{filteredOrders.length}/{orders.length} sichtbar</Badge></div>
         <ListFilterBar countLabel={`${filteredOrders.length}/${orders.length} sichtbar`} fieldsClassName="form-grid-three" onReset={resetFilters}>
           <Field label="Suche"><input onChange={(event) => updateFilters({ orderQ: event.target.value })} placeholder="Rucksackname oder Kennung" value={filters.orderQ} /></Field>
-          <Field label="Standort"><select onChange={(event) => updateFilters({ orderLocationId: event.target.value })} value={filters.orderLocationId}><option value="">Alle Standorte</option>{kits.map((kit) => kit.location ? <option key={kit.location.id} value={kit.location.id}>{kit.location.name}</option> : null)}</select></Field>
+          <Field label="Standort"><SearchableSelect emptyLabel="Alle Standorte" onChange={(value) => updateFilters({ orderLocationId: value })} options={[{ label: "Alle Standorte", value: "" }, ...Array.from(new Map(kits.filter((kit) => kit.location).map((kit) => [kit.location!.id, { label: kit.location!.name, value: kit.location!.id }])).values())]} value={filters.orderLocationId} /></Field>
           <Field label="Status"><select onChange={(event) => updateFilters({ orderStatus: event.target.value })} value={filters.orderStatus}><option value="">Alle Stati</option><option value="OPEN">Offen</option><option value="IN_PROGRESS">In Arbeit</option><option value="DONE">Erledigt</option><option value="CANCELLED">Storniert</option></select></Field>
         </ListFilterBar>
         {filteredOrders.length > 0 ? <div className="order-list">{filteredOrders.map((order) => <button className={cn("order-row", selectedOrder?.id === order.id && "selected")} key={order.id} onClick={() => { setSelectedOrderId(order.id); setOrderOpen(true); }} type="button"><span><strong>{order.kit?.name ?? order.kitId}</strong><small>{order.items.length} Positionen · {formatStatus(order.status)}</small></span><Badge tone={order.status === "OPEN" ? "warning" : order.status === "DONE" ? "ready" : "info"}>{formatStatus(order.status)}</Badge></button>)}</div> : <EmptyState text="Aktuell gibt es keine Nachfüllaufträge für die gesetzten Filter." title="Keine Nachfüllaufträge" />}

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Plus, X } from "lucide-react";
 import { InlineError } from "../../components/state-panels";
-import { Badge, Button, Dialog, Field } from "../../components/ui";
+import { Button, Dialog, Field } from "../../components/ui";
 import type { InviteUserRequest } from "../../lib/types";
 
 export function UserInvitationPanel(props: { error: Error | null; isOpen: boolean; isSubmitting: boolean; onClose: () => void; onInvite: (body: InviteUserRequest) => Promise<{ debugUrl?: string; invitationUrl: string }> }) {
@@ -25,9 +25,9 @@ export function UserInvitationPanel(props: { error: Error | null; isOpen: boolea
         <Field label="E-Mail"><input type="email" value={email} onChange={(event) => setEmail(event.target.value)} /></Field>
         <Field label="Rolle"><select value={role} onChange={(event) => setRole(event.target.value as "ADMIN" | "WAREHOUSE")}><option value="WAREHOUSE">Lagerwart</option><option value="ADMIN">Admin</option></select></Field>
       </div>
+      <p className="dialog-note field-help">Nur Admins können Einladungen verwalten.</p>
       {props.error ? <InlineError error={props.error} /> : null}
       {debugInvitationUrl ? <p className="debug-hint">Lokaler Einladungslink: {debugInvitationUrl}</p> : null}
-      <Badge tone="info">Nur Admins können Einladungen verwalten</Badge>
     </Dialog>
   );
 }

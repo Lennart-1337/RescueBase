@@ -36,7 +36,7 @@ describe("AdminDashboard", () => {
     });
     await renderAppAt("/?orderLocationId=loc-alt");
     await screen.findByRole("heading", { name: "Nachfüllzentrale" });
-    expect(screen.getByLabelText("Standort")).toHaveValue("loc-alt");
+    expect(screen.getByLabelText("Standort")).toHaveValue("Außenlager");
     expect(screen.getByText("Reserve Rucksack")).toBeInTheDocument();
     expect(screen.queryByText("Rucksack Fahrzeug 1")).toBeNull();
 

@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Download, Truck } from "lucide-react";
+import { SearchableSelect } from "../../components/searchable-select";
 import { InlineError } from "../../components/state-panels";
 import { AnchorButton, Badge, Button } from "../../components/ui";
 import { Stepper } from "../../components/stepper";
@@ -38,7 +39,7 @@ export function OrderDetail(props: {
           return (
             <div className="fulfillment-row" key={item.templatePositionId}>
               <div><strong>{item.articleName}</strong><small>{item.fulfilledQuantity}/{item.requestedQuantity} {item.unit} · {props.formatReason(item.reason)}</small></div>
-              <select aria-label={`Charge für ${item.articleName}`} disabled={openQuantity === 0 || availableBatches.length === 0} onChange={(event) => setDraft((current) => ({ ...current, [item.templatePositionId]: { ...draftEntry, batchId: event.target.value } }))} value={draftEntry.batchId}>{availableBatches.map((batch) => <option key={batch.id} value={batch.id}>{batch.lotNumber} · {batch.quantity} verfügbar</option>)}</select>
+              <SearchableSelect ariaLabel={`Charge für ${item.articleName}`} disabled={openQuantity === 0 || availableBatches.length === 0} onChange={(value) => setDraft((current) => ({ ...current, [item.templatePositionId]: { ...draftEntry, batchId: value } }))} options={availableBatches.map((batch) => ({ label: `${batch.lotNumber} · ${batch.quantity} verfügbar`, value: batch.id, keywords: [batch.lotNumber] }))} value={draftEntry.batchId} />
               <Stepper label="Auffüllen" max={Math.min(openQuantity, props.selectedBatchQuantity(availableBatches, draftEntry.batchId))} onChange={(value) => setDraft((current) => ({ ...current, [item.templatePositionId]: { batchId: draftEntry.batchId, quantity: value } }))} value={draftEntry.quantity} />
             </div>
           );
