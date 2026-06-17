@@ -380,12 +380,19 @@ type ArticleWriteBody = {
   category?: string;
   barcode?: string;
   sterile?: boolean;
+  medicalDevice?: boolean;
+  stkRequired?: boolean;
+  stkIntervalMonths?: number | string;
+  mtkRequired?: boolean;
+  mtkIntervalMonths?: number | string;
   storageNotes?: string;
   notes?: string;
   criticalDefault?: boolean;
 };
 
 function toArticleWriteData(body: ArticleWriteBody) {
+  const stkRequired = Boolean(body.stkRequired);
+  const mtkRequired = Boolean(body.mtkRequired);
   return {
     name: body.name.trim(),
     unit: body.unit.trim(),
@@ -394,10 +401,30 @@ function toArticleWriteData(body: ArticleWriteBody) {
     category: optionalText(body.category),
     barcode: optionalText(body.barcode),
     sterile: Boolean(body.sterile),
+    medicalDevice: Boolean(body.medicalDevice),
+    stkRequired,
+    stkIntervalMonths: normalizeControlInterval(body.stkIntervalMonths, stkRequired, "STK"),
+    mtkRequired,
+    mtkIntervalMonths: normalizeControlInterval(body.mtkIntervalMonths, mtkRequired, "MTK"),
     storageNotes: optionalText(body.storageNotes),
     notes: optionalText(body.notes),
     criticalDefault: Boolean(body.criticalDefault)
   };
+}
+
+function normalizeControlInterval(value: number | string | undefined, required: boolean, label: string) {
+  if (!required) {
+    if (value !== undefined && String(value).trim() !== "") {
+      throw new BadRequestException(`${label}-Intervall darf nur gesetzt werden, wenn ${label} erforderlich ist.`);
+    }
+    return null;
+  }
+
+  const normalized = Number(value);
+  if (!Number.isInteger(normalized) || normalized <= 0) {
+    throw new BadRequestException(`${label}-Intervall muss eine positive ganze Zahl in Monaten sein.`);
+  }
+  return normalized;
 }
 
 function optionalText(value?: string) {

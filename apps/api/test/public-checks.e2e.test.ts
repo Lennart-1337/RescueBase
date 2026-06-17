@@ -118,11 +118,28 @@ describe("public check flow", () => {
         category: "Verbandmaterial",
         barcode: "040000000099",
         sterile: true,
+        medicalDevice: true,
+        stkRequired: true,
+        stkIntervalMonths: 12,
+        mtkRequired: false,
         storageNotes: "Trocken lagern",
         notes: "Nur originalverpackt einlagern",
         criticalDefault: true
       })
       .expect(200);
+
+    const articles = await agent.get("/catalog/articles").expect(200);
+    expect(articles.body).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          id: "article-bandage",
+          medicalDevice: true,
+          stkRequired: true,
+          stkIntervalMonths: 12,
+          mtkRequired: false
+        })
+      ])
+    );
 
     await agent
       .patch("/catalog/locations/loc-main")
@@ -182,5 +199,24 @@ describe("public check flow", () => {
       .get("/reports/qr-label/kit-rucksack-1.pdf?format=label")
       .expect("content-type", /application\/pdf/)
       .expect(200);
+  });
+
+  it("rejects medical device articles without required STK or MTK intervals", async () => {
+    const server = app.getHttpServer();
+    const agent = request.agent(server);
+    await agent.post("/auth/login").send({ email: "admin@rescuebase.local", password: "rescuebase-admin" }).expect(201);
+
+    await agent
+      .patch("/catalog/articles/article-bandage")
+      .send({
+        name: "Verbandpäckchen mittel",
+        unit: "Stück",
+        medicalDevice: true,
+        stkRequired: true,
+        mtkRequired: false,
+        sterile: true,
+        criticalDefault: false
+      })
+      .expect(400);
   });
 });

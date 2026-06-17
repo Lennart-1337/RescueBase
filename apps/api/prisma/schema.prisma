@@ -116,21 +116,26 @@ model Location {
 }
 
 model Article {
-  id              String             @id @default(cuid())
-  name            String
-  unit            String
-  manufacturer    String?
+  id                    String             @id @default(cuid())
+  name                  String
+  unit                  String
+  manufacturer          String?
   manufacturerPartNumber String?
-  category        String?
-  barcode         String?
-  sterile         Boolean            @default(false)
-  storageNotes    String?            @db.Text
-  notes           String?            @db.Text
-  criticalDefault Boolean            @default(false)
-  batches         Batch[]
-  templateItems   TemplatePosition[]
-  createdAt       DateTime           @default(now())
-  updatedAt       DateTime           @updatedAt
+  category              String?
+  barcode               String?
+  sterile               Boolean            @default(false)
+  medicalDevice         Boolean            @default(false)
+  stkRequired           Boolean            @default(false)
+  stkIntervalMonths     Int?
+  mtkRequired           Boolean            @default(false)
+  mtkIntervalMonths     Int?
+  storageNotes         String?            @db.Text
+  notes                String?            @db.Text
+  criticalDefault      Boolean            @default(false)
+  batches              Batch[]
+  templateItems        TemplatePosition[]
+  createdAt            DateTime           @default(now())
+  updatedAt            DateTime           @updatedAt
 }
 
 model Batch {

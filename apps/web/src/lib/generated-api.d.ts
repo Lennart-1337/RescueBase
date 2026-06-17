@@ -817,6 +817,11 @@ export interface components {
             category?: string;
             barcode?: string;
             sterile: boolean;
+            medicalDevice?: boolean;
+            stkRequired?: boolean;
+            stkIntervalMonths?: number;
+            mtkRequired?: boolean;
+            mtkIntervalMonths?: number;
             storageNotes?: string;
             notes?: string;
             criticalDefault: boolean;
@@ -833,6 +838,11 @@ export interface components {
             category?: string;
             barcode?: string;
             sterile: boolean;
+            medicalDevice?: boolean;
+            stkRequired?: boolean;
+            stkIntervalMonths?: number;
+            mtkRequired?: boolean;
+            mtkIntervalMonths?: number;
             storageNotes?: string;
             notes?: string;
             criticalDefault: boolean;
@@ -845,6 +855,11 @@ export interface components {
             category?: string;
             barcode?: string;
             sterile: boolean;
+            medicalDevice?: boolean;
+            stkRequired?: boolean;
+            stkIntervalMonths?: number;
+            mtkRequired?: boolean;
+            mtkIntervalMonths?: number;
             storageNotes?: string;
             notes?: string;
             criticalDefault: boolean;

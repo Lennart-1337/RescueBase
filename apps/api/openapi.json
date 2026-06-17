@@ -535,6 +535,21 @@
           "sterile": {
             "type": "boolean"
           },
+          "medicalDevice": {
+            "type": "boolean"
+          },
+          "stkRequired": {
+            "type": "boolean"
+          },
+          "stkIntervalMonths": {
+            "type": "integer"
+          },
+          "mtkRequired": {
+            "type": "boolean"
+          },
+          "mtkIntervalMonths": {
+            "type": "integer"
+          },
           "storageNotes": {
             "type": "string"
           },
@@ -586,6 +601,21 @@
           "sterile": {
             "type": "boolean"
           },
+          "medicalDevice": {
+            "type": "boolean"
+          },
+          "stkRequired": {
+            "type": "boolean"
+          },
+          "stkIntervalMonths": {
+            "type": "integer"
+          },
+          "mtkRequired": {
+            "type": "boolean"
+          },
+          "mtkIntervalMonths": {
+            "type": "integer"
+          },
           "storageNotes": {
             "type": "string"
           },
@@ -627,6 +657,21 @@
           },
           "sterile": {
             "type": "boolean"
+          },
+          "medicalDevice": {
+            "type": "boolean"
+          },
+          "stkRequired": {
+            "type": "boolean"
+          },
+          "stkIntervalMonths": {
+            "type": "integer"
+          },
+          "mtkRequired": {
+            "type": "boolean"
+          },
+          "mtkIntervalMonths": {
+            "type": "integer"
           },
           "storageNotes": {
             "type": "string"

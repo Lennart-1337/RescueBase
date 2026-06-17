@@ -17,6 +17,11 @@ describe("MasterDataPage", () => {
     await changeValue(within(dialog).getByLabelText("Kategorie"), "Verbrauchsmaterial");
     await changeValue(within(dialog).getByLabelText("Barcode/DataMatrix"), "040000000099");
     await clickElement(within(dialog).getByLabelText("Steril"));
+    await clickElement(within(dialog).getByLabelText("Medizinprodukt (MPDG)"));
+    await clickElement(within(dialog).getByLabelText("STK erforderlich"));
+    await changeValue(within(dialog).getByLabelText("STK-Intervall (Monate)"), "12");
+    await clickElement(within(dialog).getByLabelText("MTK erforderlich"));
+    await changeValue(within(dialog).getByLabelText("MTK-Intervall (Monate)"), "24");
     await clickElement(within(dialog).getByRole("button", { name: /Artikel anlegen/ }));
     await waitFor(() => expect(postedBody("/api/catalog/articles")).toEqual({
       name: "Rettungsdecke",
@@ -25,6 +30,11 @@ describe("MasterDataPage", () => {
       category: "Verbrauchsmaterial",
       barcode: "040000000099",
       sterile: true,
+      medicalDevice: true,
+      stkRequired: true,
+      stkIntervalMonths: 12,
+      mtkRequired: true,
+      mtkIntervalMonths: 24,
       criticalDefault: false
     }));
   });
@@ -40,6 +50,9 @@ describe("MasterDataPage", () => {
     await changeValue(within(dialog).getByLabelText("Hersteller-Art.-Nr."), "VB-2000");
     await changeValue(within(dialog).getByLabelText("Barcode/DataMatrix"), "040000000099");
     await changeValue(within(dialog).getByLabelText("Lagerhinweise"), "Trocken lagern");
+    await clickElement(within(dialog).getByLabelText("Medizinprodukt (MPDG)"));
+    await clickElement(within(dialog).getByLabelText("STK erforderlich"));
+    await changeValue(within(dialog).getByLabelText("STK-Intervall (Monate)"), "12");
     await clickElement(within(dialog).getByRole("button", { name: /Artikel speichern/ }));
     await waitFor(() => expect(requestBody("/api/catalog/articles/article-bandage", "PATCH")).toEqual({
       name: "Verbandpäckchen groß",
@@ -49,6 +62,10 @@ describe("MasterDataPage", () => {
       category: "Verbandmaterial",
       barcode: "040000000099",
       sterile: true,
+      medicalDevice: true,
+      stkRequired: true,
+      stkIntervalMonths: 12,
+      mtkRequired: false,
       storageNotes: "Trocken lagern",
       notes: "Einzeln steril verpackt",
       criticalDefault: false
