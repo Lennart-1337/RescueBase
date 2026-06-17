@@ -167,6 +167,33 @@ describe("MasterDataPage", () => {
     await waitFor(() => expect(getActiveRouter()?.state.location.pathname).toEqual("/admin/master-data/articles"));
     expect(screen.getByRole("tab", { name: "Artikel" })).toHaveAttribute("aria-selected", "true");
   });
+
+  it("separates article badges from row buttons for stable list layout", async () => {
+    stubFetch({
+      ...baseAdminRoutes(),
+      "/api/catalog/articles": [{
+        ...article,
+        medicalDevice: true,
+        stkRequired: true,
+        stkIntervalMonths: 12,
+        mtkRequired: true,
+        mtkIntervalMonths: 24,
+        criticalDefault: true
+      }]
+    });
+    await renderAppAt("/admin/master-data/articles");
+    const articleName = await screen.findByText("Verbandpäckchen mittel");
+    const row = articleName.closest(".article-list-row");
+    expect(row).not.toBeNull();
+    expect(row?.querySelector(".article-row-badges")).not.toBeNull();
+    expect(row?.querySelector(".row-action-buttons")).not.toBeNull();
+    expect(within(row as HTMLElement).getByText("MPDG")).toBeInTheDocument();
+    expect(within(row as HTMLElement).getByText("STK 12M")).toBeInTheDocument();
+    expect(within(row as HTMLElement).getByText("MTK 24M")).toBeInTheDocument();
+    expect(within(row as HTMLElement).getByText("kritisch")).toBeInTheDocument();
+    expect(within(row as HTMLElement).getByRole("button", { name: "Bearbeiten" })).toBeInTheDocument();
+    expect(within(row as HTMLElement).getByRole("button", { name: /Verbandpäckchen mittel löschen/ })).toBeInTheDocument();
+  });
 });
 
 function baseAdminRoutes() {

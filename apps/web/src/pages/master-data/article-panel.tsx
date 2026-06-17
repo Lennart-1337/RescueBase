@@ -1,10 +1,11 @@
 import { useState } from "react";
-import { Pencil, Plus, Save, Trash2, X } from "lucide-react";
+import { Plus, Save, X } from "lucide-react";
 import { ListFilterBar } from "../../components/list-filter-bar";
 import { SearchableSelect } from "../../components/searchable-select";
 import type { Article, CreateArticleRequest, UpdateArticleRequest } from "../../lib/types";
 import { InlineError } from "../../components/state-panels";
-import { Badge, Button, Dialog, Field, Panel } from "../../components/ui";
+import { Button, Dialog, Field, Panel } from "../../components/ui";
+import { ArticleListRow } from "./article-list-row";
 
 type ArticleDraft = {
   isOpen: boolean;
@@ -122,7 +123,17 @@ export function ArticlePanel(props: {
         </div>
       </ListFilterBar>
       {props.articles.length === 0 ? <div className="compact-list-empty">Noch keine Artikel angelegt.</div> : null}
-      <div className="compact-list">{props.articles.map((article) => <div className="compact-list-row compact-list-row-actions" key={article.id}><span><strong>{article.name}</strong><small>{[article.unit, article.manufacturer, article.category].filter(Boolean).join(" · ")}</small></span><div className="row-actions">{article.medicalDevice ? <Badge tone="info">MPDG</Badge> : null}{article.stkRequired ? <Badge tone="info">STK {article.stkIntervalMonths ?? "?"}M</Badge> : null}{article.mtkRequired ? <Badge tone="info">MTK {article.mtkIntervalMonths ?? "?"}M</Badge> : null}{article.sterile ? <Badge tone="info">steril</Badge> : null}{article.criticalDefault ? <Badge tone="info">kritisch</Badge> : null}<Button onClick={() => openForEdit(article)} type="button" variant="ghost"><Pencil data-icon="inline-start" />Bearbeiten</Button><Button aria-label={`${article.name} löschen`} disabled={props.isSubmitting} onClick={() => confirmDelete(article)} type="button" variant="danger"><Trash2 data-icon="inline-start" />Löschen</Button></div></div>)}</div>
+      <div className="compact-list">
+        {props.articles.map((article) => (
+          <ArticleListRow
+            article={article}
+            isSubmitting={props.isSubmitting}
+            key={article.id}
+            onDelete={() => confirmDelete(article)}
+            onEdit={() => openForEdit(article)}
+          />
+        ))}
+      </div>
       <Dialog actions={<><Button disabled={props.isSubmitting} onClick={() => setDraft(emptyDraft())} type="button" variant="ghost"><X data-icon="inline-start" />Abbrechen</Button><Button disabled={!canSubmit || props.isSubmitting} onClick={() => void submit()} type="button">{draft.editingId ? <Save data-icon="inline-start" /> : <Plus data-icon="inline-start" />}{draft.editingId ? "Artikel speichern" : "Artikel anlegen"}</Button></>} description="Pflegen Sie Materialstammdaten für Medizinprodukte und Verbrauchsmaterial." onClose={() => setDraft(emptyDraft())} open={draft.isOpen} title={draft.editingId ? "Artikel bearbeiten" : "Artikel anlegen"}>
         <div className="form-grid form-grid-three">
           <Field label="Name"><input onChange={(event) => setDraft((current) => ({ ...current, name: event.target.value }))} value={draft.name} /></Field>
