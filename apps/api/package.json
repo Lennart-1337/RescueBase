@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "nest start --watch",
-    "prebuild": "npm run build -w @rescuebase/domain",
+    "prebuild": "npm run build -w @rescuebase/domain && npm run prisma:generate",
     "build": "nest build",
     "generate:openapi": "npm run build && node dist/openapi/write-document.js",
     "start": "node dist/main.js",
