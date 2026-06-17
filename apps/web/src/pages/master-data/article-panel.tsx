@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Pencil, Plus, Save, X } from "lucide-react";
+import { Pencil, Plus, Save, Trash2, X } from "lucide-react";
 import type { Article, CreateArticleRequest, UpdateArticleRequest } from "../../lib/types";
 import { InlineError } from "../../components/state-panels";
 import { Badge, Button, Dialog, Field, Panel } from "../../components/ui";
@@ -29,6 +29,7 @@ export function ArticlePanel(props: {
   error: Error | null;
   isSubmitting: boolean;
   onCreate: (body: CreateArticleRequest) => Promise<unknown>;
+  onDelete: (id: string) => void;
   onSave: (id: string, body: UpdateArticleRequest) => Promise<unknown>;
 }) {
   const [draft, setDraft] = useState(emptyDraft());
@@ -80,11 +81,17 @@ export function ArticlePanel(props: {
     if (succeeded) setDraft(emptyDraft());
   }
 
+  function confirmDelete(article: Article) {
+    if (window.confirm(`Artikel "${article.name}" wirklich löschen?`)) {
+      props.onDelete(article.id);
+    }
+  }
+
   return (
     <Panel>
       <div className="panel-header"><div><h2>Artikel</h2><p>Materialstamm mit Herstellerdaten, MPDG, STK und MTK.</p></div><Button onClick={openForCreate} type="button"><Plus data-icon="inline-start" />Artikel hinzufügen</Button></div>
       {props.articles.length === 0 ? <div className="compact-list-empty">Noch keine Artikel angelegt.</div> : null}
-      <div className="compact-list">{props.articles.map((article) => <div className="compact-list-row compact-list-row-actions" key={article.id}><span><strong>{article.name}</strong><small>{[article.unit, article.manufacturer, article.category].filter(Boolean).join(" · ")}</small></span><div className="row-actions">{article.medicalDevice ? <Badge tone="info">MPDG</Badge> : null}{article.stkRequired ? <Badge tone="info">STK {article.stkIntervalMonths ?? "?"}M</Badge> : null}{article.mtkRequired ? <Badge tone="info">MTK {article.mtkIntervalMonths ?? "?"}M</Badge> : null}{article.sterile ? <Badge tone="info">steril</Badge> : null}{article.criticalDefault ? <Badge tone="info">kritisch</Badge> : null}<Button onClick={() => openForEdit(article)} type="button" variant="ghost"><Pencil data-icon="inline-start" />Bearbeiten</Button></div></div>)}</div>
+      <div className="compact-list">{props.articles.map((article) => <div className="compact-list-row compact-list-row-actions" key={article.id}><span><strong>{article.name}</strong><small>{[article.unit, article.manufacturer, article.category].filter(Boolean).join(" · ")}</small></span><div className="row-actions">{article.medicalDevice ? <Badge tone="info">MPDG</Badge> : null}{article.stkRequired ? <Badge tone="info">STK {article.stkIntervalMonths ?? "?"}M</Badge> : null}{article.mtkRequired ? <Badge tone="info">MTK {article.mtkIntervalMonths ?? "?"}M</Badge> : null}{article.sterile ? <Badge tone="info">steril</Badge> : null}{article.criticalDefault ? <Badge tone="info">kritisch</Badge> : null}<Button onClick={() => openForEdit(article)} type="button" variant="ghost"><Pencil data-icon="inline-start" />Bearbeiten</Button><Button aria-label={`${article.name} löschen`} disabled={props.isSubmitting} onClick={() => confirmDelete(article)} type="button" variant="danger"><Trash2 data-icon="inline-start" />Löschen</Button></div></div>)}</div>
       <Dialog actions={<><Button disabled={props.isSubmitting} onClick={() => setDraft(emptyDraft())} type="button" variant="ghost"><X data-icon="inline-start" />Abbrechen</Button><Button disabled={!canSubmit || props.isSubmitting} onClick={() => void submit()} type="button">{draft.editingId ? <Save data-icon="inline-start" /> : <Plus data-icon="inline-start" />}{draft.editingId ? "Artikel speichern" : "Artikel anlegen"}</Button></>} description="Pflegen Sie Materialstammdaten für Medizinprodukte und Verbrauchsmaterial." onClose={() => setDraft(emptyDraft())} open={draft.isOpen} title={draft.editingId ? "Artikel bearbeiten" : "Artikel anlegen"}>
         <div className="form-grid form-grid-three">
           <Field label="Name"><input onChange={(event) => setDraft((current) => ({ ...current, name: event.target.value }))} value={draft.name} /></Field>

@@ -21,6 +21,7 @@ export function KitsPage() {
   const createMutation = useMutation({ mutationFn: rescueBaseApi.createKit, onSuccess: async () => queryClient.invalidateQueries({ queryKey: ["kits"] }) });
   const updateMutation = useMutation({ mutationFn: ({ body, id }: { body: { name: string; code: string; locationId: string; templateId: string }; id: string }) => rescueBaseApi.updateKit(id, body), onSuccess: async () => queryClient.invalidateQueries({ queryKey: ["kits"] }) });
   const rotateMutation = useMutation({ mutationFn: rescueBaseApi.rotateKitToken, onSuccess: async (rotatedKit) => { queryClient.setQueryData<Kit[] | undefined>(["kits"], (current) => current?.map((kit) => (kit.id === rotatedKit.id ? rotatedKit : kit)) ?? current); await queryClient.invalidateQueries({ queryKey: ["kits"] }); } });
+  const deleteMutation = useMutation({ mutationFn: rescueBaseApi.deleteKit, onSuccess: async () => queryClient.invalidateQueries({ queryKey: ["kits"] }) });
 
   function resetForm() {
     setEditingId(null);
@@ -62,7 +63,7 @@ export function KitsPage() {
   return (
     <>
       <header className="topbar"><div><h1>Rucksäcke</h1><p>QR/NFC-Zugänge und Einsatzstatus pro physischem Rucksack.</p></div></header>
-      <KitListPanel kits={kits.data} onCreate={openForCreate} onEdit={openForEdit} onRotate={(id) => rotateMutation.mutate(id)} rotateError={rotateMutation.error ?? null} rotatePending={rotateMutation.isPending} />
+      <KitListPanel actionError={rotateMutation.error ?? deleteMutation.error ?? null} actionPending={rotateMutation.isPending || deleteMutation.isPending} kits={kits.data} onCreate={openForCreate} onDelete={(id) => deleteMutation.mutate(id)} onEdit={openForEdit} onRotate={(id) => rotateMutation.mutate(id)} />
       <KitFormPanel code={code} editingId={editingId} error={createMutation.error || updateMutation.error ? toError(createMutation.error ?? updateMutation.error) : null} isOpen={isOpen} isSubmitting={createMutation.isPending || updateMutation.isPending} locationId={locationId} locations={locations.data} name={name} onClose={closeDialog} onCodeChange={setCode} onLocationChange={setLocationId} onNameChange={setName} onSubmit={() => void submit()} onTemplateChange={setTemplateId} templateId={templateId} templates={templates.data} />
     </>
   );

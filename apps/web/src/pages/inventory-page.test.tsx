@@ -1,6 +1,6 @@
 import { screen, waitFor, within } from "@testing-library/react";
 import { article, batch, location } from "../test-support/fixtures";
-import { changeValue, clickElement, postedBody, renderAppAt, resetTestBrowser, stubFetch } from "../test-support/app-test-helpers";
+import { changeValue, clickElement, postedBody, renderAppAt, resetTestBrowser, stubFetch, wasRequested } from "../test-support/app-test-helpers";
 
 describe("InventoryPage", () => {
   afterEach(resetTestBrowser);
@@ -37,6 +37,15 @@ describe("InventoryPage", () => {
     expect(screen.queryByText(/VB-ALT-0/)).toBeNull();
     await clickElement(screen.getByLabelText("Chargen mit Menge 0 anzeigen"));
     expect(screen.getByText(/VB-ALT-0/)).toBeInTheDocument();
+  });
+
+  it("soft-deletes batches after confirmation", async () => {
+    vi.spyOn(window, "confirm").mockReturnValue(true);
+    stubFetch({ ...baseInventoryRoutes(), "/api/inventory/batches/batch-bandage-1": { ok: true } });
+    await renderAppAt("/admin/inventory");
+    await screen.findByRole("heading", { name: "Lager" });
+    await clickElement(screen.getByRole("button", { name: /Charge VB-2026-04 löschen/ }));
+    await waitFor(() => expect(wasRequested("/api/inventory/batches/batch-bandage-1", "DELETE")).toBe(true));
   });
 });
 

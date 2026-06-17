@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Pencil, Plus, Save, X } from "lucide-react";
+import { Pencil, Plus, Save, Trash2, X } from "lucide-react";
 import { InlineError } from "../../components/state-panels";
 import { Badge, Button, Dialog, Field, Panel } from "../../components/ui";
 import type { Article, CreateTemplateRequest, KitTemplate, ReviseTemplateRequest } from "../../lib/types";
@@ -11,6 +11,7 @@ export function TemplatePanel(props: {
   error: Error | null;
   isSubmitting: boolean;
   onCreate: (body: CreateTemplateRequest) => Promise<unknown>;
+  onDelete: (id: string) => void;
   onRevise: (id: string, body: ReviseTemplateRequest) => Promise<unknown>;
   templates: KitTemplate[];
 }) {
@@ -60,6 +61,12 @@ export function TemplatePanel(props: {
     }
   }
 
+  function confirmDelete(template: KitTemplate) {
+    if (window.confirm(`Rucksackvorlage "${template.name} v${template.version}" wirklich löschen?`)) {
+      props.onDelete(template.id);
+    }
+  }
+
   return (
     <Panel>
       <div className="panel-header">
@@ -78,6 +85,7 @@ export function TemplatePanel(props: {
             <div className="row-actions">
               {template.positions.some((position) => position.critical) ? <Badge tone="info">enthält kritisch</Badge> : null}
               <Button onClick={() => openForEdit(template)} type="button" variant="ghost"><Pencil data-icon="inline-start" />Bearbeiten</Button>
+              <Button aria-label={`${template.name} v${template.version} löschen`} disabled={props.isSubmitting} onClick={() => confirmDelete(template)} type="button" variant="danger"><Trash2 data-icon="inline-start" />Löschen</Button>
             </div>
           </div>
         ))}

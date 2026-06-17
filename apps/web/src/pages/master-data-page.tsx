@@ -39,6 +39,18 @@ export function MasterDataPage({ user }: { user: AuthenticatedUser }) {
       rescueBaseApi.reviseTemplate(id, body),
     onSuccess: async () => Promise.all([queryClient.invalidateQueries({ queryKey: ["templates"] }), queryClient.invalidateQueries({ queryKey: ["kits"] })])
   });
+  const deleteArticle = useMutation({
+    mutationFn: rescueBaseApi.deleteArticle,
+    onSuccess: async () => Promise.all([queryClient.invalidateQueries({ queryKey: ["articles"] }), queryClient.invalidateQueries({ queryKey: ["templates"] })])
+  });
+  const deleteLocation = useMutation({
+    mutationFn: rescueBaseApi.deleteLocation,
+    onSuccess: async () => Promise.all([queryClient.invalidateQueries({ queryKey: ["locations"] }), queryClient.invalidateQueries({ queryKey: ["kits"] }), queryClient.invalidateQueries({ queryKey: ["batches"] })])
+  });
+  const deleteTemplate = useMutation({
+    mutationFn: rescueBaseApi.deleteTemplate,
+    onSuccess: async () => Promise.all([queryClient.invalidateQueries({ queryKey: ["templates"] }), queryClient.invalidateQueries({ queryKey: ["kits"] })])
+  });
   const createDevice = useMutation({ mutationFn: createMedicalDevice, onSuccess: async () => queryClient.invalidateQueries({ queryKey: ["medical-devices"] }) });
   const updateDevice = useMutation({ mutationFn: ({ body, id }: { id: string; body: Parameters<typeof updateMedicalDevice>[1] }) => updateMedicalDevice(id, body), onSuccess: async () => queryClient.invalidateQueries({ queryKey: ["medical-devices"] }) });
 
@@ -66,9 +78,9 @@ export function MasterDataPage({ user }: { user: AuthenticatedUser }) {
         onChange={(value) => setActiveTab(value as "articles" | "locations" | "templates" | "devices")}
         value={activeTab}
       />
-      {activeTab === "articles" ? <ArticlePanel articles={articles.data} error={createArticle.error || updateArticle.error ? toError(createArticle.error ?? updateArticle.error) : null} isSubmitting={createArticle.isPending || updateArticle.isPending} onCreate={createArticle.mutateAsync} onSave={(id, body) => updateArticle.mutateAsync({ id, body })} /> : null}
-      {activeTab === "locations" ? <LocationPanel error={createLocation.error || updateLocation.error ? toError(createLocation.error ?? updateLocation.error) : null} isSubmitting={createLocation.isPending || updateLocation.isPending} locations={locations.data} onCreate={createLocation.mutateAsync} onSave={(id, body) => updateLocation.mutateAsync({ id, body })} /> : null}
-      {activeTab === "templates" ? <TemplatePanel articles={articles.data} error={createTemplate.error || reviseTemplate.error ? toError(createTemplate.error ?? reviseTemplate.error) : null} isSubmitting={createTemplate.isPending || reviseTemplate.isPending} onCreate={createTemplate.mutateAsync} onRevise={(id, body) => reviseTemplate.mutateAsync({ id, body })} templates={templates.data} /> : null}
+      {activeTab === "articles" ? <ArticlePanel articles={articles.data} error={createArticle.error || updateArticle.error || deleteArticle.error ? toError(createArticle.error ?? updateArticle.error ?? deleteArticle.error) : null} isSubmitting={createArticle.isPending || updateArticle.isPending || deleteArticle.isPending} onCreate={createArticle.mutateAsync} onDelete={deleteArticle.mutate} onSave={(id, body) => updateArticle.mutateAsync({ id, body })} /> : null}
+      {activeTab === "locations" ? <LocationPanel error={createLocation.error || updateLocation.error || deleteLocation.error ? toError(createLocation.error ?? updateLocation.error ?? deleteLocation.error) : null} isSubmitting={createLocation.isPending || updateLocation.isPending || deleteLocation.isPending} locations={locations.data} onCreate={createLocation.mutateAsync} onDelete={deleteLocation.mutate} onSave={(id, body) => updateLocation.mutateAsync({ id, body })} /> : null}
+      {activeTab === "templates" ? <TemplatePanel articles={articles.data} error={createTemplate.error || reviseTemplate.error || deleteTemplate.error ? toError(createTemplate.error ?? reviseTemplate.error ?? deleteTemplate.error) : null} isSubmitting={createTemplate.isPending || reviseTemplate.isPending || deleteTemplate.isPending} onCreate={createTemplate.mutateAsync} onDelete={deleteTemplate.mutate} onRevise={(id, body) => reviseTemplate.mutateAsync({ id, body })} templates={templates.data} /> : null}
       {activeTab === "devices" ? <DevicePanel articles={articles.data} devices={devices.data} error={createDevice.error || updateDevice.error ? toError(createDevice.error ?? updateDevice.error) : null} isSubmitting={createDevice.isPending || updateDevice.isPending} locations={locations.data} onCreate={createDevice.mutateAsync} onSave={(id, body) => updateDevice.mutateAsync({ id, body })} /> : null}
     </>
   );

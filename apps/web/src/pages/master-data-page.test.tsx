@@ -1,6 +1,6 @@
 import { screen, waitFor, within } from "@testing-library/react";
 import { article, kit, location } from "../test-support/fixtures";
-import { changeValue, clickElement, postedBody, renderAppAt, requestBody, resetTestBrowser, stubFetch } from "../test-support/app-test-helpers";
+import { changeValue, clickElement, postedBody, renderAppAt, requestBody, resetTestBrowser, stubFetch, wasRequested } from "../test-support/app-test-helpers";
 
 describe("MasterDataPage", () => {
   afterEach(resetTestBrowser);
@@ -103,6 +103,30 @@ describe("MasterDataPage", () => {
     await screen.findByRole("heading", { name: "Stammdaten" });
     await clickElement(screen.getByRole("tab", { name: "Geräte" }));
     expect(await screen.findByRole("button", { name: /Gerät hinzufügen/ })).toBeInTheDocument();
+  });
+
+  it("soft-deletes master data entries after confirmation", async () => {
+    vi.spyOn(window, "confirm").mockReturnValue(true);
+    stubFetch({
+      ...baseAdminRoutes(),
+      "/api/catalog/articles/article-bandage": { ok: true },
+      "/api/catalog/locations/loc-main": { ok: true },
+      "/api/catalog/templates/template-san-a-v1": { ok: true }
+    });
+    await renderAppAt("/admin/master-data");
+    await screen.findByRole("heading", { name: "Stammdaten" });
+
+    await clickElement(screen.getByRole("button", { name: /Verbandpäckchen mittel löschen/ }));
+    await clickElement(screen.getByRole("tab", { name: "Lagerorte" }));
+    await clickElement(screen.getByRole("button", { name: /Hauptlager löschen/ }));
+    await clickElement(screen.getByRole("tab", { name: "Rucksackvorlagen" }));
+    await clickElement(screen.getByRole("button", { name: /Sanitätsrucksack A v1 löschen/ }));
+
+    await waitFor(() => {
+      expect(wasRequested("/api/catalog/articles/article-bandage", "DELETE")).toBe(true);
+      expect(wasRequested("/api/catalog/locations/loc-main", "DELETE")).toBe(true);
+      expect(wasRequested("/api/catalog/templates/template-san-a-v1", "DELETE")).toBe(true);
+    });
   });
 });
 

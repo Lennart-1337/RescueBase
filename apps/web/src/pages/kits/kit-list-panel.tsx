@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { ExternalLink, Pencil, Plus, QrCode, RotateCw } from "lucide-react";
+import { ExternalLink, Pencil, Plus, QrCode, RotateCw, Trash2 } from "lucide-react";
 import { statusLabels } from "../../app/formatters";
 import { InlineError } from "../../components/state-panels";
 import { AnchorButton, Badge, Button, Panel } from "../../components/ui";
@@ -9,11 +9,18 @@ import type { Kit } from "../../lib/types";
 export function KitListPanel(props: {
   kits: Kit[];
   onCreate: () => void;
+  onDelete: (id: string) => void;
   onEdit: (kit: Kit) => void;
   onRotate: (id: string) => void;
-  rotateError: Error | null;
-  rotatePending: boolean;
+  actionError: Error | null;
+  actionPending: boolean;
 }) {
+  function confirmDelete(kit: Kit) {
+    if (window.confirm(`Rucksack "${kit.name}" wirklich löschen?`)) {
+      props.onDelete(kit.id);
+    }
+  }
+
   return (
     <Panel>
       <div className="panel-header">
@@ -30,12 +37,13 @@ export function KitListPanel(props: {
               <AnchorButton href={qrPdfUrl(kit.id, "label", kit.tokenRotatedAt)} variant="secondary"><QrCode data-icon="inline-start" />Etikett</AnchorButton>
               <Link className="button button-secondary" params={{ token: kit.publicToken }} to="/check/$token"><ExternalLink data-icon="inline-start" />Check öffnen</Link>
               <Button onClick={() => props.onEdit(kit)} type="button" variant="ghost"><Pencil data-icon="inline-start" />Bearbeiten</Button>
-              <Button disabled={props.rotatePending} onClick={() => props.onRotate(kit.id)} type="button" variant="ghost"><RotateCw data-icon="inline-start" />Rotieren</Button>
+              <Button disabled={props.actionPending} onClick={() => props.onRotate(kit.id)} type="button" variant="ghost"><RotateCw data-icon="inline-start" />Rotieren</Button>
+              <Button aria-label={`${kit.name} löschen`} disabled={props.actionPending} onClick={() => confirmDelete(kit)} type="button" variant="danger"><Trash2 data-icon="inline-start" />Löschen</Button>
             </div>
           </div>
         ))}
       </div>
-      {props.rotateError ? <InlineError error={props.rotateError} /> : null}
+      {props.actionError ? <InlineError error={props.actionError} /> : null}
     </Panel>
   );
 }
