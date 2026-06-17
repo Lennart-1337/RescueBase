@@ -422,10 +422,12 @@ a {
   min-height: 26px;
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   border-radius: 999px;
   padding: 0 10px;
   font-size: 12px;
   font-weight: 800;
+  line-height: 1;
   white-space: nowrap;
 }
 
@@ -948,6 +950,14 @@ a {
 .text-link {
   color: #657386;
   font-size: 13px;
+}
+
+.dialog-note {
+  margin: -2px 18px 0;
+  padding: 10px 12px;
+  border: 1px solid #e0e6ef;
+  border-radius: 8px;
+  background: #fbfcfe;
 }
 
 .debug-hint {
