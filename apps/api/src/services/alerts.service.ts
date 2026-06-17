@@ -1,12 +1,46 @@
 import { BadRequestException, Injectable, Logger, OnApplicationBootstrap, OnModuleDestroy } from "@nestjs/common";
-import { AlertCategory, type AlertEvent, type AlertSubscription, type Prisma, type User } from "@prisma/client";
-import { buildAlertWarnings } from "../alerts/alert-engine.js";
+import { AlertCategory, Prisma } from "@prisma/client";
+import { buildAlertWarnings, type AlertWarning } from "../alerts/alert-engine.js";
 import { AuditService } from "./audit.service.js";
 import { MailService } from "./mail.service.js";
 import { PrismaService } from "../persistence/prisma.service.js";
 
 const digestStateId = "daily-alert-digest";
 const warningWindowDays = 90;
+
+type WarningInput = Parameters<typeof buildAlertWarnings>[0];
+type BatchWarningInput = WarningInput["batches"][number];
+type DeviceWarningInput = WarningInput["devices"][number];
+
+type AlertEventRecord = {
+  id: string;
+  category: AlertCategory;
+  sourceType: string;
+  sourceId: string;
+  locationId: string | null;
+  title: string;
+  details: string;
+  dueAt: Date | null;
+  firstSeenAt: Date;
+  lastSeenAt: Date;
+  resolvedAt: Date | null;
+  metadata: Prisma.JsonValue | null;
+  lastImmediateSentAt: Date | null;
+  lastDigestSentAt: Date | null;
+};
+
+type AlertSubscriptionRecord = {
+  id: string;
+  userId: string;
+  category: AlertCategory;
+  locationId: string | null;
+  user: {
+    id: string;
+    email: string;
+    displayName: string;
+  };
+  location: { id: string; name: string } | null;
+};
 
 @Injectable()
 export class AlertsService implements OnApplicationBootstrap, OnModuleDestroy {
@@ -33,18 +67,18 @@ export class AlertsService implements OnApplicationBootstrap, OnModuleDestroy {
   }
 
   async listWarnings(filters: { category?: string; locationId?: string } = {}) {
-    const warnings = await this.prisma.alertEvent.findMany({
+    const warnings = (await this.prisma.alertEvent.findMany({
       where: {
         resolvedAt: null,
         category: filters.category as AlertCategory | undefined,
         locationId: filters.locationId
       },
       orderBy: [{ category: "asc" }, { locationId: "asc" }, { dueAt: "asc" }]
-    });
+    })) as AlertEventRecord[];
     const locations = await this.prisma.location.findMany({
       where: { id: { in: warnings.map((warning) => warning.locationId).filter(Boolean) as string[] }, deletedAt: null }
     });
-    const locationMap = new Map(locations.map((location) => [location.id, location.name]));
+    const locationMap = new Map(locations.map((location: { id: string; name: string }) => [location.id, location.name]));
     return {
       generatedAt: new Date().toISOString(),
       warnings: warnings.map((warning) => this.toWarningView(warning, locationMap.get(warning.locationId ?? "") ?? null)),
@@ -85,13 +119,19 @@ export class AlertsService implements OnApplicationBootstrap, OnModuleDestroy {
 
   async syncAlerts(reason: string) {
     const now = new Date();
+    const batchRows = await this.prisma.batch.findMany({
+      where: { deletedAt: null, quantity: { gt: 0 } },
+      include: { article: true, location: true },
+      orderBy: [{ expiresAt: "asc" }]
+    });
+    const deviceRows = await this.prisma.medicalDevice.findMany({
+      where: { active: true },
+      include: { article: true, location: true },
+      orderBy: [{ name: "asc" }]
+    });
     const warnings = buildAlertWarnings(
       {
-        batches: await this.prisma.batch.findMany({
-          where: { deletedAt: null, quantity: { gt: 0 } },
-          include: { article: true, location: true },
-          orderBy: [{ expiresAt: "asc" }]
-        }).then((rows) => rows.map((row) => ({
+        batches: batchRows.map((row): BatchWarningInput => ({
           id: row.id,
           articleId: row.articleId,
           articleName: row.article.name,
@@ -100,12 +140,8 @@ export class AlertsService implements OnApplicationBootstrap, OnModuleDestroy {
           lotNumber: row.lotNumber,
           expiresAt: row.expiresAt,
           quantity: row.quantity
-        }))),
-        devices: await this.prisma.medicalDevice.findMany({
-          where: { active: true },
-          include: { article: true, location: true },
-          orderBy: [{ name: "asc" }]
-        }).then((rows) => rows.map((row) => ({
+        })),
+        devices: deviceRows.map((row): DeviceWarningInput => ({
           id: row.id,
           articleId: row.articleId,
           articleName: row.article.name,
@@ -124,16 +160,16 @@ export class AlertsService implements OnApplicationBootstrap, OnModuleDestroy {
             stkIntervalMonths: row.article.stkIntervalMonths,
             mtkIntervalMonths: row.article.mtkIntervalMonths
           }
-        })))
+        }))
       },
       now,
       warningWindowDays
-    );
+    ) as AlertWarning[];
 
     const openKeys = new Set(warnings.map((warning) => warningKey(warning.category, warning.sourceType, warning.sourceId)));
-    const existing = await this.prisma.alertEvent.findMany();
-    const currentEvents = new Map(existing.map((event) => [warningKey(event.category, event.sourceType, event.sourceId), event]));
-    const createdOrReopened: Array<AlertEvent> = [];
+    const existing = (await this.prisma.alertEvent.findMany()) as AlertEventRecord[];
+    const currentEvents = new Map(existing.map((event: AlertEventRecord) => [warningKey(event.category, event.sourceType, event.sourceId), event]));
+    const createdOrReopened: Array<AlertEventRecord> = [];
 
     for (const warning of warnings) {
       const key = warningKey(warning.category, warning.sourceType, warning.sourceId);
@@ -150,7 +186,7 @@ export class AlertsService implements OnApplicationBootstrap, OnModuleDestroy {
             dueAt: new Date(warning.dueAt),
             firstSeenAt: now,
             lastSeenAt: now,
-            metadata: warning.metadata as Prisma.InputJsonValue
+            metadata: warning.metadata as Prisma.JsonObject
           }
         });
         createdOrReopened.push(created);
@@ -174,7 +210,7 @@ export class AlertsService implements OnApplicationBootstrap, OnModuleDestroy {
           dueAt: new Date(warning.dueAt),
           lastSeenAt: now,
           resolvedAt: null,
-          metadata: warning.metadata as Prisma.InputJsonValue
+          metadata: warning.metadata as Prisma.JsonObject
         }
       });
       if (reopened) {
@@ -250,8 +286,8 @@ export class AlertsService implements OnApplicationBootstrap, OnModuleDestroy {
     }
   }
 
-  private async sendImmediateAlerts(events: AlertEvent[]) {
-    const subscriptions = await this.prisma.alertSubscription.findMany({ include: { user: true, location: true } });
+  private async sendImmediateAlerts(events: AlertEventRecord[]) {
+    const subscriptions = (await this.prisma.alertSubscription.findMany({ include: { user: true, location: true } })) as AlertSubscriptionRecord[];
     for (const event of events) {
       const recipients = this.resolveRecipients([event], subscriptions);
       for (const recipient of recipients) {
@@ -277,8 +313,8 @@ export class AlertsService implements OnApplicationBootstrap, OnModuleDestroy {
     }
   }
 
-  private resolveRecipients(events: Array<{ category: AlertCategory; locationId: string | null }>, subscriptions: Array<AlertSubscription & { user: User; location: { id: string; name: string } | null }>) {
-    const users = new Map<string, { user: User; subscriptions: AlertSubscription[] }>();
+  private resolveRecipients(events: Array<{ category: AlertCategory; locationId: string | null }>, subscriptions: AlertSubscriptionRecord[]) {
+    const users = new Map<string, { user: AlertSubscriptionRecord["user"]; subscriptions: AlertSubscriptionRecord[] }>();
     for (const subscription of subscriptions) {
       for (const event of events) {
         if (!this.matchesSubscription(event, [subscription])) continue;
@@ -290,7 +326,7 @@ export class AlertsService implements OnApplicationBootstrap, OnModuleDestroy {
     return [...users.values()];
   }
 
-  private matchesSubscription(event: { category: AlertCategory; locationId: string | null }, subscriptions: AlertSubscription[]) {
+  private matchesSubscription(event: { category: AlertCategory; locationId: string | null }, subscriptions: AlertSubscriptionRecord[]) {
     return subscriptions.some((subscription) =>
       subscription.category === event.category && (subscription.locationId === null || subscription.locationId === event.locationId)
     );
@@ -298,8 +334,8 @@ export class AlertsService implements OnApplicationBootstrap, OnModuleDestroy {
 
   private async normalizeSubscriptions(userId: string, subscriptions: Array<{ category: AlertCategory; locationId?: string | null }>) {
     const locations = await this.prisma.location.findMany({ select: { id: true } });
-    const locationIds = new Set(locations.map((location) => location.id));
-    const normalized = subscriptions.map((subscription) => {
+    const locationIds = new Set(locations.map((location: { id: string }) => location.id));
+    const normalized = subscriptions.map((subscription): { userId: string; category: AlertCategory; locationId: string | null } => {
       if (!Object.values(AlertCategory).includes(subscription.category)) {
         throw new BadRequestException("Ungültige Alarmkategorie.");
       }
@@ -320,11 +356,11 @@ export class AlertsService implements OnApplicationBootstrap, OnModuleDestroy {
   }
 
   private async listSubscriptions(filters: { userId?: string } = {}) {
-    const subscriptions = await this.prisma.alertSubscription.findMany({
+    const subscriptions = (await this.prisma.alertSubscription.findMany({
       where: { userId: filters.userId },
       include: { user: true, location: true },
       orderBy: [{ user: { email: "asc" } }, { category: "asc" }, { locationId: "asc" }]
-    });
+    })) as AlertSubscriptionRecord[];
     return subscriptions.map((subscription) => ({
       id: subscription.id,
       userId: subscription.userId,
@@ -344,7 +380,7 @@ export class AlertsService implements OnApplicationBootstrap, OnModuleDestroy {
     return user ? `${user.displayName} <${user.email}>` : userId;
   }
 
-  private toWarningView(event: AlertEvent, locationName: string | null) {
+  private toWarningView(event: AlertEventRecord, locationName: string | null) {
     return {
       id: event.id,
       category: event.category,
@@ -361,7 +397,7 @@ export class AlertsService implements OnApplicationBootstrap, OnModuleDestroy {
     };
   }
 
-  private renderImmediateText(event: AlertEvent, displayName: string) {
+  private renderImmediateText(event: AlertEventRecord, displayName: string) {
     return [
       `Hallo ${displayName},`,
       "",
@@ -373,7 +409,7 @@ export class AlertsService implements OnApplicationBootstrap, OnModuleDestroy {
     ].join("\n");
   }
 
-  private renderDigestText(warnings: AlertEvent[], displayName: string) {
+  private renderDigestText(warnings: AlertEventRecord[], displayName: string) {
     const lines = [`Hallo ${displayName},`, "", `hier ist Ihr täglicher RescueBase-Digest:`];
     for (const warning of warnings) {
       lines.push(`- [${warning.category}] ${warning.title} · ${warning.dueAt?.toISOString().slice(0, 10) ?? "ohne Datum"}`);
