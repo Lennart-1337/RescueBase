@@ -1,12 +1,12 @@
-Set-StrictMode -Version Latest
-$ErrorActionPreference = "Stop"
-
 param(
   [string]$ProjectDir = (Resolve-Path (Join-Path $PSScriptRoot "..\..")).Path,
   [string]$Branch = "staging",
   [string]$EnvFile = ".env.staging",
   [string]$ImageTagOverride = ""
 )
+
+Set-StrictMode -Version Latest
+$ErrorActionPreference = "Stop"
 
 function Assert-LastExitCode([string]$CommandName) {
   if ($LASTEXITCODE -ne 0) {
