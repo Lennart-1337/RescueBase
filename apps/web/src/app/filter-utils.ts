@@ -16,7 +16,7 @@ export function readStringSearch(value: unknown) {
   return typeof value === "string" ? value : "";
 }
 
-export function toOptionalBoolean(value: boolean) {
+export function toOptionalBoolean(value: boolean): true | undefined {
   return value ? true : undefined;
 }
 

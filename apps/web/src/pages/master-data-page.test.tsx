@@ -7,7 +7,7 @@ describe("MasterDataPage", () => {
 
   it("submits new articles from the admin master data screen", async () => {
     stubFetch(baseAdminRoutes());
-    await renderAppAt("/admin/master-data");
+    await renderAppAt("/admin/master-data/articles");
     await screen.findByRole("heading", { name: "Stammdaten" });
     await clickElement(await screen.findByRole("button", { name: /Artikel hinzufügen/ }));
     const dialog = await screen.findByRole("dialog", { name: "Artikel anlegen" });
@@ -41,7 +41,7 @@ describe("MasterDataPage", () => {
 
   it("edits existing articles from the admin master data screen", async () => {
     stubFetch({ ...baseAdminRoutes(), "/api/catalog/articles/article-bandage": { ...article, name: "Verbandpäckchen groß", barcode: "040000000099" } });
-    await renderAppAt("/admin/master-data");
+    await renderAppAt("/admin/master-data/articles");
     await screen.findByRole("heading", { name: "Stammdaten" });
     await clickElement(await screen.findByRole("button", { name: /Bearbeiten/ }));
     const dialog = await screen.findByRole("dialog", { name: "Artikel bearbeiten" });
@@ -74,9 +74,8 @@ describe("MasterDataPage", () => {
 
   it("submits new locations from the dedicated lagerorte tab modal", async () => {
     stubFetch(baseAdminRoutes());
-    await renderAppAt("/admin/master-data");
+    await renderAppAt("/admin/master-data/locations");
     await screen.findByRole("heading", { name: "Stammdaten" });
-    await clickElement(screen.getByRole("tab", { name: "Lagerorte" }));
     await clickElement(await screen.findByRole("button", { name: /Lagerort hinzufügen/ }));
     const dialog = await screen.findByRole("dialog", { name: "Lagerort anlegen" });
     await changeValue(within(dialog).getByLabelText("Name"), "Raum 3");
@@ -87,9 +86,8 @@ describe("MasterDataPage", () => {
 
   it("revises templates from the dedicated vorlagen tab modal", async () => {
     stubFetch({ ...baseAdminRoutes(), "/api/catalog/templates": [{ ...kit.template, positions: [{ id: "pos-bandage", articleId: "article-bandage", articleName: "Verbandpäckchen mittel", moduleName: "Verband", requiredQuantity: 1, unit: "Stück", critical: false }] }] });
-    await renderAppAt("/admin/master-data");
+    await renderAppAt("/admin/master-data/templates");
     await screen.findByRole("heading", { name: "Stammdaten" });
-    await clickElement(screen.getByRole("tab", { name: "Rucksackvorlagen" }));
     await clickElement(await screen.findByRole("button", { name: /Bearbeiten/ }));
     const dialog = await screen.findByRole("dialog", { name: "Rucksackvorlage bearbeiten" });
     await changeValue(within(dialog).getByLabelText("Sollmenge"), "2");
@@ -99,7 +97,7 @@ describe("MasterDataPage", () => {
 
   it("opens the new devices tab", async () => {
     stubFetch(baseAdminRoutes());
-    await renderAppAt("/admin/master-data");
+    await renderAppAt("/admin/master-data/articles");
     await screen.findByRole("heading", { name: "Stammdaten" });
     await clickElement(screen.getByRole("tab", { name: "Geräte" }));
     expect(await screen.findByRole("button", { name: /Gerät hinzufügen/ })).toBeInTheDocument();
@@ -127,14 +125,15 @@ describe("MasterDataPage", () => {
         }
       ]
     });
-    await renderAppAt("/admin/master-data?tab=devices&active=inactive");
-    await screen.findByRole("heading", { name: "Stammdaten" });
+    await renderAppAt("/admin/master-data/devices?active=inactive");
+    await screen.findByLabelText("Status");
     expect(screen.getByRole("tab", { name: "Geräte" })).toHaveAttribute("aria-selected", "true");
     expect(screen.getByLabelText("Status")).toHaveValue("inactive");
     expect(screen.getByText("Corpuls C3")).toBeInTheDocument();
 
     await clickElement(screen.getByRole("button", { name: "Filter zurücksetzen" }));
-    await waitFor(() => expect(getActiveRouter()?.state.location.search).toEqual({ tab: "devices" }));
+    await waitFor(() => expect(getActiveRouter()?.state.location.pathname).toEqual("/admin/master-data/devices"));
+    expect(getActiveRouter()?.state.location.search).toEqual({});
   });
 
   it("soft-deletes master data entries after confirmation", async () => {
@@ -145,20 +144,28 @@ describe("MasterDataPage", () => {
       "/api/catalog/locations/loc-main": { ok: true },
       "/api/catalog/templates/template-san-a-v1": { ok: true }
     });
-    await renderAppAt("/admin/master-data");
-    await screen.findByRole("heading", { name: "Stammdaten" });
+    await renderAppAt("/admin/master-data/articles");
+    await screen.findByRole("button", { name: /Verbandpäckchen mittel löschen/ });
 
     await clickElement(screen.getByRole("button", { name: /Verbandpäckchen mittel löschen/ }));
     await clickElement(screen.getByRole("tab", { name: "Lagerorte" }));
-    await clickElement(screen.getByRole("button", { name: /Hauptlager löschen/ }));
+    await clickElement(await screen.findByRole("button", { name: /Hauptlager löschen/ }));
     await clickElement(screen.getByRole("tab", { name: "Rucksackvorlagen" }));
-    await clickElement(screen.getByRole("button", { name: /Sanitätsrucksack A v1 löschen/ }));
+    await clickElement(await screen.findByRole("button", { name: /Sanitätsrucksack A v1 löschen/ }));
 
     await waitFor(() => {
       expect(wasRequested("/api/catalog/articles/article-bandage", "DELETE")).toBe(true);
       expect(wasRequested("/api/catalog/locations/loc-main", "DELETE")).toBe(true);
       expect(wasRequested("/api/catalog/templates/template-san-a-v1", "DELETE")).toBe(true);
     });
+  });
+
+  it("redirects the base stammdaten route to articles", async () => {
+    stubFetch(baseAdminRoutes());
+    await renderAppAt("/admin/master-data");
+    await screen.findByRole("heading", { name: "Stammdaten" });
+    await waitFor(() => expect(getActiveRouter()?.state.location.pathname).toEqual("/admin/master-data/articles"));
+    expect(screen.getByRole("tab", { name: "Artikel" })).toHaveAttribute("aria-selected", "true");
   });
 });
 

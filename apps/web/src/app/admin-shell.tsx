@@ -39,7 +39,7 @@ export function AdminShell({ children, user }: { children: ReactNode; user: Auth
             Lager
           </Link>
           {user.role === "ADMIN" ? (
-            <Link search={{ tab: "articles" }} to="/admin/master-data" activeProps={{ className: "active" }}>
+            <Link search={{}} to="/admin/master-data/articles" activeProps={{ className: "active" }}>
               <Settings />
               Stammdaten
             </Link>
