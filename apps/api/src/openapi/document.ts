@@ -19,6 +19,7 @@ const rescueBaseOpenApiDocumentDefinition = {
     { name: "Stammdaten" },
     { name: "Lager" },
     { name: "Öffentliche Checks" },
+    { name: "Check-Protokolle" },
     { name: "Nachfüllaufträge" },
     { name: "Reports" },
     { name: "Audit" }
@@ -436,6 +437,65 @@ const rescueBaseOpenApiDocumentDefinition = {
         signatureHash: { type: "string" },
         createdAt: { type: "string", format: "date-time" }
       }, ["id", "kitId", "checkerName", "effectiveStatus", "warnings", "signaturePngDataUrl", "signatureHash", "createdAt"]),
+      CheckProtocolKit: objectSchema({
+        id: { type: "string" },
+        name: { type: "string" },
+        code: { type: "string" }
+      }, ["id", "name", "code"]),
+      CheckProtocolOrder: objectSchema({
+        id: { type: "string" },
+        status: ref("ReplenishmentStatus")
+      }, ["id", "status"]),
+      CheckProtocolSummary: objectSchema({
+        id: { type: "string" },
+        checkerName: { type: "string" },
+        selectedStatus: ref("KitOperationalStatus"),
+        effectiveStatus: ref("KitOperationalStatus"),
+        statusReason: { type: "string" },
+        warnings: arrayOf({ type: "string" }),
+        signatureHash: { type: "string" },
+        positionCount: { type: "integer", minimum: 0 },
+        deviationCount: { type: "integer", minimum: 0 },
+        kit: ref("CheckProtocolKit"),
+        replenishmentOrder: ref("CheckProtocolOrder"),
+        createdAt: { type: "string", format: "date-time" }
+      }, ["id", "checkerName", "selectedStatus", "effectiveStatus", "warnings", "signatureHash", "positionCount", "deviationCount", "kit", "createdAt"]),
+      CheckProtocolPosition: objectSchema({
+        id: { type: "string" },
+        articleId: { type: "string" },
+        articleName: { type: "string" },
+        moduleName: { type: "string" },
+        unit: { type: "string" },
+        requiredQuantity: { type: "integer", minimum: 0 },
+        countedQuantity: { type: "integer", minimum: 0 },
+        discardedExpiredQuantity: { type: "integer", minimum: 0 },
+        missingQuantity: { type: "integer", minimum: 0 },
+        surplusQuantity: { type: "integer", minimum: 0 },
+        critical: { type: "boolean" },
+        note: { type: "string" }
+      }, ["id", "articleId", "articleName", "unit", "requiredQuantity", "countedQuantity", "discardedExpiredQuantity", "missingQuantity", "surplusQuantity", "critical"]),
+      CheckProtocolDetail: objectSchema({
+        id: { type: "string" },
+        checkerName: { type: "string" },
+        selectedStatus: ref("KitOperationalStatus"),
+        effectiveStatus: ref("KitOperationalStatus"),
+        statusReason: { type: "string" },
+        warnings: arrayOf({ type: "string" }),
+        signatureHash: { type: "string" },
+        signaturePngDataUrl: { type: "string" },
+        positionCount: { type: "integer", minimum: 0 },
+        deviationCount: { type: "integer", minimum: 0 },
+        kit: ref("CheckProtocolKit"),
+        replenishmentOrder: ref("CheckProtocolOrder"),
+        positions: arrayOf(ref("CheckProtocolPosition")),
+        createdAt: { type: "string", format: "date-time" }
+      }, ["id", "checkerName", "selectedStatus", "effectiveStatus", "warnings", "signatureHash", "signaturePngDataUrl", "positionCount", "deviationCount", "kit", "positions", "createdAt"]),
+      CheckProtocolPage: objectSchema({
+        items: arrayOf(ref("CheckProtocolSummary")),
+        page: { type: "integer", minimum: 1 },
+        pageSize: { type: "integer", minimum: 1 },
+        total: { type: "integer", minimum: 0 }
+      }, ["items", "page", "pageSize", "total"]),
       ReplenishmentOrderItem: objectSchema({
         articleId: { type: "string" },
         articleName: { type: "string" },
@@ -595,6 +655,14 @@ const rescueBaseOpenApiDocumentDefinition = {
     },
     "/public/kits/{token}/checks": {
       post: operation("Öffentliche Checks", "PublicChecksController_completeCheck", { ...pathParam("token"), ...request("CompleteCheckRequest") }, response(201, "Check completed", ref("CompleteCheckResponse")), false)
+    },
+    "/checks": {
+      get: operation("Check-Protokolle", "CheckRecordsController_list", {
+        parameters: [optionalQueryParam("q"), optionalQueryParam("kitId"), optionalQueryParam("status"), optionalQueryParam("page")]
+      }, response(200, "Check protocols", ref("CheckProtocolPage")))
+    },
+    "/checks/{id}": {
+      get: operation("Check-Protokolle", "CheckRecordsController_detail", pathParam("id"), response(200, "Check protocol", ref("CheckProtocolDetail")))
     },
     "/replenishment-orders": {
       get: operation("Nachfüllaufträge", "ReplenishmentController_list", {}, response(200, "Replenishment orders", arrayOf(ref("ReplenishmentOrder"))))

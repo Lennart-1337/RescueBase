@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
-import { Archive, ClipboardList, LogOut, PackageCheck, Settings, ShieldCheck, Users } from "lucide-react";
+import { Archive, ClipboardCheck, ClipboardList, LogOut, PackageCheck, Settings, ShieldCheck, Users } from "lucide-react";
 import { Button } from "../components/ui";
 import { rescueBaseApi } from "../lib/api";
 import type { AuthenticatedUser } from "../lib/types";
@@ -37,6 +37,10 @@ export function AdminShell({ children, user }: { children: ReactNode; user: Auth
           <Link search={{}} to="/admin/inventory" activeProps={{ className: "active" }}>
             <Archive />
             Lager
+          </Link>
+          <Link search={{}} to="/admin/check-protocols" activeProps={{ className: "active" }}>
+            <ClipboardCheck />
+            Check-Protokolle
           </Link>
           {user.role === "ADMIN" ? (
             <Link search={{}} to="/admin/master-data/articles" activeProps={{ className: "active" }}>

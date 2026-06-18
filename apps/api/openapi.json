@@ -25,6 +25,9 @@
       "name": "Öffentliche Checks"
     },
     {
+      "name": "Check-Protokolle"
+    },
+    {
       "name": "Nachfüllaufträge"
     },
     {
@@ -1782,6 +1785,262 @@
           "signaturePngDataUrl",
           "signatureHash",
           "createdAt"
+        ],
+        "additionalProperties": false
+      },
+      "CheckProtocolKit": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "code": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "code"
+        ],
+        "additionalProperties": false
+      },
+      "CheckProtocolOrder": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "status": {
+            "$ref": "#/components/schemas/ReplenishmentStatus"
+          }
+        },
+        "required": [
+          "id",
+          "status"
+        ],
+        "additionalProperties": false
+      },
+      "CheckProtocolSummary": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "checkerName": {
+            "type": "string"
+          },
+          "selectedStatus": {
+            "$ref": "#/components/schemas/KitOperationalStatus"
+          },
+          "effectiveStatus": {
+            "$ref": "#/components/schemas/KitOperationalStatus"
+          },
+          "statusReason": {
+            "type": "string"
+          },
+          "warnings": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "signatureHash": {
+            "type": "string"
+          },
+          "positionCount": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "deviationCount": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "kit": {
+            "$ref": "#/components/schemas/CheckProtocolKit"
+          },
+          "replenishmentOrder": {
+            "$ref": "#/components/schemas/CheckProtocolOrder"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "checkerName",
+          "selectedStatus",
+          "effectiveStatus",
+          "warnings",
+          "signatureHash",
+          "positionCount",
+          "deviationCount",
+          "kit",
+          "createdAt"
+        ],
+        "additionalProperties": false
+      },
+      "CheckProtocolPosition": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "articleId": {
+            "type": "string"
+          },
+          "articleName": {
+            "type": "string"
+          },
+          "moduleName": {
+            "type": "string"
+          },
+          "unit": {
+            "type": "string"
+          },
+          "requiredQuantity": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "countedQuantity": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "discardedExpiredQuantity": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "missingQuantity": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "surplusQuantity": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "critical": {
+            "type": "boolean"
+          },
+          "note": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "articleId",
+          "articleName",
+          "unit",
+          "requiredQuantity",
+          "countedQuantity",
+          "discardedExpiredQuantity",
+          "missingQuantity",
+          "surplusQuantity",
+          "critical"
+        ],
+        "additionalProperties": false
+      },
+      "CheckProtocolDetail": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "checkerName": {
+            "type": "string"
+          },
+          "selectedStatus": {
+            "$ref": "#/components/schemas/KitOperationalStatus"
+          },
+          "effectiveStatus": {
+            "$ref": "#/components/schemas/KitOperationalStatus"
+          },
+          "statusReason": {
+            "type": "string"
+          },
+          "warnings": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "signatureHash": {
+            "type": "string"
+          },
+          "signaturePngDataUrl": {
+            "type": "string"
+          },
+          "positionCount": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "deviationCount": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "kit": {
+            "$ref": "#/components/schemas/CheckProtocolKit"
+          },
+          "replenishmentOrder": {
+            "$ref": "#/components/schemas/CheckProtocolOrder"
+          },
+          "positions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CheckProtocolPosition"
+            }
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "checkerName",
+          "selectedStatus",
+          "effectiveStatus",
+          "warnings",
+          "signatureHash",
+          "signaturePngDataUrl",
+          "positionCount",
+          "deviationCount",
+          "kit",
+          "positions",
+          "createdAt"
+        ],
+        "additionalProperties": false
+      },
+      "CheckProtocolPage": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CheckProtocolSummary"
+            }
+          },
+          "page": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "pageSize": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "total": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "items",
+          "page",
+          "pageSize",
+          "total"
         ],
         "additionalProperties": false
       },
@@ -3615,6 +3874,90 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/CompleteCheckResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/checks": {
+      "get": {
+        "tags": [
+          "Check-Protokolle"
+        ],
+        "operationId": "CheckRecordsController_list",
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "kitId",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Check protocols",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CheckProtocolPage"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/checks/{id}": {
+      "get": {
+        "tags": [
+          "Check-Protokolle"
+        ],
+        "operationId": "CheckRecordsController_detail",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Check protocol",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CheckProtocolDetail"
                 }
               }
             }

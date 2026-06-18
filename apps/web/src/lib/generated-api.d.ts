@@ -724,6 +724,38 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/checks": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["CheckRecordsController_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/checks/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["CheckRecordsController_detail"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/replenishment-orders": {
         parameters: {
             query?: never;
@@ -1355,6 +1387,67 @@ export interface components {
             signatureHash: string;
             /** Format: date-time */
             createdAt: string;
+        };
+        CheckProtocolKit: {
+            id: string;
+            name: string;
+            code: string;
+        };
+        CheckProtocolOrder: {
+            id: string;
+            status: components["schemas"]["ReplenishmentStatus"];
+        };
+        CheckProtocolSummary: {
+            id: string;
+            checkerName: string;
+            selectedStatus: components["schemas"]["KitOperationalStatus"];
+            effectiveStatus: components["schemas"]["KitOperationalStatus"];
+            statusReason?: string;
+            warnings: string[];
+            signatureHash: string;
+            positionCount: number;
+            deviationCount: number;
+            kit: components["schemas"]["CheckProtocolKit"];
+            replenishmentOrder?: components["schemas"]["CheckProtocolOrder"];
+            /** Format: date-time */
+            createdAt: string;
+        };
+        CheckProtocolPosition: {
+            id: string;
+            articleId: string;
+            articleName: string;
+            moduleName?: string;
+            unit: string;
+            requiredQuantity: number;
+            countedQuantity: number;
+            discardedExpiredQuantity: number;
+            missingQuantity: number;
+            surplusQuantity: number;
+            critical: boolean;
+            note?: string;
+        };
+        CheckProtocolDetail: {
+            id: string;
+            checkerName: string;
+            selectedStatus: components["schemas"]["KitOperationalStatus"];
+            effectiveStatus: components["schemas"]["KitOperationalStatus"];
+            statusReason?: string;
+            warnings: string[];
+            signatureHash: string;
+            signaturePngDataUrl: string;
+            positionCount: number;
+            deviationCount: number;
+            kit: components["schemas"]["CheckProtocolKit"];
+            replenishmentOrder?: components["schemas"]["CheckProtocolOrder"];
+            positions: components["schemas"]["CheckProtocolPosition"][];
+            /** Format: date-time */
+            createdAt: string;
+        };
+        CheckProtocolPage: {
+            items: components["schemas"]["CheckProtocolSummary"][];
+            page: number;
+            pageSize: number;
+            total: number;
         };
         ReplenishmentOrderItem: {
             articleId: string;
@@ -2663,6 +2756,53 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["CompleteCheckResponse"];
+                };
+            };
+        };
+    };
+    CheckRecordsController_list: {
+        parameters: {
+            query?: {
+                q?: string;
+                kitId?: string;
+                status?: string;
+                page?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Check protocols */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CheckProtocolPage"];
+                };
+            };
+        };
+    };
+    CheckRecordsController_detail: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Check protocol */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CheckProtocolDetail"];
                 };
             };
         };

@@ -850,6 +850,72 @@ a {
   grid-template-columns: minmax(0, 1fr);
 }
 
+.protocol-row {
+  grid-template-columns: minmax(220px, 1fr) minmax(180px, 0.7fr) auto;
+}
+
+.protocol-detail,
+.protocol-block {
+  display: grid;
+  gap: 12px;
+}
+
+.protocol-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.protocol-summary-item {
+  display: grid;
+  gap: 4px;
+  padding: 12px;
+  border: 1px solid #e0e6ef;
+  border-radius: 8px;
+  background: #fbfcfe;
+}
+
+.protocol-summary-item span,
+.protocol-signature code {
+  color: #657386;
+  font-size: 12px;
+}
+
+.protocol-block h3 {
+  margin: 0;
+  font-size: 15px;
+}
+
+.protocol-signature {
+  grid-template-columns: minmax(0, 1fr) 220px;
+  align-items: center;
+}
+
+.protocol-signature code {
+  display: block;
+  margin-top: 6px;
+  overflow-wrap: anywhere;
+}
+
+.protocol-signature img {
+  width: 100%;
+  max-height: 100px;
+  object-fit: contain;
+  border: 1px solid #e0e6ef;
+  border-radius: 8px;
+  background: #ffffff;
+}
+
+.list-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  color: #465568;
+  font-size: 13px;
+  font-weight: 700;
+}
+
 .check-field {
   min-height: 43px;
   display: flex;
@@ -1396,6 +1462,7 @@ a {
 
   .kit-row,
   .user-row,
+  .protocol-row,
   .fulfillment-row {
     grid-template-columns: 1fr;
   }
@@ -1456,6 +1523,11 @@ a {
   }
 
   .form-grid-three {
+    grid-template-columns: 1fr;
+  }
+
+  .protocol-summary-grid,
+  .protocol-signature {
     grid-template-columns: 1fr;
   }
 

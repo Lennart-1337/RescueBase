@@ -18,6 +18,7 @@ import { Route as AdminUsersRouteImport } from './routes/admin/users'
 import { Route as AdminMasterDataRouteImport } from './routes/admin/master-data'
 import { Route as AdminKitsRouteImport } from './routes/admin/kits'
 import { Route as AdminInventoryRouteImport } from './routes/admin/inventory'
+import { Route as AdminCheckProtocolsRouteImport } from './routes/admin/check-protocols'
 import { Route as AdminAccountRouteImport } from './routes/admin/account'
 import { Route as AdminMasterDataIndexRouteImport } from './routes/admin/master-data/index'
 import { Route as AdminMasterDataTemplatesRouteImport } from './routes/admin/master-data/templates'
@@ -70,6 +71,11 @@ const AdminInventoryRoute = AdminInventoryRouteImport.update({
   path: '/admin/inventory',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminCheckProtocolsRoute = AdminCheckProtocolsRouteImport.update({
+  id: '/admin/check-protocols',
+  path: '/admin/check-protocols',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AdminAccountRoute = AdminAccountRouteImport.update({
   id: '/admin/account',
   path: '/admin/account',
@@ -106,6 +112,7 @@ const AdminMasterDataArticlesRoute = AdminMasterDataArticlesRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/admin/account': typeof AdminAccountRoute
+  '/admin/check-protocols': typeof AdminCheckProtocolsRoute
   '/admin/inventory': typeof AdminInventoryRoute
   '/admin/kits': typeof AdminKitsRoute
   '/admin/master-data': typeof AdminMasterDataRouteWithChildren
@@ -123,6 +130,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/admin/account': typeof AdminAccountRoute
+  '/admin/check-protocols': typeof AdminCheckProtocolsRoute
   '/admin/inventory': typeof AdminInventoryRoute
   '/admin/kits': typeof AdminKitsRoute
   '/admin/users': typeof AdminUsersRoute
@@ -140,6 +148,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/admin/account': typeof AdminAccountRoute
+  '/admin/check-protocols': typeof AdminCheckProtocolsRoute
   '/admin/inventory': typeof AdminInventoryRoute
   '/admin/kits': typeof AdminKitsRoute
   '/admin/master-data': typeof AdminMasterDataRouteWithChildren
@@ -159,6 +168,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/admin/account'
+    | '/admin/check-protocols'
     | '/admin/inventory'
     | '/admin/kits'
     | '/admin/master-data'
@@ -176,6 +186,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/admin/account'
+    | '/admin/check-protocols'
     | '/admin/inventory'
     | '/admin/kits'
     | '/admin/users'
@@ -192,6 +203,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/admin/account'
+    | '/admin/check-protocols'
     | '/admin/inventory'
     | '/admin/kits'
     | '/admin/master-data'
@@ -210,6 +222,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AdminAccountRoute: typeof AdminAccountRoute
+  AdminCheckProtocolsRoute: typeof AdminCheckProtocolsRoute
   AdminInventoryRoute: typeof AdminInventoryRoute
   AdminKitsRoute: typeof AdminKitsRoute
   AdminMasterDataRoute: typeof AdminMasterDataRouteWithChildren
@@ -285,6 +298,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminInventoryRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/check-protocols': {
+      id: '/admin/check-protocols'
+      path: '/admin/check-protocols'
+      fullPath: '/admin/check-protocols'
+      preLoaderRoute: typeof AdminCheckProtocolsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/admin/account': {
       id: '/admin/account'
       path: '/admin/account'
@@ -353,6 +373,7 @@ const AdminMasterDataRouteWithChildren = AdminMasterDataRoute._addFileChildren(
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdminAccountRoute: AdminAccountRoute,
+  AdminCheckProtocolsRoute: AdminCheckProtocolsRoute,
   AdminInventoryRoute: AdminInventoryRoute,
   AdminKitsRoute: AdminKitsRoute,
   AdminMasterDataRoute: AdminMasterDataRouteWithChildren,
