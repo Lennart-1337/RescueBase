@@ -83,13 +83,7 @@ export class ReportService {
     const filterLabel = summarizeProcurementFilters(filters);
 
     return this.renderPdf((doc) => {
-      this.drawDocumentHeader(doc, "Beschaffung", "Einkaufsliste", filtered.length > 0 ? "Aktuell benötigte Artikel" : "Keine offenen Bedarfe");
-      this.drawMetaGrid(doc, [
-        ["Positionen", String(filtered.length)],
-        ["Offene Menge", String(totalRemaining)],
-        ["Filter", filterLabel],
-        ["Stand", formatDateTime(new Date())]
-      ], { x: 48, width: doc.page.width - 96 });
+      this.drawProcurementHeader(doc, filterLabel, totalRemaining, filtered.length);
 
       if (filtered.length === 0) {
         doc.moveDown(1);
@@ -102,21 +96,21 @@ export class ReportService {
         return;
       }
 
-      let y = doc.y + 8;
+      let y = this.drawProcurementTableHeader(doc, doc.y + 14);
       filtered.forEach((order, index) => {
-        const cardHeight = this.measureProcurementOrderCard(doc, order);
+        const rowHeight = this.measureProcurementOrderRow(doc, order);
         if (needsPageBreak({
           currentY: y,
-          requiredHeight: cardHeight,
+          requiredHeight: rowHeight,
           pageHeight: doc.page.height,
           bottomMargin: doc.page.margins.bottom,
-          reserve: 24
+          reserve: 18
         })) {
           doc.addPage();
-          this.drawContinuationHeader(doc, "Einkaufsliste", "Beschaffungsaufträge · Fortsetzung");
-          y = doc.y + 16;
+          this.drawContinuationHeader(doc, "Einkaufsliste", "Beschaffungsliste · Fortsetzung");
+          y = this.drawProcurementTableHeader(doc, doc.y + 12);
         }
-        y = this.drawProcurementOrderCard(doc, y, order, index);
+        y = this.drawProcurementOrderRow(doc, y, order, index);
       });
     });
   }
@@ -375,48 +369,70 @@ export class ReportService {
     return `${result}...`;
   }
 
-  private measureProcurementOrderCard(doc: PDFKit.PDFDocument, order: ProcurementOrderReportRecord) {
-    const details = procurementDetails(order);
-    const titleHeight = doc.font("Helvetica-Bold").fontSize(12).heightOfString(order.article.name, { width: 300 });
-    const detailHeight = doc.font("Helvetica").fontSize(9).heightOfString(details.join("\n"), { width: 300 });
-    const articleUrl = order.article.articleUrl ?? order.articleUrlSnapshot;
-    const linkHeight = articleUrl
-      ? doc.font("Helvetica").fontSize(8).heightOfString(articleUrl, { width: 300 }) + 18
-      : 0;
-    return 28 + titleHeight + detailHeight + linkHeight;
+  private drawProcurementHeader(doc: PDFKit.PDFDocument, filterLabel: string, totalRemaining: number, orderCount: number) {
+    doc.fillColor("#000000").font("Helvetica-Bold").fontSize(11).text("BESCHAFFUNG", 48, 48);
+    doc.fontSize(24).text("Einkaufsliste", 48, 64);
+    doc.font("Helvetica").fontSize(10).fillColor("#444444").text("Offene Beschaffungsaufträge für den Einkauf.", 48, 92);
+    doc.moveTo(48, 116).lineTo(doc.page.width - 48, 116).strokeColor("#000000").stroke();
+    doc.fillColor("#000000").font("Helvetica").fontSize(10)
+      .text(`Stand: ${formatDateTime(new Date())}`, 48, 128)
+      .text(`Positionen: ${orderCount}`, 220, 128)
+      .text(`Offene Menge: ${totalRemaining}`, 340, 128)
+      .text(`Filter: ${filterLabel}`, 48, 144, { width: doc.page.width - 96 });
+    doc.moveTo(48, 166).lineTo(doc.page.width - 48, 166).strokeColor(palette.line).stroke();
+    doc.y = 174;
   }
 
-  private drawProcurementOrderCard(doc: PDFKit.PDFDocument, y: number, order: ProcurementOrderReportRecord, index: number) {
-    const x = 48;
-    const width = doc.page.width - 96;
-    const height = this.measureProcurementOrderCard(doc, order);
+  private drawProcurementTableHeader(doc: PDFKit.PDFDocument, y: number) {
+    doc.fillColor("#000000").font("Helvetica-Bold").fontSize(8);
+    doc.text("ARTIKEL", 48, y);
+    doc.text("STANDORT / DETAILS", 230, y);
+    doc.text("OFFEN", 478, y, { width: 56, align: "right" });
+    doc.moveTo(48, y + 14).lineTo(doc.page.width - 48, y + 14).strokeColor("#000000").stroke();
+    return y + 20;
+  }
+
+  private measureProcurementOrderRow(doc: PDFKit.PDFDocument, order: ProcurementOrderReportRecord) {
+    const articleHeight = doc.font("Helvetica-Bold").fontSize(11).heightOfString(order.article.name, { width: 170 });
+    const detailHeight = doc.font("Helvetica").fontSize(8).heightOfString(procurementDetails(order).join("\n"), { width: 232 });
+    const articleUrl = order.article.articleUrl ?? order.articleUrlSnapshot;
+    const shopHeight = articleUrl
+      ? doc.heightOfString(`Shop: ${articleUrl}`, { width: 404 })
+      : 0;
+    return 16 + Math.max(articleHeight, detailHeight, 26) + shopHeight;
+  }
+
+  private drawProcurementOrderRow(doc: PDFKit.PDFDocument, y: number, order: ProcurementOrderReportRecord, index: number) {
+    const rowHeight = this.measureProcurementOrderRow(doc, order);
     const remainingQuantity = Math.max(order.requestedQuantity - order.receivedQuantity, 0);
     const articleUrl = order.article.articleUrl ?? order.articleUrlSnapshot;
-    const details = procurementDetails(order);
+    const detailText = procurementDetails(order).join("\n");
 
-    doc.roundedRect(x, y, width, height, 12).fillAndStroke(index % 2 === 0 ? "#fbfdff" : palette.paper, palette.line);
-    doc.fillColor(procurementStatusColor(order.status)).font("Helvetica-Bold").fontSize(8).text(
-      formatProcurementStatus(order.status).toUpperCase(),
-      x + 18,
-      y + 16
-    );
-    doc.fillColor(palette.ink).font("Helvetica-Bold").fontSize(12).text(order.article.name, x + 18, y + 32, { width: 300 });
-    doc.fillColor(palette.muted).font("Helvetica").fontSize(9).text(details.join("\n"), x + 18, y + 52, { width: 300 });
-    doc.fillColor(palette.accent).font("Helvetica-Bold").fontSize(8).text("OFFEN", x + width - 88, y + 18, { width: 56, align: "right" });
-    doc.fillColor(palette.ink).font("Helvetica-Bold").fontSize(24).text(String(remainingQuantity), x + width - 92, y + 30, { width: 64, align: "right" });
-    doc.fillColor(palette.muted).font("Helvetica").fontSize(8).text(order.article.unit, x + width - 92, y + 58, { width: 64, align: "right" });
+    if (index % 2 === 0) {
+      doc.rect(48, y - 4, doc.page.width - 96, rowHeight + 4).fill("#fafafa");
+    }
+
+    doc.fillColor("#000000").font("Helvetica-Bold").fontSize(11).text(order.article.name, 48, y, { width: 170 });
+    doc.font("Helvetica").fontSize(8).fillColor("#222222").text(detailText, 230, y, { width: 232 });
+    doc.fillColor("#000000").font("Helvetica-Bold").fontSize(16).text(String(remainingQuantity), 478, y + 2, { width: 56, align: "right" });
+    doc.font("Helvetica").fontSize(8).text(order.article.unit, 478, y + 22, { width: 56, align: "right" });
+    doc.font("Helvetica").fontSize(7).fillColor("#444444").text(formatProcurementStatus(order.status), 478, y + 34, { width: 56, align: "right" });
 
     if (articleUrl) {
-      const linkY = y + height - 28;
-      doc.fillColor(palette.muted).font("Helvetica-Bold").fontSize(8).text("Shop-Link", x + 18, linkY);
-      doc.fillColor(palette.accent).font("Helvetica").fontSize(8).text(articleUrl, x + 74, linkY, {
-        width: width - 92,
+      const shopY = y + Math.max(
+        doc.heightOfString(order.article.name, { width: 170 }),
+        doc.heightOfString(detailText, { width: 232 }),
+        34
+      ) + 6;
+      doc.fillColor("#000000").font("Helvetica").fontSize(8).text(`Shop: ${articleUrl}`, 48, shopY, {
+        width: 486,
         link: articleUrl,
         underline: true
       });
     }
 
-    return y + height + 12;
+    doc.moveTo(48, y + rowHeight + 4).lineTo(doc.page.width - 48, y + rowHeight + 4).strokeColor(palette.line).stroke();
+    return y + rowHeight + 10;
   }
 
   private renderPdf(
