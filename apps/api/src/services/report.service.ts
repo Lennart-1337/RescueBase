@@ -482,10 +482,6 @@ function formatProcurementStatus(status: InventoryProcurementStatus) {
   return "In Bearbeitung";
 }
 
-function procurementStatusColor(status: InventoryProcurementStatus) {
-  return status === InventoryProcurementStatus.OPEN ? "#b54708" : palette.accent;
-}
-
 function procurementDetails(order: ProcurementOrderReportRecord) {
   const details = [
     `Standort: ${order.location.name}`,
