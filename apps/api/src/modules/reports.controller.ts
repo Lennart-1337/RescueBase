@@ -32,6 +32,9 @@ export class ReportsController {
     const pdf = await this.reports.procurementPdf({ articleId, locationId, q });
     response.setHeader("content-type", "application/pdf");
     response.setHeader("content-disposition", "inline; filename=\"beschaffungsliste.pdf\"");
+    response.setHeader("cache-control", "no-store, max-age=0");
+    response.setHeader("pragma", "no-cache");
+    response.setHeader("expires", "0");
     response.send(pdf);
   }
 
@@ -54,6 +57,9 @@ export class ReportsController {
     const pdf = await this.reports.replenishmentPdf(orderId);
     response.setHeader("content-type", "application/pdf");
     response.setHeader("content-disposition", `inline; filename="auftrag-${orderId}.pdf"`);
+    response.setHeader("cache-control", "no-store, max-age=0");
+    response.setHeader("pragma", "no-cache");
+    response.setHeader("expires", "0");
     response.send(pdf);
   }
 }
