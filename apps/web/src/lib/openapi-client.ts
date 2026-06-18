@@ -91,7 +91,7 @@ export function reportUrl(path: string): string {
 }
 
 export function freshReportUrl(path: string, revision = new Date().toISOString()): string {
-  const [pathname, hash = ""] = path.split("#");
+  const [pathname = "", hash = ""] = path.split("#");
   const [basePath, search = ""] = pathname.split("?");
   const params = new URLSearchParams(search);
   params.set("rev", revision);
