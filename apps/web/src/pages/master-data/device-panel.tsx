@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Pencil, Plus, Save, X } from "lucide-react";
 import { ListFilterBar } from "../../components/list-filter-bar";
+import { PageToolbar } from "../../components/page-layout";
 import { SearchableSelect } from "../../components/searchable-select";
 import { InlineError } from "../../components/state-panels";
 import { Badge, Button, Dialog, Field, Panel } from "../../components/ui";
@@ -74,17 +75,18 @@ export function DevicePanel(props: {
   }
 
   return (
-    <Panel>
+    <>
+      <PageToolbar label="Geräte filtern"><ListFilterBar countLabel={`${props.devices.length}/${props.totalCount} sichtbar`} onReset={props.onResetFilters}>
+        <Field label="Suche"><input onChange={(event) => props.onFilterChange({ q: event.target.value })} placeholder="Name, Serien- oder Inventarnummer" value={props.filters.q} /></Field>
+        <Field label="Standort"><SearchableSelect emptyLabel="Alle Standorte" onChange={(value) => props.onFilterChange({ locationId: value })} options={[{ label: "Alle Standorte", value: "" }, ...props.locations.map((location) => ({ label: location.name, value: location.id }))]} value={props.filters.locationId} /></Field>
+        <Field label="Artikel"><SearchableSelect emptyLabel="Alle Artikel" onChange={(value) => props.onFilterChange({ articleId: value })} options={[{ label: "Alle Artikel", value: "" }, ...props.articles.map((article) => ({ label: article.name, value: article.id }))]} value={props.filters.articleId} /></Field>
+        <Field label="Status"><select onChange={(event) => props.onFilterChange({ active: event.target.value })} value={props.filters.active}><option value="">Alle Status</option><option value="active">Aktiv</option><option value="inactive">Inaktiv</option></select></Field>
+      </ListFilterBar></PageToolbar>
+      <Panel>
       <div className="panel-header">
         <div><h2>Geräte</h2><p>Medizinische Geräte mit STK- und MTK-Daten.</p></div>
         <Button onClick={openForCreate} type="button"><Plus data-icon="inline-start" />Gerät hinzufügen</Button>
       </div>
-      <ListFilterBar countLabel={`${props.devices.length}/${props.totalCount} sichtbar`} onReset={props.onResetFilters}>
-        <Field label="Suche"><input onChange={(event) => props.onFilterChange({ q: event.target.value })} placeholder="Name, Serien- oder Inventarnummer" value={props.filters.q} /></Field>
-        <Field label="Standort"><SearchableSelect emptyLabel="Alle Standorte" onChange={(value) => props.onFilterChange({ locationId: value })} options={[{ label: "Alle Standorte", value: "" }, ...props.locations.map((location) => ({ label: location.name, value: location.id }))]} value={props.filters.locationId} /></Field>
-        <Field label="Artikel"><SearchableSelect emptyLabel="Alle Artikel" onChange={(value) => props.onFilterChange({ articleId: value })} options={[{ label: "Alle Artikel", value: "" }, ...props.articles.map((article) => ({ label: article.name, value: article.id }))]} value={props.filters.articleId} /></Field>
-        <Field label="Status"><select onChange={(event) => props.onFilterChange({ active: event.target.value })} value={props.filters.active}><option value="">Alle Stati</option><option value="active">Aktiv</option><option value="inactive">Inaktiv</option></select></Field>
-      </ListFilterBar>
       {props.devices.length === 0 ? <div className="compact-list-empty">Noch keine Geräte angelegt.</div> : null}
       <div className="compact-list">
         {props.devices.map((device) => (
@@ -124,7 +126,8 @@ export function DevicePanel(props: {
         </div>
         {props.error ? <InlineError error={props.error} /> : null}
       </Dialog>
-    </Panel>
+      </Panel>
+    </>
   );
 }
 

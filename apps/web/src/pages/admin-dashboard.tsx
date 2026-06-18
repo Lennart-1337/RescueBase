@@ -5,12 +5,12 @@ import { matchesFilterText, toOptionalString, withPrunedSearch } from "../app/fi
 import { AlertTriangle, Archive, ClipboardList, PackageCheck } from "lucide-react";
 import { selectedBatchQuantity, useDashboardData } from "../app/dashboard-data";
 import { daysUntil, formatReason, formatStatus, toError } from "../app/formatters";
-import { ListFilterBar } from "../components/list-filter-bar";
-import { SearchableSelect } from "../components/searchable-select";
+import { PageHeader, PageToolbar, Workspace, WorkspaceMain, WorkspaceRail } from "../components/page-layout";
 import { EmptyState, ErrorPanel, LoadingPanel, Metric } from "../components/state-panels";
-import { AnchorButton, Badge, Field, Panel, cn } from "../components/ui";
+import { AnchorButton, Badge, Panel, cn } from "../components/ui";
 import { rescueBaseApi } from "../lib/api";
 import { AlertSummaryPanel } from "./dashboard/alert-summary-panel";
+import { OrderFilterToolbar } from "./dashboard/order-filter-toolbar";
 import { OrderDetailDialog } from "./dashboard/order-detail-dialog";
 
 export function AdminDashboard() {
@@ -86,18 +86,13 @@ export function AdminDashboard() {
 
   return (
     <>
-      <header className="topbar"><div><h1>Nachfüllzentrale</h1><p>Offene Mängel, chargengenaue Teilfüllungen und Ablaufwarnungen.</p></div><div className="topbar-actions"><AnchorButton href={rescueBaseApi.reportUrl("/reports/csv/replenishment")} variant="secondary">CSV Aufträge</AnchorButton></div></header>
+      <PageHeader actions={<AnchorButton href={rescueBaseApi.reportUrl("/reports/csv/replenishment")} variant="secondary">CSV Aufträge</AnchorButton>} description="Offene Mängel, Teilfüllungen und Ablaufwarnungen im Blick." title="Nachfüllaufträge" />
       <section className="metric-grid" aria-label="Kennzahlen"><Metric icon={<ClipboardList />} label="Offene Aufträge" tone="warning" value={String(openOrders)} /><Metric icon={<PackageCheck />} label="Rucksäcke bereit" tone="ready" value={`${kits.filter((kit) => kit.status === "READY").length}/${kits.length}`} /><Metric icon={<AlertTriangle />} label="Ablaufwarnungen" tone="danger" value={String(expiringBatches)} /><Metric icon={<Archive />} label="Bestand gesamt" tone="info" value={String(stockTotal)} /></section>
-      <AlertSummaryPanel />
-      <Panel className="orders-panel">
-        <div className="panel-header"><div><h2>Nachfüllaufträge</h2><p>Teilfüllungen buchen konkrete Chargen aus dem Lager.</p></div><Badge tone="warning">{filteredOrders.length}/{orders.length} sichtbar</Badge></div>
-        <ListFilterBar countLabel={`${filteredOrders.length}/${orders.length} sichtbar`} fieldsClassName="form-grid-three" onReset={resetFilters}>
-          <Field label="Suche"><input onChange={(event) => updateFilters({ orderQ: event.target.value })} placeholder="Rucksackname oder Kennung" value={filters.orderQ} /></Field>
-          <Field label="Standort"><SearchableSelect emptyLabel="Alle Standorte" onChange={(value) => updateFilters({ orderLocationId: value })} options={[{ label: "Alle Standorte", value: "" }, ...Array.from(new Map(kits.filter((kit) => kit.location).map((kit) => [kit.location!.id, { label: kit.location!.name, value: kit.location!.id }])).values())]} value={filters.orderLocationId} /></Field>
-          <Field label="Status"><select onChange={(event) => updateFilters({ orderStatus: event.target.value })} value={filters.orderStatus}><option value="">Alle Stati</option><option value="OPEN">Offen</option><option value="IN_PROGRESS">In Arbeit</option><option value="DONE">Erledigt</option><option value="CANCELLED">Storniert</option></select></Field>
-        </ListFilterBar>
-        {filteredOrders.length > 0 ? <div className="order-list">{filteredOrders.map((order) => <button className={cn("order-row", selectedOrder?.id === order.id && "selected")} key={order.id} onClick={() => { setSelectedOrderId(order.id); setOrderOpen(true); }} type="button"><span><strong>{order.kit?.name ?? order.kitId}</strong><small>{order.items.length} Positionen · {formatStatus(order.status)}</small></span><Badge tone={order.status === "OPEN" ? "warning" : order.status === "DONE" ? "ready" : "info"}>{formatStatus(order.status)}</Badge></button>)}</div> : <EmptyState text="Aktuell gibt es keine Nachfüllaufträge für die gesetzten Filter." title="Keine Nachfüllaufträge" />}
-      </Panel>
+      <PageToolbar label="Aufträge filtern"><OrderFilterToolbar countLabel={`${filteredOrders.length}/${orders.length} sichtbar`} filters={filters} kits={kits} onChange={updateFilters} onReset={resetFilters} /></PageToolbar>
+      <Workspace>
+        <WorkspaceMain label="Nachfüllaufträge"><Panel className="orders-panel"><div className="panel-header"><div><h2>Auftragsliste</h2><p>Teilfüllungen buchen konkrete Chargen aus dem Lager.</p></div></div>{filteredOrders.length > 0 ? <div className="order-list">{filteredOrders.map((order) => <button className={cn("order-row", selectedOrder?.id === order.id && "selected")} key={order.id} onClick={() => { setSelectedOrderId(order.id); setOrderOpen(true); }} type="button"><span><strong>{order.kit?.name ?? order.kitId}</strong><small>{order.items.length} Positionen · {formatStatus(order.status)}</small></span><Badge tone={order.status === "OPEN" ? "warning" : order.status === "DONE" ? "ready" : "info"}>{formatStatus(order.status)}</Badge></button>)}</div> : <EmptyState text="Aktuell gibt es keine Nachfüllaufträge für die gesetzten Filter." title="Keine Nachfüllaufträge" />}</Panel></WorkspaceMain>
+        <WorkspaceRail label="Warnungen"><AlertSummaryPanel /></WorkspaceRail>
+      </Workspace>
       <OrderDetailDialog batches={batches} error={fulfillMutation.error ? toError(fulfillMutation.error) : null} formatReason={formatReason} formatStatus={formatStatus} isOpen={orderOpen} isSubmitting={fulfillMutation.isPending} onClose={() => setOrderOpen(false)} onFulfill={(items) => selectedOrder && fulfillMutation.mutate({ items, orderId: selectedOrder.id })} order={selectedOrder} pdfHref={selectedOrder ? rescueBaseApi.reportUrl(`/reports/replenishment/${selectedOrder.id}.pdf`) : undefined} selectedBatchQuantity={selectedBatchQuantity} />
     </>
   );

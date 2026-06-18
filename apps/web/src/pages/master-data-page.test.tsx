@@ -9,6 +9,7 @@ describe("MasterDataPage", () => {
     stubFetch(baseAdminRoutes());
     await renderAppAt("/admin/master-data/articles");
     await screen.findByRole("heading", { name: "Stammdaten" });
+    expect(await screen.findByRole("search", { name: "Artikel filtern" })).toBeInTheDocument();
     await clickElement(await screen.findByRole("button", { name: /Artikel hinzufügen/ }));
     const dialog = await screen.findByRole("dialog", { name: "Artikel anlegen" });
     await changeValue(within(dialog).getByLabelText("Name"), "Rettungsdecke");

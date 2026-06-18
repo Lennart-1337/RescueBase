@@ -3,10 +3,14 @@ import { useNavigate, useSearch } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { matchesFilterText, toOptionalString, withPrunedSearch } from "../app/filter-utils";
 import { toError } from "../app/formatters";
+import { PageHeader, PageToolbar } from "../components/page-layout";
 import { ErrorPanel, LoadingPanel } from "../components/state-panels";
+import { Badge, Button } from "../components/ui";
+import { Plus } from "lucide-react";
 import { rescueBaseApi } from "../lib/api";
 import type { Kit } from "../lib/types";
 import { KitFormPanel } from "./kits/kit-form-panel";
+import { KitFilterToolbar } from "./kits/kit-filter-toolbar";
 import { KitListPanel } from "./kits/kit-list-panel";
 
 export function KitsPage() {
@@ -99,8 +103,9 @@ export function KitsPage() {
 
   return (
     <>
-      <header className="topbar"><div><h1>Rucksäcke</h1><p>QR/NFC-Zugänge und Einsatzstatus pro physischem Rucksack.</p></div></header>
-      <KitListPanel actionError={rotateMutation.error ?? deleteMutation.error ?? null} actionPending={rotateMutation.isPending || deleteMutation.isPending} filters={filters} kits={filteredKits} locations={locations.data} onCreate={openForCreate} onDelete={(id) => deleteMutation.mutate(id)} onEdit={openForEdit} onFilterChange={updateFilters} onResetFilters={resetFilters} onRotate={(id) => rotateMutation.mutate(id)} templates={templates.data} totalCount={kits.data.length} />
+      <PageHeader actions={<><Badge tone="info">{filteredKits.length}/{kits.data.length} sichtbar</Badge><Button onClick={openForCreate} type="button"><Plus data-icon="inline-start" />Rucksack hinzufügen</Button></>} description="Physische Rucksäcke, Zugänge und Einsatzstatus." title="Rucksäcke" />
+      <PageToolbar label="Rucksäcke filtern"><KitFilterToolbar countLabel={`${filteredKits.length}/${kits.data.length} sichtbar`} filters={filters} locations={locations.data} onChange={updateFilters} onReset={resetFilters} templates={templates.data} /></PageToolbar>
+      <KitListPanel actionError={rotateMutation.error ?? deleteMutation.error ?? null} actionPending={rotateMutation.isPending || deleteMutation.isPending} kits={filteredKits} onDelete={(id) => deleteMutation.mutate(id)} onEdit={openForEdit} onRotate={(id) => rotateMutation.mutate(id)} />
       <KitFormPanel code={code} editingId={editingId} error={createMutation.error || updateMutation.error ? toError(createMutation.error ?? updateMutation.error) : null} isOpen={isOpen} isSubmitting={createMutation.isPending || updateMutation.isPending} locationId={locationId} locations={locations.data} name={name} onClose={closeDialog} onCodeChange={setCode} onLocationChange={setLocationId} onNameChange={setName} onSubmit={() => void submit()} onTemplateChange={setTemplateId} templateId={templateId} templates={templates.data} />
     </>
   );

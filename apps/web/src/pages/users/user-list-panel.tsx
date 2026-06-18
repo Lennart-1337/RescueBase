@@ -1,9 +1,9 @@
-import { Plus, Trash2 } from "lucide-react";
+import { Trash2 } from "lucide-react";
 import { InlineError } from "../../components/state-panels";
 import { Badge, Button, Panel } from "../../components/ui";
 import type { UserSummary } from "../../lib/types";
 
-export function UserListPanel(props: { currentUserId: string; error: Error | null; isSubmitting: boolean; onDelete: (id: string) => void; onInviteClick: () => void; onToggle: (id: string, active: boolean) => void; users: UserSummary[] }) {
+export function UserListPanel(props: { currentUserId: string; error: Error | null; isSubmitting: boolean; onDelete: (id: string) => void; onToggle: (id: string, active: boolean) => void; users: UserSummary[] }) {
   const confirmDelete = (entry: UserSummary) => {
     if (window.confirm(`Benutzerkonto "${entry.displayName}" wirklich löschen?`)) {
       props.onDelete(entry.id);
@@ -12,7 +12,7 @@ export function UserListPanel(props: { currentUserId: string; error: Error | nul
 
   return (
     <Panel>
-      <div className="panel-header"><div><h2>Benutzerkonten</h2><p>Aktivierung, Deaktivierung und 2FA-Status.</p></div><div className="topbar-actions"><Badge tone="info">{props.users.length} Konten</Badge><Button onClick={props.onInviteClick} type="button"><Plus data-icon="inline-start" />Benutzer einladen</Button></div></div>
+      <div className="panel-header"><div><h2>Benutzerkonten</h2><p>Aktivierung, Rollen und 2FA-Status.</p></div></div>
       <div className="table">
         {props.users.map((entry) => (
           <div className="table-row user-row" key={entry.id}>

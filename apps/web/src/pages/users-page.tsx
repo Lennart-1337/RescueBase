@@ -4,6 +4,9 @@ import type { AuthenticatedUser } from "../lib/types";
 import { rescueBaseApi } from "../lib/api";
 import { toError } from "../app/formatters";
 import { ErrorPanel, LoadingPanel } from "../components/state-panels";
+import { PageHeader, PageSection } from "../components/page-layout";
+import { Badge, Button } from "../components/ui";
+import { Plus } from "lucide-react";
 import { AlertRecipientsPanel } from "./users/alert-recipients-panel";
 import { UserInvitationPanel } from "./users/user-invitation-panel";
 import { UserListPanel } from "./users/user-list-panel";
@@ -22,9 +25,9 @@ export function UsersPage({ user }: { user: AuthenticatedUser }) {
 
   return (
     <>
-      <header className="topbar"><div><h1>Benutzer</h1><p>Einladungen, Rollen und 2FA-Status der Organisation.</p></div></header>
-      <UserListPanel currentUserId={user.id} error={toggle.error ?? deleteUser.error ?? null} isSubmitting={toggle.isPending || deleteUser.isPending} onDelete={(id) => deleteUser.mutate(id)} onInviteClick={() => setInviteOpen(true)} onToggle={(id, active) => toggle.mutate({ active, id })} users={users.data} />
-      <AlertRecipientsPanel />
+      <PageHeader actions={<><Badge tone="info">{users.data.length} Konten</Badge><Button onClick={() => setInviteOpen(true)} type="button"><Plus data-icon="inline-start" />Benutzer einladen</Button></>} description="Konten, Rollen und Benachrichtigungsempfänger verwalten." title="Benutzer" />
+      <UserListPanel currentUserId={user.id} error={toggle.error ?? deleteUser.error ?? null} isSubmitting={toggle.isPending || deleteUser.isPending} onDelete={(id) => deleteUser.mutate(id)} onToggle={(id, active) => toggle.mutate({ active, id })} users={users.data} />
+      <PageSection description="Empfänger für operative Warnungen und Hinweise." title="Alarmempfänger"><AlertRecipientsPanel /></PageSection>
       <UserInvitationPanel error={invite.error ?? null} isOpen={inviteOpen} isSubmitting={invite.isPending} onClose={() => setInviteOpen(false)} onInvite={invite.mutateAsync} />
     </>
   );
