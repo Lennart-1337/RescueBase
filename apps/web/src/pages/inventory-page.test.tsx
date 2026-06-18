@@ -9,6 +9,9 @@ describe("InventoryPage", () => {
     stubFetch(baseInventoryRoutes());
     await renderAppAt("/admin/inventory");
     await screen.findByRole("heading", { name: "Lager" });
+    expect(screen.getByRole("search", { name: "Bestand filtern" })).toBeInTheDocument();
+    expect(screen.getByRole("region", { name: "Bestandschargen" })).toBeInTheDocument();
+    expect(screen.getByRole("complementary", { name: "Bestandsplanung" })).toBeInTheDocument();
     await clickElement(screen.getByRole("button", { name: /Charge hinzufügen/ }));
     const dialog = await screen.findByRole("dialog", { name: "Charge erfassen" });
     await changeValue(within(dialog).getByLabelText("Chargennummer"), "RD-2028-02");

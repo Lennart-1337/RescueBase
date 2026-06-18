@@ -14,6 +14,7 @@ describe("UsersPage", () => {
     });
     await renderAppAt("/admin/users");
     await screen.findByRole("heading", { name: "Benutzer" });
+    expect(screen.getByRole("button", { name: /Benutzer einladen/ }).closest(".topbar")).not.toBeNull();
     await clickElement(screen.getByRole("button", { name: /Benutzer einladen/ }));
     const dialog = await screen.findByRole("dialog", { name: "Benutzer einladen" });
     const helper = within(dialog).getByText("Nur Admins können Einladungen verwalten.");

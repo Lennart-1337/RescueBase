@@ -16,7 +16,10 @@ describe("AdminDashboard", () => {
       "/api/alerts/warnings": { generatedAt: "2026-06-17T00:00:00.000Z", warnings: [], summary: { expiry: 0, stkDue: 0, mtkDue: 0 } }
     });
     await renderAppAt("/");
-    await screen.findByRole("heading", { name: "Nachfüllzentrale" });
+    await screen.findByRole("heading", { name: "Nachfüllaufträge" });
+    expect(screen.getByRole("search", { name: "Aufträge filtern" })).toBeInTheDocument();
+    expect(screen.getByRole("region", { name: "Nachfüllaufträge" })).toBeInTheDocument();
+    expect(screen.getByRole("complementary", { name: "Warnungen" })).toBeInTheDocument();
     expect(await screen.findByRole("heading", { name: "Warnungen" })).toBeInTheDocument();
     await clickElement(screen.getByRole("button", { name: /Rucksack Fahrzeug 1/ }));
     const dialog = await screen.findByRole("dialog", { name: "Nachfüllauftrag" });
@@ -35,7 +38,7 @@ describe("AdminDashboard", () => {
       "/api/alerts/warnings": { generatedAt: "2026-06-17T00:00:00.000Z", warnings: [], summary: { expiry: 0, stkDue: 0, mtkDue: 0 } }
     });
     await renderAppAt("/?orderLocationId=loc-alt");
-    await screen.findByRole("heading", { name: "Nachfüllzentrale" });
+    await screen.findByRole("heading", { name: "Nachfüllaufträge" });
     expect(screen.getByLabelText("Standort")).toHaveValue("Außenlager");
     expect(screen.getByText("Reserve Rucksack")).toBeInTheDocument();
     expect(screen.queryByText("Rucksack Fahrzeug 1")).toBeNull();

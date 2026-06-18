@@ -1,23 +1,14 @@
-import { History, Plus, Trash2 } from "lucide-react";
+import { History, Trash2 } from "lucide-react";
 import { daysUntil, formatDate } from "../../app/formatters";
-import { ListFilterBar } from "../../components/list-filter-bar";
-import { SearchableSelect } from "../../components/searchable-select";
 import { InlineError } from "../../components/state-panels";
-import { Badge, Button, Field, Panel } from "../../components/ui";
-import type { Article, Batch, Location } from "../../lib/types";
-import type { InventoryFilters } from "./types";
+import { Badge, Button, Panel } from "../../components/ui";
+import type { Batch } from "../../lib/types";
 
 export function BatchListPanel(props: {
-  articles: Article[];
   batches: Batch[];
   error: Error | null;
-  filters: InventoryFilters;
   isSubmitting: boolean;
-  locations: Location[];
-  onCreate: () => void;
   onDelete: (id: string) => void;
-  onFilterChange: (patch: Partial<InventoryFilters>) => void;
-  onResetFilters: () => void;
   onSelect: (id: string) => void;
   selectedBatchId: string | null;
   totalCount: number;
@@ -31,13 +22,7 @@ export function BatchListPanel(props: {
 
   return (
     <Panel>
-      <div className="panel-header"><div><h2>Bestandschargen</h2><p>Filtern Sie Bestand nach Suchbegriff, Artikel und Lagerort.</p></div><Button onClick={props.onCreate} type="button"><Plus data-icon="inline-start" />Charge hinzufügen</Button></div>
-      <ListFilterBar countLabel={`${props.batches.length}/${props.totalCount} sichtbar`} onReset={props.onResetFilters}>
-        <Field label="Suche"><input onChange={(event) => props.onFilterChange({ q: event.target.value })} placeholder="Artikel oder Charge" value={props.filters.q} /></Field>
-        <Field label="Standort"><SearchableSelect emptyLabel="Alle Standorte" onChange={(value) => props.onFilterChange({ locationId: value })} options={[{ label: "Alle Standorte", value: "" }, ...props.locations.map((location) => ({ label: location.name, value: location.id }))]} value={props.filters.locationId} /></Field>
-        <Field label="Artikel"><SearchableSelect emptyLabel="Alle Artikel" onChange={(value) => props.onFilterChange({ articleId: value })} options={[{ label: "Alle Artikel", value: "" }, ...props.articles.map((article) => ({ label: article.name, value: article.id }))]} value={props.filters.articleId} /></Field>
-        <label className="check-field"><input checked={props.filters.showEmpty} onChange={(event) => props.onFilterChange({ showEmpty: event.target.checked })} type="checkbox" /><span>Chargen mit Menge 0 anzeigen</span></label>
-      </ListFilterBar>
+      <div className="panel-header"><div><h2>Bestandschargen</h2><p>Chargen, Mengen und Ablaufdaten im aktuellen Bestand.</p></div></div>
       <div className="table">
         {props.batches.map((batch) => (
           <div className="table-row" key={batch.id}>

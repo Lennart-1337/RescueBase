@@ -14,7 +14,7 @@ describe("RescueBase routes", () => {
       "/api/replenishment-orders": [order]
     });
     await renderAppAt("/");
-    expect(await screen.findByRole("heading", { name: "Nachfüllzentrale" })).toBeInTheDocument();
+    expect(await screen.findByRole("heading", { name: "Nachfüllaufträge" })).toBeInTheDocument();
     expect(await screen.findByRole("button", { name: /Rucksack Fahrzeug 1/ })).toBeInTheDocument();
     expect(screen.getByText("1 Positionen · Offen")).toBeInTheDocument();
     expect(screen.getByRole("link", { name: /CSV Aufträge/ })).toHaveAttribute("href", "/api/reports/csv/replenishment");

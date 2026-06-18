@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Plus, Save, X } from "lucide-react";
 import { ListFilterBar } from "../../components/list-filter-bar";
+import { PageToolbar } from "../../components/page-layout";
 import { SearchableSelect } from "../../components/searchable-select";
 import type { Article, CreateArticleRequest, UpdateArticleRequest } from "../../lib/types";
 import { InlineError } from "../../components/state-panels";
@@ -113,9 +114,8 @@ export function ArticlePanel(props: {
   }
 
   return (
-    <Panel>
-      <div className="panel-header"><div><h2>Artikel</h2><p>Materialstamm mit Herstellerdaten, MPDG, STK und MTK.</p></div><Button onClick={openForCreate} type="button"><Plus data-icon="inline-start" />Artikel hinzufügen</Button></div>
-      <ListFilterBar countLabel={`${props.articles.length}/${props.totalCount} sichtbar`} fieldsClassName="form-grid-three" onReset={props.onResetFilters}>
+    <>
+      <PageToolbar label="Artikel filtern"><ListFilterBar countLabel={`${props.articles.length}/${props.totalCount} sichtbar`} fieldsClassName="form-grid-three" onReset={props.onResetFilters}>
         <Field label="Suche"><input onChange={(event) => props.onFilterChange({ q: event.target.value })} placeholder="Name, Hersteller oder Barcode" value={props.filters.q} /></Field>
         <Field label="Kategorie"><SearchableSelect emptyLabel="Alle Kategorien" onChange={(value) => props.onFilterChange({ category: value })} options={[{ label: "Alle Kategorien", value: "" }, ...categories.map((category) => ({ label: category, value: category }))]} value={props.filters.category} /></Field>
         <div className="form-grid">
@@ -124,7 +124,9 @@ export function ArticlePanel(props: {
           <label className="check-field"><input checked={props.filters.mtkRequired} onChange={(event) => props.onFilterChange({ mtkRequired: event.target.checked })} type="checkbox" /><span>MTK</span></label>
           <label className="check-field"><input checked={props.filters.criticalDefault} onChange={(event) => props.onFilterChange({ criticalDefault: event.target.checked })} type="checkbox" /><span>Kritisch</span></label>
         </div>
-      </ListFilterBar>
+      </ListFilterBar></PageToolbar>
+      <Panel>
+      <div className="panel-header"><div><h2>Artikel</h2><p>Materialstamm mit Herstellerdaten, MPDG, STK und MTK.</p></div><Button onClick={openForCreate} type="button"><Plus data-icon="inline-start" />Artikel hinzufügen</Button></div>
       {props.articles.length === 0 ? <div className="compact-list-empty">Noch keine Artikel angelegt.</div> : null}
       <div className="compact-list">
         {props.articles.map((article) => (
@@ -160,7 +162,8 @@ export function ArticlePanel(props: {
         </div>
         {props.error ? <InlineError error={props.error} /> : null}
       </Dialog>
-    </Panel>
+      </Panel>
+    </>
   );
 }
 

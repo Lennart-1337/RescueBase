@@ -1,4 +1,5 @@
 import { Link, Outlet, useRouterState } from "@tanstack/react-router";
+import { PageHeader } from "../../components/page-layout";
 import { cn } from "../../components/ui";
 
 const tabs = [
@@ -13,12 +14,7 @@ export function MasterDataLayout() {
 
   return (
     <>
-      <header className="topbar">
-        <div>
-          <h1>Stammdaten</h1>
-          <p>Artikel, Lagerorte und versionierte Rucksackvorlagen.</p>
-        </div>
-      </header>
+      <PageHeader description="Artikel, Orte, Vorlagen und Geräte zentral verwalten." title="Stammdaten" />
       <div aria-label="Stammdatenbereiche" className="tab-list" role="tablist">
         {tabs.map((tab) => (
           <Link
@@ -33,7 +29,7 @@ export function MasterDataLayout() {
           </Link>
         ))}
       </div>
-      <Outlet />
+      <div className="master-data-content"><Outlet /></div>
     </>
   );
 }
