@@ -22,8 +22,8 @@ export function WorkspaceMain({ children, label }: PropsWithChildren<{ label: st
   return <section aria-label={label} className="workspace-main">{children}</section>;
 }
 
-export function WorkspaceRail({ children, label }: PropsWithChildren<{ label: string }>) {
-  return <aside aria-label={label} className="workspace-rail">{children}</aside>;
+export function WorkspaceRail({ children, className, label }: PropsWithChildren<{ className?: string; label: string }>) {
+  return <aside aria-label={label} className={cn("workspace-rail", className)}>{children}</aside>;
 }
 
 export function PageSection(props: PropsWithChildren<{ description?: string; title: string }>) {

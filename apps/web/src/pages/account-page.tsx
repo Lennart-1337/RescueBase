@@ -10,7 +10,7 @@ export function AccountPage({ user }: { user: AuthenticatedUser }) {
   return (
     <>
       <PageHeader description="Zugriffsschutz und persönliche Benachrichtigungen." title="Sicherheit" />
-      <PageSection description="Anmeldung, E-Mail-Adresse und Zwei-Faktor-Schutz." title="Zugriffsschutz"><div className="admin-grid"><AccountStatusPanel user={user} /><AccountTotpPanel /><AccountEmailPanel /></div></PageSection>
+      <PageSection description="Anmeldung, E-Mail-Adresse und Zwei-Faktor-Schutz." title="Zugriffsschutz"><div className="admin-grid account-access-grid"><AccountStatusPanel user={user} /><AccountTotpPanel /><AccountEmailPanel /></div></PageSection>
       <PageSection description="Warnungen und Statusmeldungen, die Sie erhalten möchten." title="Benachrichtigungen"><AccountAlertsPanel /><div className="admin-grid account-notification-grid"><AccountOrderNotificationsPanel user={user} /></div></PageSection>
     </>
   );
