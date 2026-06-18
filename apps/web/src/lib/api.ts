@@ -35,6 +35,7 @@ export const rescueBaseApi = {
   startEmailTwoFactor: () => openApiClient.post("/auth/2fa/email/start"),
   enableEmailTwoFactor: (body: { challengeId: string; code: string }) => openApiClient.post("/auth/2fa/email/enable", body),
   disableTwoFactor: () => openApiClient.post("/auth/2fa/disable"),
+  updateOrderNotifications: (body: { enabled: boolean }) => openApiClient.post("/auth/preferences/order-notifications", body),
   inviteUser: (body: InviteUserRequest) => openApiClient.post("/auth/invite", body),
   users: () => openApiClient.get("/auth/users"),
   setUserActive: (id: string, body: { active: boolean }) => openApiClient.post("/auth/users/{id}/active", body, { params: { id } }),

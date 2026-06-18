@@ -16,6 +16,7 @@ describe("MasterDataPage", () => {
     await changeValue(within(dialog).getByLabelText("Hersteller"), "Acme Medical");
     await changeValue(within(dialog).getByLabelText("Kategorie"), "Verbrauchsmaterial");
     await changeValue(within(dialog).getByLabelText("Barcode/DataMatrix"), "040000000099");
+    await changeValue(within(dialog).getByLabelText("Artikel-Link"), "https://shop.example.org/articles/rettungsdecke");
     await clickElement(within(dialog).getByLabelText("Steril"));
     await clickElement(within(dialog).getByLabelText("Medizinprodukt (MPDG)"));
     await clickElement(within(dialog).getByLabelText("STK erforderlich"));
@@ -29,6 +30,7 @@ describe("MasterDataPage", () => {
       manufacturer: "Acme Medical",
       category: "Verbrauchsmaterial",
       barcode: "040000000099",
+      articleUrl: "https://shop.example.org/articles/rettungsdecke",
       sterile: true,
       medicalDevice: true,
       stkRequired: true,
@@ -49,6 +51,7 @@ describe("MasterDataPage", () => {
     await changeValue(within(dialog).getByLabelText("Hersteller"), "MediSafe");
     await changeValue(within(dialog).getByLabelText("Hersteller-Art.-Nr."), "VB-2000");
     await changeValue(within(dialog).getByLabelText("Barcode/DataMatrix"), "040000000099");
+    await changeValue(within(dialog).getByLabelText("Artikel-Link"), "https://shop.example.org/articles/verbandpaeckchen-gross");
     await changeValue(within(dialog).getByLabelText("Lagerhinweise"), "Trocken lagern");
     await clickElement(within(dialog).getByLabelText("Medizinprodukt (MPDG)"));
     await clickElement(within(dialog).getByLabelText("STK erforderlich"));
@@ -61,6 +64,7 @@ describe("MasterDataPage", () => {
       manufacturerPartNumber: "VB-2000",
       category: "Verbandmaterial",
       barcode: "040000000099",
+      articleUrl: "https://shop.example.org/articles/verbandpaeckchen-gross",
       sterile: true,
       medicalDevice: true,
       stkRequired: true,
@@ -191,6 +195,7 @@ describe("MasterDataPage", () => {
     expect(within(row as HTMLElement).getByText("STK 12M")).toBeInTheDocument();
     expect(within(row as HTMLElement).getByText("MTK 24M")).toBeInTheDocument();
     expect(within(row as HTMLElement).getByText("kritisch")).toBeInTheDocument();
+    expect(within(row as HTMLElement).getByRole("link", { name: "Link" })).toHaveAttribute("href", "https://shop.example.org/articles/verbandpaeckchen-mittel");
     expect(within(row as HTMLElement).getByRole("button", { name: "Bearbeiten" })).toBeInTheDocument();
     expect(within(row as HTMLElement).getByRole("button", { name: /Verbandpäckchen mittel löschen/ })).toBeInTheDocument();
   });

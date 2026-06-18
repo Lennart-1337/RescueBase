@@ -1,6 +1,6 @@
 import { Injectable, Logger } from "@nestjs/common";
 import type { AlertWarning } from "../alerts/alert-engine.js";
-import { buildAlertMail, buildEmailTwoFactorCodeMail, buildInvitationMail, buildPasswordResetMail, type MailContent } from "./mail-messages.js";
+import { buildAlertMail, buildEmailTwoFactorCodeMail, buildInvitationMail, buildNewOrderMail, buildPasswordResetMail, type MailContent } from "./mail-messages.js";
 
 export interface MailDeliveryResult {
   debugCode?: string;
@@ -29,6 +29,10 @@ export class MailService {
 
   async sendAlert(email: string, subject: string, warnings: AlertWarning[], detailsUrl: string): Promise<MailDeliveryResult> {
     return this.send({ email, ...buildAlertMail(subject, warnings, detailsUrl) });
+  }
+
+  async sendNewOrderNotification(email: string, order: Parameters<typeof buildNewOrderMail>[0], detailsUrl: string): Promise<MailDeliveryResult> {
+    return this.send({ email, ...buildNewOrderMail(order, detailsUrl) });
   }
 
   private async send(input: { email: string } & MailContent): Promise<MailDeliveryResult> {

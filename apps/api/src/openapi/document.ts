@@ -47,8 +47,9 @@ const rescueBaseOpenApiDocumentDefinition = {
         displayName: { type: "string" },
         role: ref("UserRole"),
         twoFactorEnabled: { type: "boolean" },
-        twoFactorMethod: ref("TwoFactorMethod")
-      }, ["id", "email", "displayName", "role", "twoFactorEnabled"]),
+        twoFactorMethod: ref("TwoFactorMethod"),
+        newOrderNotificationsEnabled: { type: "boolean" }
+      }, ["id", "email", "displayName", "role", "twoFactorEnabled", "newOrderNotificationsEnabled"]),
       SessionResponse: objectSchema({
         user: ref("AuthenticatedUser")
       }, ["user"]),
@@ -90,6 +91,13 @@ const rescueBaseOpenApiDocumentDefinition = {
         challengeId: { type: "string" },
         code: { type: "string" }
       }, ["challengeId", "code"]),
+      UpdateOrderNotificationsRequest: objectSchema({
+        enabled: { type: "boolean" }
+      }, ["enabled"]),
+      UpdateOrderNotificationsResponse: objectSchema({
+        ok: { type: "boolean", enum: [true] },
+        user: ref("AuthenticatedUser")
+      }, ["ok", "user"]),
       InviteUserRequest: objectSchema({
         email: { type: "string", format: "email" },
         displayName: { type: "string" },
@@ -149,6 +157,7 @@ const rescueBaseOpenApiDocumentDefinition = {
         manufacturerPartNumber: { type: "string" },
         category: { type: "string" },
         barcode: { type: "string" },
+        articleUrl: { type: "string", format: "uri" },
         sterile: { type: "boolean" },
         medicalDevice: { type: "boolean" },
         stkRequired: { type: "boolean" },
@@ -168,6 +177,7 @@ const rescueBaseOpenApiDocumentDefinition = {
         manufacturerPartNumber: { type: "string" },
         category: { type: "string" },
         barcode: { type: "string" },
+        articleUrl: { type: "string", format: "uri" },
         sterile: { type: "boolean" },
         medicalDevice: { type: "boolean" },
         stkRequired: { type: "boolean" },
@@ -185,6 +195,7 @@ const rescueBaseOpenApiDocumentDefinition = {
         manufacturerPartNumber: { type: "string" },
         category: { type: "string" },
         barcode: { type: "string" },
+        articleUrl: { type: "string", format: "uri" },
         sterile: { type: "boolean" },
         medicalDevice: { type: "boolean" },
         stkRequired: { type: "boolean" },
@@ -419,6 +430,9 @@ const rescueBaseOpenApiDocumentDefinition = {
     "/auth/2fa/totp/enable": { post: operation("Auth", "AuthController_enableTotp", request("EnableTotpRequest"), response(201, "TOTP enabled", ref("OkResponse"))) },
     "/auth/2fa/email/start": { post: operation("Auth", "AuthController_startEmailTwoFactor", {}, response(201, "Email 2FA challenge started", ref("EmailTwoFactorStartResponse"))) },
     "/auth/2fa/email/enable": { post: operation("Auth", "AuthController_enableEmailTwoFactor", request("EnableEmailTwoFactorRequest"), response(201, "Email 2FA enabled", ref("OkResponse"))) },
+    "/auth/preferences/order-notifications": {
+      post: operation("Auth", "AuthController_updateOrderNotifications", request("UpdateOrderNotificationsRequest"), response(201, "Order notifications preference updated", ref("UpdateOrderNotificationsResponse")))
+    },
     "/auth/2fa/disable": { post: operation("Auth", "AuthController_disableTwoFactor", {}, response(201, "2FA disabled", ref("OkResponse"))) },
     "/auth/invite": { post: operation("Auth", "AuthController_invite", request("InviteUserRequest"), response(201, "Invitation", ref("InviteUserResponse"))) },
     "/auth/users": { get: operation("Auth", "AuthController_users", {}, response(200, "Users", arrayOf(ref("UserSummary")))) },

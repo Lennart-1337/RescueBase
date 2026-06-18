@@ -46,7 +46,17 @@ describe("auth lifecycle", () => {
       password: "rescuebase-neu",
       displayName: "Lager Nord"
     }).expect(201);
-    await invitedUser.get("/auth/session").expect(200);
+    const invitedSession = await invitedUser.get("/auth/session").expect(200);
+    expect(invitedSession.body.user.newOrderNotificationsEnabled).toBe(false);
+
+    const updatedPreference = await invitedUser
+      .post("/auth/preferences/order-notifications")
+      .send({ enabled: true })
+      .expect(201);
+    expect(updatedPreference.body.user.newOrderNotificationsEnabled).toBe(true);
+    await invitedUser.get("/auth/session").expect(200).expect(({ body }) => {
+      expect(body.user.newOrderNotificationsEnabled).toBe(true);
+    });
 
     const reset = await request(server)
       .post("/auth/password-reset/request")

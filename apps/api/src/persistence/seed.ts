@@ -54,6 +54,7 @@ export async function seedRescueBaseDevelopmentData(prisma: PrismaClient): Promi
       manufacturerPartNumber: "VB-1000",
       category: "Verbandmaterial",
       barcode: "040000000001",
+      articleUrl: "https://shop.example.org/articles/verbandpaeckchen-mittel",
       sterile: true,
       storageNotes: "Trocken lagern",
       criticalDefault: false
@@ -70,6 +71,7 @@ export async function seedRescueBaseDevelopmentData(prisma: PrismaClient): Promi
       manufacturerPartNumber: "TQ-TACT-01",
       category: "Medizinprodukt",
       barcode: "040000000002",
+      articleUrl: "https://shop.example.org/articles/tourniquet",
       sterile: false,
       medicalDevice: true,
       stkRequired: true,
@@ -89,6 +91,7 @@ export async function seedRescueBaseDevelopmentData(prisma: PrismaClient): Promi
       manufacturerPartNumber: "GL-M-200",
       category: "Schutzausrüstung",
       barcode: "040000000003",
+      articleUrl: "https://shop.example.org/articles/einmalhandschuhe-m",
       sterile: false,
       storageNotes: "Vor Hitze schützen",
       criticalDefault: false

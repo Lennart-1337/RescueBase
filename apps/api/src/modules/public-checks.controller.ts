@@ -7,6 +7,7 @@ import {
   type CheckCompletionInput
 } from "@rescuebase/domain";
 import { AuditService } from "../services/audit.service.js";
+import { OrderNotificationsService } from "../services/order-notifications.service.js";
 import { PrismaService } from "../persistence/prisma.service.js";
 import { mapOrder, mapTemplate, toIsoDateTime, type KitRecord } from "../persistence/mappers.js";
 import { PublicRoute } from "../auth/auth.decorators.js";
@@ -20,7 +21,8 @@ type PublicKitRecord = Omit<KitRecord, "location">;
 export class PublicChecksController {
   constructor(
     private readonly prisma: PrismaService,
-    private readonly audit: AuditService
+    private readonly audit: AuditService,
+    private readonly orderNotifications: OrderNotificationsService
   ) {}
 
   @Get(":token")
@@ -127,6 +129,10 @@ export class PublicChecksController {
 
       return { check, replenishmentOrder };
     });
+
+    if (result.replenishmentOrder) {
+      await this.orderNotifications.notifyNewOrder(result.replenishmentOrder.id);
+    }
 
     return {
       check: {

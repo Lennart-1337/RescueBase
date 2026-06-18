@@ -51,6 +51,7 @@ model User {
   twoFactorSecret  String?
   twoFactorEnabled Boolean  @default(false)
   twoFactorMethod  TwoFactorMethod?
+  newOrderNotificationsEnabled Boolean @default(false)
   active           Boolean  @default(true)
   sessions         UserSession[]
   invitations      UserInvitation[]
@@ -139,6 +140,7 @@ model Article {
   manufacturerPartNumber String?
   category              String?
   barcode               String?
+  articleUrl            String?
   sterile               Boolean            @default(false)
   medicalDevice         Boolean            @default(false)
   stkRequired           Boolean            @default(false)

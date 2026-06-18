@@ -29,6 +29,7 @@ export const article = {
   manufacturerPartNumber: "VB-1000",
   category: "Verbandmaterial",
   barcode: "040000000001",
+  articleUrl: "https://shop.example.org/articles/verbandpaeckchen-mittel",
   sterile: true,
   medicalDevice: false,
   stkRequired: false,

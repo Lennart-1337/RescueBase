@@ -1,6 +1,6 @@
-import { Pencil, Trash2 } from "lucide-react";
+import { ExternalLink, Pencil, Trash2 } from "lucide-react";
 import type { Article } from "../../lib/types";
-import { Badge, Button } from "../../components/ui";
+import { AnchorButton, Badge, Button } from "../../components/ui";
 
 export function ArticleListRow(props: {
   article: Article;
@@ -25,6 +25,7 @@ export function ArticleListRow(props: {
         {article.criticalDefault ? <Badge tone="info">kritisch</Badge> : null}
       </div>
       <div className="row-action-buttons">
+        {article.articleUrl ? <AnchorButton href={article.articleUrl} rel="noreferrer" target="_blank" variant="secondary"><ExternalLink data-icon="inline-start" />Link</AnchorButton> : null}
         <Button onClick={props.onEdit} type="button" variant="ghost">
           <Pencil data-icon="inline-start" />
           Bearbeiten

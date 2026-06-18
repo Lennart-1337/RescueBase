@@ -85,6 +85,10 @@ describe("RescueBase OpenAPI contract", () => {
       operationId: "AuthController_enableEmailTwoFactor",
       requestBody: expect.any(Object)
     });
+    expect(rescueBaseOpenApiDocument.paths["/auth/preferences/order-notifications"]?.post).toMatchObject({
+      operationId: "AuthController_updateOrderNotifications",
+      requestBody: expect.any(Object)
+    });
   });
 
   it("includes MPDG and STK/MTK metadata on articles", () => {

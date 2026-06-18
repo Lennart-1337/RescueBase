@@ -228,6 +228,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/auth/preferences/order-notifications": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["AuthController_updateOrderNotifications"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/auth/2fa/disable": {
         parameters: {
             query?: never;
@@ -750,6 +766,7 @@ export interface components {
             role: components["schemas"]["UserRole"];
             twoFactorEnabled: boolean;
             twoFactorMethod?: components["schemas"]["TwoFactorMethod"];
+            newOrderNotificationsEnabled: boolean;
         };
         SessionResponse: {
             user: components["schemas"]["AuthenticatedUser"];
@@ -794,6 +811,14 @@ export interface components {
         EnableEmailTwoFactorRequest: {
             challengeId: string;
             code: string;
+        };
+        UpdateOrderNotificationsRequest: {
+            enabled: boolean;
+        };
+        UpdateOrderNotificationsResponse: {
+            /** @enum {boolean} */
+            ok: true;
+            user: components["schemas"]["AuthenticatedUser"];
         };
         InviteUserRequest: {
             /** Format: email */
@@ -864,6 +889,8 @@ export interface components {
             manufacturerPartNumber?: string;
             category?: string;
             barcode?: string;
+            /** Format: uri */
+            articleUrl?: string;
             sterile: boolean;
             medicalDevice?: boolean;
             stkRequired?: boolean;
@@ -885,6 +912,8 @@ export interface components {
             manufacturerPartNumber?: string;
             category?: string;
             barcode?: string;
+            /** Format: uri */
+            articleUrl?: string;
             sterile: boolean;
             medicalDevice?: boolean;
             stkRequired?: boolean;
@@ -902,6 +931,8 @@ export interface components {
             manufacturerPartNumber?: string;
             category?: string;
             barcode?: string;
+            /** Format: uri */
+            articleUrl?: string;
             sterile: boolean;
             medicalDevice?: boolean;
             stkRequired?: boolean;
@@ -1473,6 +1504,30 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["OkResponse"];
+                };
+            };
+        };
+    };
+    AuthController_updateOrderNotifications: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateOrderNotificationsRequest"];
+            };
+        };
+        responses: {
+            /** @description Order notifications preference updated */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UpdateOrderNotificationsResponse"];
                 };
             };
         };

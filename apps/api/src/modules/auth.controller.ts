@@ -326,6 +326,29 @@ export class AuthController {
     return { ok: true };
   }
 
+  @Post("preferences/order-notifications")
+  async updateOrderNotifications(
+    @Req() request: AuthenticatedRequest,
+    @Body() body: { enabled: boolean }
+  ): Promise<{ ok: true; user: ReturnType<AuthService["toAuthenticatedUser"]> extends infer U ? U : never }> {
+    if (typeof body.enabled !== "boolean") {
+      throw new BadRequestException("Benachrichtigungsstatus muss gesetzt sein.");
+    }
+    const user = await this.prisma.user.update({
+      where: { id: request.user?.id },
+      data: { newOrderNotificationsEnabled: body.enabled }
+    });
+    await this.audit.record({
+      actorType: "USER",
+      actorLabel: request.user?.email ?? "Benutzer",
+      action: "ORDER_NOTIFICATIONS_UPDATED",
+      entityType: "User",
+      entityId: user.id,
+      payload: { enabled: body.enabled }
+    });
+    return { ok: true, user: this.auth.toAuthenticatedUser(user) };
+  }
+
   @Roles("ADMIN")
   @Get("users")
   async users(): Promise<AdminUserListItem[]> {

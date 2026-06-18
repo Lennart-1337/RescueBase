@@ -67,3 +67,46 @@ export function buildAlertMail(subject: string, warnings: AlertWarning[], detail
     debugUrl: detailsUrl
   };
 }
+
+export function buildNewOrderMail(order: {
+  id: string;
+  createdAt: Date;
+  items: Array<{ articleName: string; quantity: number; reason: string; unit: string }>;
+  kitCode: string;
+  kitName: string;
+  locationName: string;
+}, detailsUrl: string): MailContent {
+  const lines = order.items.map((item) => `${item.quantity} ${item.unit} ${item.articleName} (${formatReason(item.reason)})`);
+  return {
+    subject: `RescueBase Nachfüllauftrag ${order.kitName}`,
+    text: [
+      "Ein neuer Nachfüllauftrag wurde erstellt.",
+      "",
+      `Auftrag: ${order.id}`,
+      `Rucksack: ${order.kitName} (${order.kitCode})`,
+      `Standort: ${order.locationName}`,
+      `Erstellt: ${order.createdAt.toISOString()}`,
+      "",
+      ...lines.map((line) => `- ${line}`),
+      "",
+      `Details: ${detailsUrl}`
+    ].join("\n"),
+    html: renderMailLayout({
+      title: "Neuer Nachfüllauftrag",
+      intro: `Für ${order.kitName} wurde ein neuer Nachfüllauftrag erstellt.`,
+      bodyHtml: [
+        `<p style="margin:0 0 12px;color:#657386;line-height:1.6;">Standort: ${order.locationName}<br/>Rucksackcode: ${order.kitCode}<br/>Auftrag: ${order.id}</p>`,
+        renderList(lines)
+      ].join(""),
+      ctaLabel: "Aufträge ansehen",
+      ctaUrl: detailsUrl
+    }),
+    debugUrl: detailsUrl
+  };
+}
+
+function formatReason(reason: string) {
+  if (reason === "DISCARDED_EXPIRED") return "Ablauf entsorgt";
+  if (reason === "SHORTAGE_AND_DISCARDED_EXPIRED") return "Fehlbestand und Ablauf";
+  return "Fehlbestand";
+}

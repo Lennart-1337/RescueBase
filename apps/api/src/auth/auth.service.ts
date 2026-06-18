@@ -17,6 +17,7 @@ type UserSessionView = {
   role: UserRole;
   twoFactorEnabled: boolean;
   twoFactorMethod: TwoFactorMethod | null;
+  newOrderNotificationsEnabled: boolean;
   deletedAt?: Date | null;
 };
 
@@ -27,6 +28,7 @@ export interface AuthenticatedUser {
   role: UserRole;
   twoFactorEnabled: boolean;
   twoFactorMethod?: TwoFactorMethod;
+  newOrderNotificationsEnabled: boolean;
 }
 
 @Injectable()
@@ -219,7 +221,8 @@ export class AuthService {
       displayName: user.displayName,
       role: user.role,
       twoFactorEnabled: user.twoFactorEnabled,
-      twoFactorMethod: user.twoFactorMethod ?? undefined
+      twoFactorMethod: user.twoFactorMethod ?? undefined,
+      newOrderNotificationsEnabled: user.newOrderNotificationsEnabled
     };
   }
 

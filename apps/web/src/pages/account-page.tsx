@@ -1,6 +1,7 @@
 import type { AuthenticatedUser } from "../lib/types";
 import { AccountAlertsPanel } from "./account/account-alerts-panel";
 import { AccountEmailPanel } from "./account/account-email-panel";
+import { AccountOrderNotificationsPanel } from "./account/account-order-notifications-panel";
 import { AccountStatusPanel } from "./account/account-status-panel";
 import { AccountTotpPanel } from "./account/account-totp-panel";
 
@@ -13,7 +14,10 @@ export function AccountPage({ user }: { user: AuthenticatedUser }) {
         <AccountTotpPanel />
       </section>
       <AccountAlertsPanel />
-      <AccountEmailPanel />
+      <section className="admin-grid">
+        <AccountEmailPanel />
+        <AccountOrderNotificationsPanel user={user} />
+      </section>
     </>
   );
 }

@@ -118,6 +118,9 @@
           },
           "twoFactorMethod": {
             "$ref": "#/components/schemas/TwoFactorMethod"
+          },
+          "newOrderNotificationsEnabled": {
+            "type": "boolean"
           }
         },
         "required": [
@@ -125,7 +128,8 @@
           "email",
           "displayName",
           "role",
-          "twoFactorEnabled"
+          "twoFactorEnabled",
+          "newOrderNotificationsEnabled"
         ],
         "additionalProperties": false
       },
@@ -289,6 +293,37 @@
         "required": [
           "challengeId",
           "code"
+        ],
+        "additionalProperties": false
+      },
+      "UpdateOrderNotificationsRequest": {
+        "type": "object",
+        "properties": {
+          "enabled": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "enabled"
+        ],
+        "additionalProperties": false
+      },
+      "UpdateOrderNotificationsResponse": {
+        "type": "object",
+        "properties": {
+          "ok": {
+            "type": "boolean",
+            "enum": [
+              true
+            ]
+          },
+          "user": {
+            "$ref": "#/components/schemas/AuthenticatedUser"
+          }
+        },
+        "required": [
+          "ok",
+          "user"
         ],
         "additionalProperties": false
       },
@@ -532,6 +567,10 @@
           "barcode": {
             "type": "string"
           },
+          "articleUrl": {
+            "type": "string",
+            "format": "uri"
+          },
           "sterile": {
             "type": "boolean"
           },
@@ -598,6 +637,10 @@
           "barcode": {
             "type": "string"
           },
+          "articleUrl": {
+            "type": "string",
+            "format": "uri"
+          },
           "sterile": {
             "type": "boolean"
           },
@@ -654,6 +697,10 @@
           },
           "barcode": {
             "type": "string"
+          },
+          "articleUrl": {
+            "type": "string",
+            "format": "uri"
           },
           "sterile": {
             "type": "boolean"
@@ -2020,6 +2067,36 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/OkResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/preferences/order-notifications": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "operationId": "AuthController_updateOrderNotifications",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateOrderNotificationsRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Order notifications preference updated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UpdateOrderNotificationsResponse"
                 }
               }
             }

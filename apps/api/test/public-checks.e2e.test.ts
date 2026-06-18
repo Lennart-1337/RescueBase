@@ -2,6 +2,7 @@ import type { INestApplication } from "@nestjs/common";
 import { jest } from "@jest/globals";
 import request from "supertest";
 import { bootstrapTestApp } from "./bootstrap-test-app.js";
+import { MailService } from "../src/services/mail.service.js";
 
 jest.setTimeout(30_000);
 
@@ -22,10 +23,13 @@ describe("public check flow", () => {
   it("creates a replenishment order, books a partial batch fulfillment and exposes audit plus reports", async () => {
     const server = app.getHttpServer();
     const agent = request.agent(server);
+    const mailService = app.get(MailService);
+    const sendSpy = jest.spyOn(mailService, "sendNewOrderNotification").mockResolvedValue({});
     await agent
       .post("/auth/login")
       .send({ email: "admin@rescuebase.local", password: "rescuebase-admin" })
       .expect(201);
+    await agent.post("/auth/preferences/order-notifications").send({ enabled: true }).expect(201);
     const publicKit = await request(server).get("/public/kits/SAN-RS-001-ZUGANG-2026").expect(200);
 
     expect(publicKit.body.kit.name).toBe("Rucksack Fahrzeug 1");
@@ -48,6 +52,11 @@ describe("public check flow", () => {
     expect(completed.body.replenishmentOrder.items).toEqual([
       expect.objectContaining({ articleName: "Verbandpäckchen mittel", requestedQuantity: 2 })
     ]);
+    expect(sendSpy).toHaveBeenCalledWith(
+      "admin@rescuebase.local",
+      expect.objectContaining({ kitName: "Rucksack Fahrzeug 1" }),
+      expect.any(String)
+    );
 
     const orderId = completed.body.replenishmentOrder.id as string;
     const beforeInventory = await agent.get("/inventory/batches").expect(200);
@@ -117,6 +126,7 @@ describe("public check flow", () => {
         manufacturerPartNumber: "VB-2000",
         category: "Verbandmaterial",
         barcode: "040000000099",
+        articleUrl: "https://shop.example.org/articles/verbandpaeckchen-gross",
         sterile: true,
         medicalDevice: true,
         stkRequired: true,
