@@ -161,6 +161,7 @@ describe("inventory procurement", () => {
 
     await agent
       .get("/reports/procurement.pdf?q=Verband")
+      .expect("cache-control", "no-store, max-age=0")
       .expect("content-type", /application\/pdf/)
       .expect(200);
   });
