@@ -1,0 +1,2 @@
+ALTER TABLE `Article`
+  ADD COLUMN `articleUrl` VARCHAR(191) NULL;

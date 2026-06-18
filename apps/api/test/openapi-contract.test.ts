@@ -16,6 +16,10 @@ describe("RescueBase OpenAPI contract", () => {
         "UpdateKitRequest",
         "BatchCorrectionRequest",
         "InventoryMovement",
+        "InventoryTarget",
+        "InventoryProcurementOrder",
+        "ReceiveProcurementOrderRequest",
+        "InventoryAutomationConfig",
         "CompleteCheckRequest",
         "FulfillOrderRequest",
         "ReplenishmentOrder"
@@ -68,6 +72,27 @@ describe("RescueBase OpenAPI contract", () => {
     });
   });
 
+  it("describes inventory target and procurement workflows", () => {
+    expect(rescueBaseOpenApiDocument.paths["/inventory/targets"]?.get).toMatchObject({
+      operationId: "InventoryController_targets"
+    });
+    expect(rescueBaseOpenApiDocument.paths["/inventory/targets/{articleId}/{locationId}"]?.put).toMatchObject({
+      operationId: "InventoryController_upsertTarget",
+      requestBody: expect.any(Object)
+    });
+    expect(rescueBaseOpenApiDocument.paths["/inventory/targets/reconcile"]?.post).toMatchObject({
+      operationId: "InventoryController_reconcileTargets"
+    });
+    expect(rescueBaseOpenApiDocument.paths["/inventory/procurement-orders/{id}/receive"]?.post).toMatchObject({
+      operationId: "InventoryController_receiveProcurementOrder",
+      requestBody: expect.any(Object)
+    });
+    expect(rescueBaseOpenApiDocument.paths["/inventory/automation-config"]?.post).toMatchObject({
+      operationId: "InventoryController_updateAutomationConfig",
+      requestBody: expect.any(Object)
+    });
+  });
+
   it("describes invitation, password reset, and both 2FA enrollment flows", () => {
     expect(rescueBaseOpenApiDocument.paths["/auth/invitations/accept"]?.post).toMatchObject({
       operationId: "AuthController_acceptInvitation",
@@ -83,6 +108,10 @@ describe("RescueBase OpenAPI contract", () => {
     });
     expect(rescueBaseOpenApiDocument.paths["/auth/2fa/email/enable"]?.post).toMatchObject({
       operationId: "AuthController_enableEmailTwoFactor",
+      requestBody: expect.any(Object)
+    });
+    expect(rescueBaseOpenApiDocument.paths["/auth/preferences/order-notifications"]?.post).toMatchObject({
+      operationId: "AuthController_updateOrderNotifications",
       requestBody: expect.any(Object)
     });
   });
@@ -104,6 +133,17 @@ describe("RescueBase OpenAPI contract", () => {
       operationId: "ReportsController_qrLabel",
       parameters: expect.arrayContaining([
         expect.objectContaining({ name: "format", in: "query" })
+      ])
+    });
+  });
+
+  it("describes the procurement PDF report filters", () => {
+    expect(rescueBaseOpenApiDocument.paths["/reports/procurement.pdf"]?.get).toMatchObject({
+      operationId: "ReportsController_procurement",
+      parameters: expect.arrayContaining([
+        expect.objectContaining({ name: "articleId", in: "query" }),
+        expect.objectContaining({ name: "locationId", in: "query" }),
+        expect.objectContaining({ name: "q", in: "query" })
       ])
     });
   });

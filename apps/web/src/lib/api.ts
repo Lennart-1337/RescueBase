@@ -9,10 +9,13 @@ import type {
   CreateTemplateRequest,
   FulfillOrderRequest,
   InviteUserRequest,
+  ReceiveProcurementOrderRequest,
   ReviseTemplateRequest,
   UpdateArticleRequest,
+  UpdateInventoryAutomationConfigRequest,
   UpdateKitRequest,
-  UpdateLocationRequest
+  UpdateLocationRequest,
+  UpsertInventoryTargetRequest
 } from "./types";
 
 export { ApiError };
@@ -35,6 +38,7 @@ export const rescueBaseApi = {
   startEmailTwoFactor: () => openApiClient.post("/auth/2fa/email/start"),
   enableEmailTwoFactor: (body: { challengeId: string; code: string }) => openApiClient.post("/auth/2fa/email/enable", body),
   disableTwoFactor: () => openApiClient.post("/auth/2fa/disable"),
+  updateOrderNotifications: (body: { enabled: boolean }) => openApiClient.post("/auth/preferences/order-notifications", body),
   inviteUser: (body: InviteUserRequest) => openApiClient.post("/auth/invite", body),
   users: () => openApiClient.get("/auth/users"),
   setUserActive: (id: string, body: { active: boolean }) => openApiClient.post("/auth/users/{id}/active", body, { params: { id } }),
@@ -56,6 +60,19 @@ export const rescueBaseApi = {
   createBatch: (body: CreateBatchRequest) => openApiClient.post("/inventory/batches", body),
   correctBatch: (id: string, body: BatchCorrectionRequest) => openApiClient.post("/inventory/batches/{id}/corrections", body, { params: { id } }),
   deleteBatch: (id: string) => openApiClient.delete("/inventory/batches/{id}", { params: { id } }),
+  inventoryTargets: () => openApiClient.get("/inventory/targets"),
+  upsertInventoryTarget: (articleId: string, locationId: string, body: UpsertInventoryTargetRequest) =>
+    openApiClient.put("/inventory/targets/{articleId}/{locationId}", body, { params: { articleId, locationId } }),
+  clearInventoryTarget: (articleId: string, locationId: string) =>
+    openApiClient.delete("/inventory/targets/{articleId}/{locationId}", { params: { articleId, locationId } }),
+  reconcileInventoryTargets: () => openApiClient.post("/inventory/targets/reconcile"),
+  procurementOrders: () => openApiClient.get("/inventory/procurement-orders"),
+  startProcurementOrder: (id: string) => openApiClient.post("/inventory/procurement-orders/{id}/start", { params: { id } }),
+  receiveProcurementOrder: (id: string, body: ReceiveProcurementOrderRequest) =>
+    openApiClient.post("/inventory/procurement-orders/{id}/receive", body, { params: { id } }),
+  cancelProcurementOrder: (id: string) => openApiClient.post("/inventory/procurement-orders/{id}/cancel", { params: { id } }),
+  inventoryAutomationConfig: () => openApiClient.get("/inventory/automation-config"),
+  updateInventoryAutomationConfig: (body: UpdateInventoryAutomationConfigRequest) => openApiClient.post("/inventory/automation-config", body),
   kits: () => openApiClient.get("/catalog/kits"),
   createKit: (body: CreateKitRequest) => openApiClient.post("/catalog/kits", body),
   updateKit: (id: string, body: UpdateKitRequest) => openApiClient.patch("/catalog/kits/{id}", body, { params: { id } }),

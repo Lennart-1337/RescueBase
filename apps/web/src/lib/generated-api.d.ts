@@ -228,6 +228,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/auth/preferences/order-notifications": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["AuthController_updateOrderNotifications"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/auth/2fa/disable": {
         parameters: {
             query?: never;
@@ -484,6 +500,134 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/inventory/targets": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["InventoryController_targets"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/inventory/targets/reconcile": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["InventoryController_reconcileTargets"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/inventory/targets/{articleId}/{locationId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: operations["InventoryController_upsertTarget"];
+        post?: never;
+        delete: operations["InventoryController_clearTarget"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/inventory/procurement-orders": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["InventoryController_procurementOrders"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/inventory/procurement-orders/{id}/start": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["InventoryController_startProcurementOrder"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/inventory/procurement-orders/{id}/receive": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["InventoryController_receiveProcurementOrder"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/inventory/procurement-orders/{id}/cancel": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["InventoryController_cancelProcurementOrder"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/inventory/automation-config": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["InventoryController_automationConfig"];
+        put?: never;
+        post: operations["InventoryController_updateAutomationConfig"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/inventory/batches/{id}/movements": {
         parameters: {
             query?: never;
@@ -692,6 +836,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/reports/procurement.pdf": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["ReportsController_procurement"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/reports/qr-label/{kitId}.pdf": {
         parameters: {
             query?: never;
@@ -737,6 +897,8 @@ export interface components {
         /** @enum {string} */
         ReplenishmentStatus: "OPEN" | "IN_PROGRESS" | "DONE" | "CANCELLED";
         /** @enum {string} */
+        InventoryProcurementStatus: "OPEN" | "IN_PROGRESS" | "DONE" | "CANCELLED";
+        /** @enum {string} */
         ReplenishmentReason: "SHORTAGE" | "DISCARDED_EXPIRED" | "SHORTAGE_AND_DISCARDED_EXPIRED";
         SetupStatus: {
             initialized: boolean;
@@ -750,6 +912,7 @@ export interface components {
             role: components["schemas"]["UserRole"];
             twoFactorEnabled: boolean;
             twoFactorMethod?: components["schemas"]["TwoFactorMethod"];
+            newOrderNotificationsEnabled: boolean;
         };
         SessionResponse: {
             user: components["schemas"]["AuthenticatedUser"];
@@ -794,6 +957,14 @@ export interface components {
         EnableEmailTwoFactorRequest: {
             challengeId: string;
             code: string;
+        };
+        UpdateOrderNotificationsRequest: {
+            enabled: boolean;
+        };
+        UpdateOrderNotificationsResponse: {
+            /** @enum {boolean} */
+            ok: true;
+            user: components["schemas"]["AuthenticatedUser"];
         };
         InviteUserRequest: {
             /** Format: email */
@@ -864,6 +1035,8 @@ export interface components {
             manufacturerPartNumber?: string;
             category?: string;
             barcode?: string;
+            /** Format: uri */
+            articleUrl?: string;
             sterile: boolean;
             medicalDevice?: boolean;
             stkRequired?: boolean;
@@ -885,6 +1058,8 @@ export interface components {
             manufacturerPartNumber?: string;
             category?: string;
             barcode?: string;
+            /** Format: uri */
+            articleUrl?: string;
             sterile: boolean;
             medicalDevice?: boolean;
             stkRequired?: boolean;
@@ -902,6 +1077,8 @@ export interface components {
             manufacturerPartNumber?: string;
             category?: string;
             barcode?: string;
+            /** Format: uri */
+            articleUrl?: string;
             sterile: boolean;
             medicalDevice?: boolean;
             stkRequired?: boolean;
@@ -1033,6 +1210,7 @@ export interface components {
             articleId: string;
             locationId: string;
             replenishmentOrderId?: string;
+            inventoryProcurementOrderId?: string;
             templatePositionId?: string;
             type: string;
             quantity: number;
@@ -1043,6 +1221,86 @@ export interface components {
             };
             /** Format: date-time */
             createdAt: string;
+        };
+        InventoryTargetArticle: {
+            id: string;
+            name: string;
+            unit: string;
+            /** Format: uri */
+            articleUrl?: string;
+        };
+        InventoryTargetLocation: {
+            id: string;
+            name: string;
+        };
+        InventoryProcurementReceipt: {
+            id: string;
+            batchId: string;
+            quantity: number;
+            lotNumber: string;
+            /** Format: date */
+            expiresAt: string;
+            /** Format: date-time */
+            verifiedAt: string;
+            verifiedBy: string;
+            /** Format: date-time */
+            createdAt: string;
+        };
+        InventoryProcurementOrder: {
+            id: string;
+            articleId: string;
+            locationId: string;
+            status: components["schemas"]["InventoryProcurementStatus"];
+            requestedQuantity: number;
+            receivedQuantity: number;
+            remainingQuantity: number;
+            /** Format: uri */
+            articleUrlSnapshot?: string;
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: date-time */
+            updatedAt: string;
+            article: components["schemas"]["InventoryTargetArticle"];
+            location: components["schemas"]["InventoryTargetLocation"];
+            receipts: components["schemas"]["InventoryProcurementReceipt"][];
+        };
+        InventoryTarget: {
+            id: string;
+            articleId: string;
+            locationId: string;
+            targetQuantity: number;
+            currentQuantity: number;
+            shortageQuantity: number;
+            article: components["schemas"]["InventoryTargetArticle"];
+            location: components["schemas"]["InventoryTargetLocation"];
+            procurementOrder?: components["schemas"]["InventoryProcurementOrder"];
+        };
+        UpsertInventoryTargetRequest: {
+            targetQuantity: number;
+        };
+        InventoryReconcileResponse: {
+            checked: number;
+            created: number;
+            updated: number;
+            cancelled: number;
+        };
+        ReceiveProcurementOrderItemRequest: {
+            lotNumber: string;
+            /** Format: date */
+            expiresAt: string;
+            quantity: number;
+        };
+        ReceiveProcurementOrderRequest: {
+            items: components["schemas"]["ReceiveProcurementOrderItemRequest"][];
+            verified: boolean;
+        };
+        InventoryAutomationConfig: {
+            dailyReconcileTime: string;
+            /** Format: date-time */
+            lastReconciledAt?: string;
+        };
+        UpdateInventoryAutomationConfigRequest: {
+            dailyReconcileTime: string;
         };
         ExpiryWarning: {
             id: string;
@@ -1473,6 +1731,30 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["OkResponse"];
+                };
+            };
+        };
+    };
+    AuthController_updateOrderNotifications: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateOrderNotificationsRequest"];
+            };
+        };
+        responses: {
+            /** @description Order notifications preference updated */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UpdateOrderNotificationsResponse"];
                 };
             };
         };
@@ -2023,6 +2305,230 @@ export interface operations {
             };
         };
     };
+    InventoryController_targets: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Inventory targets */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InventoryTarget"][];
+                };
+            };
+        };
+    };
+    InventoryController_reconcileTargets: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Inventory targets reconciled */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InventoryReconcileResponse"];
+                };
+            };
+        };
+    };
+    InventoryController_upsertTarget: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                articleId: string;
+                locationId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpsertInventoryTargetRequest"];
+            };
+        };
+        responses: {
+            /** @description Inventory target saved */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InventoryTarget"];
+                };
+            };
+        };
+    };
+    InventoryController_clearTarget: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                articleId: string;
+                locationId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Inventory target cleared */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OkResponse"];
+                };
+            };
+        };
+    };
+    InventoryController_procurementOrders: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Procurement orders */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InventoryProcurementOrder"][];
+                };
+            };
+        };
+    };
+    InventoryController_startProcurementOrder: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Procurement order started */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InventoryProcurementOrder"];
+                };
+            };
+        };
+    };
+    InventoryController_receiveProcurementOrder: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ReceiveProcurementOrderRequest"];
+            };
+        };
+        responses: {
+            /** @description Procurement order received */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InventoryProcurementOrder"];
+                };
+            };
+        };
+    };
+    InventoryController_cancelProcurementOrder: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Procurement order cancelled */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InventoryProcurementOrder"];
+                };
+            };
+        };
+    };
+    InventoryController_automationConfig: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Inventory automation config */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InventoryAutomationConfig"];
+                };
+            };
+        };
+    };
+    InventoryController_updateAutomationConfig: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateInventoryAutomationConfigRequest"];
+            };
+        };
+        responses: {
+            /** @description Inventory automation config updated */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InventoryAutomationConfig"];
+                };
+            };
+        };
+    };
     InventoryController_movements: {
         parameters: {
             query?: never;
@@ -2307,6 +2813,30 @@ export interface operations {
                 };
                 content: {
                     "text/csv": string;
+                };
+            };
+        };
+    };
+    ReportsController_procurement: {
+        parameters: {
+            query?: {
+                articleId?: string;
+                locationId?: string;
+                q?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Binary report */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/pdf": string;
                 };
             };
         };

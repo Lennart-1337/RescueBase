@@ -1,5 +1,5 @@
 {$APP_DOMAIN} {
-  tls /srv/caddy-config/origin-cert.pem /srv/caddy-config/origin-key.pem
+  tls /srv/certs/origin-cert.pem /srv/certs/origin-key.pem
   encode zstd gzip
 
   handle_path /api/* {

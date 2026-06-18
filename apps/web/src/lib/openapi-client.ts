@@ -3,7 +3,7 @@ import type { paths } from "./generated-api";
 const apiBase = "/api";
 const json = "application/json";
 
-type HttpMethod = "get" | "post" | "patch" | "delete";
+type HttpMethod = "get" | "post" | "put" | "patch" | "delete";
 type PathFor<Method extends HttpMethod> = {
   [Path in keyof paths]: paths[Path][Method] extends never | undefined ? never : Path
 }[keyof paths];
@@ -43,6 +43,21 @@ export const openApiClient = {
     const options = (body === undefined ? args[0] : args[1]) as { params?: Record<string, string> } | undefined;
     return requestJson(buildPath(path, options?.params), {
       method: "POST",
+      headers: { "content-type": json },
+      body: body === undefined ? undefined : JSON.stringify(body)
+    });
+  },
+
+  put<Path extends PathFor<"put">>(
+    path: Path,
+    ...args: RequestBody<Operation<Path, "put">> extends never
+      ? [options?: PathParameters<Operation<Path, "put">> extends never ? undefined : { params: PathParameters<Operation<Path, "put">> }]
+      : [body: RequestBody<Operation<Path, "put">>, options?: PathParameters<Operation<Path, "put">> extends never ? undefined : { params: PathParameters<Operation<Path, "put">> }]
+  ): Promise<JsonResponse<Operation<Path, "put">>> {
+    const body = args.length > 0 && !looksLikeOptions(args[0]) ? args[0] : undefined;
+    const options = (body === undefined ? args[0] : args[1]) as { params?: Record<string, string> } | undefined;
+    return requestJson(buildPath(path, options?.params), {
+      method: "PUT",
       headers: { "content-type": json },
       body: body === undefined ? undefined : JSON.stringify(body)
     });

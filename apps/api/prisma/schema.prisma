@@ -25,6 +25,13 @@ enum ReplenishmentStatus {
   CANCELLED
 }
 
+enum InventoryProcurementStatus {
+  OPEN
+  IN_PROGRESS
+  DONE
+  CANCELLED
+}
+
 enum AuditActorType {
   SYSTEM
   USER
@@ -51,6 +58,7 @@ model User {
   twoFactorSecret  String?
   twoFactorEnabled Boolean  @default(false)
   twoFactorMethod  TwoFactorMethod?
+  newOrderNotificationsEnabled Boolean @default(false)
   active           Boolean  @default(true)
   sessions         UserSession[]
   invitations      UserInvitation[]
@@ -121,6 +129,8 @@ model Location {
   kind      String
   batches   Batch[]
   kits      Kit[]
+  inventoryTargets InventoryTarget[]
+  procurementOrders InventoryProcurementOrder[]
   medicalDevices MedicalDevice[]
   alertSubscriptions AlertSubscription[]
   alertEvents AlertEvent[]
@@ -139,6 +149,7 @@ model Article {
   manufacturerPartNumber String?
   category              String?
   barcode               String?
+  articleUrl            String?
   sterile               Boolean            @default(false)
   medicalDevice         Boolean            @default(false)
   stkRequired           Boolean            @default(false)
@@ -149,6 +160,8 @@ model Article {
   notes                String?            @db.Text
   criticalDefault      Boolean            @default(false)
   batches              Batch[]
+  inventoryTargets     InventoryTarget[]
+  procurementOrders    InventoryProcurementOrder[]
   medicalDevices       MedicalDevice[]
   templateItems        TemplatePosition[]
   deletedAt            DateTime?
@@ -168,6 +181,7 @@ model Batch {
   article    Article  @relation(fields: [articleId], references: [id])
   location   Location @relation(fields: [locationId], references: [id])
   movements  InventoryMovement[]
+  procurementReceipts InventoryProcurementReceipt[]
   deletedAt  DateTime?
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
@@ -175,6 +189,57 @@ model Batch {
   @@index([articleId, expiresAt])
   @@index([locationId])
   @@index([deletedAt])
+}
+
+model InventoryTarget {
+  id             String   @id @default(cuid())
+  articleId      String
+  locationId     String
+  targetQuantity Int
+  article        Article  @relation(fields: [articleId], references: [id])
+  location       Location @relation(fields: [locationId], references: [id])
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@unique([articleId, locationId])
+  @@index([locationId])
+}
+
+model InventoryProcurementOrder {
+  id                 String                     @id @default(cuid())
+  articleId          String
+  locationId         String
+  status             InventoryProcurementStatus @default(OPEN)
+  requestedQuantity  Int
+  receivedQuantity   Int                        @default(0)
+  articleUrlSnapshot String?
+  activeKey          String?                    @unique
+  article            Article                    @relation(fields: [articleId], references: [id])
+  location           Location                   @relation(fields: [locationId], references: [id])
+  receipts           InventoryProcurementReceipt[]
+  movements          InventoryMovement[]
+  createdAt          DateTime                   @default(now())
+  updatedAt          DateTime                   @updatedAt
+
+  @@index([articleId, locationId, status])
+  @@index([locationId])
+}
+
+model InventoryProcurementReceipt {
+  id                 String                    @id @default(cuid())
+  orderId            String
+  batchId            String
+  quantity           Int
+  lotNumber          String
+  expiresAt          DateTime
+  verifiedAt         DateTime
+  verifiedBy         String
+  order              InventoryProcurementOrder @relation(fields: [orderId], references: [id])
+  batch              Batch                     @relation(fields: [batchId], references: [id])
+  createdAt          DateTime                  @default(now())
+
+  @@index([orderId])
+  @@index([batchId])
 }
 
 model KitTemplate {
@@ -290,6 +355,7 @@ model InventoryMovement {
   articleId            String
   locationId           String
   replenishmentOrderId String?
+  inventoryProcurementOrderId String?
   templatePositionId   String?
   type                 String
   quantity             Int
@@ -298,9 +364,19 @@ model InventoryMovement {
   metadata             Json?
   createdAt            DateTime @default(now())
   batch                Batch    @relation(fields: [batchId], references: [id])
+  inventoryProcurementOrder InventoryProcurementOrder? @relation(fields: [inventoryProcurementOrderId], references: [id])
 
   @@index([batchId])
   @@index([replenishmentOrderId])
+  @@index([inventoryProcurementOrderId])
+}
+
+model InventoryAutomationConfig {
+  id                 String    @id @default("singleton")
+  dailyReconcileTime String    @default("02:00")
+  lastReconciledAt   DateTime?
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
 }
 
 model AuditEvent {

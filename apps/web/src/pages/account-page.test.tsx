@@ -50,4 +50,19 @@ describe("AccountPage", () => {
     expect(within(expiryGroup).getByRole("checkbox", { name: /Hauptlager/ })).toBeInTheDocument();
     expect(within(expiryGroup).getByRole("checkbox", { name: /zu Hause/ })).toBeInTheDocument();
   });
+
+  it("saves the order mail preference from the account page", async () => {
+    stubFetch({
+      "/api/auth/setup/status": { initialized: true, firstAdminEmail: "admin@rescuebase.local" },
+      "/api/auth/session": { user: { id: "user-admin", email: "admin@rescuebase.local", displayName: "Admin", role: "ADMIN", twoFactorEnabled: false, newOrderNotificationsEnabled: false } },
+      "/api/catalog/locations": [],
+      "/api/alerts/subscriptions/me": [],
+      "/api/auth/preferences/order-notifications": { ok: true, user: { id: "user-admin", email: "admin@rescuebase.local", displayName: "Admin", role: "ADMIN", twoFactorEnabled: false, newOrderNotificationsEnabled: true } }
+    });
+
+    await renderAppAt("/admin/account");
+    const panel = (await screen.findByRole("heading", { name: "Auftrags-E-Mails" })).closest("section") as HTMLElement;
+    await clickElement(within(panel).getByRole("checkbox", { name: /Neue Nachfüllaufträge per E-Mail senden/ }));
+    await clickElement(within(panel).getByRole("button", { name: "Speichern" }));
+  });
 });

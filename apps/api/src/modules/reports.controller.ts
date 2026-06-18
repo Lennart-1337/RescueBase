@@ -22,6 +22,19 @@ export class ReportsController {
     return this.reports.replenishmentCsv();
   }
 
+  @Get("procurement.pdf")
+  async procurement(
+    @Query("articleId") articleId: string | undefined,
+    @Query("locationId") locationId: string | undefined,
+    @Query("q") q: string | undefined,
+    @Res() response: Response
+  ): Promise<void> {
+    const pdf = await this.reports.procurementPdf({ articleId, locationId, q });
+    response.setHeader("content-type", "application/pdf");
+    response.setHeader("content-disposition", "inline; filename=\"beschaffungsliste.pdf\"");
+    response.send(pdf);
+  }
+
   @Get("qr-label/:kitId.pdf")
   async qrLabel(@Param("kitId") kitId: string, @Query("format") format: string | undefined, @Res() response: Response): Promise<void> {
     if (format && format !== "a4" && format !== "label") {

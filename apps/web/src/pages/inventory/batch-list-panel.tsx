@@ -5,13 +5,7 @@ import { SearchableSelect } from "../../components/searchable-select";
 import { InlineError } from "../../components/state-panels";
 import { Badge, Button, Field, Panel } from "../../components/ui";
 import type { Article, Batch, Location } from "../../lib/types";
-
-type InventoryFilters = {
-  articleId: string;
-  locationId: string;
-  q: string;
-  showEmpty: boolean;
-};
+import type { InventoryFilters } from "./types";
 
 export function BatchListPanel(props: {
   articles: Article[];

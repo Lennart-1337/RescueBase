@@ -494,6 +494,7 @@ type ArticleWriteBody = {
   manufacturerPartNumber?: string;
   category?: string;
   barcode?: string;
+  articleUrl?: string;
   sterile?: boolean;
   medicalDevice?: boolean;
   stkRequired?: boolean;
@@ -515,6 +516,7 @@ function toArticleWriteData(body: ArticleWriteBody) {
     manufacturerPartNumber: optionalText(body.manufacturerPartNumber),
     category: optionalText(body.category),
     barcode: optionalText(body.barcode),
+    articleUrl: optionalUrl(body.articleUrl),
     sterile: Boolean(body.sterile),
     medicalDevice: Boolean(body.medicalDevice),
     stkRequired,
@@ -545,6 +547,20 @@ function normalizeControlInterval(value: number | string | undefined, required: 
 function optionalText(value?: string) {
   const normalized = value?.trim();
   return normalized ? normalized : null;
+}
+
+function optionalUrl(value?: string) {
+  const normalized = optionalText(value);
+  if (!normalized) return null;
+  try {
+    const parsed = new URL(normalized);
+    if (!["http:", "https:"].includes(parsed.protocol)) {
+      throw new Error("unsupported protocol");
+    }
+    return parsed.toString();
+  } catch {
+    throw new BadRequestException("Artikel-Link muss eine gültige http- oder https-URL sein.");
+  }
 }
 
 function isPrismaUniqueError(error: unknown): boolean {

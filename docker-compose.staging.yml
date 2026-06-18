@@ -12,6 +12,7 @@ services:
     build: !reset null
     pull_policy: always
     environment:
+      NODE_ENV: production
       APP_PUBLIC_URL: ${APP_PUBLIC_URL}
       JWT_SECRET: ${JWT_SECRET}
       RESEND_API_KEY: ${RESEND_API_KEY}
@@ -26,9 +27,11 @@ services:
 
   caddy:
     command: ["caddy", "run", "--config", "/srv/caddy-config/Caddyfile.staging", "--adapter", "caddyfile"]
+    environment:
+      APP_DOMAIN: ${APP_DOMAIN}
     volumes:
-      - ${CLOUDFLARE_ORIGIN_CERT_HOST_FILE}:/srv/caddy-config/origin-cert.pem:ro
-      - ${CLOUDFLARE_ORIGIN_KEY_HOST_FILE}:/srv/caddy-config/origin-key.pem:ro
+      - ${CLOUDFLARE_ORIGIN_CERT_HOST_FILE}:/srv/certs/origin-cert.pem:ro
+      - ${CLOUDFLARE_ORIGIN_KEY_HOST_FILE}:/srv/certs/origin-key.pem:ro
 
   backup:
     image: ${API_IMAGE}:${IMAGE_TAG}

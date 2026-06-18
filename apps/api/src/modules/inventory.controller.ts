@@ -1,7 +1,8 @@
-import { BadRequestException, Body, Controller, Delete, Get, NotFoundException, Param, Post } from "@nestjs/common";
+import { BadRequestException, Body, Controller, Delete, Get, NotFoundException, Param, Post, Put } from "@nestjs/common";
 import { ApiTags } from "@nestjs/swagger";
 import { AlertsService } from "../services/alerts.service.js";
 import { AuditService } from "../services/audit.service.js";
+import { InventoryProcurementService } from "../services/inventory-procurement.service.js";
 import { PrismaService } from "../persistence/prisma.service.js";
 import { mapBatch, mapMovement, type BatchRecord, type MovementRecord } from "../persistence/mappers.js";
 import { Roles } from "../auth/auth.decorators.js";
@@ -15,7 +16,8 @@ export class InventoryController {
   constructor(
     private readonly prisma: PrismaService,
     private readonly audit: AuditService,
-    private readonly alerts: AlertsService
+    private readonly alerts: AlertsService,
+    private readonly procurement: InventoryProcurementService
   ) {}
 
   @Get("batches")
@@ -26,6 +28,69 @@ export class InventoryController {
       orderBy: [{ article: { name: "asc" } }, { expiresAt: "asc" }]
     });
     return batches.map(mapBatch);
+  }
+
+  @Get("targets")
+  async targets() {
+    return this.procurement.listTargets();
+  }
+
+  @Put("targets/:articleId/:locationId")
+  async upsertTarget(
+    @Param("articleId") articleId: string,
+    @Param("locationId") locationId: string,
+    @Body() body: { targetQuantity: number }
+  ) {
+    return this.procurement.upsertTarget(articleId, locationId, body.targetQuantity);
+  }
+
+  @Delete("targets/:articleId/:locationId")
+  async clearTarget(
+    @Param("articleId") articleId: string,
+    @Param("locationId") locationId: string
+  ) {
+    return this.procurement.clearTarget(articleId, locationId);
+  }
+
+  @Post("targets/reconcile")
+  @Roles("ADMIN")
+  async reconcileTargets() {
+    return this.procurement.reconcile("manual");
+  }
+
+  @Get("procurement-orders")
+  async procurementOrders() {
+    return this.procurement.listProcurementOrders();
+  }
+
+  @Post("procurement-orders/:id/start")
+  async startProcurementOrder(@Param("id") id: string) {
+    return this.procurement.startOrder(id);
+  }
+
+  @Post("procurement-orders/:id/receive")
+  async receiveProcurementOrder(
+    @Param("id") id: string,
+    @Body() body: { items: Array<{ lotNumber: string; expiresAt: string; quantity: number }>; verified: boolean }
+  ) {
+    return this.procurement.receiveOrder(id, body);
+  }
+
+  @Post("procurement-orders/:id/cancel")
+  async cancelProcurementOrder(@Param("id") id: string) {
+    return this.procurement.cancelOrder(id);
+  }
+
+  @Get("automation-config")
+  @Roles("ADMIN")
+  async automationConfig() {
+    return this.procurement.getAutomationConfig();
+  }
+
+  @Post("automation-config")
+  @Roles("ADMIN")
+  async updateAutomationConfig(@Body() body: { dailyReconcileTime: string }) {
+    return this.procurement.updateAutomationConfig(body);
   }
 
   @Get("expiry-warnings")

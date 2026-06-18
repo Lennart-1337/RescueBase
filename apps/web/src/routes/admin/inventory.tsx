@@ -22,5 +22,5 @@ export const Route = createFileRoute("/admin/inventory")({
 });
 
 function InventoryRoute() {
-  return <AdminRoute>{() => <InventoryPage />}</AdminRoute>;
+  return <AdminRoute>{(user) => <InventoryPage user={user} />}</AdminRoute>;
 }

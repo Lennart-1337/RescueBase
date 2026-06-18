@@ -1,4 +1,5 @@
 import { Injectable, NotFoundException } from "@nestjs/common";
+import { InventoryProcurementStatus } from "@prisma/client";
 import PDFDocument from "pdfkit";
 import QRCode from "qrcode";
 import { PrismaService } from "../persistence/prisma.service.js";
@@ -17,6 +18,20 @@ const palette = {
 };
 
 type QrPdfFormat = "a4" | "label";
+type ProcurementPdfFilters = { articleId?: string; locationId?: string; q?: string };
+type ProcurementOrderReportRecord = {
+  id: string;
+  articleId: string;
+  locationId: string;
+  status: InventoryProcurementStatus;
+  requestedQuantity: number;
+  receivedQuantity: number;
+  articleUrlSnapshot: string | null;
+  updatedAt: Date;
+  article: { name: string; unit: string; manufacturer: string | null; manufacturerPartNumber: string | null; articleUrl: string | null };
+  location: { name: string };
+  receipts: Array<{ lotNumber: string }>;
+};
 
 @Injectable()
 export class ReportService {
@@ -51,6 +66,53 @@ export class ReportService {
       )
     );
     return `${header}${rows.join("\n")}\n`;
+  }
+
+  async procurementPdf(filters: ProcurementPdfFilters): Promise<Buffer> {
+    const orders: ProcurementOrderReportRecord[] = await this.prisma.inventoryProcurementOrder.findMany({
+      where: { status: { in: [InventoryProcurementStatus.OPEN, InventoryProcurementStatus.IN_PROGRESS] } },
+      include: {
+        article: { select: { name: true, unit: true, manufacturer: true, manufacturerPartNumber: true, articleUrl: true } },
+        location: { select: { name: true } },
+        receipts: { select: { lotNumber: true } }
+      },
+      orderBy: [{ status: "asc" }, { updatedAt: "desc" }]
+    });
+    const filtered = orders.filter((order) => matchesProcurementFilters(filters, order));
+    const totalRemaining = filtered.reduce((sum, order) => sum + Math.max(order.requestedQuantity - order.receivedQuantity, 0), 0);
+    const filterLabel = summarizeProcurementFilters(filters);
+
+    return this.renderPdf((doc) => {
+      this.drawProcurementHeader(doc, filterLabel, totalRemaining, filtered.length);
+
+      if (filtered.length === 0) {
+        doc.moveDown(1);
+        doc.fillColor(palette.muted).font("Helvetica").fontSize(11).text(
+          "Für die gesetzten Filter gibt es derzeit keine offenen Beschaffungsaufträge.",
+          48,
+          doc.y,
+          { width: doc.page.width - 96 }
+        );
+        return;
+      }
+
+      let y = this.drawProcurementTableHeader(doc, doc.y + 14);
+      filtered.forEach((order, index) => {
+        const rowHeight = this.measureProcurementOrderRow(doc, order);
+        if (needsPageBreak({
+          currentY: y,
+          requiredHeight: rowHeight,
+          pageHeight: doc.page.height,
+          bottomMargin: doc.page.margins.bottom,
+          reserve: 18
+        })) {
+          doc.addPage();
+          this.drawContinuationHeader(doc, "Einkaufsliste", "Beschaffungsliste · Fortsetzung");
+          y = this.drawProcurementTableHeader(doc, doc.y + 12);
+        }
+        y = this.drawProcurementOrderRow(doc, y, order, index);
+      });
+    });
   }
 
   async qrLabelPdf(kitId: string, format: QrPdfFormat): Promise<Buffer> {
@@ -307,6 +369,72 @@ export class ReportService {
     return `${result}...`;
   }
 
+  private drawProcurementHeader(doc: PDFKit.PDFDocument, filterLabel: string, totalRemaining: number, orderCount: number) {
+    doc.fillColor("#000000").font("Helvetica-Bold").fontSize(11).text("BESCHAFFUNG", 48, 48);
+    doc.fontSize(24).text("Einkaufsliste", 48, 64);
+    doc.font("Helvetica").fontSize(10).fillColor("#444444").text("Offene Beschaffungsaufträge für den Einkauf.", 48, 92);
+    doc.moveTo(48, 116).lineTo(doc.page.width - 48, 116).strokeColor("#000000").stroke();
+    doc.fillColor("#000000").font("Helvetica").fontSize(10)
+      .text(`Stand: ${formatDateTime(new Date())}`, 48, 128)
+      .text(`Positionen: ${orderCount}`, 220, 128)
+      .text(`Offene Menge: ${totalRemaining}`, 340, 128)
+      .text(`Filter: ${filterLabel}`, 48, 144, { width: doc.page.width - 96 });
+    doc.moveTo(48, 166).lineTo(doc.page.width - 48, 166).strokeColor(palette.line).stroke();
+    doc.y = 174;
+  }
+
+  private drawProcurementTableHeader(doc: PDFKit.PDFDocument, y: number) {
+    doc.fillColor("#000000").font("Helvetica-Bold").fontSize(8);
+    doc.text("ARTIKEL", 48, y);
+    doc.text("STANDORT / DETAILS", 230, y);
+    doc.text("OFFEN", 478, y, { width: 56, align: "right" });
+    doc.moveTo(48, y + 14).lineTo(doc.page.width - 48, y + 14).strokeColor("#000000").stroke();
+    return y + 20;
+  }
+
+  private measureProcurementOrderRow(doc: PDFKit.PDFDocument, order: ProcurementOrderReportRecord) {
+    const articleHeight = doc.font("Helvetica-Bold").fontSize(11).heightOfString(order.article.name, { width: 170 });
+    const detailHeight = doc.font("Helvetica").fontSize(8).heightOfString(procurementDetails(order).join("\n"), { width: 232 });
+    const articleUrl = order.article.articleUrl ?? order.articleUrlSnapshot;
+    const shopHeight = articleUrl
+      ? doc.heightOfString(`Shop: ${articleUrl}`, { width: 404 })
+      : 0;
+    return 16 + Math.max(articleHeight, detailHeight, 26) + shopHeight;
+  }
+
+  private drawProcurementOrderRow(doc: PDFKit.PDFDocument, y: number, order: ProcurementOrderReportRecord, index: number) {
+    const rowHeight = this.measureProcurementOrderRow(doc, order);
+    const remainingQuantity = Math.max(order.requestedQuantity - order.receivedQuantity, 0);
+    const articleUrl = order.article.articleUrl ?? order.articleUrlSnapshot;
+    const detailText = procurementDetails(order).join("\n");
+
+    if (index % 2 === 0) {
+      doc.rect(48, y - 4, doc.page.width - 96, rowHeight + 4).fill("#fafafa");
+    }
+
+    doc.fillColor("#000000").font("Helvetica-Bold").fontSize(11).text(order.article.name, 48, y, { width: 170 });
+    doc.font("Helvetica").fontSize(8).fillColor("#222222").text(detailText, 230, y, { width: 232 });
+    doc.fillColor("#000000").font("Helvetica-Bold").fontSize(16).text(String(remainingQuantity), 478, y + 2, { width: 56, align: "right" });
+    doc.font("Helvetica").fontSize(8).text(order.article.unit, 478, y + 22, { width: 56, align: "right" });
+    doc.font("Helvetica").fontSize(7).fillColor("#444444").text(formatProcurementStatus(order.status), 478, y + 34, { width: 56, align: "right" });
+
+    if (articleUrl) {
+      const shopY = y + Math.max(
+        doc.heightOfString(order.article.name, { width: 170 }),
+        doc.heightOfString(detailText, { width: 232 }),
+        34
+      ) + 6;
+      doc.fillColor("#000000").font("Helvetica").fontSize(8).text(`Shop: ${articleUrl}`, 48, shopY, {
+        width: 486,
+        link: articleUrl,
+        underline: true
+      });
+    }
+
+    doc.moveTo(48, y + rowHeight + 4).lineTo(doc.page.width - 48, y + rowHeight + 4).strokeColor(palette.line).stroke();
+    return y + rowHeight + 10;
+  }
+
   private renderPdf(
     draw: (doc: PDFKit.PDFDocument) => void,
     options: { margin?: number; size?: string | [number, number] } = {}
@@ -347,6 +475,43 @@ function formatOrderStatus(status: string) {
     return "Erledigt";
   }
   return "Storniert";
+}
+
+function formatProcurementStatus(status: InventoryProcurementStatus) {
+  if (status === InventoryProcurementStatus.OPEN) return "Offen";
+  return "In Bearbeitung";
+}
+
+function procurementDetails(order: ProcurementOrderReportRecord) {
+  const details = [
+    `Standort: ${order.location.name}`,
+    `Soll ${order.requestedQuantity} · Erhalten ${order.receivedQuantity} · Offen ${Math.max(order.requestedQuantity - order.receivedQuantity, 0)} ${order.article.unit}`
+  ];
+  if (order.article.manufacturer) details.push(`Hersteller: ${order.article.manufacturer}`);
+  if (order.article.manufacturerPartNumber) details.push(`Art.-Nr.: ${order.article.manufacturerPartNumber}`);
+  return details;
+}
+
+function matchesProcurementFilters(filters: ProcurementPdfFilters, order: ProcurementOrderReportRecord) {
+  if (filters.articleId && filters.articleId !== order.articleId) return false;
+  if (filters.locationId && filters.locationId !== order.locationId) return false;
+  const q = filters.q?.trim().toLowerCase();
+  if (!q) return true;
+  return [
+    order.id,
+    order.article.name,
+    order.location.name,
+    ...order.receipts.map((receipt) => receipt.lotNumber)
+  ].some((value) => value.toLowerCase().includes(q));
+}
+
+function summarizeProcurementFilters(filters: ProcurementPdfFilters) {
+  const parts = [
+    filters.articleId ? `Artikel ${filters.articleId}` : "",
+    filters.locationId ? `Standort ${filters.locationId}` : "",
+    filters.q ? `Suche ${filters.q}` : ""
+  ].filter(Boolean);
+  return parts.length > 0 ? parts.join(" · ") : "Keine";
 }
 
 function formatDateTime(value: Date) {

@@ -74,6 +74,15 @@
           "CANCELLED"
         ]
       },
+      "InventoryProcurementStatus": {
+        "type": "string",
+        "enum": [
+          "OPEN",
+          "IN_PROGRESS",
+          "DONE",
+          "CANCELLED"
+        ]
+      },
       "ReplenishmentReason": {
         "type": "string",
         "enum": [
@@ -118,6 +127,9 @@
           },
           "twoFactorMethod": {
             "$ref": "#/components/schemas/TwoFactorMethod"
+          },
+          "newOrderNotificationsEnabled": {
+            "type": "boolean"
           }
         },
         "required": [
@@ -125,7 +137,8 @@
           "email",
           "displayName",
           "role",
-          "twoFactorEnabled"
+          "twoFactorEnabled",
+          "newOrderNotificationsEnabled"
         ],
         "additionalProperties": false
       },
@@ -289,6 +302,37 @@
         "required": [
           "challengeId",
           "code"
+        ],
+        "additionalProperties": false
+      },
+      "UpdateOrderNotificationsRequest": {
+        "type": "object",
+        "properties": {
+          "enabled": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "enabled"
+        ],
+        "additionalProperties": false
+      },
+      "UpdateOrderNotificationsResponse": {
+        "type": "object",
+        "properties": {
+          "ok": {
+            "type": "boolean",
+            "enum": [
+              true
+            ]
+          },
+          "user": {
+            "$ref": "#/components/schemas/AuthenticatedUser"
+          }
+        },
+        "required": [
+          "ok",
+          "user"
         ],
         "additionalProperties": false
       },
@@ -532,6 +576,10 @@
           "barcode": {
             "type": "string"
           },
+          "articleUrl": {
+            "type": "string",
+            "format": "uri"
+          },
           "sterile": {
             "type": "boolean"
           },
@@ -598,6 +646,10 @@
           "barcode": {
             "type": "string"
           },
+          "articleUrl": {
+            "type": "string",
+            "format": "uri"
+          },
           "sterile": {
             "type": "boolean"
           },
@@ -654,6 +706,10 @@
           },
           "barcode": {
             "type": "string"
+          },
+          "articleUrl": {
+            "type": "string",
+            "format": "uri"
           },
           "sterile": {
             "type": "boolean"
@@ -1159,6 +1215,9 @@
           "replenishmentOrderId": {
             "type": "string"
           },
+          "inventoryProcurementOrderId": {
+            "type": "string"
+          },
           "templatePositionId": {
             "type": "string"
           },
@@ -1192,6 +1251,314 @@
           "quantity",
           "actorLabel",
           "createdAt"
+        ],
+        "additionalProperties": false
+      },
+      "InventoryTargetArticle": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "unit": {
+            "type": "string"
+          },
+          "articleUrl": {
+            "type": "string",
+            "format": "uri"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "unit"
+        ],
+        "additionalProperties": false
+      },
+      "InventoryTargetLocation": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "name"
+        ],
+        "additionalProperties": false
+      },
+      "InventoryProcurementReceipt": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "batchId": {
+            "type": "string"
+          },
+          "quantity": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "lotNumber": {
+            "type": "string"
+          },
+          "expiresAt": {
+            "type": "string",
+            "format": "date"
+          },
+          "verifiedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "verifiedBy": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "batchId",
+          "quantity",
+          "lotNumber",
+          "expiresAt",
+          "verifiedAt",
+          "verifiedBy",
+          "createdAt"
+        ],
+        "additionalProperties": false
+      },
+      "InventoryProcurementOrder": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "articleId": {
+            "type": "string"
+          },
+          "locationId": {
+            "type": "string"
+          },
+          "status": {
+            "$ref": "#/components/schemas/InventoryProcurementStatus"
+          },
+          "requestedQuantity": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "receivedQuantity": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "remainingQuantity": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "articleUrlSnapshot": {
+            "type": "string",
+            "format": "uri"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "article": {
+            "$ref": "#/components/schemas/InventoryTargetArticle"
+          },
+          "location": {
+            "$ref": "#/components/schemas/InventoryTargetLocation"
+          },
+          "receipts": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/InventoryProcurementReceipt"
+            }
+          }
+        },
+        "required": [
+          "id",
+          "articleId",
+          "locationId",
+          "status",
+          "requestedQuantity",
+          "receivedQuantity",
+          "remainingQuantity",
+          "createdAt",
+          "updatedAt",
+          "article",
+          "location",
+          "receipts"
+        ],
+        "additionalProperties": false
+      },
+      "InventoryTarget": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "articleId": {
+            "type": "string"
+          },
+          "locationId": {
+            "type": "string"
+          },
+          "targetQuantity": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "currentQuantity": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "shortageQuantity": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "article": {
+            "$ref": "#/components/schemas/InventoryTargetArticle"
+          },
+          "location": {
+            "$ref": "#/components/schemas/InventoryTargetLocation"
+          },
+          "procurementOrder": {
+            "$ref": "#/components/schemas/InventoryProcurementOrder"
+          }
+        },
+        "required": [
+          "id",
+          "articleId",
+          "locationId",
+          "targetQuantity",
+          "currentQuantity",
+          "shortageQuantity",
+          "article",
+          "location"
+        ],
+        "additionalProperties": false
+      },
+      "UpsertInventoryTargetRequest": {
+        "type": "object",
+        "properties": {
+          "targetQuantity": {
+            "type": "integer",
+            "minimum": 1
+          }
+        },
+        "required": [
+          "targetQuantity"
+        ],
+        "additionalProperties": false
+      },
+      "InventoryReconcileResponse": {
+        "type": "object",
+        "properties": {
+          "checked": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "created": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "updated": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "cancelled": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "checked",
+          "created",
+          "updated",
+          "cancelled"
+        ],
+        "additionalProperties": false
+      },
+      "ReceiveProcurementOrderItemRequest": {
+        "type": "object",
+        "properties": {
+          "lotNumber": {
+            "type": "string"
+          },
+          "expiresAt": {
+            "type": "string",
+            "format": "date"
+          },
+          "quantity": {
+            "type": "integer",
+            "minimum": 1
+          }
+        },
+        "required": [
+          "lotNumber",
+          "expiresAt",
+          "quantity"
+        ],
+        "additionalProperties": false
+      },
+      "ReceiveProcurementOrderRequest": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ReceiveProcurementOrderItemRequest"
+            }
+          },
+          "verified": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "items",
+          "verified"
+        ],
+        "additionalProperties": false
+      },
+      "InventoryAutomationConfig": {
+        "type": "object",
+        "properties": {
+          "dailyReconcileTime": {
+            "type": "string"
+          },
+          "lastReconciledAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "dailyReconcileTime"
+        ],
+        "additionalProperties": false
+      },
+      "UpdateInventoryAutomationConfigRequest": {
+        "type": "object",
+        "properties": {
+          "dailyReconcileTime": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "dailyReconcileTime"
         ],
         "additionalProperties": false
       },
@@ -2027,6 +2394,36 @@
         }
       }
     },
+    "/auth/preferences/order-notifications": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "operationId": "AuthController_updateOrderNotifications",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateOrderNotificationsRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Order notifications preference updated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UpdateOrderNotificationsResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/auth/2fa/disable": {
       "post": {
         "tags": [
@@ -2729,6 +3126,304 @@
         }
       }
     },
+    "/inventory/targets": {
+      "get": {
+        "tags": [
+          "Lager"
+        ],
+        "operationId": "InventoryController_targets",
+        "responses": {
+          "200": {
+            "description": "Inventory targets",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/InventoryTarget"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/inventory/targets/reconcile": {
+      "post": {
+        "tags": [
+          "Lager"
+        ],
+        "operationId": "InventoryController_reconcileTargets",
+        "responses": {
+          "201": {
+            "description": "Inventory targets reconciled",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InventoryReconcileResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/inventory/targets/{articleId}/{locationId}": {
+      "put": {
+        "tags": [
+          "Lager"
+        ],
+        "operationId": "InventoryController_upsertTarget",
+        "parameters": [
+          {
+            "name": "articleId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "locationId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpsertInventoryTargetRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Inventory target saved",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InventoryTarget"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Lager"
+        ],
+        "operationId": "InventoryController_clearTarget",
+        "parameters": [
+          {
+            "name": "articleId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "locationId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Inventory target cleared",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OkResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/inventory/procurement-orders": {
+      "get": {
+        "tags": [
+          "Lager"
+        ],
+        "operationId": "InventoryController_procurementOrders",
+        "responses": {
+          "200": {
+            "description": "Procurement orders",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/InventoryProcurementOrder"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/inventory/procurement-orders/{id}/start": {
+      "post": {
+        "tags": [
+          "Lager"
+        ],
+        "operationId": "InventoryController_startProcurementOrder",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Procurement order started",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InventoryProcurementOrder"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/inventory/procurement-orders/{id}/receive": {
+      "post": {
+        "tags": [
+          "Lager"
+        ],
+        "operationId": "InventoryController_receiveProcurementOrder",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReceiveProcurementOrderRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Procurement order received",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InventoryProcurementOrder"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/inventory/procurement-orders/{id}/cancel": {
+      "post": {
+        "tags": [
+          "Lager"
+        ],
+        "operationId": "InventoryController_cancelProcurementOrder",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Procurement order cancelled",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InventoryProcurementOrder"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/inventory/automation-config": {
+      "get": {
+        "tags": [
+          "Lager"
+        ],
+        "operationId": "InventoryController_automationConfig",
+        "responses": {
+          "200": {
+            "description": "Inventory automation config",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InventoryAutomationConfig"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Lager"
+        ],
+        "operationId": "InventoryController_updateAutomationConfig",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateInventoryAutomationConfigRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Inventory automation config updated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InventoryAutomationConfig"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/inventory/batches/{id}/movements": {
       "get": {
         "tags": [
@@ -3105,6 +3800,53 @@
             "description": "Binary report",
             "content": {
               "text/csv": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/reports/procurement.pdf": {
+      "get": {
+        "tags": [
+          "Reports"
+        ],
+        "operationId": "ReportsController_procurement",
+        "parameters": [
+          {
+            "name": "articleId",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "locationId",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "q",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Binary report",
+            "content": {
+              "application/pdf": {
                 "schema": {
                   "type": "string",
                   "format": "binary"
