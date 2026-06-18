@@ -49,7 +49,26 @@ describe("MailService", () => {
     expect(JSON.parse(String(fetchMock.mock.calls[0]?.[1]?.body))).toMatchObject({
       from: "RescueBase <noreply@projecty.cc>",
       to: ["lager@rescuebase.local"],
-      subject: "RescueBase Sicherheitscode"
+      subject: "RescueBase Sicherheitscode",
+      html: expect.stringContaining("RB")
     });
+  });
+
+  it("renders a branded call-to-action email for password resets", async () => {
+    process.env.RESEND_API_KEY = "re_test_123";
+    const fetchMock = jest.fn().mockResolvedValue({
+      ok: true,
+      status: 200,
+      text: async () => ""
+    });
+    global.fetch = fetchMock as typeof fetch;
+
+    await new MailService().sendPasswordReset("lager@rescuebase.local", "https://rescuebase.local/reset-123");
+
+    expect(JSON.parse(String(fetchMock.mock.calls[0]?.[1]?.body))).toMatchObject({
+      subject: "RescueBase Passwort zurücksetzen",
+      html: expect.stringContaining("Passwort zurücksetzen")
+    });
+    expect(JSON.parse(String(fetchMock.mock.calls[0]?.[1]?.body)).html).toContain("https://rescuebase.local/reset-123");
   });
 });

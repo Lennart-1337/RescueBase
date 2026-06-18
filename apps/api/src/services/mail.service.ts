@@ -1,5 +1,6 @@
 import { Injectable, Logger } from "@nestjs/common";
 import type { AlertWarning } from "../alerts/alert-engine.js";
+import { buildAlertMail, buildEmailTwoFactorCodeMail, buildInvitationMail, buildPasswordResetMail, type MailContent } from "./mail-messages.js";
 
 export interface MailDeliveryResult {
   debugCode?: string;
@@ -10,48 +11,27 @@ export interface MailDeliveryResult {
 export class MailService {
   private readonly logger = new Logger(MailService.name);
 
-  sendCustom(input: { email: string; subject: string; text: string; debugUrl?: string; debugCode?: string }): Promise<MailDeliveryResult> {
+  sendCustom(input: { email: string; subject: string; text: string; html?: string; debugUrl?: string; debugCode?: string }): Promise<MailDeliveryResult> {
     return this.send(input);
   }
 
   async sendInvitation(email: string, invitationUrl: string): Promise<MailDeliveryResult> {
-    return this.send({
-      email,
-      subject: "RescueBase Einladung",
-      text: `Sie wurden zu RescueBase eingeladen.\n\nEinladung öffnen: ${invitationUrl}\n`,
-      debugUrl: invitationUrl
-    });
+    return this.send({ email, ...buildInvitationMail(invitationUrl) });
   }
 
   async sendPasswordReset(email: string, resetUrl: string): Promise<MailDeliveryResult> {
-    return this.send({
-      email,
-      subject: "RescueBase Passwort zurücksetzen",
-      text: `Setzen Sie Ihr RescueBase-Passwort zurück.\n\nLink: ${resetUrl}\n`,
-      debugUrl: resetUrl
-    });
+    return this.send({ email, ...buildPasswordResetMail(resetUrl) });
   }
 
   async sendEmailTwoFactorCode(email: string, code: string): Promise<MailDeliveryResult> {
-    return this.send({
-      email,
-      subject: "RescueBase Sicherheitscode",
-      text: `Ihr RescueBase-Sicherheitscode lautet: ${code}\n`,
-      debugCode: code
-    });
+    return this.send({ email, ...buildEmailTwoFactorCodeMail(code) });
   }
 
   async sendAlert(email: string, subject: string, warnings: AlertWarning[], detailsUrl: string): Promise<MailDeliveryResult> {
-    const lines = warnings.map((warning) => `- ${warning.title} (${warning.locationName ?? "ohne Standort"}) · Fällig: ${warning.dueAt.slice(0, 10)}`);
-    return this.send({
-      email,
-      subject,
-      text: [`RescueBase Warnung`, "", ...lines, "", `Details: ${detailsUrl}`].join("\n"),
-      debugUrl: detailsUrl
-    });
+    return this.send({ email, ...buildAlertMail(subject, warnings, detailsUrl) });
   }
 
-  private async send(input: { email: string; subject: string; text: string; debugUrl?: string; debugCode?: string }): Promise<MailDeliveryResult> {
+  private async send(input: { email: string } & MailContent): Promise<MailDeliveryResult> {
     const apiKey = process.env.RESEND_API_KEY?.trim();
     if (!apiKey) {
       this.logger.log(`MAIL ${input.subject} -> ${input.email}\n${input.text}`);
@@ -71,7 +51,8 @@ export class MailService {
         from: process.env.RESEND_FROM ?? "RescueBase <noreply@example.org>",
         to: [input.email],
         subject: input.subject,
-        text: input.text
+        text: input.text,
+        html: input.html
       })
     });
     if (!response.ok) {
