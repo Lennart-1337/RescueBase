@@ -110,6 +110,8 @@ describe("InventoryPage", () => {
   });
 
   it("filters targets and procurement orders from the URL", async () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2026-06-18T12:55:00.000Z"));
     stubFetch(baseInventoryRoutes({
       "/api/inventory/targets": [
         inventoryTarget,
@@ -126,7 +128,13 @@ describe("InventoryPage", () => {
     expect(screen.getAllByText("Verbandpäckchen mittel").length).toBeGreaterThan(0);
     expect(screen.queryByText("Reserveartikel")).toBeNull();
     expect(screen.getAllByRole("link", { name: "Link" })[0]).toHaveAttribute("href", "https://shop.example.org/articles/verbandpaeckchen-mittel");
-    expect(screen.getByRole("link", { name: /PDF Einkaufsliste/ })).toHaveAttribute("href", "/api/reports/procurement.pdf?q=Verband");
+    const pdfLink = screen.getByRole("link", { name: /PDF Einkaufsliste/ });
+    expect(pdfLink).toHaveAttribute("href", "/api/reports/procurement.pdf?q=Verband&rev=2026-06-18T12%3A55%3A00.000Z");
+
+    vi.setSystemTime(new Date("2026-06-18T12:56:00.000Z"));
+    await clickElement(pdfLink);
+    expect(pdfLink).toHaveAttribute("href", "/api/reports/procurement.pdf?q=Verband&rev=2026-06-18T12%3A56%3A00.000Z");
+    vi.useRealTimers();
   });
 
   it("updates automation time and can trigger manual reconciliation", async () => {

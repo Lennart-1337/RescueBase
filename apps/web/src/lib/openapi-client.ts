@@ -90,6 +90,15 @@ export function reportUrl(path: string): string {
   return `${apiBase}${path}`;
 }
 
+export function freshReportUrl(path: string, revision = new Date().toISOString()): string {
+  const [pathname, hash = ""] = path.split("#");
+  const [basePath, search = ""] = pathname.split("?");
+  const params = new URLSearchParams(search);
+  params.set("rev", revision);
+  const query = params.toString();
+  return `${basePath}${query ? `?${query}` : ""}${hash ? `#${hash}` : ""}`;
+}
+
 async function requestJson<T>(path: string, init?: RequestInit): Promise<T> {
   let response: Response;
   try {

@@ -1,6 +1,8 @@
+import { useEffect, useState } from "react";
 import { Download, ExternalLink, PackageCheck, Play, XCircle } from "lucide-react";
 import { InlineError } from "../../components/state-panels";
 import { AnchorButton, Badge, Button, Panel } from "../../components/ui";
+import { freshReportUrl } from "../../lib/openapi-client";
 import type { InventoryProcurementOrder } from "../../lib/types";
 
 export function ProcurementOrderPanel(props: {
@@ -13,13 +15,33 @@ export function ProcurementOrderPanel(props: {
   pdfHref: string;
   totalCount: number;
 }) {
+  const [pdfHref, setPdfHref] = useState(() => freshProcurementPdfUrl(props.pdfHref));
+
+  useEffect(() => {
+    setPdfHref(freshProcurementPdfUrl(props.pdfHref));
+  }, [props.pdfHref]);
+
+  function refreshPdfHref() {
+    const nextHref = freshProcurementPdfUrl(props.pdfHref);
+    setPdfHref(nextHref);
+    return nextHref;
+  }
+
   return (
     <Panel>
       <div className="panel-header">
         <div><h2>Beschaffungsaufträge</h2><p>Bestellungen für Lager-Sollbestände.</p></div>
         <div className="topbar-actions">
           <Badge tone="warning">{props.orders.length}/{props.totalCount} sichtbar</Badge>
-          <AnchorButton href={props.pdfHref} variant="secondary"><Download data-icon="inline-start" />PDF Einkaufsliste</AnchorButton>
+          <AnchorButton
+            href={pdfHref}
+            onClick={(event) => {
+              event.currentTarget.href = refreshPdfHref();
+            }}
+            variant="secondary"
+          >
+            <Download data-icon="inline-start" />PDF Einkaufsliste
+          </AnchorButton>
         </div>
       </div>
       {props.error ? <InlineError error={props.error} /> : null}
@@ -57,4 +79,8 @@ function statusTone(status: InventoryProcurementOrder["status"]) {
   if (status === "IN_PROGRESS") return "info";
   if (status === "DONE") return "ready";
   return "neutral";
+}
+
+function freshProcurementPdfUrl(href: string) {
+  return freshReportUrl(href);
 }
