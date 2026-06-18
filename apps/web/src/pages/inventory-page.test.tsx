@@ -1,6 +1,6 @@
 import { screen, waitFor, within } from "@testing-library/react";
-import { article, batch, location } from "../test-support/fixtures";
-import { changeValue, clickElement, getActiveRouter, postedBody, renderAppAt, resetTestBrowser, stubFetch, wasRequested } from "../test-support/app-test-helpers";
+import { article, batch, inventoryTarget, location, procurementOrder } from "../test-support/fixtures";
+import { changeValue, clickElement, getActiveRouter, postedBody, renderAppAt, requestBody, resetTestBrowser, stubFetch, wasRequested } from "../test-support/app-test-helpers";
 
 describe("InventoryPage", () => {
   afterEach(resetTestBrowser);
@@ -27,7 +27,7 @@ describe("InventoryPage", () => {
     await changeValue(within(dialog).getByLabelText("Chargennummer"), "VB-2026-04A");
     await changeValue(within(dialog).getByLabelText("Begründung"), "Inventur");
     await clickElement(within(dialog).getByRole("button", { name: /Korrektur buchen/ }));
-    await waitFor(() => expect(postedBody("/api/inventory/batches/batch-bandage-1/corrections")).toEqual({ reason: "Inventur", quantity: 120, lotNumber: "VB-2026-04A", expiresAt: "2027-04-30" }));
+    await waitFor(() => expect(postedBody("/api/inventory/batches/batch-bandage-1/corrections")).toEqual({ reason: "Inventur", quantity: 120, lotNumber: "VB-2026-04A", expiresAt: "2027-04-30", locationId: "loc-main" }));
   });
 
   it("hides empty batches by default and can show them with a filter", async () => {
@@ -70,14 +70,92 @@ describe("InventoryPage", () => {
     await clickElement(screen.getByRole("button", { name: /Charge VB-2026-04 löschen/ }));
     await waitFor(() => expect(wasRequested("/api/inventory/batches/batch-bandage-1", "DELETE")).toBe(true));
   });
+
+  it("sets and clears Soll targets in Lager", async () => {
+    vi.spyOn(window, "confirm").mockReturnValue(true);
+    stubFetch(baseInventoryRoutes());
+    await renderAppAt("/admin/inventory");
+    await screen.findByRole("heading", { name: "Lager" });
+
+    await clickElement(screen.getByRole("button", { name: /Soll hinzufügen/ }));
+    const dialog = await screen.findByRole("dialog", { name: "Sollbestand" });
+    await changeValue(within(dialog).getByLabelText("Soll"), "160");
+    await clickElement(within(dialog).getByRole("button", { name: /Soll speichern/ }));
+    await waitFor(() => expect(requestBody("/api/inventory/targets/article-bandage/loc-main", "PUT")).toEqual({ targetQuantity: 160 }));
+
+    await clickElement(screen.getByRole("button", { name: /Löschen/ }));
+    await waitFor(() => expect(wasRequested("/api/inventory/targets/article-bandage/loc-main", "DELETE")).toBe(true));
+  });
+
+  it("starts and receives procurement orders into batches", async () => {
+    stubFetch(baseInventoryRoutes({
+      "/api/inventory/procurement-orders": [{ ...procurementOrder, status: "IN_PROGRESS" }]
+    }));
+    await renderAppAt("/admin/inventory");
+    await screen.findByRole("heading", { name: "Lager" });
+
+    await clickElement(screen.getByRole("button", { name: /Wareneingang/ }));
+    const dialog = await screen.findByRole("dialog", { name: "Wareneingang" });
+    await changeValue(within(dialog).getByLabelText("Chargennummer"), "VB-2030-01");
+    await changeValue(within(dialog).getByLabelText("Ablaufdatum"), "2030-01-31");
+    await changeValue(within(dialog).getByLabelText("Menge"), "12");
+    expect(within(dialog).getByRole("button", { name: /Wareneingang buchen/ })).toBeDisabled();
+    await clickElement(within(dialog).getByLabelText(/Lieferung geprüft/));
+    await clickElement(within(dialog).getByRole("button", { name: /Wareneingang buchen/ }));
+
+    await waitFor(() => expect(postedBody("/api/inventory/procurement-orders/proc-order-1/receive")).toEqual({
+      verified: true,
+      items: [{ lotNumber: "VB-2030-01", expiresAt: "2030-01-31", quantity: 12 }]
+    }));
+  });
+
+  it("filters targets and procurement orders from the URL", async () => {
+    stubFetch(baseInventoryRoutes({
+      "/api/inventory/targets": [
+        inventoryTarget,
+        { ...inventoryTarget, id: "target-alt", articleId: "article-alt", article: { ...inventoryTarget.article, id: "article-alt", name: "Reserveartikel" } }
+      ],
+      "/api/inventory/procurement-orders": [
+        procurementOrder,
+        { ...procurementOrder, id: "proc-alt", articleId: "article-alt", article: { ...procurementOrder.article, id: "article-alt", name: "Reserveartikel" } }
+      ]
+    }));
+    await renderAppAt("/admin/inventory?q=Verband");
+    await screen.findByRole("heading", { name: "Lager" });
+
+    expect(screen.getAllByText("Verbandpäckchen mittel").length).toBeGreaterThan(0);
+    expect(screen.queryByText("Reserveartikel")).toBeNull();
+    expect(screen.getAllByRole("link", { name: "Link" })[0]).toHaveAttribute("href", "https://shop.example.org/articles/verbandpaeckchen-mittel");
+  });
+
+  it("updates automation time and can trigger manual reconciliation", async () => {
+    stubFetch(baseInventoryRoutes());
+    await renderAppAt("/admin/inventory");
+    await screen.findByRole("heading", { name: "Lager" });
+
+    await changeValue(screen.getByLabelText("Tägliche Uhrzeit"), "06:30");
+    await clickElement(screen.getByRole("button", { name: /Speichern/ }));
+    await waitFor(() => expect(postedBody("/api/inventory/automation-config")).toEqual({ dailyReconcileTime: "06:30" }));
+    await clickElement(screen.getByRole("button", { name: /Jetzt prüfen/ }));
+    await waitFor(() => expect(wasRequested("/api/inventory/targets/reconcile", "POST")).toBe(true));
+  });
 });
 
-function baseInventoryRoutes() {
+function baseInventoryRoutes(extraRoutes: Record<string, unknown> = {}) {
   return {
     "/api/auth/setup/status": { initialized: true, firstAdminEmail: "admin@rescuebase.local" },
     "/api/auth/session": { user: { id: "user-admin", email: "admin@rescuebase.local", displayName: "Admin", role: "ADMIN", twoFactorEnabled: false } },
     "/api/inventory/batches": [batch],
+    "/api/inventory/targets": [inventoryTarget],
+    "/api/inventory/targets/article-bandage/loc-main": inventoryTarget,
+    "/api/inventory/targets/reconcile": { checked: 1, created: 0, updated: 0, cancelled: 0 },
+    "/api/inventory/procurement-orders": [procurementOrder],
+    "/api/inventory/procurement-orders/proc-order-1/start": { ...procurementOrder, status: "IN_PROGRESS" },
+    "/api/inventory/procurement-orders/proc-order-1/receive": { ...procurementOrder, status: "DONE", receivedQuantity: 30, remainingQuantity: 0 },
+    "/api/inventory/procurement-orders/proc-order-1/cancel": { ...procurementOrder, status: "CANCELLED" },
+    "/api/inventory/automation-config": { dailyReconcileTime: "02:00" },
     "/api/catalog/articles": [article],
-    "/api/catalog/locations": [location]
+    "/api/catalog/locations": [location],
+    ...extraRoutes
   };
 }

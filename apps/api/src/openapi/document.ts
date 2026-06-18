@@ -36,6 +36,7 @@ const rescueBaseOpenApiDocumentDefinition = {
       TwoFactorMethod: stringEnum(["TOTP", "EMAIL"]),
       KitOperationalStatus: stringEnum(["READY", "CONDITIONAL", "NOT_READY"]),
       ReplenishmentStatus: stringEnum(["OPEN", "IN_PROGRESS", "DONE", "CANCELLED"]),
+      InventoryProcurementStatus: stringEnum(["OPEN", "IN_PROGRESS", "DONE", "CANCELLED"]),
       ReplenishmentReason: stringEnum(["SHORTAGE", "DISCARDED_EXPIRED", "SHORTAGE_AND_DISCARDED_EXPIRED"]),
       SetupStatus: objectSchema({
         initialized: { type: "boolean" },
@@ -311,6 +312,7 @@ const rescueBaseOpenApiDocumentDefinition = {
         articleId: { type: "string" },
         locationId: { type: "string" },
         replenishmentOrderId: { type: "string" },
+        inventoryProcurementOrderId: { type: "string" },
         templatePositionId: { type: "string" },
         type: { type: "string" },
         quantity: { type: "integer" },
@@ -319,6 +321,77 @@ const rescueBaseOpenApiDocumentDefinition = {
         metadata: { type: "object", additionalProperties: true },
         createdAt: { type: "string", format: "date-time" }
       }, ["id", "batchId", "articleId", "locationId", "type", "quantity", "actorLabel", "createdAt"]),
+      InventoryTargetArticle: objectSchema({
+        id: { type: "string" },
+        name: { type: "string" },
+        unit: { type: "string" },
+        articleUrl: { type: "string", format: "uri" }
+      }, ["id", "name", "unit"]),
+      InventoryTargetLocation: objectSchema({
+        id: { type: "string" },
+        name: { type: "string" }
+      }, ["id", "name"]),
+      InventoryProcurementReceipt: objectSchema({
+        id: { type: "string" },
+        batchId: { type: "string" },
+        quantity: { type: "integer", minimum: 1 },
+        lotNumber: { type: "string" },
+        expiresAt: { type: "string", format: "date" },
+        verifiedAt: { type: "string", format: "date-time" },
+        verifiedBy: { type: "string" },
+        createdAt: { type: "string", format: "date-time" }
+      }, ["id", "batchId", "quantity", "lotNumber", "expiresAt", "verifiedAt", "verifiedBy", "createdAt"]),
+      InventoryProcurementOrder: objectSchema({
+        id: { type: "string" },
+        articleId: { type: "string" },
+        locationId: { type: "string" },
+        status: ref("InventoryProcurementStatus"),
+        requestedQuantity: { type: "integer", minimum: 1 },
+        receivedQuantity: { type: "integer", minimum: 0 },
+        remainingQuantity: { type: "integer", minimum: 0 },
+        articleUrlSnapshot: { type: "string", format: "uri" },
+        createdAt: { type: "string", format: "date-time" },
+        updatedAt: { type: "string", format: "date-time" },
+        article: ref("InventoryTargetArticle"),
+        location: ref("InventoryTargetLocation"),
+        receipts: arrayOf(ref("InventoryProcurementReceipt"))
+      }, ["id", "articleId", "locationId", "status", "requestedQuantity", "receivedQuantity", "remainingQuantity", "createdAt", "updatedAt", "article", "location", "receipts"]),
+      InventoryTarget: objectSchema({
+        id: { type: "string" },
+        articleId: { type: "string" },
+        locationId: { type: "string" },
+        targetQuantity: { type: "integer", minimum: 1 },
+        currentQuantity: { type: "integer", minimum: 0 },
+        shortageQuantity: { type: "integer", minimum: 0 },
+        article: ref("InventoryTargetArticle"),
+        location: ref("InventoryTargetLocation"),
+        procurementOrder: ref("InventoryProcurementOrder")
+      }, ["id", "articleId", "locationId", "targetQuantity", "currentQuantity", "shortageQuantity", "article", "location"]),
+      UpsertInventoryTargetRequest: objectSchema({
+        targetQuantity: { type: "integer", minimum: 1 }
+      }, ["targetQuantity"]),
+      InventoryReconcileResponse: objectSchema({
+        checked: { type: "integer", minimum: 0 },
+        created: { type: "integer", minimum: 0 },
+        updated: { type: "integer", minimum: 0 },
+        cancelled: { type: "integer", minimum: 0 }
+      }, ["checked", "created", "updated", "cancelled"]),
+      ReceiveProcurementOrderItemRequest: objectSchema({
+        lotNumber: { type: "string" },
+        expiresAt: { type: "string", format: "date" },
+        quantity: { type: "integer", minimum: 1 }
+      }, ["lotNumber", "expiresAt", "quantity"]),
+      ReceiveProcurementOrderRequest: objectSchema({
+        items: arrayOf(ref("ReceiveProcurementOrderItemRequest")),
+        verified: { type: "boolean" }
+      }, ["items", "verified"]),
+      InventoryAutomationConfig: objectSchema({
+        dailyReconcileTime: { type: "string" },
+        lastReconciledAt: { type: "string", format: "date-time" }
+      }, ["dailyReconcileTime"]),
+      UpdateInventoryAutomationConfigRequest: objectSchema({
+        dailyReconcileTime: { type: "string" }
+      }, ["dailyReconcileTime"]),
       ExpiryWarning: objectSchema({
         id: { type: "string" },
         articleId: { type: "string" },
@@ -479,6 +552,32 @@ const rescueBaseOpenApiDocumentDefinition = {
       get: operation("Lager", "InventoryController_batches", {}, response(200, "Batches", arrayOf(ref("Batch")))),
       post: operation("Lager", "InventoryController_createBatch", request("CreateBatchRequest"), response(201, "Batch created", ref("Batch")))
     },
+    "/inventory/targets": {
+      get: operation("Lager", "InventoryController_targets", {}, response(200, "Inventory targets", arrayOf(ref("InventoryTarget"))))
+    },
+    "/inventory/targets/reconcile": {
+      post: operation("Lager", "InventoryController_reconcileTargets", {}, response(201, "Inventory targets reconciled", ref("InventoryReconcileResponse")))
+    },
+    "/inventory/targets/{articleId}/{locationId}": {
+      put: operation("Lager", "InventoryController_upsertTarget", { ...pathParams(["articleId", "locationId"]), ...request("UpsertInventoryTargetRequest") }, response(200, "Inventory target saved", ref("InventoryTarget"))),
+      delete: operation("Lager", "InventoryController_clearTarget", pathParams(["articleId", "locationId"]), response(200, "Inventory target cleared", ref("OkResponse")))
+    },
+    "/inventory/procurement-orders": {
+      get: operation("Lager", "InventoryController_procurementOrders", {}, response(200, "Procurement orders", arrayOf(ref("InventoryProcurementOrder"))))
+    },
+    "/inventory/procurement-orders/{id}/start": {
+      post: operation("Lager", "InventoryController_startProcurementOrder", pathParam("id"), response(201, "Procurement order started", ref("InventoryProcurementOrder")))
+    },
+    "/inventory/procurement-orders/{id}/receive": {
+      post: operation("Lager", "InventoryController_receiveProcurementOrder", { ...pathParam("id"), ...request("ReceiveProcurementOrderRequest") }, response(201, "Procurement order received", ref("InventoryProcurementOrder")))
+    },
+    "/inventory/procurement-orders/{id}/cancel": {
+      post: operation("Lager", "InventoryController_cancelProcurementOrder", pathParam("id"), response(201, "Procurement order cancelled", ref("InventoryProcurementOrder")))
+    },
+    "/inventory/automation-config": {
+      get: operation("Lager", "InventoryController_automationConfig", {}, response(200, "Inventory automation config", ref("InventoryAutomationConfig"))),
+      post: operation("Lager", "InventoryController_updateAutomationConfig", request("UpdateInventoryAutomationConfigRequest"), response(201, "Inventory automation config updated", ref("InventoryAutomationConfig")))
+    },
     "/inventory/batches/{id}/movements": {
       get: operation("Lager", "InventoryController_movements", pathParam("id"), response(200, "Batch movements", arrayOf(ref("InventoryMovement"))))
     },
@@ -565,6 +664,17 @@ function pathParam(name: string): OpenApiFragment {
         schema: { type: "string" }
       }
     ]
+  };
+}
+
+function pathParams(names: string[]): OpenApiFragment {
+  return {
+    parameters: names.map((name) => ({
+      name,
+      in: "path",
+      required: true,
+      schema: { type: "string" }
+    }))
   };
 }
 

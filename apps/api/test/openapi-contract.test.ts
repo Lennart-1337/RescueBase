@@ -16,6 +16,10 @@ describe("RescueBase OpenAPI contract", () => {
         "UpdateKitRequest",
         "BatchCorrectionRequest",
         "InventoryMovement",
+        "InventoryTarget",
+        "InventoryProcurementOrder",
+        "ReceiveProcurementOrderRequest",
+        "InventoryAutomationConfig",
         "CompleteCheckRequest",
         "FulfillOrderRequest",
         "ReplenishmentOrder"
@@ -65,6 +69,27 @@ describe("RescueBase OpenAPI contract", () => {
     });
     expect(rescueBaseOpenApiDocument.paths["/inventory/batches/{id}/movements"]?.get).toMatchObject({
       operationId: "InventoryController_movements"
+    });
+  });
+
+  it("describes inventory target and procurement workflows", () => {
+    expect(rescueBaseOpenApiDocument.paths["/inventory/targets"]?.get).toMatchObject({
+      operationId: "InventoryController_targets"
+    });
+    expect(rescueBaseOpenApiDocument.paths["/inventory/targets/{articleId}/{locationId}"]?.put).toMatchObject({
+      operationId: "InventoryController_upsertTarget",
+      requestBody: expect.any(Object)
+    });
+    expect(rescueBaseOpenApiDocument.paths["/inventory/targets/reconcile"]?.post).toMatchObject({
+      operationId: "InventoryController_reconcileTargets"
+    });
+    expect(rescueBaseOpenApiDocument.paths["/inventory/procurement-orders/{id}/receive"]?.post).toMatchObject({
+      operationId: "InventoryController_receiveProcurementOrder",
+      requestBody: expect.any(Object)
+    });
+    expect(rescueBaseOpenApiDocument.paths["/inventory/automation-config"]?.post).toMatchObject({
+      operationId: "InventoryController_updateAutomationConfig",
+      requestBody: expect.any(Object)
     });
   });
 

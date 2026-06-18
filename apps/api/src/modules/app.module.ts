@@ -13,6 +13,7 @@ import { AuditService } from "../services/audit.service.js";
 import { AlertsService } from "../services/alerts.service.js";
 import { MailService } from "../services/mail.service.js";
 import { OrderNotificationsService } from "../services/order-notifications.service.js";
+import { InventoryProcurementService } from "../services/inventory-procurement.service.js";
 import { ReportService } from "../services/report.service.js";
 import { PrismaService } from "../persistence/prisma.service.js";
 import { AuthGuard } from "../auth/auth.guard.js";
@@ -35,6 +36,7 @@ import { AuthService } from "../auth/auth.service.js";
     AuthService,
     AuditService,
     AlertsService,
+    InventoryProcurementService,
     MailService,
     OrderNotificationsService,
     ReportService,

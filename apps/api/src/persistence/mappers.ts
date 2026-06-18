@@ -62,6 +62,7 @@ export type MovementRecord = {
   articleId: string;
   locationId: string;
   replenishmentOrderId: string | null;
+  inventoryProcurementOrderId: string | null;
   templatePositionId: string | null;
   type: string;
   quantity: number;
@@ -166,6 +167,7 @@ export function mapMovement(movement: MovementRecord) {
     articleId: movement.articleId,
     locationId: movement.locationId,
     replenishmentOrderId: movement.replenishmentOrderId ?? undefined,
+    inventoryProcurementOrderId: movement.inventoryProcurementOrderId ?? undefined,
     templatePositionId: movement.templatePositionId ?? undefined,
     type: movement.type,
     quantity: movement.quantity,
