@@ -613,6 +613,13 @@ const rescueBaseOpenApiDocumentDefinition = {
     },
     "/reports/csv/inventory": { get: fileOperation("Reports", "ReportsController_inventoryCsv", csv) },
     "/reports/csv/replenishment": { get: fileOperation("Reports", "ReportsController_replenishmentCsv", csv) },
+    "/reports/procurement.pdf": {
+      get: fileOperation("Reports", "ReportsController_procurement", pdf, undefined, [
+        optionalQueryParam("articleId"),
+        optionalQueryParam("locationId"),
+        optionalQueryParam("q")
+      ])
+    },
     "/reports/qr-label/{kitId}.pdf": {
       get: fileOperation("Reports", "ReportsController_qrLabel", pdf, "kitId", [
         {
@@ -664,6 +671,15 @@ function pathParam(name: string): OpenApiFragment {
         schema: { type: "string" }
       }
     ]
+  };
+}
+
+function optionalQueryParam(name: string): Record<string, unknown> {
+  return {
+    name,
+    in: "query",
+    required: false,
+    schema: { type: "string" }
   };
 }
 

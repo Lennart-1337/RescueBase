@@ -1,4 +1,5 @@
 import { Injectable, NotFoundException } from "@nestjs/common";
+import { InventoryProcurementStatus } from "@prisma/client";
 import PDFDocument from "pdfkit";
 import QRCode from "qrcode";
 import { PrismaService } from "../persistence/prisma.service.js";
@@ -17,6 +18,20 @@ const palette = {
 };
 
 type QrPdfFormat = "a4" | "label";
+type ProcurementPdfFilters = { articleId?: string; locationId?: string; q?: string };
+type ProcurementOrderReportRecord = {
+  id: string;
+  articleId: string;
+  locationId: string;
+  status: InventoryProcurementStatus;
+  requestedQuantity: number;
+  receivedQuantity: number;
+  articleUrlSnapshot: string | null;
+  updatedAt: Date;
+  article: { name: string; unit: string; manufacturer: string | null; manufacturerPartNumber: string | null; articleUrl: string | null };
+  location: { name: string };
+  receipts: Array<{ lotNumber: string }>;
+};
 
 @Injectable()
 export class ReportService {
@@ -51,6 +66,59 @@ export class ReportService {
       )
     );
     return `${header}${rows.join("\n")}\n`;
+  }
+
+  async procurementPdf(filters: ProcurementPdfFilters): Promise<Buffer> {
+    const orders: ProcurementOrderReportRecord[] = await this.prisma.inventoryProcurementOrder.findMany({
+      where: { status: { in: [InventoryProcurementStatus.OPEN, InventoryProcurementStatus.IN_PROGRESS] } },
+      include: {
+        article: { select: { name: true, unit: true, manufacturer: true, manufacturerPartNumber: true, articleUrl: true } },
+        location: { select: { name: true } },
+        receipts: { select: { lotNumber: true } }
+      },
+      orderBy: [{ status: "asc" }, { updatedAt: "desc" }]
+    });
+    const filtered = orders.filter((order) => matchesProcurementFilters(filters, order));
+    const totalRemaining = filtered.reduce((sum, order) => sum + Math.max(order.requestedQuantity - order.receivedQuantity, 0), 0);
+    const filterLabel = summarizeProcurementFilters(filters);
+
+    return this.renderPdf((doc) => {
+      this.drawDocumentHeader(doc, "Beschaffung", "Einkaufsliste", filtered.length > 0 ? "Aktuell benötigte Artikel" : "Keine offenen Bedarfe");
+      this.drawMetaGrid(doc, [
+        ["Positionen", String(filtered.length)],
+        ["Offene Menge", String(totalRemaining)],
+        ["Filter", filterLabel],
+        ["Stand", formatDateTime(new Date())]
+      ], { x: 48, width: doc.page.width - 96 });
+
+      if (filtered.length === 0) {
+        doc.moveDown(1);
+        doc.fillColor(palette.muted).font("Helvetica").fontSize(11).text(
+          "Für die gesetzten Filter gibt es derzeit keine offenen Beschaffungsaufträge.",
+          48,
+          doc.y,
+          { width: doc.page.width - 96 }
+        );
+        return;
+      }
+
+      let y = doc.y + 8;
+      filtered.forEach((order, index) => {
+        const cardHeight = this.measureProcurementOrderCard(doc, order);
+        if (needsPageBreak({
+          currentY: y,
+          requiredHeight: cardHeight,
+          pageHeight: doc.page.height,
+          bottomMargin: doc.page.margins.bottom,
+          reserve: 24
+        })) {
+          doc.addPage();
+          this.drawContinuationHeader(doc, "Einkaufsliste", "Beschaffungsaufträge · Fortsetzung");
+          y = doc.y + 16;
+        }
+        y = this.drawProcurementOrderCard(doc, y, order, index);
+      });
+    });
   }
 
   async qrLabelPdf(kitId: string, format: QrPdfFormat): Promise<Buffer> {
@@ -307,6 +375,50 @@ export class ReportService {
     return `${result}...`;
   }
 
+  private measureProcurementOrderCard(doc: PDFKit.PDFDocument, order: ProcurementOrderReportRecord) {
+    const details = procurementDetails(order);
+    const titleHeight = doc.font("Helvetica-Bold").fontSize(12).heightOfString(order.article.name, { width: 300 });
+    const detailHeight = doc.font("Helvetica").fontSize(9).heightOfString(details.join("\n"), { width: 300 });
+    const articleUrl = order.article.articleUrl ?? order.articleUrlSnapshot;
+    const linkHeight = articleUrl
+      ? doc.font("Helvetica").fontSize(8).heightOfString(articleUrl, { width: 300 }) + 18
+      : 0;
+    return 28 + titleHeight + detailHeight + linkHeight;
+  }
+
+  private drawProcurementOrderCard(doc: PDFKit.PDFDocument, y: number, order: ProcurementOrderReportRecord, index: number) {
+    const x = 48;
+    const width = doc.page.width - 96;
+    const height = this.measureProcurementOrderCard(doc, order);
+    const remainingQuantity = Math.max(order.requestedQuantity - order.receivedQuantity, 0);
+    const articleUrl = order.article.articleUrl ?? order.articleUrlSnapshot;
+    const details = procurementDetails(order);
+
+    doc.roundedRect(x, y, width, height, 12).fillAndStroke(index % 2 === 0 ? "#fbfdff" : palette.paper, palette.line);
+    doc.fillColor(procurementStatusColor(order.status)).font("Helvetica-Bold").fontSize(8).text(
+      formatProcurementStatus(order.status).toUpperCase(),
+      x + 18,
+      y + 16
+    );
+    doc.fillColor(palette.ink).font("Helvetica-Bold").fontSize(12).text(order.article.name, x + 18, y + 32, { width: 300 });
+    doc.fillColor(palette.muted).font("Helvetica").fontSize(9).text(details.join("\n"), x + 18, y + 52, { width: 300 });
+    doc.fillColor(palette.accent).font("Helvetica-Bold").fontSize(8).text("OFFEN", x + width - 88, y + 18, { width: 56, align: "right" });
+    doc.fillColor(palette.ink).font("Helvetica-Bold").fontSize(24).text(String(remainingQuantity), x + width - 92, y + 30, { width: 64, align: "right" });
+    doc.fillColor(palette.muted).font("Helvetica").fontSize(8).text(order.article.unit, x + width - 92, y + 58, { width: 64, align: "right" });
+
+    if (articleUrl) {
+      const linkY = y + height - 28;
+      doc.fillColor(palette.muted).font("Helvetica-Bold").fontSize(8).text("Shop-Link", x + 18, linkY);
+      doc.fillColor(palette.accent).font("Helvetica").fontSize(8).text(articleUrl, x + 74, linkY, {
+        width: width - 92,
+        link: articleUrl,
+        underline: true
+      });
+    }
+
+    return y + height + 12;
+  }
+
   private renderPdf(
     draw: (doc: PDFKit.PDFDocument) => void,
     options: { margin?: number; size?: string | [number, number] } = {}
@@ -347,6 +459,47 @@ function formatOrderStatus(status: string) {
     return "Erledigt";
   }
   return "Storniert";
+}
+
+function formatProcurementStatus(status: InventoryProcurementStatus) {
+  if (status === InventoryProcurementStatus.OPEN) return "Offen";
+  return "In Bearbeitung";
+}
+
+function procurementStatusColor(status: InventoryProcurementStatus) {
+  return status === InventoryProcurementStatus.OPEN ? "#b54708" : palette.accent;
+}
+
+function procurementDetails(order: ProcurementOrderReportRecord) {
+  const details = [
+    `Standort: ${order.location.name}`,
+    `Soll ${order.requestedQuantity} · Erhalten ${order.receivedQuantity} · Offen ${Math.max(order.requestedQuantity - order.receivedQuantity, 0)} ${order.article.unit}`
+  ];
+  if (order.article.manufacturer) details.push(`Hersteller: ${order.article.manufacturer}`);
+  if (order.article.manufacturerPartNumber) details.push(`Art.-Nr.: ${order.article.manufacturerPartNumber}`);
+  return details;
+}
+
+function matchesProcurementFilters(filters: ProcurementPdfFilters, order: ProcurementOrderReportRecord) {
+  if (filters.articleId && filters.articleId !== order.articleId) return false;
+  if (filters.locationId && filters.locationId !== order.locationId) return false;
+  const q = filters.q?.trim().toLowerCase();
+  if (!q) return true;
+  return [
+    order.id,
+    order.article.name,
+    order.location.name,
+    ...order.receipts.map((receipt) => receipt.lotNumber)
+  ].some((value) => value.toLowerCase().includes(q));
+}
+
+function summarizeProcurementFilters(filters: ProcurementPdfFilters) {
+  const parts = [
+    filters.articleId ? `Artikel ${filters.articleId}` : "",
+    filters.locationId ? `Standort ${filters.locationId}` : "",
+    filters.q ? `Suche ${filters.q}` : ""
+  ].filter(Boolean);
+  return parts.length > 0 ? parts.join(" · ") : "Keine";
 }
 
 function formatDateTime(value: Date) {

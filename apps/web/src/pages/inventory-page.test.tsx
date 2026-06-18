@@ -126,6 +126,7 @@ describe("InventoryPage", () => {
     expect(screen.getAllByText("Verbandpäckchen mittel").length).toBeGreaterThan(0);
     expect(screen.queryByText("Reserveartikel")).toBeNull();
     expect(screen.getAllByRole("link", { name: "Link" })[0]).toHaveAttribute("href", "https://shop.example.org/articles/verbandpaeckchen-mittel");
+    expect(screen.getByRole("link", { name: /PDF Einkaufsliste/ })).toHaveAttribute("href", "/api/reports/procurement.pdf?q=Verband");
   });
 
   it("updates automation time and can trigger manual reconciliation", async () => {

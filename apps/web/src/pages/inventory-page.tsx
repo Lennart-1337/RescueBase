@@ -89,6 +89,7 @@ export function InventoryPage({ user }: { user: AuthenticatedUser }) {
   });
   const filteredTargets = (targets.data ?? []).filter((target) => matchesInventoryFilters(filters, target.articleId, target.locationId, target.article.name, target.location.name));
   const filteredProcurementOrders = (procurementOrders.data ?? []).filter((order) => matchesInventoryFilters(filters, order.articleId, order.locationId, order.article.name, order.location.name, order.id, ...order.receipts.map((receipt) => receipt.lotNumber)));
+  const procurementPdfHref = rescueBaseApi.reportUrl(`/reports/procurement.pdf${toProcurementPdfSearch(filters)}`);
 
   useEffect(() => {
     if (!selectedBatchId) return;
@@ -166,7 +167,7 @@ export function InventoryPage({ user }: { user: AuthenticatedUser }) {
       <section className="metric-grid metric-grid-compact" aria-label="Lagerkennzahlen"><Metric icon={<Archive />} label="Chargen" tone="info" value={String(batches.data.length)} /><Metric icon={<AlertTriangle />} label="Ablaufwarnungen" tone="danger" value={String(expiring.length)} /></section>
       {user.role === "ADMIN" && automationConfig.data ? <AutomationPanel config={automationConfig.data} error={reconcileMutation.error || automationMutation.error ? toError(reconcileMutation.error ?? automationMutation.error) : null} isReconciling={reconcileMutation.isPending} isSaving={automationMutation.isPending} onReconcile={() => reconcileMutation.mutate()} onSave={() => automationMutation.mutate({ dailyReconcileTime: automationTime })} onTimeChange={setAutomationTime} time={automationTime} /> : null}
       <TargetPanel error={targetMutation.error || clearTargetMutation.error ? toError(targetMutation.error ?? clearTargetMutation.error) : null} isSubmitting={targetMutation.isPending || clearTargetMutation.isPending} onClear={clearTarget} onCreate={openCreateTarget} onEdit={openEditTarget} targets={filteredTargets} totalCount={targets.data.length} />
-      <ProcurementOrderPanel error={startOrderMutation.error || cancelOrderMutation.error ? toError(startOrderMutation.error ?? cancelOrderMutation.error) : null} isSubmitting={startOrderMutation.isPending || cancelOrderMutation.isPending || receiveOrderMutation.isPending} onCancel={(order) => cancelOrderMutation.mutate(order.id)} onReceive={openReceive} onStart={(order) => startOrderMutation.mutate(order.id)} orders={filteredProcurementOrders} totalCount={procurementOrders.data.length} />
+      <ProcurementOrderPanel error={startOrderMutation.error || cancelOrderMutation.error ? toError(startOrderMutation.error ?? cancelOrderMutation.error) : null} isSubmitting={startOrderMutation.isPending || cancelOrderMutation.isPending || receiveOrderMutation.isPending} onCancel={(order) => cancelOrderMutation.mutate(order.id)} onReceive={openReceive} onStart={(order) => startOrderMutation.mutate(order.id)} orders={filteredProcurementOrders} pdfHref={procurementPdfHref} totalCount={procurementOrders.data.length} />
       <BatchListPanel articles={articles.data} batches={filteredBatches} error={deleteMutation.error ? toError(deleteMutation.error) : null} filters={filters} isSubmitting={deleteMutation.isPending} locations={locations.data} onCreate={() => setCreateOpen(true)} onDelete={(id) => deleteMutation.mutate(id)} onFilterChange={updateFilters} onResetFilters={resetFilters} onSelect={(id) => { setSelectedBatchId(id); setCorrectionOpen(true); }} selectedBatchId={selectedBatchId} totalCount={batches.data.length} />
       <TargetDialog articles={articles.data} draft={targetDraft} error={targetMutation.error ? toError(targetMutation.error) : null} isOpen={targetOpen} isSubmitting={targetMutation.isPending} locations={locations.data} onChange={setTargetDraft} onClose={() => setTargetOpen(false)} onSubmit={() => targetMutation.mutate({ draft: targetDraft })} />
       <ProcurementReceiveDialog draftItems={receiptItems} error={receiveOrderMutation.error ? toError(receiveOrderMutation.error) : null} isOpen={receiveOpen} isSubmitting={receiveOrderMutation.isPending} onAddItem={() => setReceiptItems((items) => [...items, emptyReceiptItem()])} onChangeItem={(index, item) => setReceiptItems((items) => items.map((entry, entryIndex) => entryIndex === index ? item : entry))} onClose={() => setReceiveOpen(false)} onRemoveItem={(index) => setReceiptItems((items) => items.length === 1 ? items : items.filter((_, entryIndex) => entryIndex !== index))} onSubmit={() => selectedReceiveOrder && receiveOrderMutation.mutate({ id: selectedReceiveOrder.id, items: receiptItems, verified: receiptVerified })} onVerifiedChange={setReceiptVerified} order={selectedReceiveOrder} verified={receiptVerified} />
@@ -184,4 +185,13 @@ function matchesInventoryFilters(filters: InventoryFilters, articleId: string, l
 
 function emptyReceiptItem(): ReceiptDraftItem {
   return { expiresAt: "", lotNumber: "", quantity: "" };
+}
+
+function toProcurementPdfSearch(filters: InventoryFilters) {
+  const params = new URLSearchParams();
+  if (filters.articleId) params.set("articleId", filters.articleId);
+  if (filters.locationId) params.set("locationId", filters.locationId);
+  if (filters.q) params.set("q", filters.q);
+  const query = params.toString();
+  return query ? `?${query}` : "";
 }

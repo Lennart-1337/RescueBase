@@ -836,6 +836,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/reports/procurement.pdf": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["ReportsController_procurement"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/reports/qr-label/{kitId}.pdf": {
         parameters: {
             query?: never;
@@ -2797,6 +2813,30 @@ export interface operations {
                 };
                 content: {
                     "text/csv": string;
+                };
+            };
+        };
+    };
+    ReportsController_procurement: {
+        parameters: {
+            query?: {
+                articleId?: string;
+                locationId?: string;
+                q?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Binary report */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/pdf": string;
                 };
             };
         };

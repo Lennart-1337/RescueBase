@@ -152,4 +152,16 @@ describe("inventory procurement", () => {
     const updated = await agent.get("/inventory/automation-config").expect(200);
     expect(updated.body.dailyReconcileTime).toBe("06:30");
   });
+
+  it("renders a procurement PDF with current procurement needs", async () => {
+    const agent = request.agent(app.getHttpServer());
+    await agent.post("/auth/login").send({ email: "admin@rescuebase.local", password: "rescuebase-admin" }).expect(201);
+    await agent.put("/inventory/targets/article-bandage/loc-main").send({ targetQuantity: 150 }).expect(200);
+    await agent.post("/inventory/targets/reconcile").expect(201);
+
+    await agent
+      .get("/reports/procurement.pdf?q=Verband")
+      .expect("content-type", /application\/pdf/)
+      .expect(200);
+  });
 });

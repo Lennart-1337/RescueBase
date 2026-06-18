@@ -136,4 +136,15 @@ describe("RescueBase OpenAPI contract", () => {
       ])
     });
   });
+
+  it("describes the procurement PDF report filters", () => {
+    expect(rescueBaseOpenApiDocument.paths["/reports/procurement.pdf"]?.get).toMatchObject({
+      operationId: "ReportsController_procurement",
+      parameters: expect.arrayContaining([
+        expect.objectContaining({ name: "articleId", in: "query" }),
+        expect.objectContaining({ name: "locationId", in: "query" }),
+        expect.objectContaining({ name: "q", in: "query" })
+      ])
+    });
+  });
 });

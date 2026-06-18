@@ -1,4 +1,4 @@
-import { ExternalLink, PackageCheck, Play, XCircle } from "lucide-react";
+import { Download, ExternalLink, PackageCheck, Play, XCircle } from "lucide-react";
 import { InlineError } from "../../components/state-panels";
 import { AnchorButton, Badge, Button, Panel } from "../../components/ui";
 import type { InventoryProcurementOrder } from "../../lib/types";
@@ -10,13 +10,17 @@ export function ProcurementOrderPanel(props: {
   onReceive: (order: InventoryProcurementOrder) => void;
   onStart: (order: InventoryProcurementOrder) => void;
   orders: InventoryProcurementOrder[];
+  pdfHref: string;
   totalCount: number;
 }) {
   return (
     <Panel>
       <div className="panel-header">
         <div><h2>Beschaffungsaufträge</h2><p>Bestellungen für Lager-Sollbestände.</p></div>
-        <Badge tone="warning">{props.orders.length}/{props.totalCount} sichtbar</Badge>
+        <div className="topbar-actions">
+          <Badge tone="warning">{props.orders.length}/{props.totalCount} sichtbar</Badge>
+          <AnchorButton href={props.pdfHref} variant="secondary"><Download data-icon="inline-start" />PDF Einkaufsliste</AnchorButton>
+        </div>
       </div>
       {props.error ? <InlineError error={props.error} /> : null}
       <div className="compact-list">

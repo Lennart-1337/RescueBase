@@ -3810,6 +3810,53 @@
         }
       }
     },
+    "/reports/procurement.pdf": {
+      "get": {
+        "tags": [
+          "Reports"
+        ],
+        "operationId": "ReportsController_procurement",
+        "parameters": [
+          {
+            "name": "articleId",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "locationId",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "q",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Binary report",
+            "content": {
+              "application/pdf": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/reports/qr-label/{kitId}.pdf": {
       "get": {
         "tags": [
