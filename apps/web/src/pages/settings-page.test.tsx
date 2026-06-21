@@ -1,5 +1,5 @@
 import { screen, waitFor, within } from "@testing-library/react";
-import { changeValue, clickElement, postedBody, renderAppAt, resetTestBrowser, stubFetch } from "../test-support/app-test-helpers";
+import { changeValue, clickElement, mouseDownElement, postedBody, renderAppAt, resetTestBrowser, stubFetch } from "../test-support/app-test-helpers";
 
 const admin = { id: "user-admin", email: "admin@rescuebase.local", displayName: "Admin", role: "ADMIN", twoFactorEnabled: false };
 const settings = {
@@ -28,7 +28,11 @@ describe("SettingsPage", () => {
     expect(screen.getByRole("link", { name: /Einstellungen/ })).toHaveClass("active");
 
     const general = screen.getByRole("region", { name: "Organisation und Zeit" });
-    await changeValue(within(general).getByLabelText("Zeitzone"), "Europe/Madrid");
+    const timezone = within(general).getByRole("combobox", { name: "Zeitzone" });
+    await changeValue(timezone, "Madrid");
+    expect(within(general).queryByRole("option", { name: "Europe/Berlin" })).not.toBeInTheDocument();
+    await mouseDownElement(within(general).getByRole("option", { name: "Europe/Madrid" }));
+    expect(timezone).toHaveValue("Europe/Madrid");
     await clickElement(within(general).getByRole("button", { name: "Speichern" }));
     await waitFor(() => expect(postedBody("/api/admin/settings/general")).toEqual({
       timezone: "Europe/Madrid", newUserOrderNotificationsDefaultEnabled: true
