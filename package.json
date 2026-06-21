@@ -27,12 +27,12 @@
     "prisma:seed": "npm run prisma:seed -w @rescuebase/api"
   },
   "devDependencies": {
-    "@eslint/js": "^9.39.1",
-    "@playwright/test": "^1.60.0",
-    "eslint": "^9.39.1",
+    "@eslint/js": "^10.0.1",
+    "@playwright/test": "^1.61.0",
+    "eslint": "^10.5.0",
     "openapi-typescript": "^7.13.0",
     "prettier": "^3.6.2",
-    "typescript": "^5.9.3",
-    "typescript-eslint": "^8.48.1"
+    "typescript": "^6.0.3",
+    "typescript-eslint": "^8.61.1"
   }
 }
