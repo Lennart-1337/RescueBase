@@ -9,6 +9,24 @@ export interface MailContent {
   text: string;
 }
 
+export type ImmediateAlertMail = {
+  category: string;
+  details: string;
+  dueAt: Date | null;
+  recipientName: string;
+  title: string;
+};
+
+export type AlertDigestMail = {
+  recipientName: string;
+  warnings: Array<{
+    category: string;
+    dueAt: Date | null;
+    locationName: string | null;
+    title: string;
+  }>;
+};
+
 export function buildInvitationMail(invitationUrl: string): MailContent {
   return {
     subject: "RescueBase Einladung",
@@ -68,6 +86,63 @@ export function buildAlertMail(subject: string, warnings: AlertWarning[], detail
   };
 }
 
+export function buildImmediateAlertMail(alert: ImmediateAlertMail, detailsUrl: string): MailContent {
+  return {
+    subject: `RescueBase Warnung · ${alert.title}`,
+    text: [
+      `Hallo ${alert.recipientName},`,
+      "",
+      "eine neue RescueBase-Warnung wurde erkannt:",
+      `- ${alert.title}`,
+      `- Kategorie: ${formatCategory(alert.category)}`,
+      `- Fällig: ${formatDueDate(alert.dueAt)}`,
+      `- Details: ${alert.details}`,
+      "",
+      `Details: ${detailsUrl}`
+    ].join("\n"),
+    html: renderMailLayout({
+      title: "Neue Warnung",
+      intro: `Hallo ${alert.recipientName}, für Ihre Organisation wurde eine neue Warnung erkannt.`,
+      bodyHtml: [
+        renderList([
+          alert.title,
+          `Kategorie: ${formatCategory(alert.category)}`,
+          `Fällig: ${formatDueDate(alert.dueAt)}`,
+          alert.details
+        ])
+      ].join(""),
+      ctaLabel: "Warnung ansehen",
+      ctaUrl: detailsUrl
+    }),
+    debugUrl: detailsUrl
+  };
+}
+
+export function buildAlertDigestMail(digest: AlertDigestMail, detailsUrl: string): MailContent {
+  const lines = digest.warnings.map((warning) =>
+    `[${formatCategory(warning.category)}] ${warning.title} (${warning.locationName ?? "ohne Standort"}) · Fällig: ${formatDueDate(warning.dueAt)}`
+  );
+  return {
+    subject: `RescueBase Tagesdigest · ${digest.warnings.length} Warnungen`,
+    text: [
+      `Hallo ${digest.recipientName},`,
+      "",
+      "hier ist Ihr täglicher RescueBase-Digest:",
+      ...lines.map((line) => `- ${line}`),
+      "",
+      `Details: ${detailsUrl}`
+    ].join("\n"),
+    html: renderMailLayout({
+      title: "Täglicher Warnungsdigest",
+      intro: `Hallo ${digest.recipientName}, hier ist die aktuelle Übersicht Ihrer offenen RescueBase-Warnungen.`,
+      bodyHtml: renderList(lines),
+      ctaLabel: "Warnungen ansehen",
+      ctaUrl: detailsUrl
+    }),
+    debugUrl: detailsUrl
+  };
+}
+
 export function buildNewOrderMail(order: {
   id: string;
   createdAt: Date;
@@ -109,4 +184,15 @@ function formatReason(reason: string) {
   if (reason === "DISCARDED_EXPIRED") return "Ablauf entsorgt";
   if (reason === "SHORTAGE_AND_DISCARDED_EXPIRED") return "Fehlbestand und Ablauf";
   return "Fehlbestand";
+}
+
+function formatCategory(category: string) {
+  if (category === "EXPIRY") return "Ablauf";
+  if (category === "STK_DUE") return "STK";
+  if (category === "MTK_DUE") return "MTK";
+  return category;
+}
+
+function formatDueDate(value: Date | null) {
+  return value?.toISOString().slice(0, 10) ?? "sofort";
 }

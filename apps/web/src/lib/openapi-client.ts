@@ -9,6 +9,7 @@ type PathFor<Method extends HttpMethod> = {
 }[keyof paths];
 type Operation<Path extends keyof paths, Method extends HttpMethod> = NonNullable<paths[Path][Method]>;
 type PathParameters<OperationType> = OperationType extends { parameters: { path: infer Parameters } } ? Parameters : never;
+type QueryParameters<OperationType> = OperationType extends { parameters: { query?: infer Parameters } } ? Parameters : never;
 type RequestBody<OperationType> = OperationType extends { requestBody: { content: { "application/json": infer Body } } } ? Body : never;
 type JsonResponse<OperationType> =
   OperationType extends { responses: { 200: { content: { "application/json": infer Response } } } } ? Response :
@@ -28,9 +29,12 @@ export class ApiError extends Error {
 export const openApiClient = {
   get<Path extends PathFor<"get">>(
     path: Path,
-    options?: PathParameters<Operation<Path, "get">> extends never ? undefined : { params: PathParameters<Operation<Path, "get">> }
+    options?: {
+      params?: PathParameters<Operation<Path, "get">>;
+      query?: QueryParameters<Operation<Path, "get">>;
+    }
   ): Promise<JsonResponse<Operation<Path, "get">>> {
-    return requestJson(buildPath(path, options?.params));
+    return requestJson(buildPath(path, options?.params, options?.query));
   },
 
   post<Path extends PathFor<"post">>(
@@ -120,14 +124,17 @@ async function requestJson<T>(path: string, init?: RequestInit): Promise<T> {
   return (await response.json()) as T;
 }
 
-function buildPath(path: string, params?: Record<string, string>): string {
-  if (!params) {
-    return path;
-  }
-  return Object.entries(params).reduce(
+function buildPath(path: string, params?: Record<string, string>, query?: Record<string, string | undefined>): string {
+  const resolvedPath = params ? Object.entries(params).reduce(
     (current, [key, value]) => current.replace(`{${key}}`, encodeURIComponent(value)),
     path
-  );
+  ) : path;
+  const search = new URLSearchParams();
+  Object.entries(query ?? {}).forEach(([key, value]) => {
+    if (value) search.set(key, value);
+  });
+  const serialized = search.toString();
+  return serialized ? `${resolvedPath}?${serialized}` : resolvedPath;
 }
 
 function looksLikeOptions(value: unknown): value is { params?: Record<string, string> } {

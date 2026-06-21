@@ -1,6 +1,18 @@
-import { Injectable, Logger } from "@nestjs/common";
+import { Injectable, Logger, Optional } from "@nestjs/common";
 import type { AlertWarning } from "../alerts/alert-engine.js";
-import { buildAlertMail, buildEmailTwoFactorCodeMail, buildInvitationMail, buildNewOrderMail, buildPasswordResetMail, type MailContent } from "./mail-messages.js";
+import {
+  buildAlertDigestMail,
+  buildAlertMail,
+  buildEmailTwoFactorCodeMail,
+  buildImmediateAlertMail,
+  buildInvitationMail,
+  buildNewOrderMail,
+  buildPasswordResetMail,
+  type AlertDigestMail,
+  type ImmediateAlertMail,
+  type MailContent
+} from "./mail-messages.js";
+import { NotificationTemplatesService } from "../settings/notification-templates.service.js";
 
 export interface MailDeliveryResult {
   debugCode?: string;
@@ -11,9 +23,7 @@ export interface MailDeliveryResult {
 export class MailService {
   private readonly logger = new Logger(MailService.name);
 
-  sendCustom(input: { email: string; subject: string; text: string; html?: string; debugUrl?: string; debugCode?: string }): Promise<MailDeliveryResult> {
-    return this.send(input);
-  }
+  constructor(@Optional() private readonly templates?: NotificationTemplatesService) {}
 
   async sendInvitation(email: string, invitationUrl: string): Promise<MailDeliveryResult> {
     return this.send({ email, ...buildInvitationMail(invitationUrl) });
@@ -31,8 +41,44 @@ export class MailService {
     return this.send({ email, ...buildAlertMail(subject, warnings, detailsUrl) });
   }
 
+  async sendImmediateAlert(email: string, alert: ImmediateAlertMail, detailsUrl: string): Promise<MailDeliveryResult> {
+    const content = this.templates
+      ? await this.templates.render("ALERT_IMMEDIATE", {
+        recipientName: alert.recipientName,
+        title: alert.title,
+        category: formatCategory(alert.category),
+        dueDate: formatDueDate(alert.dueAt),
+        details: alert.details,
+        detailsUrl
+      })
+      : buildImmediateAlertMail(alert, detailsUrl);
+    return this.send({ email, ...content });
+  }
+
+  async sendAlertDigest(email: string, digest: AlertDigestMail, detailsUrl: string): Promise<MailDeliveryResult> {
+    const warnings = digest.warnings.map((warning) =>
+      `[${formatCategory(warning.category)}] ${warning.title} (${warning.locationName ?? "ohne Standort"}) · Fällig: ${formatDueDate(warning.dueAt)}`
+    );
+    const content = this.templates
+      ? await this.templates.render("ALERT_DIGEST", { recipientName: digest.recipientName, warningCount: String(warnings.length), warnings: warnings.join("\n"), detailsUrl })
+      : buildAlertDigestMail(digest, detailsUrl);
+    return this.send({ email, ...content });
+  }
+
   async sendNewOrderNotification(email: string, order: Parameters<typeof buildNewOrderMail>[0], detailsUrl: string): Promise<MailDeliveryResult> {
-    return this.send({ email, ...buildNewOrderMail(order, detailsUrl) });
+    const items = order.items.map((item) => `${item.quantity} ${item.unit} ${item.articleName} (${formatReason(item.reason)})`).join("\n");
+    const content = this.templates
+      ? await this.templates.render("NEW_ORDER", {
+        orderId: order.id,
+        kitName: order.kitName,
+        kitCode: order.kitCode,
+        locationName: order.locationName,
+        createdAt: order.createdAt.toISOString(),
+        items,
+        detailsUrl
+      })
+      : buildNewOrderMail(order, detailsUrl);
+    return this.send({ email, ...content });
   }
 
   private async send(input: { email: string } & MailContent): Promise<MailDeliveryResult> {
@@ -64,4 +110,21 @@ export class MailService {
     }
     return {};
   }
+}
+
+function formatCategory(category: string) {
+  if (category === "EXPIRY") return "Ablauf";
+  if (category === "STK_DUE") return "STK";
+  if (category === "MTK_DUE") return "MTK";
+  return category;
+}
+
+function formatDueDate(value: Date | null) {
+  return value?.toISOString().slice(0, 10) ?? "sofort";
+}
+
+function formatReason(reason: string) {
+  if (reason === "DISCARDED_EXPIRED") return "Ablauf entsorgt";
+  if (reason === "SHORTAGE_AND_DISCARDED_EXPIRED") return "Fehlbestand und Ablauf";
+  return "Fehlbestand";
 }

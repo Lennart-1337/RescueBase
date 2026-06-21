@@ -19,9 +19,11 @@ const rescueBaseOpenApiDocumentDefinition = {
     { name: "Stammdaten" },
     { name: "Lager" },
     { name: "Öffentliche Checks" },
+    { name: "Check-Protokolle" },
     { name: "Nachfüllaufträge" },
     { name: "Reports" },
-    { name: "Audit" }
+    { name: "Audit" },
+    { name: "Admin-Einstellungen" }
   ],
   components: {
     securitySchemes: {
@@ -386,12 +388,52 @@ const rescueBaseOpenApiDocumentDefinition = {
         verified: { type: "boolean" }
       }, ["items", "verified"]),
       InventoryAutomationConfig: objectSchema({
+        enabled: { type: "boolean" },
         dailyReconcileTime: { type: "string" },
-        lastReconciledAt: { type: "string", format: "date-time" }
-      }, ["dailyReconcileTime"]),
+        lastReconciledAt: { type: "string", format: "date-time", nullable: true }
+      }, ["enabled", "dailyReconcileTime"]),
       UpdateInventoryAutomationConfigRequest: objectSchema({
         dailyReconcileTime: { type: "string" }
       }, ["dailyReconcileTime"]),
+      GeneralSettings: objectSchema({
+        timezone: { type: "string", example: "Europe/Berlin" },
+        newUserOrderNotificationsDefaultEnabled: { type: "boolean" }
+      }, ["timezone", "newUserOrderNotificationsDefaultEnabled"]),
+      AlertSettings: objectSchema({
+        dailyDigestEnabled: { type: "boolean" },
+        dailyDigestTime: { type: "string", pattern: "^(?:[01]\\d|2[0-3]):[0-5]\\d$" },
+        warningWindowDays: { type: "integer", minimum: 1, maximum: 3650 },
+        lastDigestSentAt: { type: "string", format: "date-time", nullable: true }
+      }, ["dailyDigestEnabled", "dailyDigestTime", "warningWindowDays", "lastDigestSentAt"]),
+      AdminInventorySettings: objectSchema({
+        enabled: { type: "boolean" },
+        dailyReconcileTime: { type: "string", pattern: "^(?:[01]\\d|2[0-3]):[0-5]\\d$" },
+        lastReconciledAt: { type: "string", format: "date-time", nullable: true }
+      }, ["enabled", "dailyReconcileTime", "lastReconciledAt"]),
+      NotificationTemplateKey: stringEnum(["ALERT_IMMEDIATE", "ALERT_DIGEST", "NEW_ORDER"]),
+      NotificationTemplate: objectSchema({
+        key: ref("NotificationTemplateKey"),
+        subjectTemplate: { type: "string" },
+        introTemplate: { type: "string" },
+        bodyTemplate: { type: "string" },
+        allowedPlaceholders: arrayOf({ type: "string" })
+      }, ["key", "subjectTemplate", "introTemplate", "bodyTemplate", "allowedPlaceholders"]),
+      AdminSettings: objectSchema({
+        general: ref("GeneralSettings"), alerts: ref("AlertSettings"), inventory: ref("AdminInventorySettings"), templates: arrayOf(ref("NotificationTemplate"))
+      }, ["general", "alerts", "inventory", "templates"]),
+      UpdateGeneralSettingsRequest: objectSchema({
+        timezone: { type: "string" }, newUserOrderNotificationsDefaultEnabled: { type: "boolean" }
+      }),
+      UpdateAlertSettingsRequest: objectSchema({
+        dailyDigestEnabled: { type: "boolean" }, dailyDigestTime: { type: "string" }, warningWindowDays: { type: "integer", minimum: 1, maximum: 3650 }
+      }),
+      UpdateAdminInventorySettingsRequest: objectSchema({ enabled: { type: "boolean" }, dailyReconcileTime: { type: "string" } }),
+      UpdateNotificationTemplateRequest: objectSchema({
+        subjectTemplate: { type: "string" }, introTemplate: { type: "string" }, bodyTemplate: { type: "string" }
+      }),
+      NotificationTemplatePreview: objectSchema({
+        subject: { type: "string" }, text: { type: "string" }, html: { type: "string" }
+      }, ["subject", "text", "html"]),
       ExpiryWarning: objectSchema({
         id: { type: "string" },
         articleId: { type: "string" },
@@ -436,6 +478,65 @@ const rescueBaseOpenApiDocumentDefinition = {
         signatureHash: { type: "string" },
         createdAt: { type: "string", format: "date-time" }
       }, ["id", "kitId", "checkerName", "effectiveStatus", "warnings", "signaturePngDataUrl", "signatureHash", "createdAt"]),
+      CheckProtocolKit: objectSchema({
+        id: { type: "string" },
+        name: { type: "string" },
+        code: { type: "string" }
+      }, ["id", "name", "code"]),
+      CheckProtocolOrder: objectSchema({
+        id: { type: "string" },
+        status: ref("ReplenishmentStatus")
+      }, ["id", "status"]),
+      CheckProtocolSummary: objectSchema({
+        id: { type: "string" },
+        checkerName: { type: "string" },
+        selectedStatus: ref("KitOperationalStatus"),
+        effectiveStatus: ref("KitOperationalStatus"),
+        statusReason: { type: "string" },
+        warnings: arrayOf({ type: "string" }),
+        signatureHash: { type: "string" },
+        positionCount: { type: "integer", minimum: 0 },
+        deviationCount: { type: "integer", minimum: 0 },
+        kit: ref("CheckProtocolKit"),
+        replenishmentOrder: ref("CheckProtocolOrder"),
+        createdAt: { type: "string", format: "date-time" }
+      }, ["id", "checkerName", "selectedStatus", "effectiveStatus", "warnings", "signatureHash", "positionCount", "deviationCount", "kit", "createdAt"]),
+      CheckProtocolPosition: objectSchema({
+        id: { type: "string" },
+        articleId: { type: "string" },
+        articleName: { type: "string" },
+        moduleName: { type: "string" },
+        unit: { type: "string" },
+        requiredQuantity: { type: "integer", minimum: 0 },
+        countedQuantity: { type: "integer", minimum: 0 },
+        discardedExpiredQuantity: { type: "integer", minimum: 0 },
+        missingQuantity: { type: "integer", minimum: 0 },
+        surplusQuantity: { type: "integer", minimum: 0 },
+        critical: { type: "boolean" },
+        note: { type: "string" }
+      }, ["id", "articleId", "articleName", "unit", "requiredQuantity", "countedQuantity", "discardedExpiredQuantity", "missingQuantity", "surplusQuantity", "critical"]),
+      CheckProtocolDetail: objectSchema({
+        id: { type: "string" },
+        checkerName: { type: "string" },
+        selectedStatus: ref("KitOperationalStatus"),
+        effectiveStatus: ref("KitOperationalStatus"),
+        statusReason: { type: "string" },
+        warnings: arrayOf({ type: "string" }),
+        signatureHash: { type: "string" },
+        signaturePngDataUrl: { type: "string" },
+        positionCount: { type: "integer", minimum: 0 },
+        deviationCount: { type: "integer", minimum: 0 },
+        kit: ref("CheckProtocolKit"),
+        replenishmentOrder: ref("CheckProtocolOrder"),
+        positions: arrayOf(ref("CheckProtocolPosition")),
+        createdAt: { type: "string", format: "date-time" }
+      }, ["id", "checkerName", "selectedStatus", "effectiveStatus", "warnings", "signatureHash", "signaturePngDataUrl", "positionCount", "deviationCount", "kit", "positions", "createdAt"]),
+      CheckProtocolPage: objectSchema({
+        items: arrayOf(ref("CheckProtocolSummary")),
+        page: { type: "integer", minimum: 1 },
+        pageSize: { type: "integer", minimum: 1 },
+        total: { type: "integer", minimum: 0 }
+      }, ["items", "page", "pageSize", "total"]),
       ReplenishmentOrderItem: objectSchema({
         articleId: { type: "string" },
         articleName: { type: "string" },
@@ -489,6 +590,24 @@ const rescueBaseOpenApiDocumentDefinition = {
   },
   security: [{ sessionCookie: [] }],
   paths: {
+    "/admin/settings": {
+      get: operation("Admin-Einstellungen", "AdminSettingsController_getAll", {}, response(200, "Aggregated app settings", ref("AdminSettings")))
+    },
+    "/admin/settings/general": {
+      post: operation("Admin-Einstellungen", "AdminSettingsController_updateGeneral", request("UpdateGeneralSettingsRequest"), response(201, "General settings updated", ref("GeneralSettings")))
+    },
+    "/admin/settings/alerts": {
+      post: operation("Admin-Einstellungen", "AdminSettingsController_updateAlerts", request("UpdateAlertSettingsRequest"), response(201, "Alert settings updated", ref("AlertSettings")))
+    },
+    "/admin/settings/inventory": {
+      post: operation("Admin-Einstellungen", "AdminSettingsController_updateInventory", request("UpdateAdminInventorySettingsRequest"), response(201, "Inventory settings updated", ref("AdminInventorySettings")))
+    },
+    "/admin/settings/templates/{key}": {
+      post: operation("Admin-Einstellungen", "AdminSettingsController_updateTemplate", { ...pathParam("key"), ...request("UpdateNotificationTemplateRequest") }, response(201, "Notification template updated", ref("NotificationTemplate")))
+    },
+    "/admin/settings/templates/{key}/preview": {
+      post: operation("Admin-Einstellungen", "AdminSettingsController_previewTemplate", { ...pathParam("key"), ...request("UpdateNotificationTemplateRequest") }, response(201, "Notification template preview", ref("NotificationTemplatePreview")))
+    },
     "/auth/setup/status": { get: operation("Auth", "AuthController_setupStatus", {}, response(200, "Setup status", ref("SetupStatus")), false) },
     "/auth/setup/first-admin": { post: operation("Auth", "AuthController_createFirstAdmin", request("FirstAdminRequest"), response(201, "First admin created", ref("FirstAdminResponse")), false) },
     "/auth/login": { post: operation("Auth", "AuthController_login", request("LoginRequest"), response(201, "Login result", ref("LoginResponse")), false) },
@@ -595,6 +714,14 @@ const rescueBaseOpenApiDocumentDefinition = {
     },
     "/public/kits/{token}/checks": {
       post: operation("Öffentliche Checks", "PublicChecksController_completeCheck", { ...pathParam("token"), ...request("CompleteCheckRequest") }, response(201, "Check completed", ref("CompleteCheckResponse")), false)
+    },
+    "/checks": {
+      get: operation("Check-Protokolle", "CheckRecordsController_list", {
+        parameters: [optionalQueryParam("q"), optionalQueryParam("kitId"), optionalQueryParam("status"), optionalQueryParam("page")]
+      }, response(200, "Check protocols", ref("CheckProtocolPage")))
+    },
+    "/checks/{id}": {
+      get: operation("Check-Protokolle", "CheckRecordsController_detail", pathParam("id"), response(200, "Check protocol", ref("CheckProtocolDetail")))
     },
     "/replenishment-orders": {
       get: operation("Nachfüllaufträge", "ReplenishmentController_list", {}, response(200, "Replenishment orders", arrayOf(ref("ReplenishmentOrder"))))

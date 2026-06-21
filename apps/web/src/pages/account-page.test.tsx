@@ -13,6 +13,7 @@ describe("AccountPage", () => {
       "/api/alerts/subscriptions/me": []
     });
     await renderAppAt("/admin/account");
+    expect((await screen.findByRole("heading", { name: "Zugriffsschutz" })).closest(".page-section")?.querySelector(".account-access-grid")).not.toBeNull();
     await clickElement(await screen.findByRole("button", { name: /TOTP vorbereiten/ }));
     expect(await screen.findByAltText("TOTP-QR-Code")).toBeInTheDocument();
     expect(screen.getByText("ABCDEF123456")).toBeInTheDocument();
@@ -62,6 +63,7 @@ describe("AccountPage", () => {
 
     await renderAppAt("/admin/account");
     const panel = (await screen.findByRole("heading", { name: "Auftrags-E-Mails" })).closest("section") as HTMLElement;
+    expect(panel.closest(".account-notification-grid")).not.toBeNull();
     await clickElement(within(panel).getByRole("checkbox", { name: /Neue Nachfüllaufträge per E-Mail senden/ }));
     await clickElement(within(panel).getByRole("button", { name: "Speichern" }));
   });

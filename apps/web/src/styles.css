@@ -1,7 +1,14 @@
 :root {
   color: #17202c;
   background: #f6f7f9;
-  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-family:
+    Inter,
+    ui-sans-serif,
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
 }
@@ -302,8 +309,12 @@ a {
 }
 
 .workspace-rail .panel-header,
-.workspace-rail .compact-list-row {
+.workspace-rail .compact-list-row-actions {
   grid-template-columns: 1fr;
+}
+
+.workspace-rail .compact-list-row:not(.compact-list-row-actions) {
+  grid-template-columns: minmax(0, 1fr) auto;
 }
 
 .workspace-rail > * {
@@ -336,8 +347,21 @@ a {
   font-size: 14px;
 }
 
-.account-notification-grid {
-  grid-template-columns: minmax(0, 1fr);
+.inventory-workspace {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.inventory-workspace .workspace-main,
+.inventory-workspace .inventory-planning-grid {
+  grid-column: 1 / -1;
+}
+
+.inventory-workspace .inventory-planning-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.inventory-planning-grid .panel-header {
+  flex-direction: row;
 }
 
 .button {
@@ -452,10 +476,22 @@ a {
   place-items: center;
 }
 
-.metric-icon.ready { background: #ecfdf3; color: #067647; }
-.metric-icon.warning { background: #fffaeb; color: #b54708; }
-.metric-icon.danger { background: #fff1f0; color: #b42318; }
-.metric-icon.info { background: #eff4ff; color: #3538cd; }
+.metric-icon.ready {
+  background: #ecfdf3;
+  color: #067647;
+}
+.metric-icon.warning {
+  background: #fffaeb;
+  color: #b54708;
+}
+.metric-icon.danger {
+  background: #fff1f0;
+  color: #b42318;
+}
+.metric-icon.info {
+  background: #eff4ff;
+  color: #3538cd;
+}
 
 .metric strong {
   font-size: 26px;
@@ -512,11 +548,26 @@ a {
   transform: translateY(1px);
 }
 
-.badge-neutral { background: #f2f4f7; color: #344054; }
-.badge-ready { background: #dcfae6; color: #067647; }
-.badge-warning { background: #fef0c7; color: #93370d; }
-.badge-danger { background: #fee4e2; color: #a51d15; }
-.badge-info { background: #e0eaff; color: #3538cd; }
+.badge-neutral {
+  background: #f2f4f7;
+  color: #344054;
+}
+.badge-ready {
+  background: #dcfae6;
+  color: #067647;
+}
+.badge-warning {
+  background: #fef0c7;
+  color: #93370d;
+}
+.badge-danger {
+  background: #fee4e2;
+  color: #a51d15;
+}
+.badge-info {
+  background: #e0eaff;
+  color: #3538cd;
+}
 
 .order-list,
 .fulfillment-list,
@@ -808,6 +859,70 @@ a {
   gap: 10px;
 }
 
+.settings-stack,
+.template-settings-fields {
+  display: grid;
+  gap: 16px;
+}
+
+.settings-meta {
+  margin: -4px 18px 16px;
+  color: #657386;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.settings-subsection {
+  display: grid;
+  gap: 6px;
+  align-self: stretch;
+  border-left: 3px solid #b42318;
+  padding: 10px 12px;
+  background: #fff8f7;
+}
+
+.settings-subsection > span {
+  color: #657386;
+  font-size: 13px;
+}
+
+.settings-subsection .check-field {
+  margin-top: 4px;
+}
+
+.template-settings-grid {
+  align-items: stretch;
+}
+
+.template-preview {
+  min-height: 280px;
+  border: 1px solid #e0e6ef;
+  border-radius: 8px;
+  padding: 18px;
+  background: #fbfcfe;
+}
+
+.template-preview > span {
+  display: block;
+  margin-bottom: 16px;
+  color: #657386;
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.template-preview strong,
+.template-preview pre {
+  display: block;
+  white-space: pre-wrap;
+}
+
+.template-preview pre {
+  margin-top: 18px;
+  font: inherit;
+  line-height: 1.6;
+}
+
 .field-help {
   color: #657386;
   font-size: 13px;
@@ -823,6 +938,222 @@ a {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 16px;
+}
+
+.admin-grid.account-access-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.admin-grid.account-notification-grid {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.protocol-row {
+  grid-template-columns: minmax(220px, 1fr) minmax(200px, 0.85fr) minmax(
+      220px,
+      auto
+    ) auto;
+}
+
+.protocol-row-metrics,
+.protocol-row-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.protocol-row-actions {
+  justify-content: flex-end;
+}
+
+.protocol-status-grid,
+.protocol-summary-grid,
+.protocol-detail-main,
+.protocol-detail-rail,
+.protocol-position-list,
+.protocol-warning-list {
+  display: grid;
+  gap: 12px;
+}
+
+.protocol-status-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  padding: 18px;
+  border-top: 1px solid #edf0f4;
+}
+
+.protocol-status-card,
+.protocol-card,
+.protocol-hero,
+.protocol-position-card,
+.protocol-summary-grid {
+  border: 1px solid #e0e6ef;
+  border-radius: 12px;
+  background: #fbfcfe;
+}
+
+.protocol-status-card {
+  padding: 12px;
+  display: grid;
+  gap: 4px;
+}
+
+.protocol-status-card span,
+.protocol-hash-block span,
+.protocol-hero p {
+  color: #657386;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.protocol-status-card strong {
+  font-size: 24px;
+}
+
+.protocol-status-card-ready strong {
+  color: #157347;
+}
+
+.protocol-status-card-warning strong {
+  color: #9a6700;
+}
+
+.protocol-status-card-danger strong {
+  color: #a51d15;
+}
+
+.protocol-status-card-info strong {
+  color: #1d4ed8;
+}
+
+.protocol-detail-shell,
+.protocol-detail-layout,
+.protocol-summary-grid {
+  display: grid;
+  gap: 16px;
+}
+
+.protocol-summary-item {
+  display: grid;
+  gap: 4px;
+  padding: 12px;
+  border: 1px solid #e0e6ef;
+  border-radius: 8px;
+  background: #fbfcfe;
+}
+
+.protocol-detail-layout {
+  grid-template-columns: minmax(0, 1.45fr) minmax(260px, 0.75fr);
+  align-items: start;
+}
+
+.protocol-card {
+  padding: 18px;
+}
+
+.protocol-card-header {
+  display: grid;
+  gap: 4px;
+}
+
+.protocol-card-header h3,
+.protocol-hero h3,
+.protocol-position-card strong {
+  margin: 0;
+}
+
+.protocol-card-header p,
+.protocol-hero small,
+.protocol-position-card small,
+.protocol-summary-item span,
+.protocol-hash-block code {
+  color: #657386;
+  font-size: 12px;
+}
+
+.protocol-summary-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.protocol-hero {
+  padding: 18px;
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: flex-start;
+}
+
+.protocol-hero p {
+  margin: 0 0 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.protocol-hero small,
+.protocol-card-header p {
+  display: block;
+  margin: 0;
+}
+
+.protocol-hero-badges,
+.protocol-position-badges {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.protocol-warning {
+  padding: 12px 14px;
+  border: 1px solid #f5d7a1;
+  border-radius: 10px;
+  background: #fff9ec;
+  color: #7a4a00;
+  font-weight: 700;
+}
+
+.protocol-position-card {
+  padding: 14px;
+  display: grid;
+  gap: 10px;
+}
+
+.protocol-signature-image {
+  width: 100%;
+  min-height: 132px;
+  max-height: 180px;
+  object-fit: contain;
+  border: 1px solid #e0e6ef;
+  border-radius: 10px;
+  background: #ffffff;
+}
+
+.protocol-hash-block {
+  display: grid;
+  gap: 6px;
+}
+
+.protocol-hash-block code {
+  overflow-wrap: anywhere;
+}
+
+.protocol-order-card {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 10px;
+  align-items: center;
+}
+
+.list-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  color: #465568;
+  font-size: 13px;
+  font-weight: 700;
 }
 
 .check-field {
@@ -1061,7 +1392,7 @@ a {
 }
 
 .modal-dialog {
-  width: min(860px, 100%);
+  width: min(980px, 100%);
   max-height: calc(100vh - 48px);
   overflow: auto;
   background: #ffffff;
@@ -1121,7 +1452,10 @@ a {
 
 .template-position-row {
   display: grid;
-  grid-template-columns: minmax(170px, 1.2fr) minmax(140px, 1fr) 120px 110px auto;
+  grid-template-columns: minmax(170px, 1.2fr) minmax(
+      140px,
+      1fr
+    ) 120px 110px auto;
   gap: 10px;
   align-items: end;
   padding: 12px;
@@ -1359,12 +1693,19 @@ a {
     grid-template-columns: 1fr;
   }
 
+  .admin-grid.account-access-grid,
+  .inventory-workspace,
+  .inventory-workspace .inventory-planning-grid {
+    grid-template-columns: 1fr;
+  }
+
   .workspace-rail {
     order: 2;
   }
 
   .kit-row,
   .user-row,
+  .protocol-row,
   .fulfillment-row {
     grid-template-columns: 1fr;
   }
@@ -1426,6 +1767,23 @@ a {
 
   .form-grid-three {
     grid-template-columns: 1fr;
+  }
+
+  .protocol-summary-grid,
+  .protocol-detail-layout,
+  .protocol-status-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .protocol-hero,
+  .protocol-hero-badges {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .protocol-position-badges,
+  .protocol-row-actions {
+    justify-content: flex-start;
   }
 
   .check-item {

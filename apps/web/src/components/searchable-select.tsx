@@ -18,21 +18,18 @@ export function SearchableSelect(props: {
   const rootRef = useRef<HTMLDivElement | null>(null);
   const selected = props.options.find((option) => option.value === props.value) ?? null;
   const [open, setOpen] = useState(false);
-  const [query, setQuery] = useState(selected?.label ?? "");
+  const [search, setSearch] = useState("");
   const [activeIndex, setActiveIndex] = useState(0);
+  const inputValue = open ? search : selected?.label ?? "";
   const filteredOptions = useMemo(() => {
-    const needle = normalize(query);
+    const needle = normalize(search);
     if (!needle) return props.options;
     return props.options.filter((option) => [option.label, ...(option.keywords ?? [])].some((value) => normalize(value).includes(needle)));
-  }, [props.options, query]);
-
-  useEffect(() => {
-    if (!open) setQuery(selected?.label ?? "");
-  }, [open, selected]);
+  }, [props.options, search]);
 
   useEffect(() => {
     setActiveIndex(0);
-  }, [query]);
+  }, [search]);
 
   useEffect(() => {
     function handlePointerDown(event: MouseEvent) {
@@ -44,19 +41,24 @@ export function SearchableSelect(props: {
 
   function commit(option: Option) {
     props.onChange(option.value);
-    setQuery(option.label);
+    setSearch("");
     setOpen(false);
+  }
+
+  function openWithBlankSearch() {
+    setOpen(true);
+    setSearch("");
   }
 
   function handleKeyDown(event: KeyboardEvent<HTMLInputElement>) {
     if (event.key === "ArrowDown") {
       event.preventDefault();
-      setOpen(true);
+      openWithBlankSearch();
       setActiveIndex((current) => Math.min(current + 1, Math.max(filteredOptions.length - 1, 0)));
     }
     if (event.key === "ArrowUp") {
       event.preventDefault();
-      setOpen(true);
+      openWithBlankSearch();
       setActiveIndex((current) => Math.max(current - 1, 0));
     }
     if (event.key === "Enter" && open && filteredOptions[activeIndex]) {
@@ -79,15 +81,15 @@ export function SearchableSelect(props: {
           disabled={props.disabled}
           onChange={(event) => {
             const nextValue = event.target.value;
-            setQuery(nextValue);
+            setSearch(nextValue);
             setOpen(true);
             if (!nextValue.trim()) props.onChange("");
           }}
-          onFocus={() => setOpen(true)}
+          onFocus={openWithBlankSearch}
           onKeyDown={handleKeyDown}
           placeholder={props.placeholder ?? props.emptyLabel ?? "Auswählen"}
           role="combobox"
-          value={query}
+          value={inputValue}
         />
         <ChevronDown aria-hidden="true" className="searchable-select-icon" />
       </div>

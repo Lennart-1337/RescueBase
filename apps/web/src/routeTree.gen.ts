@@ -15,9 +15,11 @@ import { Route as PasswordResetTokenRouteImport } from './routes/password-reset/
 import { Route as InvitationTokenRouteImport } from './routes/invitation/$token'
 import { Route as CheckTokenRouteImport } from './routes/check/$token'
 import { Route as AdminUsersRouteImport } from './routes/admin/users'
+import { Route as AdminSettingsRouteImport } from './routes/admin/settings'
 import { Route as AdminMasterDataRouteImport } from './routes/admin/master-data'
 import { Route as AdminKitsRouteImport } from './routes/admin/kits'
 import { Route as AdminInventoryRouteImport } from './routes/admin/inventory'
+import { Route as AdminCheckProtocolsRouteImport } from './routes/admin/check-protocols'
 import { Route as AdminAccountRouteImport } from './routes/admin/account'
 import { Route as AdminMasterDataIndexRouteImport } from './routes/admin/master-data/index'
 import { Route as AdminMasterDataTemplatesRouteImport } from './routes/admin/master-data/templates'
@@ -55,6 +57,11 @@ const AdminUsersRoute = AdminUsersRouteImport.update({
   path: '/admin/users',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminSettingsRoute = AdminSettingsRouteImport.update({
+  id: '/admin/settings',
+  path: '/admin/settings',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AdminMasterDataRoute = AdminMasterDataRouteImport.update({
   id: '/admin/master-data',
   path: '/admin/master-data',
@@ -68,6 +75,11 @@ const AdminKitsRoute = AdminKitsRouteImport.update({
 const AdminInventoryRoute = AdminInventoryRouteImport.update({
   id: '/admin/inventory',
   path: '/admin/inventory',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminCheckProtocolsRoute = AdminCheckProtocolsRouteImport.update({
+  id: '/admin/check-protocols',
+  path: '/admin/check-protocols',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdminAccountRoute = AdminAccountRouteImport.update({
@@ -106,9 +118,11 @@ const AdminMasterDataArticlesRoute = AdminMasterDataArticlesRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/admin/account': typeof AdminAccountRoute
+  '/admin/check-protocols': typeof AdminCheckProtocolsRoute
   '/admin/inventory': typeof AdminInventoryRoute
   '/admin/kits': typeof AdminKitsRoute
   '/admin/master-data': typeof AdminMasterDataRouteWithChildren
+  '/admin/settings': typeof AdminSettingsRoute
   '/admin/users': typeof AdminUsersRoute
   '/check/$token': typeof CheckTokenRoute
   '/invitation/$token': typeof InvitationTokenRoute
@@ -123,8 +137,10 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/admin/account': typeof AdminAccountRoute
+  '/admin/check-protocols': typeof AdminCheckProtocolsRoute
   '/admin/inventory': typeof AdminInventoryRoute
   '/admin/kits': typeof AdminKitsRoute
+  '/admin/settings': typeof AdminSettingsRoute
   '/admin/users': typeof AdminUsersRoute
   '/check/$token': typeof CheckTokenRoute
   '/invitation/$token': typeof InvitationTokenRoute
@@ -140,9 +156,11 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/admin/account': typeof AdminAccountRoute
+  '/admin/check-protocols': typeof AdminCheckProtocolsRoute
   '/admin/inventory': typeof AdminInventoryRoute
   '/admin/kits': typeof AdminKitsRoute
   '/admin/master-data': typeof AdminMasterDataRouteWithChildren
+  '/admin/settings': typeof AdminSettingsRoute
   '/admin/users': typeof AdminUsersRoute
   '/check/$token': typeof CheckTokenRoute
   '/invitation/$token': typeof InvitationTokenRoute
@@ -159,9 +177,11 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/admin/account'
+    | '/admin/check-protocols'
     | '/admin/inventory'
     | '/admin/kits'
     | '/admin/master-data'
+    | '/admin/settings'
     | '/admin/users'
     | '/check/$token'
     | '/invitation/$token'
@@ -176,8 +196,10 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/admin/account'
+    | '/admin/check-protocols'
     | '/admin/inventory'
     | '/admin/kits'
+    | '/admin/settings'
     | '/admin/users'
     | '/check/$token'
     | '/invitation/$token'
@@ -192,9 +214,11 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/admin/account'
+    | '/admin/check-protocols'
     | '/admin/inventory'
     | '/admin/kits'
     | '/admin/master-data'
+    | '/admin/settings'
     | '/admin/users'
     | '/check/$token'
     | '/invitation/$token'
@@ -210,9 +234,11 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AdminAccountRoute: typeof AdminAccountRoute
+  AdminCheckProtocolsRoute: typeof AdminCheckProtocolsRoute
   AdminInventoryRoute: typeof AdminInventoryRoute
   AdminKitsRoute: typeof AdminKitsRoute
   AdminMasterDataRoute: typeof AdminMasterDataRouteWithChildren
+  AdminSettingsRoute: typeof AdminSettingsRoute
   AdminUsersRoute: typeof AdminUsersRoute
   CheckTokenRoute: typeof CheckTokenRoute
   InvitationTokenRoute: typeof InvitationTokenRoute
@@ -264,6 +290,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminUsersRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/settings': {
+      id: '/admin/settings'
+      path: '/admin/settings'
+      fullPath: '/admin/settings'
+      preLoaderRoute: typeof AdminSettingsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/admin/master-data': {
       id: '/admin/master-data'
       path: '/admin/master-data'
@@ -283,6 +316,13 @@ declare module '@tanstack/react-router' {
       path: '/admin/inventory'
       fullPath: '/admin/inventory'
       preLoaderRoute: typeof AdminInventoryRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/check-protocols': {
+      id: '/admin/check-protocols'
+      path: '/admin/check-protocols'
+      fullPath: '/admin/check-protocols'
+      preLoaderRoute: typeof AdminCheckProtocolsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/admin/account': {
@@ -353,9 +393,11 @@ const AdminMasterDataRouteWithChildren = AdminMasterDataRoute._addFileChildren(
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdminAccountRoute: AdminAccountRoute,
+  AdminCheckProtocolsRoute: AdminCheckProtocolsRoute,
   AdminInventoryRoute: AdminInventoryRoute,
   AdminKitsRoute: AdminKitsRoute,
   AdminMasterDataRoute: AdminMasterDataRouteWithChildren,
+  AdminSettingsRoute: AdminSettingsRoute,
   AdminUsersRoute: AdminUsersRoute,
   CheckTokenRoute: CheckTokenRoute,
   InvitationTokenRoute: InvitationTokenRoute,

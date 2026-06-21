@@ -4,6 +4,102 @@
  */
 
 export interface paths {
+    "/admin/settings": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["AdminSettingsController_getAll"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admin/settings/general": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["AdminSettingsController_updateGeneral"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admin/settings/alerts": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["AdminSettingsController_updateAlerts"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admin/settings/inventory": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["AdminSettingsController_updateInventory"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admin/settings/templates/{key}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["AdminSettingsController_updateTemplate"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admin/settings/templates/{key}/preview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["AdminSettingsController_previewTemplate"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/auth/setup/status": {
         parameters: {
             query?: never;
@@ -724,6 +820,38 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/checks": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["CheckRecordsController_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/checks/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["CheckRecordsController_detail"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/replenishment-orders": {
         parameters: {
             query?: never;
@@ -1295,12 +1423,69 @@ export interface components {
             verified: boolean;
         };
         InventoryAutomationConfig: {
+            enabled: boolean;
             dailyReconcileTime: string;
             /** Format: date-time */
-            lastReconciledAt?: string;
+            lastReconciledAt?: string | null;
         };
         UpdateInventoryAutomationConfigRequest: {
             dailyReconcileTime: string;
+        };
+        GeneralSettings: {
+            /** @example Europe/Berlin */
+            timezone: string;
+            newUserOrderNotificationsDefaultEnabled: boolean;
+        };
+        AlertSettings: {
+            dailyDigestEnabled: boolean;
+            dailyDigestTime: string;
+            warningWindowDays: number;
+            /** Format: date-time */
+            lastDigestSentAt: string | null;
+        };
+        AdminInventorySettings: {
+            enabled: boolean;
+            dailyReconcileTime: string;
+            /** Format: date-time */
+            lastReconciledAt: string | null;
+        };
+        /** @enum {string} */
+        NotificationTemplateKey: "ALERT_IMMEDIATE" | "ALERT_DIGEST" | "NEW_ORDER";
+        NotificationTemplate: {
+            key: components["schemas"]["NotificationTemplateKey"];
+            subjectTemplate: string;
+            introTemplate: string;
+            bodyTemplate: string;
+            allowedPlaceholders: string[];
+        };
+        AdminSettings: {
+            general: components["schemas"]["GeneralSettings"];
+            alerts: components["schemas"]["AlertSettings"];
+            inventory: components["schemas"]["AdminInventorySettings"];
+            templates: components["schemas"]["NotificationTemplate"][];
+        };
+        UpdateGeneralSettingsRequest: {
+            timezone?: string;
+            newUserOrderNotificationsDefaultEnabled?: boolean;
+        };
+        UpdateAlertSettingsRequest: {
+            dailyDigestEnabled?: boolean;
+            dailyDigestTime?: string;
+            warningWindowDays?: number;
+        };
+        UpdateAdminInventorySettingsRequest: {
+            enabled?: boolean;
+            dailyReconcileTime?: string;
+        };
+        UpdateNotificationTemplateRequest: {
+            subjectTemplate?: string;
+            introTemplate?: string;
+            bodyTemplate?: string;
+        };
+        NotificationTemplatePreview: {
+            subject: string;
+            text: string;
+            html: string;
         };
         ExpiryWarning: {
             id: string;
@@ -1355,6 +1540,67 @@ export interface components {
             signatureHash: string;
             /** Format: date-time */
             createdAt: string;
+        };
+        CheckProtocolKit: {
+            id: string;
+            name: string;
+            code: string;
+        };
+        CheckProtocolOrder: {
+            id: string;
+            status: components["schemas"]["ReplenishmentStatus"];
+        };
+        CheckProtocolSummary: {
+            id: string;
+            checkerName: string;
+            selectedStatus: components["schemas"]["KitOperationalStatus"];
+            effectiveStatus: components["schemas"]["KitOperationalStatus"];
+            statusReason?: string;
+            warnings: string[];
+            signatureHash: string;
+            positionCount: number;
+            deviationCount: number;
+            kit: components["schemas"]["CheckProtocolKit"];
+            replenishmentOrder?: components["schemas"]["CheckProtocolOrder"];
+            /** Format: date-time */
+            createdAt: string;
+        };
+        CheckProtocolPosition: {
+            id: string;
+            articleId: string;
+            articleName: string;
+            moduleName?: string;
+            unit: string;
+            requiredQuantity: number;
+            countedQuantity: number;
+            discardedExpiredQuantity: number;
+            missingQuantity: number;
+            surplusQuantity: number;
+            critical: boolean;
+            note?: string;
+        };
+        CheckProtocolDetail: {
+            id: string;
+            checkerName: string;
+            selectedStatus: components["schemas"]["KitOperationalStatus"];
+            effectiveStatus: components["schemas"]["KitOperationalStatus"];
+            statusReason?: string;
+            warnings: string[];
+            signatureHash: string;
+            signaturePngDataUrl: string;
+            positionCount: number;
+            deviationCount: number;
+            kit: components["schemas"]["CheckProtocolKit"];
+            replenishmentOrder?: components["schemas"]["CheckProtocolOrder"];
+            positions: components["schemas"]["CheckProtocolPosition"][];
+            /** Format: date-time */
+            createdAt: string;
+        };
+        CheckProtocolPage: {
+            items: components["schemas"]["CheckProtocolSummary"][];
+            page: number;
+            pageSize: number;
+            total: number;
         };
         ReplenishmentOrderItem: {
             articleId: string;
@@ -1423,6 +1669,150 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
+    AdminSettingsController_getAll: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Aggregated app settings */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminSettings"];
+                };
+            };
+        };
+    };
+    AdminSettingsController_updateGeneral: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateGeneralSettingsRequest"];
+            };
+        };
+        responses: {
+            /** @description General settings updated */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GeneralSettings"];
+                };
+            };
+        };
+    };
+    AdminSettingsController_updateAlerts: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateAlertSettingsRequest"];
+            };
+        };
+        responses: {
+            /** @description Alert settings updated */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AlertSettings"];
+                };
+            };
+        };
+    };
+    AdminSettingsController_updateInventory: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateAdminInventorySettingsRequest"];
+            };
+        };
+        responses: {
+            /** @description Inventory settings updated */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminInventorySettings"];
+                };
+            };
+        };
+    };
+    AdminSettingsController_updateTemplate: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                key: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateNotificationTemplateRequest"];
+            };
+        };
+        responses: {
+            /** @description Notification template updated */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NotificationTemplate"];
+                };
+            };
+        };
+    };
+    AdminSettingsController_previewTemplate: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                key: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateNotificationTemplateRequest"];
+            };
+        };
+        responses: {
+            /** @description Notification template preview */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NotificationTemplatePreview"];
+                };
+            };
+        };
+    };
     AuthController_setupStatus: {
         parameters: {
             query?: never;
@@ -2663,6 +3053,53 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["CompleteCheckResponse"];
+                };
+            };
+        };
+    };
+    CheckRecordsController_list: {
+        parameters: {
+            query?: {
+                q?: string;
+                kitId?: string;
+                status?: string;
+                page?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Check protocols */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CheckProtocolPage"];
+                };
+            };
+        };
+    };
+    CheckRecordsController_detail: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Check protocol */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CheckProtocolDetail"];
                 };
             };
         };

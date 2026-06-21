@@ -64,6 +64,13 @@ export async function clickElement(element: HTMLElement) {
   });
 }
 
+export async function mouseDownElement(element: HTMLElement) {
+  await act(async () => {
+    fireEvent.mouseDown(element);
+    await flushUi();
+  });
+}
+
 export async function changeValue(element: HTMLElement, value: string) {
   await act(async () => {
     fireEvent.change(element, { target: { value } });

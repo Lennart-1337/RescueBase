@@ -58,6 +58,27 @@ describe("public check flow", () => {
       expect.any(String)
     );
 
+    const checks = await agent.get("/checks?q=Mara&status=CONDITIONAL").expect(200);
+    expect(checks.body.items).toEqual([
+      expect.objectContaining({
+        id: completed.body.check.id,
+        checkerName: "Mara Müller",
+        effectiveStatus: "CONDITIONAL",
+        deviationCount: 1,
+        kit: expect.objectContaining({ name: "Rucksack Fahrzeug 1" })
+      })
+    ]);
+    expect(checks.body).toEqual(expect.objectContaining({ page: 1, pageSize: 25, total: 1 }));
+
+    const checkDetail = await agent.get(`/checks/${completed.body.check.id}`).expect(200);
+    expect(checkDetail.body).toEqual(expect.objectContaining({
+      signaturePngDataUrl: "data:image/png;base64,abc",
+      replenishmentOrder: expect.objectContaining({ id: completed.body.replenishmentOrder.id }),
+      positions: expect.arrayContaining([
+        expect.objectContaining({ articleName: "Verbandpäckchen mittel", missingQuantity: 1, discardedExpiredQuantity: 1 })
+      ])
+    }));
+
     const orderId = completed.body.replenishmentOrder.id as string;
     const beforeInventory = await agent.get("/inventory/batches").expect(200);
     const bandageBefore = beforeInventory.body.find((batch: { id: string }) => batch.id === "batch-bandage-1");

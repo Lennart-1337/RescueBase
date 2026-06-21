@@ -3,6 +3,8 @@ import { InventoryProcurementStatus } from "@prisma/client";
 import { AuditService } from "./audit.service.js";
 import { PrismaService } from "../persistence/prisma.service.js";
 import { toIsoDate, toIsoDateTime } from "../persistence/mappers.js";
+import { isScheduleDue } from "../settings/settings-schedule.js";
+import { defaultTimezone } from "../settings/default-timezone.js";
 
 const configId = "singleton";
 const activeOrderStatuses: InventoryProcurementStatus[] = [
@@ -334,8 +336,9 @@ export class InventoryProcurementService implements OnApplicationBootstrap, OnMo
   async getAutomationConfig() {
     const config = await this.ensureConfig();
     return {
+      enabled: config.enabled,
       dailyReconcileTime: config.dailyReconcileTime,
-      lastReconciledAt: config.lastReconciledAt ? toIsoDateTime(config.lastReconciledAt) : undefined
+      lastReconciledAt: config.lastReconciledAt ? toIsoDateTime(config.lastReconciledAt) : null
     };
   }
 
@@ -355,16 +358,19 @@ export class InventoryProcurementService implements OnApplicationBootstrap, OnMo
       payload: { dailyReconcileTime }
     });
     return {
+      enabled: config.enabled,
       dailyReconcileTime: config.dailyReconcileTime,
-      lastReconciledAt: config.lastReconciledAt ? toIsoDateTime(config.lastReconciledAt) : undefined
+      lastReconciledAt: config.lastReconciledAt ? toIsoDateTime(config.lastReconciledAt) : null
     };
   }
 
   private async runDailyReconcileIfDue() {
-    const config = await this.ensureConfig();
+    const [config, general] = await Promise.all([
+      this.ensureConfig(),
+      this.prisma.appSettings.upsert({ where: { id: configId }, update: {}, create: { id: configId, timezone: defaultTimezone() } })
+    ]);
     const now = new Date();
-    if (!isConfiguredTimeDue(now, config.dailyReconcileTime)) return;
-    if (config.lastReconciledAt && sameLocalDate(config.lastReconciledAt, now)) return;
+    if (!config.enabled || !isScheduleDue(now, config.lastReconciledAt, config.dailyReconcileTime, general.timezone)) return;
     await this.reconcile("schedule");
   }
 
@@ -497,17 +503,4 @@ function normalizeTime(value: string) {
   const minutes = Number(match[2]);
   if (hours > 23 || minutes > 59) throw new BadRequestException("Uhrzeit ist ungültig.");
   return `${match[1]}:${match[2]}`;
-}
-
-function isConfiguredTimeDue(now: Date, time: string) {
-  const [hourText, minuteText] = time.split(":");
-  const hours = Number(hourText);
-  const minutes = Number(minuteText);
-  return now.getHours() > hours || (now.getHours() === hours && now.getMinutes() >= minutes);
-}
-
-function sameLocalDate(left: Date, right: Date) {
-  return left.getFullYear() === right.getFullYear()
-    && left.getMonth() === right.getMonth()
-    && left.getDate() === right.getDate();
 }

@@ -49,6 +49,12 @@ enum AlertCategory {
   MTK_DUE
 }
 
+enum NotificationTemplateKey {
+  ALERT_IMMEDIATE
+  ALERT_DIGEST
+  NEW_ORDER
+}
+
 model User {
   id               String   @id @default(cuid())
   email            String   @unique
@@ -373,10 +379,38 @@ model InventoryMovement {
 
 model InventoryAutomationConfig {
   id                 String    @id @default("singleton")
+  enabled            Boolean   @default(true)
   dailyReconcileTime String    @default("02:00")
   lastReconciledAt   DateTime?
   createdAt          DateTime  @default(now())
   updatedAt          DateTime  @updatedAt
+}
+
+model AppSettings {
+  id                                      String   @id @default("singleton")
+  timezone                                String   @default("UTC")
+  newUserOrderNotificationsDefaultEnabled Boolean @default(false)
+  createdAt                               DateTime @default(now())
+  updatedAt                               DateTime @updatedAt
+}
+
+model AlertAutomationConfig {
+  id                 String    @id @default("singleton")
+  dailyDigestEnabled Boolean   @default(true)
+  dailyDigestTime    String    @default("06:00")
+  warningWindowDays  Int       @default(90)
+  lastDigestSentAt   DateTime?
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+}
+
+model NotificationTemplate {
+  key             NotificationTemplateKey @id
+  subjectTemplate String
+  introTemplate   String                  @db.Text
+  bodyTemplate    String                  @db.Text
+  createdAt       DateTime                @default(now())
+  updatedAt       DateTime                @updatedAt
 }
 
 model AuditEvent {
@@ -451,11 +485,4 @@ model AlertEvent {
   @@unique([category, sourceType, sourceId])
   @@index([category, locationId])
   @@index([resolvedAt])
-}
-
-model AlertJobState {
-  id        String   @id
-  lastRunAt DateTime?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
 }

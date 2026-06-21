@@ -4,9 +4,10 @@ import { buildAlertWarnings, type AlertWarning } from "../alerts/alert-engine.js
 import { AuditService } from "./audit.service.js";
 import { MailService } from "./mail.service.js";
 import { PrismaService } from "../persistence/prisma.service.js";
+import { isScheduleDue } from "../settings/settings-schedule.js";
+import { defaultTimezone } from "../settings/default-timezone.js";
 
-const digestStateId = "daily-alert-digest";
-const warningWindowDays = 90;
+const configId = "singleton";
 
 type WarningInput = Parameters<typeof buildAlertWarnings>[0];
 type BatchWarningInput = WarningInput["batches"][number];
@@ -58,7 +59,7 @@ export class AlertsService implements OnApplicationBootstrap, OnModuleDestroy {
     if (process.env.NODE_ENV === "test") return;
     await this.syncAlerts("boot");
     this.sweepTimer = setInterval(() => void this.syncAlerts("schedule").catch((error) => this.logger.error(error)), 15 * 60_000);
-    this.digestTimer = setInterval(() => void this.runDailyDigestIfDue().catch((error) => this.logger.error(error)), 60 * 60_000);
+    this.digestTimer = setInterval(() => void this.runDailyDigestIfDue().catch((error) => this.logger.error(error)), 60_000);
   }
 
   onModuleDestroy() {
@@ -119,6 +120,7 @@ export class AlertsService implements OnApplicationBootstrap, OnModuleDestroy {
 
   async syncAlerts(reason: string) {
     const now = new Date();
+    const config = await this.ensureConfig();
     const batchRows = await this.prisma.batch.findMany({
       where: { deletedAt: null, quantity: { gt: 0 } },
       include: { article: true, location: true },
@@ -163,7 +165,7 @@ export class AlertsService implements OnApplicationBootstrap, OnModuleDestroy {
         }))
       },
       now,
-      warningWindowDays
+      config.warningWindowDays
     ) as AlertWarning[];
 
     const openKeys = new Set(warnings.map((warning) => warningKey(warning.category, warning.sourceType, warning.sourceId)));
@@ -242,35 +244,40 @@ export class AlertsService implements OnApplicationBootstrap, OnModuleDestroy {
 
   async runDailyDigestIfDue() {
     const now = new Date();
-    const state = await this.prisma.alertJobState.findUnique({ where: { id: digestStateId } });
-    if (state?.lastRunAt && isSameUtcDay(state.lastRunAt, now)) {
-      return;
-    }
-    if (now.getUTCHours() < 6) {
-      return;
-    }
+    const [config, general] = await Promise.all([this.ensureConfig(), this.ensureAppSettings()]);
+    if (!config.dailyDigestEnabled || !isScheduleDue(now, config.lastDigestSentAt, config.dailyDigestTime, general.timezone)) return;
     await this.runDailyDigest();
-    await this.prisma.alertJobState.upsert({
-      where: { id: digestStateId },
-      update: { lastRunAt: now },
-      create: { id: digestStateId, lastRunAt: now }
+    await this.prisma.alertAutomationConfig.update({
+      where: { id: configId },
+      data: { lastDigestSentAt: now }
     });
   }
 
   async runDailyDigest() {
     const openEvents = await this.prisma.alertEvent.findMany({ where: { resolvedAt: null }, orderBy: [{ category: "asc" }, { locationId: "asc" }, { dueAt: "asc" }] });
     if (openEvents.length === 0) return;
+    const locations = await this.prisma.location.findMany({
+      where: { id: { in: openEvents.map((event) => event.locationId).filter(Boolean) as string[] }, deletedAt: null }
+    });
+    const locationMap = new Map(locations.map((location: { id: string; name: string }) => [location.id, location.name]));
     const subscriptions = await this.prisma.alertSubscription.findMany({ include: { user: true, location: true } });
     const recipients = this.resolveRecipients(openEvents, subscriptions);
     for (const recipient of recipients) {
       const warnings = openEvents.filter((event) => this.matchesSubscription(event, recipient.subscriptions));
       if (warnings.length === 0) continue;
-      await this.mail.sendCustom({
-        email: recipient.user.email,
-        subject: `RescueBase Tagesdigest · ${warnings.length} Warnungen`,
-        text: this.renderDigestText(warnings, recipient.user.displayName),
-        debugUrl: this.publicLinkForDigest(warnings[0]?.category ?? AlertCategory.EXPIRY)
-      });
+      await this.mail.sendAlertDigest(
+        recipient.user.email,
+        {
+          recipientName: recipient.user.displayName,
+          warnings: warnings.map((warning) => ({
+            category: warning.category,
+            dueAt: warning.dueAt,
+            locationName: warning.locationId ? locationMap.get(warning.locationId) ?? null : null,
+            title: warning.title
+          }))
+        },
+        this.publicLinkForDigest(warnings[0]?.category ?? AlertCategory.EXPIRY)
+      );
       await this.prisma.alertEvent.updateMany({
         where: { id: { in: warnings.map((warning) => warning.id) } },
         data: { lastDigestSentAt: new Date() }
@@ -291,12 +298,17 @@ export class AlertsService implements OnApplicationBootstrap, OnModuleDestroy {
     for (const event of events) {
       const recipients = this.resolveRecipients([event], subscriptions);
       for (const recipient of recipients) {
-        await this.mail.sendCustom({
-          email: recipient.user.email,
-          subject: `RescueBase Warnung · ${event.title}`,
-          text: this.renderImmediateText(event, recipient.user.displayName),
-          debugUrl: this.publicLinkForCategory(event.category)
-        });
+        await this.mail.sendImmediateAlert(
+          recipient.user.email,
+          {
+            category: event.category,
+            details: event.details,
+            dueAt: event.dueAt,
+            recipientName: recipient.user.displayName,
+            title: event.title
+          },
+          this.publicLinkForCategory(event.category)
+        );
         await this.audit.record({
           actorType: "SYSTEM",
           actorLabel: "Alert pipeline",
@@ -397,27 +409,6 @@ export class AlertsService implements OnApplicationBootstrap, OnModuleDestroy {
     };
   }
 
-  private renderImmediateText(event: AlertEventRecord, displayName: string) {
-    return [
-      `Hallo ${displayName},`,
-      "",
-      `eine neue RescueBase-Warnung wurde erkannt:`,
-      `- ${event.title}`,
-      `- Fällig: ${event.dueAt?.toISOString().slice(0, 10) ?? "sofort"}`,
-      "",
-      `Details: ${this.publicLinkForCategory(event.category)}`
-    ].join("\n");
-  }
-
-  private renderDigestText(warnings: AlertEventRecord[], displayName: string) {
-    const lines = [`Hallo ${displayName},`, "", `hier ist Ihr täglicher RescueBase-Digest:`];
-    for (const warning of warnings) {
-      lines.push(`- [${warning.category}] ${warning.title} · ${warning.dueAt?.toISOString().slice(0, 10) ?? "ohne Datum"}`);
-    }
-    lines.push("", `Details: ${this.publicLinkForDigest(warnings[0]?.category ?? AlertCategory.EXPIRY)}`);
-    return lines.join("\n");
-  }
-
   private publicLinkForCategory(category: AlertCategory) {
     const base = process.env.APP_PUBLIC_URL ?? "http://localhost:5173";
     const path = category === AlertCategory.EXPIRY ? "/admin/inventory?warning=expiry" : "/admin/master-data?tab=devices";
@@ -427,12 +418,16 @@ export class AlertsService implements OnApplicationBootstrap, OnModuleDestroy {
   private publicLinkForDigest(category: AlertCategory) {
     return this.publicLinkForCategory(category);
   }
+
+  private ensureConfig() {
+    return this.prisma.alertAutomationConfig.upsert({ where: { id: configId }, update: {}, create: { id: configId } });
+  }
+
+  private ensureAppSettings() {
+    return this.prisma.appSettings.upsert({ where: { id: configId }, update: {}, create: { id: configId, timezone: defaultTimezone() } });
+  }
 }
 
 function warningKey(category: AlertCategory, sourceType: string, sourceId: string) {
   return `${category}:${sourceType}:${sourceId}`;
-}
-
-function isSameUtcDay(left: Date, right: Date) {
-  return left.toISOString().slice(0, 10) === right.toISOString().slice(0, 10);
 }
