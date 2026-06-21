@@ -26,7 +26,7 @@ describe("alerts pipeline", () => {
     await agent.post("/auth/login").send({ email: "admin@rescuebase.local", password: "rescuebase-admin" }).expect(201);
 
     const mailService = app.get(MailService);
-    const sendSpy = jest.spyOn(mailService, "sendCustom").mockResolvedValue({});
+    const sendSpy = jest.spyOn(mailService, "sendImmediateAlert").mockResolvedValue({});
 
     await agent
       .put("/alerts/subscriptions/me")
@@ -54,6 +54,11 @@ describe("alerts pipeline", () => {
       .expect(201);
 
     expect(sendSpy).toHaveBeenCalled();
+    expect(sendSpy).toHaveBeenCalledWith(
+      "admin@rescuebase.local",
+      expect.objectContaining({ category: "EXPIRY" }),
+      expect.any(String)
+    );
 
     const deviceDate = daysAgo(330);
     await agent

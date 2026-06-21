@@ -260,17 +260,28 @@ export class AlertsService implements OnApplicationBootstrap, OnModuleDestroy {
   async runDailyDigest() {
     const openEvents = await this.prisma.alertEvent.findMany({ where: { resolvedAt: null }, orderBy: [{ category: "asc" }, { locationId: "asc" }, { dueAt: "asc" }] });
     if (openEvents.length === 0) return;
+    const locations = await this.prisma.location.findMany({
+      where: { id: { in: openEvents.map((event) => event.locationId).filter(Boolean) as string[] }, deletedAt: null }
+    });
+    const locationMap = new Map(locations.map((location: { id: string; name: string }) => [location.id, location.name]));
     const subscriptions = await this.prisma.alertSubscription.findMany({ include: { user: true, location: true } });
     const recipients = this.resolveRecipients(openEvents, subscriptions);
     for (const recipient of recipients) {
       const warnings = openEvents.filter((event) => this.matchesSubscription(event, recipient.subscriptions));
       if (warnings.length === 0) continue;
-      await this.mail.sendCustom({
-        email: recipient.user.email,
-        subject: `RescueBase Tagesdigest · ${warnings.length} Warnungen`,
-        text: this.renderDigestText(warnings, recipient.user.displayName),
-        debugUrl: this.publicLinkForDigest(warnings[0]?.category ?? AlertCategory.EXPIRY)
-      });
+      await this.mail.sendAlertDigest(
+        recipient.user.email,
+        {
+          recipientName: recipient.user.displayName,
+          warnings: warnings.map((warning) => ({
+            category: warning.category,
+            dueAt: warning.dueAt,
+            locationName: warning.locationId ? locationMap.get(warning.locationId) ?? null : null,
+            title: warning.title
+          }))
+        },
+        this.publicLinkForDigest(warnings[0]?.category ?? AlertCategory.EXPIRY)
+      );
       await this.prisma.alertEvent.updateMany({
         where: { id: { in: warnings.map((warning) => warning.id) } },
         data: { lastDigestSentAt: new Date() }
@@ -291,12 +302,17 @@ export class AlertsService implements OnApplicationBootstrap, OnModuleDestroy {
     for (const event of events) {
       const recipients = this.resolveRecipients([event], subscriptions);
       for (const recipient of recipients) {
-        await this.mail.sendCustom({
-          email: recipient.user.email,
-          subject: `RescueBase Warnung · ${event.title}`,
-          text: this.renderImmediateText(event, recipient.user.displayName),
-          debugUrl: this.publicLinkForCategory(event.category)
-        });
+        await this.mail.sendImmediateAlert(
+          recipient.user.email,
+          {
+            category: event.category,
+            details: event.details,
+            dueAt: event.dueAt,
+            recipientName: recipient.user.displayName,
+            title: event.title
+          },
+          this.publicLinkForCategory(event.category)
+        );
         await this.audit.record({
           actorType: "SYSTEM",
           actorLabel: "Alert pipeline",
@@ -395,27 +411,6 @@ export class AlertsService implements OnApplicationBootstrap, OnModuleDestroy {
       lastSeenAt: event.lastSeenAt.toISOString(),
       metadata: event.metadata
     };
-  }
-
-  private renderImmediateText(event: AlertEventRecord, displayName: string) {
-    return [
-      `Hallo ${displayName},`,
-      "",
-      `eine neue RescueBase-Warnung wurde erkannt:`,
-      `- ${event.title}`,
-      `- Fällig: ${event.dueAt?.toISOString().slice(0, 10) ?? "sofort"}`,
-      "",
-      `Details: ${this.publicLinkForCategory(event.category)}`
-    ].join("\n");
-  }
-
-  private renderDigestText(warnings: AlertEventRecord[], displayName: string) {
-    const lines = [`Hallo ${displayName},`, "", `hier ist Ihr täglicher RescueBase-Digest:`];
-    for (const warning of warnings) {
-      lines.push(`- [${warning.category}] ${warning.title} · ${warning.dueAt?.toISOString().slice(0, 10) ?? "ohne Datum"}`);
-    }
-    lines.push("", `Details: ${this.publicLinkForDigest(warnings[0]?.category ?? AlertCategory.EXPIRY)}`);
-    return lines.join("\n");
   }
 
   private publicLinkForCategory(category: AlertCategory) {
