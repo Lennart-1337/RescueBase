@@ -1,28 +1,11 @@
 import { execFileSync } from "node:child_process";
 
-type StartedMySqlContainer = {
-  getConnectionUri(): string;
-  stop(): Promise<void>;
-};
-
-type MySqlModule = {
-  MySqlContainer: new (image?: string) => {
-    withDatabase(name: string): unknown;
-    withUsername(name: string): unknown;
-    withUserPassword(password: string): unknown;
-    withRootPassword(password: string): unknown;
-    start(): Promise<StartedMySqlContainer>;
-  };
-};
-
-const importTestcontainers = new Function("specifier", "return import(specifier);") as (specifier: string) => Promise<MySqlModule>;
-
 export async function createMysqlTestEnvironment(databaseName: string) {
   if (process.env.GITHUB_ACTIONS === "true") {
     return createGithubActionsEnvironment(databaseName);
   }
 
-  const { MySqlContainer } = await importTestcontainers("@testcontainers/mysql");
+  const { MySqlContainer } = await import("@testcontainers/mysql");
   const container = await new MySqlContainer("mariadb:11.4")
     .withDatabase(databaseName)
     .withUsername("rescuebase")

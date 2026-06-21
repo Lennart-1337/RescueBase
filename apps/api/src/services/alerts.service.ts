@@ -4,9 +4,10 @@ import { buildAlertWarnings, type AlertWarning } from "../alerts/alert-engine.js
 import { AuditService } from "./audit.service.js";
 import { MailService } from "./mail.service.js";
 import { PrismaService } from "../persistence/prisma.service.js";
+import { isScheduleDue } from "../settings/settings-schedule.js";
+import { defaultTimezone } from "../settings/default-timezone.js";
 
-const digestStateId = "daily-alert-digest";
-const warningWindowDays = 90;
+const configId = "singleton";
 
 type WarningInput = Parameters<typeof buildAlertWarnings>[0];
 type BatchWarningInput = WarningInput["batches"][number];
@@ -58,7 +59,7 @@ export class AlertsService implements OnApplicationBootstrap, OnModuleDestroy {
     if (process.env.NODE_ENV === "test") return;
     await this.syncAlerts("boot");
     this.sweepTimer = setInterval(() => void this.syncAlerts("schedule").catch((error) => this.logger.error(error)), 15 * 60_000);
-    this.digestTimer = setInterval(() => void this.runDailyDigestIfDue().catch((error) => this.logger.error(error)), 60 * 60_000);
+    this.digestTimer = setInterval(() => void this.runDailyDigestIfDue().catch((error) => this.logger.error(error)), 60_000);
   }
 
   onModuleDestroy() {
@@ -119,6 +120,7 @@ export class AlertsService implements OnApplicationBootstrap, OnModuleDestroy {
 
   async syncAlerts(reason: string) {
     const now = new Date();
+    const config = await this.ensureConfig();
     const batchRows = await this.prisma.batch.findMany({
       where: { deletedAt: null, quantity: { gt: 0 } },
       include: { article: true, location: true },
@@ -163,7 +165,7 @@ export class AlertsService implements OnApplicationBootstrap, OnModuleDestroy {
         }))
       },
       now,
-      warningWindowDays
+      config.warningWindowDays
     ) as AlertWarning[];
 
     const openKeys = new Set(warnings.map((warning) => warningKey(warning.category, warning.sourceType, warning.sourceId)));
@@ -242,18 +244,12 @@ export class AlertsService implements OnApplicationBootstrap, OnModuleDestroy {
 
   async runDailyDigestIfDue() {
     const now = new Date();
-    const state = await this.prisma.alertJobState.findUnique({ where: { id: digestStateId } });
-    if (state?.lastRunAt && isSameUtcDay(state.lastRunAt, now)) {
-      return;
-    }
-    if (now.getUTCHours() < 6) {
-      return;
-    }
+    const [config, general] = await Promise.all([this.ensureConfig(), this.ensureAppSettings()]);
+    if (!config.dailyDigestEnabled || !isScheduleDue(now, config.lastDigestSentAt, config.dailyDigestTime, general.timezone)) return;
     await this.runDailyDigest();
-    await this.prisma.alertJobState.upsert({
-      where: { id: digestStateId },
-      update: { lastRunAt: now },
-      create: { id: digestStateId, lastRunAt: now }
+    await this.prisma.alertAutomationConfig.update({
+      where: { id: configId },
+      data: { lastDigestSentAt: now }
     });
   }
 
@@ -422,12 +418,16 @@ export class AlertsService implements OnApplicationBootstrap, OnModuleDestroy {
   private publicLinkForDigest(category: AlertCategory) {
     return this.publicLinkForCategory(category);
   }
+
+  private ensureConfig() {
+    return this.prisma.alertAutomationConfig.upsert({ where: { id: configId }, update: {}, create: { id: configId } });
+  }
+
+  private ensureAppSettings() {
+    return this.prisma.appSettings.upsert({ where: { id: configId }, update: {}, create: { id: configId, timezone: defaultTimezone() } });
+  }
 }
 
 function warningKey(category: AlertCategory, sourceType: string, sourceId: string) {
   return `${category}:${sourceType}:${sourceId}`;
-}
-
-function isSameUtcDay(left: Date, right: Date) {
-  return left.toISOString().slice(0, 10) === right.toISOString().slice(0, 10);
 }

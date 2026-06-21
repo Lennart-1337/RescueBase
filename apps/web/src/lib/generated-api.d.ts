@@ -4,6 +4,102 @@
  */
 
 export interface paths {
+    "/admin/settings": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["AdminSettingsController_getAll"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admin/settings/general": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["AdminSettingsController_updateGeneral"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admin/settings/alerts": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["AdminSettingsController_updateAlerts"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admin/settings/inventory": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["AdminSettingsController_updateInventory"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admin/settings/templates/{key}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["AdminSettingsController_updateTemplate"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admin/settings/templates/{key}/preview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["AdminSettingsController_previewTemplate"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/auth/setup/status": {
         parameters: {
             query?: never;
@@ -1327,12 +1423,69 @@ export interface components {
             verified: boolean;
         };
         InventoryAutomationConfig: {
+            enabled: boolean;
             dailyReconcileTime: string;
             /** Format: date-time */
-            lastReconciledAt?: string;
+            lastReconciledAt?: string | null;
         };
         UpdateInventoryAutomationConfigRequest: {
             dailyReconcileTime: string;
+        };
+        GeneralSettings: {
+            /** @example Europe/Berlin */
+            timezone: string;
+            newUserOrderNotificationsDefaultEnabled: boolean;
+        };
+        AlertSettings: {
+            dailyDigestEnabled: boolean;
+            dailyDigestTime: string;
+            warningWindowDays: number;
+            /** Format: date-time */
+            lastDigestSentAt: string | null;
+        };
+        AdminInventorySettings: {
+            enabled: boolean;
+            dailyReconcileTime: string;
+            /** Format: date-time */
+            lastReconciledAt: string | null;
+        };
+        /** @enum {string} */
+        NotificationTemplateKey: "ALERT_IMMEDIATE" | "ALERT_DIGEST" | "NEW_ORDER";
+        NotificationTemplate: {
+            key: components["schemas"]["NotificationTemplateKey"];
+            subjectTemplate: string;
+            introTemplate: string;
+            bodyTemplate: string;
+            allowedPlaceholders: string[];
+        };
+        AdminSettings: {
+            general: components["schemas"]["GeneralSettings"];
+            alerts: components["schemas"]["AlertSettings"];
+            inventory: components["schemas"]["AdminInventorySettings"];
+            templates: components["schemas"]["NotificationTemplate"][];
+        };
+        UpdateGeneralSettingsRequest: {
+            timezone?: string;
+            newUserOrderNotificationsDefaultEnabled?: boolean;
+        };
+        UpdateAlertSettingsRequest: {
+            dailyDigestEnabled?: boolean;
+            dailyDigestTime?: string;
+            warningWindowDays?: number;
+        };
+        UpdateAdminInventorySettingsRequest: {
+            enabled?: boolean;
+            dailyReconcileTime?: string;
+        };
+        UpdateNotificationTemplateRequest: {
+            subjectTemplate?: string;
+            introTemplate?: string;
+            bodyTemplate?: string;
+        };
+        NotificationTemplatePreview: {
+            subject: string;
+            text: string;
+            html: string;
         };
         ExpiryWarning: {
             id: string;
@@ -1516,6 +1669,150 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
+    AdminSettingsController_getAll: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Aggregated app settings */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminSettings"];
+                };
+            };
+        };
+    };
+    AdminSettingsController_updateGeneral: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateGeneralSettingsRequest"];
+            };
+        };
+        responses: {
+            /** @description General settings updated */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GeneralSettings"];
+                };
+            };
+        };
+    };
+    AdminSettingsController_updateAlerts: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateAlertSettingsRequest"];
+            };
+        };
+        responses: {
+            /** @description Alert settings updated */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AlertSettings"];
+                };
+            };
+        };
+    };
+    AdminSettingsController_updateInventory: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateAdminInventorySettingsRequest"];
+            };
+        };
+        responses: {
+            /** @description Inventory settings updated */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminInventorySettings"];
+                };
+            };
+        };
+    };
+    AdminSettingsController_updateTemplate: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                key: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateNotificationTemplateRequest"];
+            };
+        };
+        responses: {
+            /** @description Notification template updated */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NotificationTemplate"];
+                };
+            };
+        };
+    };
+    AdminSettingsController_previewTemplate: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                key: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateNotificationTemplateRequest"];
+            };
+        };
+        responses: {
+            /** @description Notification template preview */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NotificationTemplatePreview"];
+                };
+            };
+        };
+    };
     AuthController_setupStatus: {
         parameters: {
             query?: never;

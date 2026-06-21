@@ -35,6 +35,9 @@
     },
     {
       "name": "Audit"
+    },
+    {
+      "name": "Admin-Einstellungen"
     }
   ],
   "components": {
@@ -1540,15 +1543,20 @@
       "InventoryAutomationConfig": {
         "type": "object",
         "properties": {
+          "enabled": {
+            "type": "boolean"
+          },
           "dailyReconcileTime": {
             "type": "string"
           },
           "lastReconciledAt": {
             "type": "string",
-            "format": "date-time"
+            "format": "date-time",
+            "nullable": true
           }
         },
         "required": [
+          "enabled",
           "dailyReconcileTime"
         ],
         "additionalProperties": false
@@ -1562,6 +1570,221 @@
         },
         "required": [
           "dailyReconcileTime"
+        ],
+        "additionalProperties": false
+      },
+      "GeneralSettings": {
+        "type": "object",
+        "properties": {
+          "timezone": {
+            "type": "string",
+            "example": "Europe/Berlin"
+          },
+          "newUserOrderNotificationsDefaultEnabled": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "timezone",
+          "newUserOrderNotificationsDefaultEnabled"
+        ],
+        "additionalProperties": false
+      },
+      "AlertSettings": {
+        "type": "object",
+        "properties": {
+          "dailyDigestEnabled": {
+            "type": "boolean"
+          },
+          "dailyDigestTime": {
+            "type": "string",
+            "pattern": "^(?:[01]\\d|2[0-3]):[0-5]\\d$"
+          },
+          "warningWindowDays": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 3650
+          },
+          "lastDigestSentAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          }
+        },
+        "required": [
+          "dailyDigestEnabled",
+          "dailyDigestTime",
+          "warningWindowDays",
+          "lastDigestSentAt"
+        ],
+        "additionalProperties": false
+      },
+      "AdminInventorySettings": {
+        "type": "object",
+        "properties": {
+          "enabled": {
+            "type": "boolean"
+          },
+          "dailyReconcileTime": {
+            "type": "string",
+            "pattern": "^(?:[01]\\d|2[0-3]):[0-5]\\d$"
+          },
+          "lastReconciledAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          }
+        },
+        "required": [
+          "enabled",
+          "dailyReconcileTime",
+          "lastReconciledAt"
+        ],
+        "additionalProperties": false
+      },
+      "NotificationTemplateKey": {
+        "type": "string",
+        "enum": [
+          "ALERT_IMMEDIATE",
+          "ALERT_DIGEST",
+          "NEW_ORDER"
+        ]
+      },
+      "NotificationTemplate": {
+        "type": "object",
+        "properties": {
+          "key": {
+            "$ref": "#/components/schemas/NotificationTemplateKey"
+          },
+          "subjectTemplate": {
+            "type": "string"
+          },
+          "introTemplate": {
+            "type": "string"
+          },
+          "bodyTemplate": {
+            "type": "string"
+          },
+          "allowedPlaceholders": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "key",
+          "subjectTemplate",
+          "introTemplate",
+          "bodyTemplate",
+          "allowedPlaceholders"
+        ],
+        "additionalProperties": false
+      },
+      "AdminSettings": {
+        "type": "object",
+        "properties": {
+          "general": {
+            "$ref": "#/components/schemas/GeneralSettings"
+          },
+          "alerts": {
+            "$ref": "#/components/schemas/AlertSettings"
+          },
+          "inventory": {
+            "$ref": "#/components/schemas/AdminInventorySettings"
+          },
+          "templates": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/NotificationTemplate"
+            }
+          }
+        },
+        "required": [
+          "general",
+          "alerts",
+          "inventory",
+          "templates"
+        ],
+        "additionalProperties": false
+      },
+      "UpdateGeneralSettingsRequest": {
+        "type": "object",
+        "properties": {
+          "timezone": {
+            "type": "string"
+          },
+          "newUserOrderNotificationsDefaultEnabled": {
+            "type": "boolean"
+          }
+        },
+        "required": [],
+        "additionalProperties": false
+      },
+      "UpdateAlertSettingsRequest": {
+        "type": "object",
+        "properties": {
+          "dailyDigestEnabled": {
+            "type": "boolean"
+          },
+          "dailyDigestTime": {
+            "type": "string"
+          },
+          "warningWindowDays": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 3650
+          }
+        },
+        "required": [],
+        "additionalProperties": false
+      },
+      "UpdateAdminInventorySettingsRequest": {
+        "type": "object",
+        "properties": {
+          "enabled": {
+            "type": "boolean"
+          },
+          "dailyReconcileTime": {
+            "type": "string"
+          }
+        },
+        "required": [],
+        "additionalProperties": false
+      },
+      "UpdateNotificationTemplateRequest": {
+        "type": "object",
+        "properties": {
+          "subjectTemplate": {
+            "type": "string"
+          },
+          "introTemplate": {
+            "type": "string"
+          },
+          "bodyTemplate": {
+            "type": "string"
+          }
+        },
+        "required": [],
+        "additionalProperties": false
+      },
+      "NotificationTemplatePreview": {
+        "type": "object",
+        "properties": {
+          "subject": {
+            "type": "string"
+          },
+          "text": {
+            "type": "string"
+          },
+          "html": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "subject",
+          "text",
+          "html"
         ],
         "additionalProperties": false
       },
@@ -2275,6 +2498,196 @@
     }
   ],
   "paths": {
+    "/admin/settings": {
+      "get": {
+        "tags": [
+          "Admin-Einstellungen"
+        ],
+        "operationId": "AdminSettingsController_getAll",
+        "responses": {
+          "200": {
+            "description": "Aggregated app settings",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminSettings"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admin/settings/general": {
+      "post": {
+        "tags": [
+          "Admin-Einstellungen"
+        ],
+        "operationId": "AdminSettingsController_updateGeneral",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateGeneralSettingsRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "General settings updated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GeneralSettings"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admin/settings/alerts": {
+      "post": {
+        "tags": [
+          "Admin-Einstellungen"
+        ],
+        "operationId": "AdminSettingsController_updateAlerts",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateAlertSettingsRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Alert settings updated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AlertSettings"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admin/settings/inventory": {
+      "post": {
+        "tags": [
+          "Admin-Einstellungen"
+        ],
+        "operationId": "AdminSettingsController_updateInventory",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateAdminInventorySettingsRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Inventory settings updated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminInventorySettings"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admin/settings/templates/{key}": {
+      "post": {
+        "tags": [
+          "Admin-Einstellungen"
+        ],
+        "operationId": "AdminSettingsController_updateTemplate",
+        "parameters": [
+          {
+            "name": "key",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateNotificationTemplateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Notification template updated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NotificationTemplate"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admin/settings/templates/{key}/preview": {
+      "post": {
+        "tags": [
+          "Admin-Einstellungen"
+        ],
+        "operationId": "AdminSettingsController_previewTemplate",
+        "parameters": [
+          {
+            "name": "key",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateNotificationTemplateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Notification template preview",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NotificationTemplatePreview"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/auth/setup/status": {
       "get": {
         "tags": [

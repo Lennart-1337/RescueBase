@@ -20,6 +20,9 @@ describe("RescueBase OpenAPI contract", () => {
         "InventoryProcurementOrder",
         "ReceiveProcurementOrderRequest",
         "InventoryAutomationConfig",
+        "AdminSettings",
+        "NotificationTemplate",
+        "NotificationTemplatePreview",
         "CompleteCheckRequest",
         "FulfillOrderRequest",
         "ReplenishmentOrder"
@@ -113,6 +116,11 @@ describe("RescueBase OpenAPI contract", () => {
     expect(rescueBaseOpenApiDocument.paths["/auth/preferences/order-notifications"]?.post).toMatchObject({
       operationId: "AuthController_updateOrderNotifications",
       requestBody: expect.any(Object)
+    });
+    expect(rescueBaseOpenApiDocument.paths["/admin/settings"]?.get).toBeDefined();
+    expect(rescueBaseOpenApiDocument.paths["/admin/settings/templates/{key}/preview"]?.post).toMatchObject({
+      requestBody: { content: { "application/json": { schema: { $ref: "#/components/schemas/UpdateNotificationTemplateRequest" } } } },
+      responses: { "201": { content: { "application/json": { schema: { $ref: "#/components/schemas/NotificationTemplatePreview" } } } } }
     });
   });
 

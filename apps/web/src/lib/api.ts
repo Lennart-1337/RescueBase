@@ -1,4 +1,5 @@
 import { ApiError, openApiClient, reportUrl } from "./openapi-client";
+import { adminSettingsApi } from "./admin-settings-api";
 import type {
   BatchCorrectionRequest,
   CompleteCheckRequest,
@@ -21,6 +22,7 @@ import type {
 export { ApiError };
 
 export const rescueBaseApi = {
+  ...adminSettingsApi,
   setupStatus: () => openApiClient.get("/auth/setup/status"),
   createFirstAdmin: (body: { email: string; displayName: string; password: string }) =>
     openApiClient.post("/auth/setup/first-admin", body),

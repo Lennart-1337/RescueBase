@@ -22,7 +22,8 @@ const rescueBaseOpenApiDocumentDefinition = {
     { name: "Check-Protokolle" },
     { name: "Nachfüllaufträge" },
     { name: "Reports" },
-    { name: "Audit" }
+    { name: "Audit" },
+    { name: "Admin-Einstellungen" }
   ],
   components: {
     securitySchemes: {
@@ -387,12 +388,52 @@ const rescueBaseOpenApiDocumentDefinition = {
         verified: { type: "boolean" }
       }, ["items", "verified"]),
       InventoryAutomationConfig: objectSchema({
+        enabled: { type: "boolean" },
         dailyReconcileTime: { type: "string" },
-        lastReconciledAt: { type: "string", format: "date-time" }
-      }, ["dailyReconcileTime"]),
+        lastReconciledAt: { type: "string", format: "date-time", nullable: true }
+      }, ["enabled", "dailyReconcileTime"]),
       UpdateInventoryAutomationConfigRequest: objectSchema({
         dailyReconcileTime: { type: "string" }
       }, ["dailyReconcileTime"]),
+      GeneralSettings: objectSchema({
+        timezone: { type: "string", example: "Europe/Berlin" },
+        newUserOrderNotificationsDefaultEnabled: { type: "boolean" }
+      }, ["timezone", "newUserOrderNotificationsDefaultEnabled"]),
+      AlertSettings: objectSchema({
+        dailyDigestEnabled: { type: "boolean" },
+        dailyDigestTime: { type: "string", pattern: "^(?:[01]\\d|2[0-3]):[0-5]\\d$" },
+        warningWindowDays: { type: "integer", minimum: 1, maximum: 3650 },
+        lastDigestSentAt: { type: "string", format: "date-time", nullable: true }
+      }, ["dailyDigestEnabled", "dailyDigestTime", "warningWindowDays", "lastDigestSentAt"]),
+      AdminInventorySettings: objectSchema({
+        enabled: { type: "boolean" },
+        dailyReconcileTime: { type: "string", pattern: "^(?:[01]\\d|2[0-3]):[0-5]\\d$" },
+        lastReconciledAt: { type: "string", format: "date-time", nullable: true }
+      }, ["enabled", "dailyReconcileTime", "lastReconciledAt"]),
+      NotificationTemplateKey: stringEnum(["ALERT_IMMEDIATE", "ALERT_DIGEST", "NEW_ORDER"]),
+      NotificationTemplate: objectSchema({
+        key: ref("NotificationTemplateKey"),
+        subjectTemplate: { type: "string" },
+        introTemplate: { type: "string" },
+        bodyTemplate: { type: "string" },
+        allowedPlaceholders: arrayOf({ type: "string" })
+      }, ["key", "subjectTemplate", "introTemplate", "bodyTemplate", "allowedPlaceholders"]),
+      AdminSettings: objectSchema({
+        general: ref("GeneralSettings"), alerts: ref("AlertSettings"), inventory: ref("AdminInventorySettings"), templates: arrayOf(ref("NotificationTemplate"))
+      }, ["general", "alerts", "inventory", "templates"]),
+      UpdateGeneralSettingsRequest: objectSchema({
+        timezone: { type: "string" }, newUserOrderNotificationsDefaultEnabled: { type: "boolean" }
+      }),
+      UpdateAlertSettingsRequest: objectSchema({
+        dailyDigestEnabled: { type: "boolean" }, dailyDigestTime: { type: "string" }, warningWindowDays: { type: "integer", minimum: 1, maximum: 3650 }
+      }),
+      UpdateAdminInventorySettingsRequest: objectSchema({ enabled: { type: "boolean" }, dailyReconcileTime: { type: "string" } }),
+      UpdateNotificationTemplateRequest: objectSchema({
+        subjectTemplate: { type: "string" }, introTemplate: { type: "string" }, bodyTemplate: { type: "string" }
+      }),
+      NotificationTemplatePreview: objectSchema({
+        subject: { type: "string" }, text: { type: "string" }, html: { type: "string" }
+      }, ["subject", "text", "html"]),
       ExpiryWarning: objectSchema({
         id: { type: "string" },
         articleId: { type: "string" },
@@ -549,6 +590,24 @@ const rescueBaseOpenApiDocumentDefinition = {
   },
   security: [{ sessionCookie: [] }],
   paths: {
+    "/admin/settings": {
+      get: operation("Admin-Einstellungen", "AdminSettingsController_getAll", {}, response(200, "Aggregated app settings", ref("AdminSettings")))
+    },
+    "/admin/settings/general": {
+      post: operation("Admin-Einstellungen", "AdminSettingsController_updateGeneral", request("UpdateGeneralSettingsRequest"), response(201, "General settings updated", ref("GeneralSettings")))
+    },
+    "/admin/settings/alerts": {
+      post: operation("Admin-Einstellungen", "AdminSettingsController_updateAlerts", request("UpdateAlertSettingsRequest"), response(201, "Alert settings updated", ref("AlertSettings")))
+    },
+    "/admin/settings/inventory": {
+      post: operation("Admin-Einstellungen", "AdminSettingsController_updateInventory", request("UpdateAdminInventorySettingsRequest"), response(201, "Inventory settings updated", ref("AdminInventorySettings")))
+    },
+    "/admin/settings/templates/{key}": {
+      post: operation("Admin-Einstellungen", "AdminSettingsController_updateTemplate", { ...pathParam("key"), ...request("UpdateNotificationTemplateRequest") }, response(201, "Notification template updated", ref("NotificationTemplate")))
+    },
+    "/admin/settings/templates/{key}/preview": {
+      post: operation("Admin-Einstellungen", "AdminSettingsController_previewTemplate", { ...pathParam("key"), ...request("UpdateNotificationTemplateRequest") }, response(201, "Notification template preview", ref("NotificationTemplatePreview")))
+    },
     "/auth/setup/status": { get: operation("Auth", "AuthController_setupStatus", {}, response(200, "Setup status", ref("SetupStatus")), false) },
     "/auth/setup/first-admin": { post: operation("Auth", "AuthController_createFirstAdmin", request("FirstAdminRequest"), response(201, "First admin created", ref("FirstAdminResponse")), false) },
     "/auth/login": { post: operation("Auth", "AuthController_login", request("LoginRequest"), response(201, "Login result", ref("LoginResponse")), false) },

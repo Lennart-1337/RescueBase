@@ -15,6 +15,7 @@ import { Route as PasswordResetTokenRouteImport } from './routes/password-reset/
 import { Route as InvitationTokenRouteImport } from './routes/invitation/$token'
 import { Route as CheckTokenRouteImport } from './routes/check/$token'
 import { Route as AdminUsersRouteImport } from './routes/admin/users'
+import { Route as AdminSettingsRouteImport } from './routes/admin/settings'
 import { Route as AdminMasterDataRouteImport } from './routes/admin/master-data'
 import { Route as AdminKitsRouteImport } from './routes/admin/kits'
 import { Route as AdminInventoryRouteImport } from './routes/admin/inventory'
@@ -54,6 +55,11 @@ const CheckTokenRoute = CheckTokenRouteImport.update({
 const AdminUsersRoute = AdminUsersRouteImport.update({
   id: '/admin/users',
   path: '/admin/users',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminSettingsRoute = AdminSettingsRouteImport.update({
+  id: '/admin/settings',
+  path: '/admin/settings',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdminMasterDataRoute = AdminMasterDataRouteImport.update({
@@ -116,6 +122,7 @@ export interface FileRoutesByFullPath {
   '/admin/inventory': typeof AdminInventoryRoute
   '/admin/kits': typeof AdminKitsRoute
   '/admin/master-data': typeof AdminMasterDataRouteWithChildren
+  '/admin/settings': typeof AdminSettingsRoute
   '/admin/users': typeof AdminUsersRoute
   '/check/$token': typeof CheckTokenRoute
   '/invitation/$token': typeof InvitationTokenRoute
@@ -133,6 +140,7 @@ export interface FileRoutesByTo {
   '/admin/check-protocols': typeof AdminCheckProtocolsRoute
   '/admin/inventory': typeof AdminInventoryRoute
   '/admin/kits': typeof AdminKitsRoute
+  '/admin/settings': typeof AdminSettingsRoute
   '/admin/users': typeof AdminUsersRoute
   '/check/$token': typeof CheckTokenRoute
   '/invitation/$token': typeof InvitationTokenRoute
@@ -152,6 +160,7 @@ export interface FileRoutesById {
   '/admin/inventory': typeof AdminInventoryRoute
   '/admin/kits': typeof AdminKitsRoute
   '/admin/master-data': typeof AdminMasterDataRouteWithChildren
+  '/admin/settings': typeof AdminSettingsRoute
   '/admin/users': typeof AdminUsersRoute
   '/check/$token': typeof CheckTokenRoute
   '/invitation/$token': typeof InvitationTokenRoute
@@ -172,6 +181,7 @@ export interface FileRouteTypes {
     | '/admin/inventory'
     | '/admin/kits'
     | '/admin/master-data'
+    | '/admin/settings'
     | '/admin/users'
     | '/check/$token'
     | '/invitation/$token'
@@ -189,6 +199,7 @@ export interface FileRouteTypes {
     | '/admin/check-protocols'
     | '/admin/inventory'
     | '/admin/kits'
+    | '/admin/settings'
     | '/admin/users'
     | '/check/$token'
     | '/invitation/$token'
@@ -207,6 +218,7 @@ export interface FileRouteTypes {
     | '/admin/inventory'
     | '/admin/kits'
     | '/admin/master-data'
+    | '/admin/settings'
     | '/admin/users'
     | '/check/$token'
     | '/invitation/$token'
@@ -226,6 +238,7 @@ export interface RootRouteChildren {
   AdminInventoryRoute: typeof AdminInventoryRoute
   AdminKitsRoute: typeof AdminKitsRoute
   AdminMasterDataRoute: typeof AdminMasterDataRouteWithChildren
+  AdminSettingsRoute: typeof AdminSettingsRoute
   AdminUsersRoute: typeof AdminUsersRoute
   CheckTokenRoute: typeof CheckTokenRoute
   InvitationTokenRoute: typeof InvitationTokenRoute
@@ -275,6 +288,13 @@ declare module '@tanstack/react-router' {
       path: '/admin/users'
       fullPath: '/admin/users'
       preLoaderRoute: typeof AdminUsersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/settings': {
+      id: '/admin/settings'
+      path: '/admin/settings'
+      fullPath: '/admin/settings'
+      preLoaderRoute: typeof AdminSettingsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/admin/master-data': {
@@ -377,6 +397,7 @@ const rootRouteChildren: RootRouteChildren = {
   AdminInventoryRoute: AdminInventoryRoute,
   AdminKitsRoute: AdminKitsRoute,
   AdminMasterDataRoute: AdminMasterDataRouteWithChildren,
+  AdminSettingsRoute: AdminSettingsRoute,
   AdminUsersRoute: AdminUsersRoute,
   CheckTokenRoute: CheckTokenRoute,
   InvitationTokenRoute: InvitationTokenRoute,

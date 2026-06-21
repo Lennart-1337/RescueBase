@@ -859,6 +859,70 @@ a {
   gap: 10px;
 }
 
+.settings-stack,
+.template-settings-fields {
+  display: grid;
+  gap: 16px;
+}
+
+.settings-meta {
+  margin: -4px 18px 16px;
+  color: #657386;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.settings-subsection {
+  display: grid;
+  gap: 6px;
+  align-self: stretch;
+  border-left: 3px solid #b42318;
+  padding: 10px 12px;
+  background: #fff8f7;
+}
+
+.settings-subsection > span {
+  color: #657386;
+  font-size: 13px;
+}
+
+.settings-subsection .check-field {
+  margin-top: 4px;
+}
+
+.template-settings-grid {
+  align-items: stretch;
+}
+
+.template-preview {
+  min-height: 280px;
+  border: 1px solid #e0e6ef;
+  border-radius: 8px;
+  padding: 18px;
+  background: #fbfcfe;
+}
+
+.template-preview > span {
+  display: block;
+  margin-bottom: 16px;
+  color: #657386;
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.template-preview strong,
+.template-preview pre {
+  display: block;
+  white-space: pre-wrap;
+}
+
+.template-preview pre {
+  margin-top: 18px;
+  font: inherit;
+  line-height: 1.6;
+}
+
 .field-help {
   color: #657386;
   font-size: 13px;

@@ -20,6 +20,7 @@ import { PrismaService } from "../persistence/prisma.service.js";
 import { PublicRoute, Roles } from "../auth/auth.decorators.js";
 import { AuthService } from "../auth/auth.service.js";
 import type { AuthenticatedRequest } from "../auth/auth.guard.js";
+import { defaultTimezone } from "../settings/default-timezone.js";
 
 type AdminUserListItem = {
   id: string;
@@ -445,6 +446,7 @@ export class AuthController {
       throw new BadRequestException("Für diese E-Mail existiert bereits ein Benutzerkonto.");
     }
 
+    const settings = await this.prisma.appSettings.upsert({ where: { id: "singleton" }, update: {}, create: { id: "singleton", timezone: defaultTimezone() } });
     const user = await this.prisma.user.create({
       data: {
         email,
@@ -453,7 +455,8 @@ export class AuthController {
         passwordHash: null,
         twoFactorEnabled: false,
         twoFactorMethod: null,
-        active: false
+        active: false,
+        newOrderNotificationsEnabled: settings.newUserOrderNotificationsDefaultEnabled
       }
     });
     const invitation = await this.auth.createInvitation(user.id);
