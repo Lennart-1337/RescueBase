@@ -132,16 +132,13 @@ describe("InventoryPage", () => {
     expect(screen.getByRole("link", { name: /PDF Einkaufsliste/ }).getAttribute("href")).toMatch(/^\/api\/reports\/procurement\.pdf\?q=Verband&rev=/);
   });
 
-  it("updates automation time and can trigger manual reconciliation", async () => {
+  it("does not show the automation panel in Lager", async () => {
     stubFetch(baseInventoryRoutes());
     await renderAppAt("/admin/inventory");
     await screen.findByRole("heading", { name: "Lager" });
-
-    await changeValue(screen.getByLabelText("Tägliche Uhrzeit"), "06:30");
-    await clickElement(screen.getByRole("button", { name: /Speichern/ }));
-    await waitFor(() => expect(postedBody("/api/inventory/automation-config")).toEqual({ dailyReconcileTime: "06:30" }));
-    await clickElement(screen.getByRole("button", { name: /Jetzt prüfen/ }));
-    await waitFor(() => expect(wasRequested("/api/inventory/targets/reconcile", "POST")).toBe(true));
+    expect(screen.queryByRole("heading", { name: "Automatik" })).toBeNull();
+    expect(screen.queryByLabelText("Tägliche Uhrzeit")).toBeNull();
+    expect(screen.queryByRole("button", { name: /Jetzt prüfen/ })).toBeNull();
   });
 });
 
