@@ -9,7 +9,6 @@ import { PageHeader, PageToolbar, Workspace, WorkspaceMain, WorkspaceRail } from
 import { AnchorButton, Button } from "../components/ui";
 import { rescueBaseApi } from "../lib/api";
 import type { AuthenticatedUser, InventoryProcurementOrder, InventoryTarget } from "../lib/types";
-import { AutomationPanel } from "./inventory/automation-panel";
 import { BatchCorrectionPanel } from "./inventory/batch-correction-panel";
 import { BatchCreatePanel } from "./inventory/batch-create-panel";
 import { BatchListPanel } from "./inventory/batch-list-panel";
@@ -20,7 +19,7 @@ import { TargetDialog } from "./inventory/target-dialog";
 import { TargetPanel } from "./inventory/target-panel";
 import type { InventoryFilters, ReceiptDraftItem, TargetDraft } from "./inventory/types";
 
-export function InventoryPage({ user }: { user: AuthenticatedUser }) {
+export function InventoryPage({ user: _user }: { user: AuthenticatedUser }) {
   const [articleId, setArticleId] = useState("");
   const [locationId, setLocationId] = useState("");
   const [lotNumber, setLotNumber] = useState("");
@@ -40,7 +39,6 @@ export function InventoryPage({ user }: { user: AuthenticatedUser }) {
   const [receiveOrderId, setReceiveOrderId] = useState("");
   const [receiptItems, setReceiptItems] = useState<ReceiptDraftItem[]>([emptyReceiptItem()]);
   const [receiptVerified, setReceiptVerified] = useState(false);
-  const [automationTime, setAutomationTime] = useState("02:00");
   const queryClient = useQueryClient();
   const navigate = useNavigate({ from: "/admin/inventory" });
   const search = useSearch({ from: "/admin/inventory" });
@@ -49,7 +47,6 @@ export function InventoryPage({ user }: { user: AuthenticatedUser }) {
   const locations = useQuery({ queryKey: ["locations"], queryFn: rescueBaseApi.locations });
   const targets = useQuery({ queryKey: ["inventory-targets"], queryFn: rescueBaseApi.inventoryTargets });
   const procurementOrders = useQuery({ queryKey: ["inventory-procurement-orders"], queryFn: rescueBaseApi.procurementOrders });
-  const automationConfig = useQuery({ queryKey: ["inventory-automation-config"], queryFn: rescueBaseApi.inventoryAutomationConfig, enabled: user.role === "ADMIN" });
   const movements = useQuery({ queryKey: ["batch-movements", selectedBatchId], queryFn: () => rescueBaseApi.batchMovements(selectedBatchId ?? ""), enabled: Boolean(selectedBatchId && correctionOpen) });
   const createMutation = useMutation({ mutationFn: rescueBaseApi.createBatch, onSuccess: async () => { setLotNumber(""); setExpiresAt(""); setQuantity(0); setCreateOpen(false); await invalidateInventoryPlanning(); } });
   const correctionMutation = useMutation({ mutationFn: ({ body, id }: { body: { reason: string; quantity?: number; lotNumber?: string; expiresAt?: string; locationId?: string }; id: string }) => rescueBaseApi.correctBatch(id, body), onSuccess: async () => { await Promise.all([queryClient.invalidateQueries({ queryKey: ["batches"] }), queryClient.invalidateQueries({ queryKey: ["batch-movements", selectedBatchId] })]); setCorrectionReason(""); setCorrectionOpen(false); } });
@@ -59,8 +56,6 @@ export function InventoryPage({ user }: { user: AuthenticatedUser }) {
   const startOrderMutation = useMutation({ mutationFn: rescueBaseApi.startProcurementOrder, onSuccess: async () => { await Promise.all([queryClient.invalidateQueries({ queryKey: ["inventory-targets"] }), queryClient.invalidateQueries({ queryKey: ["inventory-procurement-orders"] })]); } });
   const cancelOrderMutation = useMutation({ mutationFn: rescueBaseApi.cancelProcurementOrder, onSuccess: async () => { await Promise.all([queryClient.invalidateQueries({ queryKey: ["inventory-targets"] }), queryClient.invalidateQueries({ queryKey: ["inventory-procurement-orders"] })]); } });
   const receiveOrderMutation = useMutation({ mutationFn: ({ id, items, verified }: { id: string; items: ReceiptDraftItem[]; verified: boolean }) => rescueBaseApi.receiveProcurementOrder(id, { items: items.map((item) => ({ expiresAt: item.expiresAt, lotNumber: item.lotNumber, quantity: Number(item.quantity) })), verified }), onSuccess: async () => { setReceiveOpen(false); setReceiptVerified(false); await invalidateInventoryPlanning(); } });
-  const reconcileMutation = useMutation({ mutationFn: rescueBaseApi.reconcileInventoryTargets, onSuccess: async () => { await Promise.all([queryClient.invalidateQueries({ queryKey: ["inventory-targets"] }), queryClient.invalidateQueries({ queryKey: ["inventory-procurement-orders"] }), queryClient.invalidateQueries({ queryKey: ["inventory-automation-config"] })]); } });
-  const automationMutation = useMutation({ mutationFn: rescueBaseApi.updateInventoryAutomationConfig, onSuccess: async () => { await queryClient.invalidateQueries({ queryKey: ["inventory-automation-config"] }); } });
   const selectedBatch = batches.data?.find((batch) => batch.id === selectedBatchId) ?? null;
   const selectedReceiveOrder = procurementOrders.data?.find((order) => order.id === receiveOrderId) ?? null;
   const expiring = batches.data?.filter((batch) => daysUntil(batch.expiresAt) <= 90) ?? [];
@@ -78,10 +73,6 @@ export function InventoryPage({ user }: { user: AuthenticatedUser }) {
     setCorrectionExpiresAt(selectedBatch.expiresAt);
     setCorrectionLocationId(selectedBatch.locationId);
   }, [selectedBatch]);
-
-  useEffect(() => {
-    if (automationConfig.data?.dailyReconcileTime) setAutomationTime(automationConfig.data.dailyReconcileTime);
-  }, [automationConfig.data?.dailyReconcileTime]);
 
   const filteredBatches = (batches.data ?? []).filter((batch) => {
     if (!filters.showEmpty && batch.quantity === 0) return false;
@@ -156,18 +147,15 @@ export function InventoryPage({ user }: { user: AuthenticatedUser }) {
     setReceiveOpen(true);
   }
 
-  const isAdminLoading = user.role === "ADMIN" && automationConfig.isLoading;
-  const isAdminError = user.role === "ADMIN" && automationConfig.isError;
-  if (batches.isLoading || articles.isLoading || locations.isLoading || targets.isLoading || procurementOrders.isLoading || isAdminLoading) return <LoadingPanel label="Lagerbestand wird geladen" />;
-  if (batches.isError || articles.isError || locations.isError || targets.isError || procurementOrders.isError || isAdminError || !batches.data || !articles.data || !locations.data || !targets.data || !procurementOrders.data) {
-    return <ErrorPanel error={toError(batches.error ?? articles.error ?? locations.error ?? targets.error ?? procurementOrders.error ?? automationConfig.error)} onRetry={() => void Promise.all([batches.refetch(), articles.refetch(), locations.refetch(), targets.refetch(), procurementOrders.refetch(), user.role === "ADMIN" ? automationConfig.refetch() : Promise.resolve()])} />;
+  if (batches.isLoading || articles.isLoading || locations.isLoading || targets.isLoading || procurementOrders.isLoading) return <LoadingPanel label="Lagerbestand wird geladen" />;
+  if (batches.isError || articles.isError || locations.isError || targets.isError || procurementOrders.isError || !batches.data || !articles.data || !locations.data || !targets.data || !procurementOrders.data) {
+    return <ErrorPanel error={toError(batches.error ?? articles.error ?? locations.error ?? targets.error ?? procurementOrders.error)} onRetry={() => void Promise.all([batches.refetch(), articles.refetch(), locations.refetch(), targets.refetch(), procurementOrders.refetch()])} />;
   }
 
   return (
     <>
       <PageHeader actions={<><AnchorButton href={rescueBaseApi.reportUrl("/reports/csv/inventory")} variant="secondary"><Download data-icon="inline-start" />CSV Bestand</AnchorButton><Button onClick={() => setCreateOpen(true)} type="button"><Plus data-icon="inline-start" />Charge hinzufügen</Button></>} description="Bestand, Sollmengen und Beschaffung nach Standort." title="Lager" />
       <section className="metric-grid metric-grid-compact" aria-label="Lagerkennzahlen"><Metric icon={<Archive />} label="Chargen" tone="info" value={String(batches.data.length)} /><Metric icon={<AlertTriangle />} label="Ablaufwarnungen" tone="danger" value={String(expiring.length)} /></section>
-      {user.role === "ADMIN" && automationConfig.data ? <AutomationPanel config={automationConfig.data} error={reconcileMutation.error || automationMutation.error ? toError(reconcileMutation.error ?? automationMutation.error) : null} isReconciling={reconcileMutation.isPending} isSaving={automationMutation.isPending} onReconcile={() => reconcileMutation.mutate()} onSave={() => automationMutation.mutate({ dailyReconcileTime: automationTime })} onTimeChange={setAutomationTime} time={automationTime} /> : null}
       <PageToolbar label="Bestand filtern"><InventoryFilterToolbar articles={articles.data} countLabel={`${filteredBatches.length}/${batches.data.length} Chargen sichtbar`} filters={filters} locations={locations.data} onChange={updateFilters} onReset={resetFilters} /></PageToolbar>
       <Workspace className="inventory-workspace">
         <WorkspaceMain label="Bestandschargen"><BatchListPanel batches={filteredBatches} error={deleteMutation.error ? toError(deleteMutation.error) : null} isSubmitting={deleteMutation.isPending} onDelete={(id) => deleteMutation.mutate(id)} onSelect={(id) => { setSelectedBatchId(id); setCorrectionOpen(true); }} selectedBatchId={selectedBatchId} totalCount={batches.data.length} /></WorkspaceMain>
