@@ -22,7 +22,7 @@
   "dependencies": {
     "@nestjs/common": "^11.1.9",
     "@nestjs/core": "^11.1.9",
-    "@nestjs/platform-express": "^11.1.9",
+    "@nestjs/platform-express": "^11.1.27",
     "@nestjs/swagger": "^11.2.3",
     "@prisma/client": "^6.19.0",
     "@rescuebase/domain": "file:../../packages/domain",
