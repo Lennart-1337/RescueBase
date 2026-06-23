@@ -18,7 +18,7 @@ export function AlertSettingsPanel({ initial }: { initial: AlertSettings }) {
     }
   });
   return (
-    <SettingsPanel description="Zeitpunkt und Vorlauf der täglichen Warnübersicht." isSaving={mutation.isPending} onSave={() => mutation.mutate({ dailyDigestEnabled: draft.dailyDigestEnabled, dailyDigestTime: draft.dailyDigestTime, warningWindowDays: draft.warningWindowDays })} title="Warnungen">
+    <SettingsPanel isSaving={mutation.isPending} onSave={() => mutation.mutate({ dailyDigestEnabled: draft.dailyDigestEnabled, dailyDigestTime: draft.dailyDigestTime, warningWindowDays: draft.warningWindowDays })} title="Warnungen">
       <div className="form-grid form-grid-three">
         <label className="check-field"><input checked={draft.dailyDigestEnabled} onChange={(event) => setDraft({ ...draft, dailyDigestEnabled: event.target.checked })} type="checkbox" /><span>Täglichen Digest senden</span></label>
         <Field label="Digest-Uhrzeit"><input disabled={!draft.dailyDigestEnabled} onChange={(event) => setDraft({ ...draft, dailyDigestTime: event.target.value })} type="time" value={draft.dailyDigestTime} /></Field>

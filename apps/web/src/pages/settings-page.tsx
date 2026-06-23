@@ -16,11 +16,11 @@ export function SettingsPage({ user }: { user: AuthenticatedUser }) {
   if (settings.isError || !settings.data) return <ErrorPanel error={toError(settings.error)} onRetry={() => void settings.refetch()} />;
   return (
     <>
-      <PageHeader description="Zentrale Standards, Zeitpläne und operative E-Mail-Inhalte." title="App-Einstellungen" />
-      <PageSection description="Organisationsweite Vorgaben für Zeit und Benachrichtigungen." title="Allgemein">
+      <PageHeader title="App-Einstellungen" />
+      <PageSection title="Allgemein">
         <div className="settings-stack"><GeneralSettingsPanel initial={settings.data.general} /><AlertSettingsPanel initial={settings.data.alerts} /><InventorySettingsPanel initial={settings.data.inventory} /></div>
       </PageSection>
-      <PageSection description="Texte für bestehende operative E-Mails bearbeiten und prüfen." title="Kommunikation">
+      <PageSection title="Kommunikation">
         <TemplateSettingsPanel templates={settings.data.templates} />
       </PageSection>
     </>

@@ -17,7 +17,7 @@ export function AlertSummaryPanel() {
   return (
     <Panel>
       <div className="panel-header">
-        <div><h2>Warnungen</h2><p>Aktive Fälligkeits- und Ablaufwarnungen.</p></div>
+        <div><h2>Warnungen</h2></div>
         <AlertTriangle />
       </div>
       <div className="metric-row">

@@ -1,10 +1,10 @@
 import type { PropsWithChildren, ReactNode } from "react";
 import { cn } from "./ui";
 
-export function PageHeader(props: { actions?: ReactNode; description: string; title: string }) {
+export function PageHeader(props: { actions?: ReactNode; description?: string; title: string }) {
   return (
     <header className="topbar page-header">
-      <div><h1>{props.title}</h1><p>{props.description}</p></div>
+      <div><h1>{props.title}</h1>{props.description ? <p>{props.description}</p> : null}</div>
       {props.actions ? <div className="topbar-actions">{props.actions}</div> : null}
     </header>
   );

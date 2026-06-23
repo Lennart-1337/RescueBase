@@ -16,16 +16,17 @@ export function CheckProtocolDialog(props: {
           Schließen
         </Button>
       }
-      description="Vollständige Dokumentation des abgeschlossenen Rucksackchecks."
       onClose={props.onClose}
       open={props.open}
       title="Check-Protokoll"
     >
-      {props.isLoading || !props.detail ? (
-        <LoadingPanel label="Protokoll wird geladen" />
-      ) : (
-        <CheckProtocolDetailView detail={props.detail} />
-      )}
+      <div className="protocol-dialog-body">
+        {props.isLoading || !props.detail ? (
+          <LoadingPanel label="Protokoll wird geladen" />
+        ) : (
+          <CheckProtocolDetailView detail={props.detail} />
+        )}
+      </div>
     </Dialog>
   );
 }

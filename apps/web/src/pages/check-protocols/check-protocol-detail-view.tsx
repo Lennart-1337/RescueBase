@@ -14,25 +14,31 @@ export function CheckProtocolDetailView({
 }) {
   return (
     <div className="protocol-detail-shell">
-      <section className="protocol-hero">
-        <div>
-          <p>Abgeschlossener Rucksackcheck</p>
+      <header className="protocol-hero">
+        <div className="protocol-hero-copy">
+          <p className="protocol-eyebrow">Abgeschlossener Rucksackcheck</p>
           <h3>
             {detail.kit.name} · {detail.kit.code}
           </h3>
-          <small>
+          <small className="protocol-meta">
             {detail.checkerName} · {formatDateTime(detail.createdAt)}
           </small>
         </div>
         <div className="protocol-hero-badges">
-          <Badge tone={protocolStatusTone(detail.effectiveStatus)}>
+          <Badge
+            className="protocol-badge-state"
+            tone={protocolStatusTone(detail.effectiveStatus)}
+          >
             {statusLabels[detail.effectiveStatus]}
           </Badge>
-          <Badge tone={detail.warnings.length > 0 ? "warning" : "ready"}>
+          <Badge
+            className="protocol-badge-state"
+            tone={detail.warnings.length > 0 ? "warning" : "ready"}
+          >
             {detail.warnings.length} Hinweise
           </Badge>
         </div>
-      </section>
+      </header>
       <div className="protocol-detail-layout">
         <div className="protocol-detail-main">
           <section className="protocol-card">
@@ -62,13 +68,16 @@ export function CheckProtocolDetailView({
                 <h3>Hinweise</h3>
                 <p>Automatisch erkannte Auffälligkeiten aus diesem Check.</p>
               </div>
-              <div className="protocol-warning-list">
+              <ul
+                aria-label="Hinweise"
+                className="protocol-warning-list"
+              >
                 {detail.warnings.map((warning) => (
-                  <div className="protocol-warning" key={warning}>
+                  <li className="protocol-warning" key={warning}>
                     {warning}
-                  </div>
+                  </li>
                 ))}
-              </div>
+              </ul>
             </section>
           ) : null}
           <section className="protocol-card">
@@ -78,15 +87,18 @@ export function CheckProtocolDetailView({
                 Gezählte Inhalte, Abweichungen und vermerkte Besonderheiten.
               </p>
             </div>
-            <div className="protocol-position-list">
+            <ul
+              aria-label="Positionen"
+              className="protocol-position-list"
+            >
               {detail.positions.map((position) => (
                 <PositionCard key={position.id} position={position} />
               ))}
-            </div>
+            </ul>
           </section>
         </div>
         <aside className="protocol-detail-rail">
-          <section className="protocol-card">
+          <section className="protocol-card protocol-card-compact">
             <div className="protocol-card-header">
               <h3>Signatur</h3>
               <p>Digitale Unterschrift und Prüfnachweis.</p>
@@ -102,7 +114,7 @@ export function CheckProtocolDetailView({
             </div>
           </section>
           {detail.replenishmentOrder ? (
-            <section className="protocol-card">
+            <section className="protocol-card protocol-card-compact">
               <div className="protocol-card-header">
                 <h3>Verknüpfter Nachfüllauftrag</h3>
                 <p>Folgeauftrag aus diesem Check.</p>
@@ -110,6 +122,7 @@ export function CheckProtocolDetailView({
               <div className="protocol-order-card">
                 <strong>{detail.replenishmentOrder.id}</strong>
                 <Badge
+                  className="protocol-badge-state"
                   tone={
                     detail.replenishmentOrder.status === "OPEN"
                       ? "warning"
@@ -134,32 +147,54 @@ function PositionCard({
 }: {
   position: CheckProtocolDetail["positions"][number];
 }) {
+  const issues = [
+    position.missingQuantity > 0 ? (
+      <Badge className="protocol-badge-issue" key="missing" tone="warning">
+        Fehlt {position.missingQuantity}
+      </Badge>
+    ) : null,
+    position.discardedExpiredQuantity > 0 ? (
+      <Badge className="protocol-badge-issue" key="discarded" tone="danger">
+        Verworfen {position.discardedExpiredQuantity}
+      </Badge>
+    ) : null,
+    position.surplusQuantity > 0 ? (
+      <Badge className="protocol-badge-issue" key="surplus" tone="info">
+        Über {position.surplusQuantity}
+      </Badge>
+    ) : null,
+    position.critical ? (
+      <Badge className="protocol-badge-issue" key="critical" tone="danger">
+        Kritisch
+      </Badge>
+    ) : null,
+  ].filter(Boolean);
+
   return (
-    <article className="protocol-position-card">
-      <div>
+    <li className="protocol-position-card">
+      <div className="protocol-position-copy">
         <strong>{position.articleName}</strong>
-        <small>
+        <small className="protocol-position-meta">
           {position.moduleName ?? "Ohne Modul"}
           {position.note ? ` · ${position.note}` : ""}
         </small>
       </div>
       <div className="protocol-position-badges">
-        <Badge tone="neutral">Soll {position.requiredQuantity}</Badge>
-        <Badge tone="info">Gezählt {position.countedQuantity}</Badge>
-        {position.missingQuantity > 0 ? (
-          <Badge tone="warning">Fehlt {position.missingQuantity}</Badge>
-        ) : null}
-        {position.discardedExpiredQuantity > 0 ? (
-          <Badge tone="danger">
-            Verworfen {position.discardedExpiredQuantity}
+        <div className="protocol-position-badge-column">
+          <Badge className="protocol-badge-data" tone="neutral">
+            Soll {position.requiredQuantity}
           </Badge>
-        ) : null}
-        {position.surplusQuantity > 0 ? (
-          <Badge tone="info">Über {position.surplusQuantity}</Badge>
-        ) : null}
-        {position.critical ? <Badge tone="danger">Kritisch</Badge> : null}
+        </div>
+        <div className="protocol-position-badge-column">
+          <Badge className="protocol-badge-data" tone="info">
+            Gezählt {position.countedQuantity}
+          </Badge>
+        </div>
+        <div className="protocol-position-badge-column protocol-position-badge-column-issues">
+          {issues}
+        </div>
       </div>
-    </article>
+    </li>
   );
 }
 

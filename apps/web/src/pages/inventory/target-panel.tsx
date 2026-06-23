@@ -15,7 +15,7 @@ export function TargetPanel(props: {
   return (
     <Panel>
       <div className="panel-header">
-        <div><h2>Sollbestände</h2><p>Zielbestand pro Artikel und Standort.</p></div>
+        <div><h2>Sollbestände</h2></div>
         <div className="topbar-actions">
           <Badge tone="info">{props.targets.length}/{props.totalCount} sichtbar</Badge>
           <Button onClick={props.onCreate} type="button"><Plus data-icon="inline-start" />Soll hinzufügen</Button>

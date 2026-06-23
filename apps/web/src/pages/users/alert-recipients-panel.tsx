@@ -17,7 +17,7 @@ export function AlertRecipientsPanel() {
   return (
     <Panel>
       <div className="panel-header">
-        <div><h2>Alarmempfänger</h2><p>Wer welche Warnungen per E-Mail bekommt.</p></div>
+        <div><h2>Alarmempfänger</h2></div>
         <Users />
       </div>
       {query.data.length === 0 ? <div className="compact-list-empty">Noch keine Alarmregeln gesetzt.</div> : null}

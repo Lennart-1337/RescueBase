@@ -25,9 +25,9 @@ export function UsersPage({ user }: { user: AuthenticatedUser }) {
 
   return (
     <>
-      <PageHeader actions={<><Badge tone="info">{users.data.length} Konten</Badge><Button onClick={() => setInviteOpen(true)} type="button"><Plus data-icon="inline-start" />Benutzer einladen</Button></>} description="Konten, Rollen und Benachrichtigungsempfänger verwalten." title="Benutzer" />
+      <PageHeader actions={<><Badge tone="info">{users.data.length} Konten</Badge><Button onClick={() => setInviteOpen(true)} type="button"><Plus data-icon="inline-start" />Benutzer einladen</Button></>} title="Benutzer" />
       <UserListPanel currentUserId={user.id} error={toggle.error ?? deleteUser.error ?? null} isSubmitting={toggle.isPending || deleteUser.isPending} onDelete={(id) => deleteUser.mutate(id)} onToggle={(id, active) => toggle.mutate({ active, id })} users={users.data} />
-      <PageSection description="Empfänger für operative Warnungen und Hinweise." title="Alarmempfänger"><AlertRecipientsPanel /></PageSection>
+      <PageSection title="Alarmempfänger"><AlertRecipientsPanel /></PageSection>
       <UserInvitationPanel error={invite.error ?? null} isOpen={inviteOpen} isSubmitting={invite.isPending} onClose={() => setInviteOpen(false)} onInvite={invite.mutateAsync} />
     </>
   );

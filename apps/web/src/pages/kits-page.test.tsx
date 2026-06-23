@@ -100,6 +100,32 @@ describe("KitsPage", () => {
     expect(within(dialog).getByLabelText("Vorlage")).toHaveValue("Sanitätsrucksack A v1");
   });
 
+  it("opens a create dialog without filler helper copy", async () => {
+    vi.stubGlobal("fetch", vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+      const url = typeof input === "string" ? input : input instanceof URL ? input.pathname : input.url;
+      const pathname = url.startsWith("http") ? new URL(url).pathname : url;
+      const method = init?.method ?? "GET";
+
+      if (pathname === "/api/auth/setup/status") return jsonResponse({ initialized: true, firstAdminEmail: "admin@rescuebase.local" });
+      if (pathname === "/api/auth/session") {
+        return jsonResponse({ user: { id: "user-admin", email: "admin@rescuebase.local", displayName: "Admin", role: "ADMIN", twoFactorEnabled: false } });
+      }
+      if (pathname === "/api/catalog/kits" && method === "GET") return jsonResponse([kit]);
+      if (pathname === "/api/catalog/locations") return jsonResponse([kit.location]);
+      if (pathname === "/api/catalog/templates") return jsonResponse([kit.template]);
+
+      return new Response(JSON.stringify({ message: `No test route for ${pathname}` }), { status: 404, headers: { "content-type": "application/json" } });
+    }));
+
+    await renderAppAt("/admin/kits");
+    await screen.findByRole("heading", { level: 1, name: "Rucksäcke" });
+    await clickElement(screen.getByRole("button", { name: "Rucksack hinzufügen" }));
+
+    const dialog = await screen.findByRole("dialog", { name: "Rucksack anlegen" });
+    expect(within(dialog).queryByText("Neue Rucksäcke erhalten automatisch einen geheimen QR/NFC-Link.")).toBeNull();
+    expect(within(dialog).queryByText("QR/NFC-Zugang, Status und öffentlicher Token bleiben workflow-gesteuert.")).toBeNull();
+  });
+
   it("soft-deletes kits after confirmation", async () => {
     vi.spyOn(window, "confirm").mockReturnValue(true);
     vi.stubGlobal("fetch", vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {

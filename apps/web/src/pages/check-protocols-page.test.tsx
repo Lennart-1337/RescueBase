@@ -101,6 +101,11 @@ describe("CheckProtocolsPage", () => {
     const dialog = await screen.findByRole("dialog", {
       name: "Check-Protokoll",
     });
+    expect(
+      within(dialog).queryByText(
+        "Vollständige Dokumentation des abgeschlossenen Rucksackchecks.",
+      ),
+    ).toBeNull();
     expect(within(dialog).getByText("Kompresse")).toBeInTheDocument();
     expect(
       within(dialog).getByRole("heading", { name: "Signatur" }),

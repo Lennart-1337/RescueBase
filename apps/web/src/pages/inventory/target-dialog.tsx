@@ -18,7 +18,6 @@ export function TargetDialog(props: {
   return (
     <Dialog
       actions={<><Button disabled={props.isSubmitting} onClick={props.onSubmit} type="button">Soll speichern</Button><Button onClick={props.onClose} type="button" variant="secondary">Abbrechen</Button></>}
-      description="Sollbestand pro Artikel und Standort festlegen."
       onClose={props.onClose}
       open={props.isOpen}
       title="Sollbestand"

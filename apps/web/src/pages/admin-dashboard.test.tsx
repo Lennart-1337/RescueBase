@@ -35,6 +35,8 @@ describe("AdminDashboard", () => {
     fireEvent.focus(batchSelect);
     expect(screen.getByRole("option", { name: firstBatchLabel })).toBeInTheDocument();
     expect(screen.getByRole("option", { name: secondBatchLabel })).toBeInTheDocument();
+    expect(dialog.querySelector(".modal-footer")).not.toBeNull();
+    expect(dialog.querySelector(".modal-footer svg")).toBeNull();
     await clickElement(within(dialog).getByLabelText("Auffüllen erhöhen"));
     await clickElement(within(dialog).getByRole("button", { name: /Teilfüllung buchen/ }));
     await waitFor(() => expect(postedBody("/api/replenishment-orders/order-1001/fulfill")).toEqual({ items: [{ itemId: "pos-bandage", batchId: "batch-bandage-2", quantity: 1 }] }));
@@ -57,5 +59,22 @@ describe("AdminDashboard", () => {
 
     await clickElement(screen.getByRole("button", { name: "Filter zurücksetzen" }));
     await waitFor(() => expect(getActiveRouter()?.state.location.search).toEqual({}));
+  });
+
+  it("keeps the dashboard header and panels compact", async () => {
+    stubFetch({
+      "/api/auth/setup/status": { initialized: true, firstAdminEmail: "admin@rescuebase.local" },
+      "/api/auth/session": { user: { id: "user-admin", email: "admin@rescuebase.local", displayName: "Admin", role: "ADMIN", twoFactorEnabled: false } },
+      "/api/catalog/kits": [kit],
+      "/api/inventory/batches": [batch],
+      "/api/replenishment-orders": [order],
+      "/api/alerts/warnings": { generatedAt: "2026-06-17T00:00:00.000Z", warnings: [], summary: { expiry: 0, stkDue: 0, mtkDue: 0 } }
+    });
+    await renderAppAt("/");
+    await screen.findByRole("heading", { name: "Nachfüllaufträge" });
+
+    expect(screen.queryByText("Offene Mängel, Teilfüllungen und Ablaufwarnungen im Blick.")).toBeNull();
+    expect(screen.queryByText("Teilfüllungen buchen konkrete Chargen aus dem Lager.")).toBeNull();
+    expect(screen.queryByText("Aktive Fälligkeits- und Ablaufwarnungen.")).toBeNull();
   });
 });

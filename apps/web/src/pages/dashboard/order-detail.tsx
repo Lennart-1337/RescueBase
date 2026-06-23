@@ -1,9 +1,9 @@
-import { useEffect, useState } from "react";
-import { Download, Truck } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { Download } from "lucide-react";
 import { formatDate } from "../../app/formatters";
 import { SearchableSelect } from "../../components/searchable-select";
 import { InlineError } from "../../components/state-panels";
-import { AnchorButton, Badge, Button, Field } from "../../components/ui";
+import { AnchorButton, Badge, Field } from "../../components/ui";
 import { Stepper } from "../../components/stepper";
 import type { Batch, ReplenishmentOrder } from "../../lib/types";
 
@@ -12,16 +12,19 @@ export function OrderDetail(props: {
   error: Error | null;
   formatReason: (reason: string) => string;
   formatStatus: (status: string) => string;
-  isSubmitting: boolean;
-  onFulfill: (items: Array<{ itemId: string; batchId: string; quantity: number }>) => void;
+  onFulfillmentItemsChange: (items: Array<{ itemId: string; batchId: string; quantity: number }>) => void;
   order: ReplenishmentOrder;
   pdfHref: string;
   selectedBatchQuantity: (batches: Batch[], batchId: string) => number;
 }) {
   const [draft, setDraft] = useState<Record<string, { batchId: string; quantity: number }>>({});
   const remaining = props.order.items.reduce((sum, item) => sum + item.requestedQuantity - item.fulfilledQuantity, 0);
-  const fulfillmentItems = Object.entries(draft).filter(([, entry]) => entry.quantity > 0 && entry.batchId).map(([itemId, entry]) => ({ itemId, batchId: entry.batchId, quantity: entry.quantity }));
+  const fulfillmentItems = useMemo(
+    () => Object.entries(draft).filter(([, entry]) => entry.quantity > 0 && entry.batchId).map(([itemId, entry]) => ({ itemId, batchId: entry.batchId, quantity: entry.quantity })),
+    [draft]
+  );
   useEffect(() => setDraft({}), [props.order.id]);
+  useEffect(() => props.onFulfillmentItemsChange(fulfillmentItems), [fulfillmentItems, props.onFulfillmentItemsChange]);
 
   return (
     <div className="order-detail">
@@ -49,7 +52,6 @@ export function OrderDetail(props: {
         })}
       </div>
       {props.error ? <InlineError error={props.error} /> : null}
-      <div className="form-actions"><Truck data-icon="inline-start" /><Button disabled={fulfillmentItems.length === 0 || props.isSubmitting || props.order.status === "DONE" || props.order.status === "CANCELLED"} onClick={() => props.onFulfill(fulfillmentItems)} type="button">Teilfüllung buchen</Button></div>
     </div>
   );
 }

@@ -72,10 +72,7 @@ export function CheckProtocolsPage() {
 
   return (
     <>
-      <PageHeader
-        description="Abgeschlossene Rucksackchecks mit Zählwerten und Unterschrift."
-        title="Check-Protokolle"
-      />
+      <PageHeader title="Check-Protokolle" />
       <PageToolbar label="Check-Protokolle filtern">
         <CheckProtocolFilter
           count={protocols.data.total}

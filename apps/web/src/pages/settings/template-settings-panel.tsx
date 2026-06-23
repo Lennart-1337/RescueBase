@@ -32,7 +32,7 @@ function TemplateEditor(props: { template: NotificationTemplate; templates: Noti
   return (
     <Panel aria-label="E-Mail-Vorlagen" className="template-settings-panel">
       <div className="panel-header">
-        <div><h2>E-Mail-Vorlagen</h2><p>Inhalte operativer E-Mails innerhalb des festen RescueBase-Layouts.</p></div>
+        <div><h2>E-Mail-Vorlagen</h2></div>
         <div className="topbar-actions">
           <Button disabled={preview.isPending} onClick={() => preview.mutate()} type="button" variant="secondary"><Eye data-icon="inline-start" />Vorschau</Button>
           <Button disabled={save.isPending} onClick={() => save.mutate()} type="button">Vorlage speichern</Button>

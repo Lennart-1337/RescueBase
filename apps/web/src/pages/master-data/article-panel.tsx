@@ -115,18 +115,18 @@ export function ArticlePanel(props: {
 
   return (
     <>
-      <PageToolbar label="Artikel filtern"><ListFilterBar countLabel={`${props.articles.length}/${props.totalCount} sichtbar`} fieldsClassName="form-grid-three" onReset={props.onResetFilters}>
+      <PageToolbar label="Artikel filtern"><ListFilterBar countLabel={`${props.articles.length}/${props.totalCount} sichtbar`} fieldsClassName="article-filter-grid" onReset={props.onResetFilters}>
         <Field label="Suche"><input onChange={(event) => props.onFilterChange({ q: event.target.value })} placeholder="Name, Hersteller oder Barcode" value={props.filters.q} /></Field>
         <Field label="Kategorie"><SearchableSelect emptyLabel="Alle Kategorien" onChange={(value) => props.onFilterChange({ category: value })} options={[{ label: "Alle Kategorien", value: "" }, ...categories.map((category) => ({ label: category, value: category }))]} value={props.filters.category} /></Field>
-        <div className="form-grid">
-          <label className="check-field"><input checked={props.filters.medicalDevice} onChange={(event) => props.onFilterChange({ medicalDevice: event.target.checked })} type="checkbox" /><span>MPDG</span></label>
-          <label className="check-field"><input checked={props.filters.stkRequired} onChange={(event) => props.onFilterChange({ stkRequired: event.target.checked })} type="checkbox" /><span>STK</span></label>
-          <label className="check-field"><input checked={props.filters.mtkRequired} onChange={(event) => props.onFilterChange({ mtkRequired: event.target.checked })} type="checkbox" /><span>MTK</span></label>
-          <label className="check-field"><input checked={props.filters.criticalDefault} onChange={(event) => props.onFilterChange({ criticalDefault: event.target.checked })} type="checkbox" /><span>Kritisch</span></label>
+        <div aria-label="Artikelmerkmale" className="article-filter-checks">
+          <label className="check-field check-field-compact"><input checked={props.filters.medicalDevice} onChange={(event) => props.onFilterChange({ medicalDevice: event.target.checked })} type="checkbox" /><span>MPDG</span></label>
+          <label className="check-field check-field-compact"><input checked={props.filters.stkRequired} onChange={(event) => props.onFilterChange({ stkRequired: event.target.checked })} type="checkbox" /><span>STK</span></label>
+          <label className="check-field check-field-compact"><input checked={props.filters.mtkRequired} onChange={(event) => props.onFilterChange({ mtkRequired: event.target.checked })} type="checkbox" /><span>MTK</span></label>
+          <label className="check-field check-field-compact"><input checked={props.filters.criticalDefault} onChange={(event) => props.onFilterChange({ criticalDefault: event.target.checked })} type="checkbox" /><span>Kritisch</span></label>
         </div>
       </ListFilterBar></PageToolbar>
       <Panel>
-      <div className="panel-header"><div><h2>Artikel</h2><p>Materialstamm mit Herstellerdaten, MPDG, STK und MTK.</p></div><Button onClick={openForCreate} type="button"><Plus data-icon="inline-start" />Artikel hinzufügen</Button></div>
+      <div className="panel-header"><div><h2>Artikel</h2></div><Button onClick={openForCreate} type="button"><Plus data-icon="inline-start" />Artikel hinzufügen</Button></div>
       {props.articles.length === 0 ? <div className="compact-list-empty">Noch keine Artikel angelegt.</div> : null}
       <div className="compact-list">
         {props.articles.map((article) => (
@@ -139,7 +139,7 @@ export function ArticlePanel(props: {
           />
         ))}
       </div>
-      <Dialog actions={<><Button disabled={props.isSubmitting} onClick={() => setDraft(emptyDraft())} type="button" variant="ghost"><X data-icon="inline-start" />Abbrechen</Button><Button disabled={!canSubmit || props.isSubmitting} onClick={() => void submit()} type="button">{draft.editingId ? <Save data-icon="inline-start" /> : <Plus data-icon="inline-start" />}{draft.editingId ? "Artikel speichern" : "Artikel anlegen"}</Button></>} description="Pflegen Sie Materialstammdaten für Medizinprodukte und Verbrauchsmaterial." onClose={() => setDraft(emptyDraft())} open={draft.isOpen} title={draft.editingId ? "Artikel bearbeiten" : "Artikel anlegen"}>
+      <Dialog actions={<><Button disabled={props.isSubmitting} onClick={() => setDraft(emptyDraft())} type="button" variant="ghost"><X data-icon="inline-start" />Abbrechen</Button><Button disabled={!canSubmit || props.isSubmitting} onClick={() => void submit()} type="button">{draft.editingId ? <Save data-icon="inline-start" /> : <Plus data-icon="inline-start" />}{draft.editingId ? "Artikel speichern" : "Artikel anlegen"}</Button></>} onClose={() => setDraft(emptyDraft())} open={draft.isOpen} title={draft.editingId ? "Artikel bearbeiten" : "Artikel anlegen"}>
         <div className="form-grid form-grid-three">
           <Field label="Name"><input onChange={(event) => setDraft((current) => ({ ...current, name: event.target.value }))} value={draft.name} /></Field>
           <Field label="Einheit"><input onChange={(event) => setDraft((current) => ({ ...current, unit: event.target.value }))} value={draft.unit} /></Field>
@@ -149,7 +149,7 @@ export function ArticlePanel(props: {
           <Field label="Barcode/DataMatrix"><input onChange={(event) => setDraft((current) => ({ ...current, barcode: event.target.value }))} value={draft.barcode} /></Field>
           <Field label="Artikel-Link"><input onChange={(event) => setDraft((current) => ({ ...current, articleUrl: event.target.value }))} placeholder="https://…" type="url" value={draft.articleUrl} /></Field>
           <Field label="Lagerhinweise"><input onChange={(event) => setDraft((current) => ({ ...current, storageNotes: event.target.value }))} value={draft.storageNotes} /></Field>
-          <Field label="Hinweise"><textarea onChange={(event) => setDraft((current) => ({ ...current, notes: event.target.value }))} rows={3} value={draft.notes} /></Field>
+          <Field label="Hinweise"><textarea onChange={(event) => setDraft((current) => ({ ...current, notes: event.target.value }))} rows={1} value={draft.notes} /></Field>
           <div className="form-grid">
             <label className="check-field"><input checked={draft.sterile} onChange={(event) => setDraft((current) => ({ ...current, sterile: event.target.checked }))} type="checkbox" /><span>Steril</span></label>
             <label className="check-field"><input checked={draft.medicalDevice} onChange={(event) => setDraft((current) => ({ ...current, medicalDevice: event.target.checked }))} type="checkbox" /><span>Medizinprodukt (MPDG)</span></label>

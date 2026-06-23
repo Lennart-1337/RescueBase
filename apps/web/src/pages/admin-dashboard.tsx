@@ -7,14 +7,14 @@ import { selectedBatchQuantity, useDashboardData } from "../app/dashboard-data";
 import { daysUntil, formatReason, formatStatus, toError } from "../app/formatters";
 import { PageHeader, PageToolbar, Workspace, WorkspaceMain, WorkspaceRail } from "../components/page-layout";
 import { EmptyState, ErrorPanel, LoadingPanel, Metric } from "../components/state-panels";
-import { AnchorButton, Badge, Panel, cn } from "../components/ui";
+import { AnchorButton, Badge, Panel } from "../components/ui";
 import { rescueBaseApi } from "../lib/api";
 import { AlertSummaryPanel } from "./dashboard/alert-summary-panel";
 import { OrderFilterToolbar } from "./dashboard/order-filter-toolbar";
 import { OrderDetailDialog } from "./dashboard/order-detail-dialog";
 
 export function AdminDashboard() {
-  const [selectedOrderId, setSelectedOrderId] = useState("");
+  const [activeOrderId, setActiveOrderId] = useState("");
   const [orderOpen, setOrderOpen] = useState(false);
   const navigate = useNavigate({ from: "/" });
   const search = useSearch({ from: "/" });
@@ -28,25 +28,19 @@ export function AdminDashboard() {
   };
 
   useEffect(() => {
-    if (!dashboard.data?.orders.length) return void setSelectedOrderId("");
-    const firstOrder = dashboard.data.orders[0];
-    if (firstOrder && !dashboard.data.orders.some((order) => order.id === selectedOrderId)) setSelectedOrderId(firstOrder.id);
-  }, [dashboard.data?.orders, selectedOrderId]);
-
-  useEffect(() => {
-    if (!selectedOrderId || !dashboard.data) return;
+    if (!activeOrderId || !dashboard.data) return;
     const locationById = new Map(dashboard.data.kits.map((kit) => [kit.id, kit.locationId]));
-    const selectedStillVisible = dashboard.data.orders.some((entry) => {
+    const activeOrderStillVisible = dashboard.data.orders.some((entry) => {
       const locationId = entry.kitId ? locationById.get(entry.kitId) : undefined;
       if (filters.orderLocationId && locationId !== filters.orderLocationId) return false;
       if (filters.orderStatus && entry.status !== filters.orderStatus) return false;
-      return entry.id === selectedOrderId && matchesFilterText(filters.orderQ, entry.kit?.name, entry.kit?.code);
+      return entry.id === activeOrderId && matchesFilterText(filters.orderQ, entry.kit?.name, entry.kit?.code);
     });
-    if (!selectedStillVisible) {
-      setSelectedOrderId("");
+    if (!activeOrderStillVisible) {
+      setActiveOrderId("");
       setOrderOpen(false);
     }
-  }, [dashboard.data, filters.orderLocationId, filters.orderQ, filters.orderStatus, selectedOrderId]);
+  }, [activeOrderId, dashboard.data, filters.orderLocationId, filters.orderQ, filters.orderStatus]);
 
   if (dashboard.isLoading) return <LoadingPanel label="Dashboard wird geladen" />;
   if (dashboard.isError) return <ErrorPanel error={toError(dashboard.error)} onRetry={() => void dashboard.refetch()} />;
@@ -60,7 +54,7 @@ export function AdminDashboard() {
     if (filters.orderStatus && entry.status !== filters.orderStatus) return false;
     return matchesFilterText(filters.orderQ, entry.kit?.name, entry.kit?.code);
   });
-  const selectedOrder = orders.find((order) => order.id === selectedOrderId) ?? null;
+  const activeOrder = orders.find((order) => order.id === activeOrderId) ?? null;
   const openOrders = orders.filter((order) => order.status !== "DONE" && order.status !== "CANCELLED").length;
   const expiringBatches = batches.filter((batch) => daysUntil(batch.expiresAt) <= 90).length;
   const stockTotal = batches.reduce((sum, batch) => sum + batch.quantity, 0);
@@ -86,14 +80,14 @@ export function AdminDashboard() {
 
   return (
     <>
-      <PageHeader actions={<AnchorButton href={rescueBaseApi.reportUrl("/reports/csv/replenishment")} variant="secondary">CSV Aufträge</AnchorButton>} description="Offene Mängel, Teilfüllungen und Ablaufwarnungen im Blick." title="Nachfüllaufträge" />
+      <PageHeader actions={<AnchorButton href={rescueBaseApi.reportUrl("/reports/csv/replenishment")} variant="secondary">CSV Aufträge</AnchorButton>} title="Nachfüllaufträge" />
       <section className="metric-grid" aria-label="Kennzahlen"><Metric icon={<ClipboardList />} label="Offene Aufträge" tone="warning" value={String(openOrders)} /><Metric icon={<PackageCheck />} label="Rucksäcke bereit" tone="ready" value={`${kits.filter((kit) => kit.status === "READY").length}/${kits.length}`} /><Metric icon={<AlertTriangle />} label="Ablaufwarnungen" tone="danger" value={String(expiringBatches)} /><Metric icon={<Archive />} label="Bestand gesamt" tone="info" value={String(stockTotal)} /></section>
       <PageToolbar label="Aufträge filtern"><OrderFilterToolbar countLabel={`${filteredOrders.length}/${orders.length} sichtbar`} filters={filters} kits={kits} onChange={updateFilters} onReset={resetFilters} /></PageToolbar>
       <Workspace>
-        <WorkspaceMain label="Nachfüllaufträge"><Panel className="orders-panel"><div className="panel-header"><div><h2>Auftragsliste</h2><p>Teilfüllungen buchen konkrete Chargen aus dem Lager.</p></div></div>{filteredOrders.length > 0 ? <div className="order-list">{filteredOrders.map((order) => <button className={cn("order-row", selectedOrder?.id === order.id && "selected")} key={order.id} onClick={() => { setSelectedOrderId(order.id); setOrderOpen(true); }} type="button"><span><strong>{order.kit?.name ?? order.kitId}</strong><small>{order.items.length} Positionen · {formatStatus(order.status)}</small></span><Badge tone={order.status === "OPEN" ? "warning" : order.status === "DONE" ? "ready" : "info"}>{formatStatus(order.status)}</Badge></button>)}</div> : <EmptyState text="Aktuell gibt es keine Nachfüllaufträge für die gesetzten Filter." title="Keine Nachfüllaufträge" />}</Panel></WorkspaceMain>
+        <WorkspaceMain label="Nachfüllaufträge"><Panel className="orders-panel"><div className="panel-header"><div><h2>Auftragsliste</h2></div></div>{filteredOrders.length > 0 ? <div className="order-list">{filteredOrders.map((order) => <button className="order-row" key={order.id} onClick={() => { setActiveOrderId(order.id); setOrderOpen(true); }} type="button"><span><strong>{order.kit?.name ?? order.kitId}</strong><small>{order.items.length} Positionen · {formatStatus(order.status)}</small></span><Badge tone={order.status === "OPEN" ? "warning" : order.status === "DONE" ? "ready" : "info"}>{formatStatus(order.status)}</Badge></button>)}</div> : <EmptyState text="Aktuell gibt es keine Nachfüllaufträge für die gesetzten Filter." title="Keine Nachfüllaufträge" />}</Panel></WorkspaceMain>
         <WorkspaceRail label="Warnungen"><AlertSummaryPanel /></WorkspaceRail>
       </Workspace>
-      <OrderDetailDialog batches={batches} error={fulfillMutation.error ? toError(fulfillMutation.error) : null} formatReason={formatReason} formatStatus={formatStatus} isOpen={orderOpen} isSubmitting={fulfillMutation.isPending} onClose={() => setOrderOpen(false)} onFulfill={(items) => selectedOrder && fulfillMutation.mutate({ items, orderId: selectedOrder.id })} order={selectedOrder} pdfHref={selectedOrder ? rescueBaseApi.reportUrl(`/reports/replenishment/${selectedOrder.id}.pdf`) : undefined} selectedBatchQuantity={selectedBatchQuantity} />
+      <OrderDetailDialog batches={batches} error={fulfillMutation.error ? toError(fulfillMutation.error) : null} formatReason={formatReason} formatStatus={formatStatus} isOpen={orderOpen} isSubmitting={fulfillMutation.isPending} onClose={() => { setOrderOpen(false); setActiveOrderId(""); }} onFulfill={(items) => activeOrder && fulfillMutation.mutate({ items, orderId: activeOrder.id })} order={activeOrder} pdfHref={activeOrder ? rescueBaseApi.reportUrl(`/reports/replenishment/${activeOrder.id}.pdf`) : undefined} selectedBatchQuantity={selectedBatchQuantity} />
     </>
   );
 }
