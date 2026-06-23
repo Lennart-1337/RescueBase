@@ -625,6 +625,10 @@ a {
   grid-template-columns: minmax(0, 1fr) minmax(180px, 230px) 180px;
 }
 
+.fulfillment-row > * {
+  min-width: 0;
+}
+
 .fulfillment-row select {
   min-height: 42px;
   width: 100%;
@@ -765,13 +769,17 @@ a {
 
 .searchable-select-root {
   position: relative;
+  min-width: 0;
+  width: 100%;
 }
 
 .searchable-select {
   position: relative;
+  width: 100%;
 }
 
 .searchable-select input {
+  width: 100%;
   padding-right: 38px;
 }
 
@@ -1553,6 +1561,7 @@ a {
   flex-direction: column;
   gap: 6px;
   align-items: stretch;
+  min-width: 0;
 }
 
 .stepper > span {
