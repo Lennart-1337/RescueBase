@@ -10,6 +10,8 @@ export function getActiveRouter() {
 export function resetTestBrowser() {
   activeRouter = undefined;
   vi.restoreAllMocks();
+  window.localStorage.clear();
+  window.sessionStorage.clear();
   history.pushState({}, "", "/");
 }
 

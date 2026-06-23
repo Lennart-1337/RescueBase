@@ -70,11 +70,13 @@ const rescueBaseOpenApiDocumentDefinition = {
         email: { type: "string", format: "email" },
         password: { type: "string" },
         twoFactorCode: { type: "string" },
-        emailChallengeId: { type: "string" }
-      }, ["email", "password"]),
+        emailChallengeId: { type: "string" },
+        loginChallengeId: { type: "string" }
+      }),
       LoginResponse: objectSchema({
         requiresTwoFactor: { type: "boolean" },
         twoFactorMethod: ref("TwoFactorMethod"),
+        loginChallengeId: { type: "string" },
         emailChallengeId: { type: "string" },
         debugCode: { type: "string" },
         user: ref("AuthenticatedUser")

@@ -91,10 +91,9 @@ describe("auth lifecycle", () => {
     }).expect(201);
     expect(emailLoginStart.body.requiresTwoFactor).toBe(true);
     expect(emailLoginStart.body.twoFactorMethod).toBe("EMAIL");
+    expect(emailLoginStart.body.loginChallengeId).toBeTruthy();
     await request(server).post("/auth/login").send({
-      email: "lager-neu@rescuebase.local",
-      password: "rescuebase-neu-2",
-      emailChallengeId: emailLoginStart.body.emailChallengeId,
+      loginChallengeId: emailLoginStart.body.loginChallengeId,
       twoFactorCode: emailLoginStart.body.debugCode
     }).expect(201);
 
@@ -109,9 +108,9 @@ describe("auth lifecycle", () => {
     }).expect(201);
     expect(totpStart.body.requiresTwoFactor).toBe(true);
     expect(totpStart.body.twoFactorMethod).toBe("TOTP");
+    expect(totpStart.body.loginChallengeId).toBeTruthy();
     await request(server).post("/auth/login").send({
-      email: "admin@rescuebase.local",
-      password: "rescuebase-admin",
+      loginChallengeId: totpStart.body.loginChallengeId,
       twoFactorCode: authenticator.generate(totpSetup.body.secret)
     }).expect(201);
   });
@@ -188,8 +187,7 @@ async function loginAs(
     return agent
       .post("/auth/login")
       .send({
-        ...credentials,
-        emailChallengeId: response.body.emailChallengeId,
+        loginChallengeId: response.body.loginChallengeId,
         twoFactorCode: response.body.debugCode
       })
       .expect(201);

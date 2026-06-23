@@ -70,6 +70,7 @@ model User {
   invitations      UserInvitation[]
   passwordResets   PasswordResetToken[]
   emailChallenges  EmailTwoFactorChallenge[]
+  pendingLogins    PendingLoginChallenge[]
   alertSubscriptions AlertSubscription[]
   deletedAt        DateTime?
   createdAt        DateTime @default(now())
@@ -124,6 +125,21 @@ model EmailTwoFactorChallenge {
   consumedAt  DateTime?
   createdAt   DateTime @default(now())
   user        User     @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@index([expiresAt])
+}
+
+model PendingLoginChallenge {
+  id               String          @id @default(cuid())
+  userId           String
+  tokenHash        String          @unique
+  method           TwoFactorMethod
+  emailChallengeId String?
+  expiresAt        DateTime
+  consumedAt       DateTime?
+  createdAt        DateTime        @default(now())
+  user             User            @relation(fields: [userId], references: [id])
 
   @@index([userId])
   @@index([expiresAt])

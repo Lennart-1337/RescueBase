@@ -27,4 +27,29 @@ describe("Public auth pages", () => {
     await waitFor(() => expect(postedBody("/api/auth/password-reset/request")).toEqual({ email: "lager-neu@rescuebase.local" }));
     expect(screen.getByText(/Lokaler Reset-Link/)).toBeInTheDocument();
   });
+
+  it("restores a pending 2FA login after the browser state is recreated", async () => {
+    stubFetch({
+      "/api/auth/setup/status": { initialized: true, firstAdminEmail: "admin@rescuebase.local" },
+      "/api/auth/session": {},
+      "/api/auth/login": { requiresTwoFactor: true, twoFactorMethod: "EMAIL", loginChallengeId: "challenge-1", debugCode: "123456" }
+    });
+    await renderAppAt("/");
+    await screen.findByRole("heading", { name: "Anmelden" });
+    await changeValue(screen.getByLabelText("E-Mail"), "lager-neu@rescuebase.local");
+    await changeValue(screen.getByLabelText("Passwort"), "rescuebase-neu-2");
+    await clickElement(screen.getByRole("button", { name: "Anmelden" }));
+    await screen.findByLabelText("2FA-Code");
+
+    vi.restoreAllMocks();
+    history.pushState({}, "", "/");
+    stubFetch({
+      "/api/auth/setup/status": { initialized: true, firstAdminEmail: "admin@rescuebase.local" },
+      "/api/auth/session": {}
+    });
+    await renderAppAt("/");
+    expect(await screen.findByLabelText("2FA-Code")).toBeInTheDocument();
+    expect(screen.queryByLabelText("Passwort")).not.toBeInTheDocument();
+    expect(screen.getByLabelText("E-Mail")).toHaveValue("lager-neu@rescuebase.local");
+  });
 });

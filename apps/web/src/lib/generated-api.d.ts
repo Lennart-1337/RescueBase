@@ -1059,14 +1059,16 @@ export interface components {
         };
         LoginRequest: {
             /** Format: email */
-            email: string;
-            password: string;
+            email?: string;
+            password?: string;
             twoFactorCode?: string;
             emailChallengeId?: string;
+            loginChallengeId?: string;
         };
         LoginResponse: {
             requiresTwoFactor: boolean;
             twoFactorMethod?: components["schemas"]["TwoFactorMethod"];
+            loginChallengeId?: string;
             emailChallengeId?: string;
             debugCode?: string;
             user?: components["schemas"]["AuthenticatedUser"];
