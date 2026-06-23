@@ -118,88 +118,65 @@ IMAGE_TAG_OVERRIDE=prod-202606160945-abcd123 sh scripts/production/deploy.sh
 
 The deploy script updates the `main` checkout, logs into GHCR, pulls the production images referenced by `.env.production`, starts the stack with `--no-build`, and prints the effective `IMAGE_TAG`.
 
-## Staging on Windows Server 2025
+## Staging with GHCR
 
-RescueBase staging can run directly from a Windows checkout with Docker Desktop in Linux-container mode. The Windows host runs Docker Desktop, keeps the repository checkout locally, and starts the published GHCR images through Docker Compose.
+Use `.env.staging.example` as the baseline for staging. The recommended staging flow is:
 
-### Required server assets
+- push to `staging`
+- let CI pass
+- let `Publish Staging Images` push Linux `amd64` images to private GHCR
+- let the server pull images from GHCR instead of building them locally
 
-- A Windows Server 2025 host with Docker Desktop installed and running in Linux-container mode
-- A public DNS record for the staging domain
-- A private checkout of this repository on the Windows filesystem
-- A `.env.staging` file based on `.env.staging.example`
-- A Cloudflare Origin Certificate and matching private key on the Windows filesystem
-- `GHCR_USERNAME` and `GHCR_TOKEN` available to the Windows operator shell
-- An age identity file on the Windows filesystem matching `AGE_IDENTITY_HOST_FILE` for restore operations
+Required staging assets:
 
-### First bootstrap
+- a Linux host with Docker Engine and Docker Compose
+- a public DNS record for the staging domain
+- a repository checkout at `/opt/rescuebase/staging` or a matching `PROJECT_DIR`
+- a `.env.staging` file based on `.env.staging.example`
+- a Cloudflare Origin Certificate and matching private key on the server filesystem
+- `GHCR_USERNAME` and `GHCR_TOKEN` available in the deploy shell
+- an age identity file matching `AGE_IDENTITY_HOST_FILE` when restore decryption is enabled
 
-From PowerShell in the repository checkout:
-
-```powershell
-.\scripts\windows-staging\bootstrap-docker-desktop-staging.ps1
-```
-
-Then edit `.env.staging`, set the real secrets, set `CLOUDFLARE_ORIGIN_CERT_HOST_FILE` and `CLOUDFLARE_ORIGIN_KEY_HOST_FILE` to the Windows paths of your Cloudflare Origin Certificate and key, set `AGE_IDENTITY_HOST_FILE` if you later enable encrypted restore, and keep `AGE_IDENTITY_FILE` as the container path `/run/secrets/staging.agekey`.
-
-If you want backups disabled for now, leave `BACKUP_AGE_RECIPIENT=` empty and keep `AGE_IDENTITY_HOST_FILE=./keys/restore-disabled.txt`.
-
-### Staging deploy and rollback
+### Staging deploy
 
 Standard deploy from the `staging` branch:
 
-```powershell
-$env:GHCR_USERNAME = "<ghcr-user>"
-$env:GHCR_TOKEN = "<ghcr-read-token>"
-.\scripts\windows-staging\deploy-staging.ps1
+```bash
+export GHCR_USERNAME="<ghcr-user>"
+export GHCR_TOKEN="<ghcr-read-token>"
+sh scripts/staging/deploy.sh
 ```
 
 Rollback or promotion to a pinned immutable image tag:
 
-```powershell
-.\scripts\windows-staging\deploy-staging.ps1 -ImageTag staging-202606141030-abcd123
+```bash
+IMAGE_TAG_OVERRIDE=staging-202606141030-abcd123 sh scripts/staging/deploy.sh
 ```
 
-The deploy wrapper updates the Windows checkout, logs into GHCR, pulls the images referenced by `.env.staging`, starts the stack with `--no-build`, and prints the effective `IMAGE_TAG`.
+The deploy script updates the checkout, logs into GHCR, pulls the images referenced by `.env.staging`, starts the stack with `--no-build`, and prints the effective `IMAGE_TAG`.
 
 ### Cloudflare Full (strict)
 
-RescueBase staging is designed to sit behind Cloudflare with SSL mode `Full (strict)`. Use a proxied DNS record for your staging hostname and install a Cloudflare Origin Certificate plus private key on the Windows host. The staging Caddy service mounts those files and terminates HTTPS directly on the origin.
-
-Example values in `.env.staging`:
-
-```env
-APP_DOMAIN=rescuebasestaging.example.org
-APP_PUBLIC_URL=https://rescuebasestaging.example.org
-CLOUDFLARE_ORIGIN_CERT_HOST_FILE=C:/Users/Administrator/Desktop/RescueBase/infra/caddy/origin-cert.pem
-CLOUDFLARE_ORIGIN_KEY_HOST_FILE=C:/Users/Administrator/Desktop/RescueBase/infra/caddy/origin-key.pem
-```
+RescueBase staging is designed to sit behind Cloudflare with SSL mode `Full (strict)`. Use a proxied DNS record for your staging hostname and install a Cloudflare Origin Certificate plus private key on the server. The staging Caddy service mounts those files and terminates HTTPS directly on the origin.
 
 After placing the certificate and key, recreate Caddy:
 
-```powershell
+```bash
 docker compose --env-file .env.staging -f docker-compose.yml -f docker-compose.staging.yml up -d --force-recreate caddy
 ```
 
-### Backups and restore
+### Backups and Restore
 
 Run a manual encrypted backup:
 
-```powershell
-.\scripts\windows-staging\backup-staging.ps1
+```bash
+sh scripts/staging/backup.sh
 ```
 
-Restore from a backup file already present in the checkout-local `backups\` directory:
+Restore from a backup file already present in the checkout-local `backups/` directory:
 
-```powershell
-.\scripts\windows-staging\restore-staging.ps1 -BackupFile rescuebase-20260614T020000Z.sql.gz.age
-```
-
-Nightly backups should be scheduled from Windows Task Scheduler with a PowerShell action such as:
-
-```text
-Program/script: powershell.exe
-Arguments: -NoProfile -ExecutionPolicy Bypass -File C:\path\to\repo\scripts\windows-staging\backup-staging.ps1
+```bash
+BACKUP_FILE=rescuebase-20260614T020000Z.sql.gz.age sh scripts/staging/restore.sh
 ```
 
 The backup container writes compressed SQL dumps under `backups/` in the repository checkout and encrypts them to `.age` when `BACKUP_AGE_RECIPIENT` is configured. Restore accepts either `.sql.gz` or `.sql.gz.age`.

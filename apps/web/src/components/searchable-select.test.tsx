@@ -43,6 +43,19 @@ describe("SearchableSelect", () => {
     expect(input).toHaveValue("Außenlager");
     expect(screen.getByTestId("selected-value")).toHaveTextContent("loc-alt");
   });
+
+  it("exposes selected and open state classes for styling", () => {
+    render(<TestSelect initialValue="loc-main" />);
+    const input = screen.getByLabelText("Standort");
+    const select = input.closest(".searchable-select");
+
+    expect(select).toHaveClass("searchable-select-has-value");
+
+    fireEvent.focus(input);
+
+    expect(select).toHaveClass("searchable-select-open");
+    expect(screen.getByRole("option", { name: "Hauptlager" }).querySelector("svg")).not.toBeNull();
+  });
 });
 
 function TestSelect(props: { initialValue?: string }) {
