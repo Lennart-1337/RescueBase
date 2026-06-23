@@ -1,5 +1,5 @@
 import { useEffect, useId, useMemo, useRef, useState, type KeyboardEvent } from "react";
-import { ChevronDown } from "lucide-react";
+import { Check, ChevronDown } from "lucide-react";
 import { cn } from "./ui";
 
 type Option = { label: string; value: string; keywords?: string[] };
@@ -72,7 +72,14 @@ export function SearchableSelect(props: {
 
   return (
     <div className="searchable-select-root" ref={rootRef}>
-      <div className={cn("searchable-select", open && "searchable-select-open", props.disabled && "searchable-select-disabled")}>
+      <div
+        className={cn(
+          "searchable-select",
+          open && "searchable-select-open",
+          selected && "searchable-select-has-value",
+          props.disabled && "searchable-select-disabled"
+        )}
+      >
         <input
           aria-label={props.ariaLabel}
           aria-autocomplete="list"
@@ -106,7 +113,8 @@ export function SearchableSelect(props: {
               }}
               role="option"
             >
-              {option.label}
+              <span>{option.label}</span>
+              {option.value === props.value ? <Check aria-hidden="true" className="searchable-select-option-check" /> : null}
             </div>
           )) : <div className="searchable-select-empty">{props.noResultsLabel ?? "Keine Treffer"}</div>}
         </div>

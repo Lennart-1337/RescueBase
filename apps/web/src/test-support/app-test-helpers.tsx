@@ -1,4 +1,4 @@
-import { act, fireEvent, render } from "@testing-library/react";
+import { act, cleanup, fireEvent, render } from "@testing-library/react";
 import App, { createAppMemoryRouter } from "../App";
 
 let activeRouter: ReturnType<typeof createAppMemoryRouter> | undefined;
@@ -8,8 +8,11 @@ export function getActiveRouter() {
 }
 
 export function resetTestBrowser() {
+  cleanup();
   activeRouter = undefined;
   vi.restoreAllMocks();
+  window.localStorage.clear();
+  window.sessionStorage.clear();
   history.pushState({}, "", "/");
 }
 
@@ -48,6 +51,7 @@ export function wasRequested(pathname: string, method: string) {
 }
 
 export async function renderAppAt(pathname: string) {
+  cleanup();
   history.pushState({}, "", pathname);
   activeRouter = createAppMemoryRouter(pathname);
   await act(async () => {

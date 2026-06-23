@@ -84,7 +84,7 @@ export function DevicePanel(props: {
       </ListFilterBar></PageToolbar>
       <Panel>
       <div className="panel-header">
-        <div><h2>Geräte</h2><p>Medizinische Geräte mit STK- und MTK-Daten.</p></div>
+        <div><h2>Geräte</h2></div>
         <Button onClick={openForCreate} type="button"><Plus data-icon="inline-start" />Gerät hinzufügen</Button>
       </div>
       {props.devices.length === 0 ? <div className="compact-list-empty">Noch keine Geräte angelegt.</div> : null}
@@ -106,7 +106,6 @@ export function DevicePanel(props: {
       </div>
       <Dialog
         actions={<><Button disabled={props.isSubmitting} onClick={() => setDraft(emptyDraft(props.articles[0]?.id ?? "", props.locations[0]?.id ?? ""))} type="button" variant="ghost"><X data-icon="inline-start" />Abbrechen</Button><Button disabled={!canSubmit || props.isSubmitting} onClick={() => void submit()} type="button"><Save data-icon="inline-start" />{draft.editingId ? "Gerät speichern" : "Gerät anlegen"}</Button></>}
-        description="Pflegen Sie Geräte mit individuellen Kontrollterminen und Standortzuordnung."
         onClose={() => setDraft(emptyDraft(props.articles[0]?.id ?? "", props.locations[0]?.id ?? ""))}
         open={draft.isOpen}
         title={draft.editingId ? "Gerät bearbeiten" : "Gerät anlegen"}

@@ -21,6 +21,29 @@ describe("InventoryPage", () => {
     await waitFor(() => expect(postedBody("/api/inventory/batches")).toEqual({ articleId: "article-bandage", locationId: "loc-main", lotNumber: "RD-2028-02", expiresAt: "2028-02-29", quantity: 25 }));
   });
 
+  it("opens the batch dialog without filler helper copy", async () => {
+    stubFetch(baseInventoryRoutes());
+    await renderAppAt("/admin/inventory");
+    await screen.findByRole("heading", { name: "Lager" });
+
+    await clickElement(screen.getByRole("button", { name: /Charge hinzufügen/ }));
+    const dialog = await screen.findByRole("dialog", { name: "Charge erfassen" });
+
+    expect(within(dialog).queryByText("Neue Bestände werden chargengenau mit Ablaufdatum angelegt.")).toBeNull();
+    expect(within(dialog).queryByText("Bestände werden ausschließlich als neue Charge angelegt, nicht direkt auf vorhandene Chargen addiert.")).toBeNull();
+  });
+
+  it("opens the target dialog without filler helper copy", async () => {
+    stubFetch(baseInventoryRoutes());
+    await renderAppAt("/admin/inventory");
+    await screen.findByRole("heading", { name: "Lager" });
+
+    await clickElement(screen.getByRole("button", { name: /Soll hinzufügen/ }));
+    const dialog = await screen.findByRole("dialog", { name: "Sollbestand" });
+
+    expect(within(dialog).queryByText("Sollbestand pro Artikel und Standort festlegen.")).toBeNull();
+  });
+
   it("submits batch corrections with reason and tracks history loading", async () => {
     stubFetch({ ...baseInventoryRoutes(), "/api/inventory/batches/batch-bandage-1/movements": [] });
     await renderAppAt("/admin/inventory");
@@ -31,6 +54,18 @@ describe("InventoryPage", () => {
     await changeValue(within(dialog).getByLabelText("Begründung"), "Inventur");
     await clickElement(within(dialog).getByRole("button", { name: /Korrektur buchen/ }));
     await waitFor(() => expect(postedBody("/api/inventory/batches/batch-bandage-1/corrections")).toEqual({ reason: "Inventur", quantity: 120, lotNumber: "VB-2026-04A", expiresAt: "2027-04-30", locationId: "loc-main" }));
+  });
+
+  it("opens the correction dialog without filler helper copy", async () => {
+    stubFetch({ ...baseInventoryRoutes(), "/api/inventory/batches/batch-bandage-1/movements": [] });
+    await renderAppAt("/admin/inventory");
+    await screen.findByRole("heading", { name: "Lager" });
+
+    await clickElement(await screen.findByRole("button", { name: /Korrigieren/ }));
+    const dialog = await screen.findByRole("dialog", { name: "Chargenkorrektur" });
+
+    expect(within(dialog).queryByText("Chargen werden nachvollziehbar über Korrekturbuchungen statt Feldüberschreibung geändert.")).toBeNull();
+    expect(within(dialog).queryByText("Bewegungen und Korrekturen dieser Charge.")).toBeNull();
   });
 
   it("hides empty batches by default and can show them with a filter", async () => {
@@ -63,6 +98,14 @@ describe("InventoryPage", () => {
     await waitFor(() => expect(screen.getByLabelText("Suche")).toHaveValue(""));
     expect(screen.getByText(/VB-2026-04/)).toBeInTheDocument();
     expect(getActiveRouter()?.state.location.search).toEqual({});
+  });
+
+  it("renders the inventory header without redundant helper copy", async () => {
+    stubFetch(baseInventoryRoutes());
+    await renderAppAt("/admin/inventory");
+    await screen.findByRole("heading", { name: "Lager" });
+
+    expect(screen.queryByText("Bestand, Sollmengen und Beschaffung nach Standort.")).toBeNull();
   });
 
   it("soft-deletes batches after confirmation", async () => {

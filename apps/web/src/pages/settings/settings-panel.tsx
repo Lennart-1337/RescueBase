@@ -2,7 +2,7 @@ import type { PropsWithChildren, ReactNode } from "react";
 import { Button, Panel } from "../../components/ui";
 
 export function SettingsPanel(props: PropsWithChildren<{
-  description: string;
+  description?: string;
   isSaving: boolean;
   onSave: () => void;
   title: string;
@@ -11,7 +11,7 @@ export function SettingsPanel(props: PropsWithChildren<{
   return (
     <Panel aria-label={props.title}>
       <div className="panel-header">
-        <div><h2>{props.title}</h2><p>{props.description}</p></div>
+        <div><h2>{props.title}</h2>{props.description ? <p>{props.description}</p> : null}</div>
         <div className="topbar-actions">
           {props.extraAction}
           <Button disabled={props.isSaving} onClick={props.onSave} type="button">Speichern</Button>

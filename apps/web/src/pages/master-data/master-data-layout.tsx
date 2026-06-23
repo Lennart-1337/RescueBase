@@ -14,7 +14,7 @@ export function MasterDataLayout() {
 
   return (
     <>
-      <PageHeader description="Artikel, Orte, Vorlagen und Geräte zentral verwalten." title="Stammdaten" />
+      <PageHeader title="Stammdaten" />
       <div aria-label="Stammdatenbereiche" className="tab-list" role="tablist">
         {tabs.map((tab) => (
           <Link

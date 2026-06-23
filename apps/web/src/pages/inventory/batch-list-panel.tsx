@@ -22,7 +22,7 @@ export function BatchListPanel(props: {
 
   return (
     <Panel>
-      <div className="panel-header"><div><h2>Bestandschargen</h2><p>Chargen, Mengen und Ablaufdaten im aktuellen Bestand.</p></div></div>
+      <div className="panel-header"><div><h2>Bestandschargen</h2></div></div>
       <div className="table">
         {props.batches.map((batch) => (
           <div className="table-row" key={batch.id}>

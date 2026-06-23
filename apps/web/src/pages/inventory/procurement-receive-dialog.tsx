@@ -21,7 +21,6 @@ export function ProcurementReceiveDialog(props: {
   return (
     <Dialog
       actions={<><Button disabled={props.isSubmitting || !props.order || !props.verified} onClick={props.onSubmit} type="button">Wareneingang buchen</Button><Button onClick={props.onClose} type="button" variant="secondary">Abbrechen</Button></>}
-      description={props.order ? `${props.order.article.name} · offen ${props.order.remainingQuantity} ${props.order.article.unit}` : undefined}
       onClose={props.onClose}
       open={props.isOpen}
       title="Wareneingang"

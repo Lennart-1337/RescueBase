@@ -23,7 +23,7 @@ export function KitListPanel(props: {
   return (
     <Panel>
       <div className="panel-header">
-        <div><h2>Rucksäcke</h2><p>Verwalten Sie physische Rucksäcke, QR-Dokumente und öffentliche Check-Zugänge.</p></div>
+        <div><h2>Rucksäcke</h2></div>
       </div>
       <div className="table">
         {props.kits.map((kit) => (

@@ -30,7 +30,7 @@ export function ProcurementOrderPanel(props: {
   return (
     <Panel>
       <div className="panel-header">
-        <div><h2>Beschaffungsaufträge</h2><p>Bestellungen für Lager-Sollbestände.</p></div>
+        <div><h2>Beschaffungsaufträge</h2></div>
         <div className="topbar-actions">
           <Badge tone="warning">{props.orders.length}/{props.totalCount} sichtbar</Badge>
           <AnchorButton

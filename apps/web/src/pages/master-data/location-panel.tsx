@@ -68,7 +68,7 @@ export function LocationPanel(props: {
           </div>
         ))}
       </div>
-      <Dialog actions={<><Button disabled={props.isSubmitting} onClick={() => setIsOpen(false)} type="button" variant="ghost"><X data-icon="inline-start" />Abbrechen</Button><Button disabled={!canSubmit || props.isSubmitting} onClick={() => void submit()} type="button">{editingId ? <Save data-icon="inline-start" /> : <Plus data-icon="inline-start" />}{editingId ? "Lagerort speichern" : "Lagerort anlegen"}</Button></>} description="Pflegen Sie Lager, Fahrzeuge und Räume als nutzbare Orte für Bestand und Rucksäcke." onClose={() => setIsOpen(false)} open={isOpen} title={editingId ? "Lagerort bearbeiten" : "Lagerort anlegen"}>
+      <Dialog actions={<><Button disabled={props.isSubmitting} onClick={() => setIsOpen(false)} type="button" variant="ghost"><X data-icon="inline-start" />Abbrechen</Button><Button disabled={!canSubmit || props.isSubmitting} onClick={() => void submit()} type="button">{editingId ? <Save data-icon="inline-start" /> : <Plus data-icon="inline-start" />}{editingId ? "Lagerort speichern" : "Lagerort anlegen"}</Button></>} onClose={() => setIsOpen(false)} open={isOpen} title={editingId ? "Lagerort bearbeiten" : "Lagerort anlegen"}>
         <div className="form-grid form-grid-two">
           <Field label="Name"><input value={name} onChange={(event) => setName(event.target.value)} /></Field>
           <Field label="Typ"><select value={kind} onChange={(event) => setKind(event.target.value)}><option value="STORAGE">Lager</option><option value="VEHICLE">Fahrzeug</option><option value="ROOM">Raum</option></select></Field>

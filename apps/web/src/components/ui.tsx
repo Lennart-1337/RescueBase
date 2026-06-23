@@ -102,11 +102,17 @@ export function Dialog({
         role="dialog"
       >
         <div className="modal-header">
-          <div>
+          <div className="modal-heading">
             <h2 id={titleId}>{title}</h2>
             {description ? <p id={descriptionId}>{description}</p> : null}
           </div>
-          <Button aria-label="Dialog schließen" onClick={onClose} type="button" variant="ghost">
+          <Button
+            aria-label="Dialog schließen"
+            className="modal-close-button"
+            onClick={onClose}
+            type="button"
+            variant="ghost"
+          >
             ×
           </Button>
         </div>

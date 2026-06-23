@@ -26,7 +26,7 @@ export const rescueBaseApi = {
   setupStatus: () => openApiClient.get("/auth/setup/status"),
   createFirstAdmin: (body: { email: string; displayName: string; password: string }) =>
     openApiClient.post("/auth/setup/first-admin", body),
-  login: (body: { email: string; password: string; twoFactorCode?: string; emailChallengeId?: string }) => openApiClient.post("/auth/login", body),
+  login: (body: { email?: string; password?: string; twoFactorCode?: string; emailChallengeId?: string; loginChallengeId?: string }) => openApiClient.post("/auth/login", body),
   invitation: (token: string) => openApiClient.get("/auth/invitations/{token}", { params: { token } }),
   acceptInvitation: (body: { token: string; password: string; displayName?: string }) =>
     openApiClient.post("/auth/invitations/accept", body),

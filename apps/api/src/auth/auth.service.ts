@@ -31,6 +31,20 @@ export interface AuthenticatedUser {
   newOrderNotificationsEnabled: boolean;
 }
 
+type PendingLoginUser = UserSessionView & {
+  active: boolean;
+  twoFactorSecret: string | null;
+};
+
+type PendingLoginChallengeView = {
+  id: string;
+  method: TwoFactorMethod;
+  emailChallengeId: string | null;
+  expiresAt: Date;
+  consumedAt: Date | null;
+  user: PendingLoginUser;
+};
+
 @Injectable()
 export class AuthService {
   constructor(private readonly prisma: PrismaService) {}
@@ -208,6 +222,43 @@ export class AuthService {
       data: { consumedAt: new Date() }
     });
     return true;
+  }
+
+  async createPendingLoginChallenge(userId: string, method: TwoFactorMethod, emailChallengeId?: string): Promise<{ challengeId: string }> {
+    const challengeId = randomBytes(32).toString("base64url");
+    const expiresAt = new Date(Date.now() + EMAIL_2FA_TTL_MS);
+    await this.prisma.pendingLoginChallenge.updateMany({
+      where: { userId, consumedAt: null, expiresAt: { gt: new Date() } },
+      data: { consumedAt: new Date() }
+    });
+    await this.prisma.pendingLoginChallenge.create({
+      data: {
+        userId,
+        tokenHash: this.hashOpaqueToken(challengeId),
+        method,
+        emailChallengeId,
+        expiresAt
+      }
+    });
+    return { challengeId };
+  }
+
+  async getPendingLoginChallenge(challengeId: string): Promise<PendingLoginChallengeView | null> {
+    const challenge = await this.prisma.pendingLoginChallenge.findUnique({
+      where: { tokenHash: this.hashOpaqueToken(challengeId) },
+      include: { user: true }
+    });
+    if (!challenge || challenge.consumedAt || challenge.expiresAt <= new Date() || !challenge.user.active || challenge.user.deletedAt) {
+      return null;
+    }
+    return challenge;
+  }
+
+  async consumePendingLoginChallenge(id: string): Promise<void> {
+    await this.prisma.pendingLoginChallenge.update({
+      where: { id },
+      data: { consumedAt: new Date() }
+    });
   }
 
   async destroyUserSessions(userId: string): Promise<void> {

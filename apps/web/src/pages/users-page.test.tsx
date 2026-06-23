@@ -17,9 +17,8 @@ describe("UsersPage", () => {
     expect(screen.getByRole("button", { name: /Benutzer einladen/ }).closest(".topbar")).not.toBeNull();
     await clickElement(screen.getByRole("button", { name: /Benutzer einladen/ }));
     const dialog = await screen.findByRole("dialog", { name: "Benutzer einladen" });
-    const helper = within(dialog).getByText("Nur Admins können Einladungen verwalten.");
-    expect(helper.closest(".dialog-note")).not.toBeNull();
-    expect(helper.closest(".badge")).toBeNull();
+    expect(within(dialog).queryByText("Nur Admins können Einladungen verwalten.")).toBeNull();
+    expect(within(dialog).queryByText("Einladungen laufen per E-Mail-Link mit eigenem Passwort-Setup.")).toBeNull();
     await changeValue(within(dialog).getByLabelText("Name"), "Lager Nord");
     await changeValue(within(dialog).getByLabelText("E-Mail"), "lager@rescuebase.local");
     await clickElement(within(dialog).getByRole("button", { name: /Einladung senden/ }));

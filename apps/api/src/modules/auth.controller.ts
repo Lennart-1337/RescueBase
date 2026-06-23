@@ -95,16 +95,42 @@ export class AuthController {
   @PublicRoute()
   @Post("login")
   async login(
-    @Body() body: { email: string; password: string; twoFactorCode?: string; emailChallengeId?: string },
+    @Body() body: { email?: string; password?: string; twoFactorCode?: string; emailChallengeId?: string; loginChallengeId?: string },
     @Res({ passthrough: true }) response: Response
   ): Promise<{
     requiresTwoFactor: boolean;
     twoFactorMethod?: TwoFactorMethod;
+    loginChallengeId?: string;
     emailChallengeId?: string;
     debugCode?: string;
     user?: ReturnType<AuthService["toAuthenticatedUser"]> extends infer U ? U : never;
   }> {
-    const user = await this.prisma.user.findFirst({ where: { email: body.email.trim(), active: true, deletedAt: null } });
+    if (body.loginChallengeId?.trim()) {
+      const challenge = await this.auth.getPendingLoginChallenge(body.loginChallengeId);
+      if (!challenge) {
+        throw new UnauthorizedException("Die Anmeldung ist abgelaufen. Bitte melden Sie sich erneut an.");
+      }
+      if (!body.twoFactorCode?.trim()) {
+        return { requiresTwoFactor: true, twoFactorMethod: challenge.method, loginChallengeId: body.loginChallengeId };
+      }
+      if (challenge.method === "TOTP" && !this.auth.verifyTotp(body.twoFactorCode, challenge.user.twoFactorSecret)) {
+        throw new UnauthorizedException("2FA-Code ist ungültig.");
+      }
+      if (challenge.method === "EMAIL") {
+        if (!challenge.emailChallengeId || !(await this.auth.verifyEmailTwoFactorChallenge(challenge.emailChallengeId, body.twoFactorCode))) {
+          throw new UnauthorizedException("2FA-Code ist ungültig.");
+        }
+      }
+      await this.auth.consumePendingLoginChallenge(challenge.id);
+      await this.auth.createSession(response, challenge.user.id);
+      return { requiresTwoFactor: false, user: this.auth.toAuthenticatedUser(challenge.user) };
+    }
+
+    const email = body.email?.trim();
+    if (!email || !body.password) {
+      throw new UnauthorizedException("E-Mail oder Passwort ist falsch.");
+    }
+    const user = await this.prisma.user.findFirst({ where: { email, active: true, deletedAt: null } });
     if (!user || !(await this.auth.verifyPassword(body.password, user.passwordHash))) {
       throw new UnauthorizedException("E-Mail oder Passwort ist falsch.");
     }
@@ -112,7 +138,8 @@ export class AuthController {
     if (user.twoFactorEnabled && user.twoFactorMethod === "TOTP") {
       if (!body.twoFactorCode?.trim() || !this.auth.verifyTotp(body.twoFactorCode, user.twoFactorSecret)) {
         if (!body.twoFactorCode?.trim()) {
-          return { requiresTwoFactor: true, twoFactorMethod: "TOTP" };
+          const loginChallenge = await this.auth.createPendingLoginChallenge(user.id, "TOTP");
+          return { requiresTwoFactor: true, twoFactorMethod: "TOTP", loginChallengeId: loginChallenge.challengeId };
         }
         throw new UnauthorizedException("2FA-Code ist ungültig.");
       }
@@ -127,9 +154,11 @@ export class AuthController {
       } else {
         const challenge = await this.auth.createEmailTwoFactorChallenge(user.id);
         const delivery = await this.mail.sendEmailTwoFactorCode(user.email, challenge.code);
+        const loginChallenge = await this.auth.createPendingLoginChallenge(user.id, "EMAIL", challenge.challengeId);
         return {
           requiresTwoFactor: true,
           twoFactorMethod: "EMAIL",
+          loginChallengeId: loginChallenge.challengeId,
           emailChallengeId: challenge.challengeId,
           debugCode: delivery.debugCode
         };

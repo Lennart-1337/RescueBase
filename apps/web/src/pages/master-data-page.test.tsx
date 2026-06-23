@@ -48,6 +48,7 @@ describe("MasterDataPage", () => {
     await screen.findByRole("heading", { name: "Stammdaten" });
     await clickElement(await screen.findByRole("button", { name: /Bearbeiten/ }));
     const dialog = await screen.findByRole("dialog", { name: "Artikel bearbeiten" });
+    expect(within(dialog).queryByText("Pflegen Sie Materialstammdaten für Medizinprodukte und Verbrauchsmaterial.")).toBeNull();
     await changeValue(within(dialog).getByLabelText("Name"), "Verbandpäckchen groß");
     await changeValue(within(dialog).getByLabelText("Hersteller"), "MediSafe");
     await changeValue(within(dialog).getByLabelText("Hersteller-Art.-Nr."), "VB-2000");
@@ -199,6 +200,18 @@ describe("MasterDataPage", () => {
     expect(within(row as HTMLElement).getByRole("link", { name: "Link" })).toHaveAttribute("href", "https://shop.example.org/articles/verbandpaeckchen-mittel");
     expect(within(row as HTMLElement).getByRole("button", { name: "Bearbeiten" })).toBeInTheDocument();
     expect(within(row as HTMLElement).getByRole("button", { name: /Verbandpäckchen mittel löschen/ })).toBeInTheDocument();
+  });
+
+  it("renders article filters in a compact checkbox group", async () => {
+    stubFetch(baseAdminRoutes());
+    await renderAppAt("/admin/master-data/articles");
+
+    const filters = await screen.findByRole("search", { name: "Artikel filtern" });
+    const checkboxGroup = within(filters).getByLabelText("Artikelmerkmale");
+    expect(checkboxGroup).toHaveClass("article-filter-checks");
+    expect(within(checkboxGroup).getByLabelText("MPDG").closest(".check-field")).toHaveClass(
+      "check-field-compact",
+    );
   });
 });
 

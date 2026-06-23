@@ -12,7 +12,7 @@ export function UserListPanel(props: { currentUserId: string; error: Error | nul
 
   return (
     <Panel>
-      <div className="panel-header"><div><h2>Benutzerkonten</h2><p>Aktivierung, Rollen und 2FA-Status.</p></div></div>
+      <div className="panel-header"><div><h2>Benutzerkonten</h2></div></div>
       <div className="table">
         {props.users.map((entry) => (
           <div className="table-row user-row" key={entry.id}>

@@ -1,4 +1,5 @@
-import { screen, waitFor, within } from "@testing-library/react";
+import { fireEvent, screen, waitFor, within } from "@testing-library/react";
+import { formatDate } from "../app/formatters";
 import { batch, kit, order } from "../test-support/fixtures";
 import { clickElement, getActiveRouter, postedBody, renderAppAt, resetTestBrowser, stubFetch } from "../test-support/app-test-helpers";
 
@@ -10,7 +11,10 @@ describe("AdminDashboard", () => {
       "/api/auth/setup/status": { initialized: true, firstAdminEmail: "admin@rescuebase.local" },
       "/api/auth/session": { user: { id: "user-admin", email: "admin@rescuebase.local", displayName: "Admin", role: "ADMIN", twoFactorEnabled: false } },
       "/api/catalog/kits": [kit],
-      "/api/inventory/batches": [batch],
+      "/api/inventory/batches": [
+        batch,
+        { ...batch, id: "batch-bandage-2", lotNumber: "VB-2026-02", expiresAt: "2026-11-30", quantity: 2 }
+      ],
       "/api/replenishment-orders": [order],
       "/api/replenishment-orders/order-1001/fulfill": { ok: true },
       "/api/alerts/warnings": { generatedAt: "2026-06-17T00:00:00.000Z", warnings: [], summary: { expiry: 0, stkDue: 0, mtkDue: 0 } }
@@ -23,9 +27,19 @@ describe("AdminDashboard", () => {
     expect(await screen.findByRole("heading", { name: "Warnungen" })).toBeInTheDocument();
     await clickElement(screen.getByRole("button", { name: /Rucksack Fahrzeug 1/ }));
     const dialog = await screen.findByRole("dialog", { name: "Nachfüllauftrag" });
+    const batchSelect = within(dialog).getByRole("combobox", { name: "Charge für Verbandpäckchen mittel" });
+    const firstBatchLabel = `VB-2026-02 · 2 verfügbar · Ablauf ${formatDate("2026-11-30")}`;
+    const secondBatchLabel = `VB-2026-04 · 120 verfügbar · Ablauf ${formatDate("2027-04-30")}`;
+    expect(within(dialog).getByText("Charge")).toBeInTheDocument();
+    expect(batchSelect).toHaveValue(firstBatchLabel);
+    fireEvent.focus(batchSelect);
+    expect(screen.getByRole("option", { name: firstBatchLabel })).toBeInTheDocument();
+    expect(screen.getByRole("option", { name: secondBatchLabel })).toBeInTheDocument();
+    expect(dialog.querySelector(".modal-footer")).not.toBeNull();
+    expect(dialog.querySelector(".modal-footer svg")).toBeNull();
     await clickElement(within(dialog).getByLabelText("Auffüllen erhöhen"));
     await clickElement(within(dialog).getByRole("button", { name: /Teilfüllung buchen/ }));
-    await waitFor(() => expect(postedBody("/api/replenishment-orders/order-1001/fulfill")).toEqual({ items: [{ itemId: "pos-bandage", batchId: "batch-bandage-1", quantity: 1 }] }));
+    await waitFor(() => expect(postedBody("/api/replenishment-orders/order-1001/fulfill")).toEqual({ items: [{ itemId: "pos-bandage", batchId: "batch-bandage-2", quantity: 1 }] }));
   });
 
   it("filters replenishment orders by location from the URL", async () => {
@@ -45,5 +59,22 @@ describe("AdminDashboard", () => {
 
     await clickElement(screen.getByRole("button", { name: "Filter zurücksetzen" }));
     await waitFor(() => expect(getActiveRouter()?.state.location.search).toEqual({}));
+  });
+
+  it("keeps the dashboard header and panels compact", async () => {
+    stubFetch({
+      "/api/auth/setup/status": { initialized: true, firstAdminEmail: "admin@rescuebase.local" },
+      "/api/auth/session": { user: { id: "user-admin", email: "admin@rescuebase.local", displayName: "Admin", role: "ADMIN", twoFactorEnabled: false } },
+      "/api/catalog/kits": [kit],
+      "/api/inventory/batches": [batch],
+      "/api/replenishment-orders": [order],
+      "/api/alerts/warnings": { generatedAt: "2026-06-17T00:00:00.000Z", warnings: [], summary: { expiry: 0, stkDue: 0, mtkDue: 0 } }
+    });
+    await renderAppAt("/");
+    await screen.findByRole("heading", { name: "Nachfüllaufträge" });
+
+    expect(screen.queryByText("Offene Mängel, Teilfüllungen und Ablaufwarnungen im Blick.")).toBeNull();
+    expect(screen.queryByText("Teilfüllungen buchen konkrete Chargen aus dem Lager.")).toBeNull();
+    expect(screen.queryByText("Aktive Fälligkeits- und Ablaufwarnungen.")).toBeNull();
   });
 });
