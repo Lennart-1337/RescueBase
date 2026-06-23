@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
 import { Download, Truck } from "lucide-react";
+import { formatDate } from "../../app/formatters";
 import { SearchableSelect } from "../../components/searchable-select";
 import { InlineError } from "../../components/state-panels";
-import { AnchorButton, Badge, Button } from "../../components/ui";
+import { AnchorButton, Badge, Button, Field } from "../../components/ui";
 import { Stepper } from "../../components/stepper";
 import type { Batch, ReplenishmentOrder } from "../../lib/types";
 
@@ -39,7 +40,9 @@ export function OrderDetail(props: {
           return (
             <div className="fulfillment-row" key={item.templatePositionId}>
               <div><strong>{item.articleName}</strong><small>{item.fulfilledQuantity}/{item.requestedQuantity} {item.unit} · {props.formatReason(item.reason)}</small></div>
-              <SearchableSelect ariaLabel={`Charge für ${item.articleName}`} disabled={openQuantity === 0 || availableBatches.length === 0} onChange={(value) => setDraft((current) => ({ ...current, [item.templatePositionId]: { ...draftEntry, batchId: value } }))} options={availableBatches.map((batch) => ({ label: `${batch.lotNumber} · ${batch.quantity} verfügbar`, value: batch.id, keywords: [batch.lotNumber] }))} value={draftEntry.batchId} />
+              <Field label="Charge">
+                <SearchableSelect ariaLabel={`Charge für ${item.articleName}`} disabled={openQuantity === 0 || availableBatches.length === 0} onChange={(value) => setDraft((current) => ({ ...current, [item.templatePositionId]: { ...draftEntry, batchId: value } }))} options={availableBatches.map((batch) => ({ label: formatBatchLabel(batch), value: batch.id, keywords: [batch.lotNumber, batch.expiresAt, formatDate(batch.expiresAt)] }))} value={draftEntry.batchId} />
+              </Field>
               <Stepper label="Auffüllen" max={Math.min(openQuantity, props.selectedBatchQuantity(availableBatches, draftEntry.batchId))} onChange={(value) => setDraft((current) => ({ ...current, [item.templatePositionId]: { batchId: draftEntry.batchId, quantity: value } }))} value={draftEntry.quantity} />
             </div>
           );
@@ -49,4 +52,8 @@ export function OrderDetail(props: {
       <div className="form-actions"><Truck data-icon="inline-start" /><Button disabled={fulfillmentItems.length === 0 || props.isSubmitting || props.order.status === "DONE" || props.order.status === "CANCELLED"} onClick={() => props.onFulfill(fulfillmentItems)} type="button">Teilfüllung buchen</Button></div>
     </div>
   );
+}
+
+function formatBatchLabel(batch: Batch) {
+  return `${batch.lotNumber} · ${batch.quantity} verfügbar · Ablauf ${formatDate(batch.expiresAt)}`;
 }
