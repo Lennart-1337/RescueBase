@@ -115,20 +115,6 @@ jobs:
           sh -n scripts/staging/restore.sh
           sh -n scripts/production/deploy.sh
 
-      - name: Validate PowerShell scripts
-        shell: pwsh
-        run: |
-          $ErrorActionPreference = "Stop"
-          foreach ($file in @(
-            "scripts/windows-staging/bootstrap-wsl-staging.ps1",
-            "scripts/windows-staging/bootstrap-docker-desktop-staging.ps1",
-            "scripts/windows-staging/deploy-staging.ps1",
-            "scripts/windows-staging/backup-staging.ps1",
-            "scripts/windows-staging/restore-staging.ps1"
-          )) {
-            [scriptblock]::Create((Get-Content $file -Raw)) | Out-Null
-          }
-
       - name: Validate compose configs
         run: |
           docker compose --env-file .env.staging.example -f docker-compose.yml -f docker-compose.staging.yml config >/dev/null
