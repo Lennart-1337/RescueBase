@@ -141,7 +141,7 @@ export function ArticlePanel(props: {
       </div>
       <Dialog actions={<><Button disabled={props.isSubmitting} onClick={() => setDraft(emptyDraft())} type="button" variant="ghost"><X data-icon="inline-start" />Abbrechen</Button><Button disabled={!canSubmit || props.isSubmitting} onClick={() => void submit()} type="button">{draft.editingId ? <Save data-icon="inline-start" /> : <Plus data-icon="inline-start" />}{draft.editingId ? "Artikel speichern" : "Artikel anlegen"}</Button></>} onClose={() => setDraft(emptyDraft())} open={draft.isOpen} title={draft.editingId ? "Artikel bearbeiten" : "Artikel anlegen"}>
         <div className="form-grid form-grid-three">
-          <Field label="Name"><input onChange={(event) => setDraft((current) => ({ ...current, name: event.target.value }))} value={draft.name} /></Field>
+          <Field label="Name"><input autoFocus onChange={(event) => setDraft((current) => ({ ...current, name: event.target.value }))} value={draft.name} /></Field>
           <Field label="Einheit"><input onChange={(event) => setDraft((current) => ({ ...current, unit: event.target.value }))} value={draft.unit} /></Field>
           <Field label="Kategorie"><input onChange={(event) => setDraft((current) => ({ ...current, category: event.target.value }))} value={draft.category} /></Field>
           <Field label="Hersteller"><input onChange={(event) => setDraft((current) => ({ ...current, manufacturer: event.target.value }))} value={draft.manufacturer} /></Field>

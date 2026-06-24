@@ -45,15 +45,29 @@ a {
   padding: 24px 18px;
   display: flex;
   flex-direction: column;
+  gap: 18px;
+  height: 100vh;
+  position: sticky;
+  top: 0;
+}
+
+.sidebar-main {
+  min-height: 0;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
   gap: 28px;
+  overflow-y: auto;
+  padding-right: 4px;
 }
 
 .sidebar-user {
-  margin-top: auto;
+  flex: 0 0 auto;
   padding-top: 18px;
   border-top: 1px solid #edf0f4;
   display: grid;
   gap: 4px;
+  background: #ffffff;
 }
 
 .sidebar-user span,

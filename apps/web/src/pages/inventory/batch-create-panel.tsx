@@ -13,7 +13,7 @@ export function BatchCreatePanel(props: { articleId: string; articles: Article[]
       <div className="form-grid form-grid-five">
         <Field label="Artikel"><SearchableSelect onChange={props.onArticleChange} options={props.articles.map((article) => ({ label: article.name, value: article.id }))} value={selectedArticleId} /></Field>
         <Field label="Lagerort"><SearchableSelect onChange={props.onLocationChange} options={props.locations.map((location) => ({ label: location.name, value: location.id }))} value={selectedLocationId} /></Field>
-        <Field label="Chargennummer"><input value={props.lotNumber} onChange={(event) => props.onLotNumberChange(event.target.value)} /></Field>
+        <Field label="Chargennummer"><input autoFocus value={props.lotNumber} onChange={(event) => props.onLotNumberChange(event.target.value)} /></Field>
         <Field label="Ablaufdatum"><input type="date" value={props.expiresAt} onChange={(event) => props.onExpiresAtChange(event.target.value)} /></Field>
         <Field label="Menge"><input min="0" onChange={(event) => props.onQuantityChange(Number(event.target.value))} type="number" value={props.quantity} /></Field>
       </div>

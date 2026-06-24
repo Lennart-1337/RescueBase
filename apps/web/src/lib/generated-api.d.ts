@@ -1028,8 +1028,14 @@ export interface components {
         InventoryProcurementStatus: "OPEN" | "IN_PROGRESS" | "DONE" | "CANCELLED";
         /** @enum {string} */
         ReplenishmentReason: "SHORTAGE" | "DISCARDED_EXPIRED" | "SHORTAGE_AND_DISCARDED_EXPIRED";
+        AppBranding: {
+            appName: string;
+            appSubtitle: string;
+        };
         SetupStatus: {
             initialized: boolean;
+            appName: string;
+            appSubtitle: string;
         };
         AuthenticatedUser: {
             id: string;
@@ -1043,6 +1049,8 @@ export interface components {
         };
         SessionResponse: {
             user: components["schemas"]["AuthenticatedUser"];
+            appName: string;
+            appSubtitle: string;
         };
         FirstAdminRequest: {
             /** Format: email */
@@ -1433,6 +1441,10 @@ export interface components {
             dailyReconcileTime: string;
         };
         GeneralSettings: {
+            /** @example RescueBase */
+            appName: string;
+            /** @example Sanitätslager */
+            appSubtitle: string;
             /** @example Europe/Berlin */
             timezone: string;
             newUserOrderNotificationsDefaultEnabled: boolean;
@@ -1466,6 +1478,8 @@ export interface components {
             templates: components["schemas"]["NotificationTemplate"][];
         };
         UpdateGeneralSettingsRequest: {
+            appName?: string;
+            appSubtitle?: string;
             timezone?: string;
             newUserOrderNotificationsDefaultEnabled?: boolean;
         };

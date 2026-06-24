@@ -40,9 +40,15 @@ const rescueBaseOpenApiDocumentDefinition = {
       ReplenishmentStatus: stringEnum(["OPEN", "IN_PROGRESS", "DONE", "CANCELLED"]),
       InventoryProcurementStatus: stringEnum(["OPEN", "IN_PROGRESS", "DONE", "CANCELLED"]),
       ReplenishmentReason: stringEnum(["SHORTAGE", "DISCARDED_EXPIRED", "SHORTAGE_AND_DISCARDED_EXPIRED"]),
+      AppBranding: objectSchema({
+        appName: { type: "string", example: "RescueBase" },
+        appSubtitle: { type: "string", example: "Sanitätslager" }
+      }, ["appName", "appSubtitle"]),
       SetupStatus: objectSchema({
-        initialized: { type: "boolean" }
-      }, ["initialized"]),
+        initialized: { type: "boolean" },
+        appName: { type: "string", example: "RescueBase" },
+        appSubtitle: { type: "string", example: "Sanitätslager" }
+      }, ["initialized", "appName", "appSubtitle"]),
       AuthenticatedUser: objectSchema({
         id: { type: "string" },
         email: { type: "string", format: "email" },
@@ -53,8 +59,10 @@ const rescueBaseOpenApiDocumentDefinition = {
         newOrderNotificationsEnabled: { type: "boolean" }
       }, ["id", "email", "displayName", "role", "twoFactorEnabled", "newOrderNotificationsEnabled"]),
       SessionResponse: objectSchema({
-        user: ref("AuthenticatedUser")
-      }, ["user"]),
+        user: ref("AuthenticatedUser"),
+        appName: { type: "string", example: "RescueBase" },
+        appSubtitle: { type: "string", example: "Sanitätslager" }
+      }, ["user", "appName", "appSubtitle"]),
       FirstAdminRequest: objectSchema({
         email: { type: "string", format: "email" },
         displayName: { type: "string" },
@@ -397,9 +405,11 @@ const rescueBaseOpenApiDocumentDefinition = {
         dailyReconcileTime: { type: "string" }
       }, ["dailyReconcileTime"]),
       GeneralSettings: objectSchema({
+        appName: { type: "string", example: "RescueBase" },
+        appSubtitle: { type: "string", example: "Sanitätslager" },
         timezone: { type: "string", example: "Europe/Berlin" },
         newUserOrderNotificationsDefaultEnabled: { type: "boolean" }
-      }, ["timezone", "newUserOrderNotificationsDefaultEnabled"]),
+      }, ["appName", "appSubtitle", "timezone", "newUserOrderNotificationsDefaultEnabled"]),
       AlertSettings: objectSchema({
         dailyDigestEnabled: { type: "boolean" },
         dailyDigestTime: { type: "string", pattern: "^(?:[01]\\d|2[0-3]):[0-5]\\d$" },
@@ -423,7 +433,7 @@ const rescueBaseOpenApiDocumentDefinition = {
         general: ref("GeneralSettings"), alerts: ref("AlertSettings"), inventory: ref("AdminInventorySettings"), templates: arrayOf(ref("NotificationTemplate"))
       }, ["general", "alerts", "inventory", "templates"]),
       UpdateGeneralSettingsRequest: objectSchema({
-        timezone: { type: "string" }, newUserOrderNotificationsDefaultEnabled: { type: "boolean" }
+        appName: { type: "string" }, appSubtitle: { type: "string" }, timezone: { type: "string" }, newUserOrderNotificationsDefaultEnabled: { type: "boolean" }
       }),
       UpdateAlertSettingsRequest: objectSchema({
         dailyDigestEnabled: { type: "boolean" }, dailyDigestTime: { type: "string" }, warningWindowDays: { type: "integer", minimum: 1, maximum: 3650 }

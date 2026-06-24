@@ -21,6 +21,7 @@ import { PublicRoute, RateLimit, Roles } from "../auth/auth.decorators.js";
 import { AuthService } from "../auth/auth.service.js";
 import type { AuthenticatedRequest } from "../auth/auth.guard.js";
 import { defaultTimezone } from "../settings/default-timezone.js";
+import { defaultAppName, defaultAppSubtitle } from "../settings/settings.service.js";
 
 type AdminUserListItem = {
   id: string;
@@ -49,9 +50,9 @@ export class AuthController {
   @PublicRoute()
   @RateLimit({ limit: 20, windowMs: 10 * 60 * 1000 })
   @Get("setup/status")
-  async setupStatus(): Promise<{ initialized: boolean }> {
+  async setupStatus(): Promise<{ initialized: boolean; appName: string; appSubtitle: string }> {
     const firstAdmin = await this.prisma.user.findFirst({ where: { role: "ADMIN", deletedAt: null } });
-    return { initialized: Boolean(firstAdmin) };
+    return { initialized: Boolean(firstAdmin), ...(await this.getBranding()) };
   }
 
   @PublicRoute()
@@ -293,11 +294,11 @@ export class AuthController {
   }
 
   @Get("session")
-  async session(@Req() request: AuthenticatedRequest): Promise<{ user: AuthenticatedRequest["user"] }> {
+  async session(@Req() request: AuthenticatedRequest): Promise<{ user: AuthenticatedRequest["user"]; appName: string; appSubtitle: string }> {
     if (!request.user) {
       throw new UnauthorizedException("Bitte melden Sie sich an.");
     }
-    return { user: request.user };
+    return { user: request.user, ...(await this.getBranding()) };
   }
 
   @Post("logout")
@@ -519,5 +520,14 @@ export class AuthController {
     if (password.length < 12) {
       throw new BadRequestException("Passwort muss mindestens 12 Zeichen lang sein.");
     }
+  }
+
+  private async getBranding(): Promise<{ appName: string; appSubtitle: string }> {
+    const settings = await this.prisma.appSettings.upsert({
+      where: { id: "singleton" },
+      update: {},
+      create: { id: "singleton", appName: defaultAppName, appSubtitle: defaultAppSubtitle, timezone: defaultTimezone() }
+    });
+    return { appName: settings.appName, appSubtitle: settings.appSubtitle };
   }
 }

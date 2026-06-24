@@ -20,12 +20,18 @@ export function PasswordResetConfirmScreen({ token }: { token: string }) {
   return (
     <Panel className="auth-panel">
       <div className="panel-header"><div><h2>Neues Passwort setzen</h2><p>{preview.data.email}</p></div><KeyRound /></div>
-      <div className="auth-form">
-        <Field label="Passwort"><input type="password" value={password} onChange={(event) => setPassword(event.target.value)} /></Field>
+      <form
+        className="auth-form"
+        onSubmit={(event) => {
+          event.preventDefault();
+          if (password.length >= 12 && password === passwordRepeat && !mutation.isPending) mutation.mutate({ password, token });
+        }}
+      >
+        <Field label="Passwort"><input autoFocus type="password" value={password} onChange={(event) => setPassword(event.target.value)} /></Field>
         <Field label="Passwort wiederholen"><input type="password" value={passwordRepeat} onChange={(event) => setPasswordRepeat(event.target.value)} /></Field>
         {mutation.error ? <InlineError error={mutation.error} /> : null}
-        <Button disabled={password.length < 12 || password !== passwordRepeat || mutation.isPending} onClick={() => mutation.mutate({ password, token })} type="button">Passwort speichern</Button>
-      </div>
+        <Button disabled={password.length < 12 || password !== passwordRepeat || mutation.isPending} type="submit">Passwort speichern</Button>
+      </form>
     </Panel>
   );
 }

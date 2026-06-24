@@ -34,7 +34,7 @@ export function KitFormPanel(props: {
       title={props.editingId ? "Rucksack bearbeiten" : "Rucksack anlegen"}
     >
       <div className="form-grid form-grid-two">
-        <Field label="Name"><input value={props.name} onChange={(event) => props.onNameChange(event.target.value)} /></Field>
+        <Field label="Name"><input autoFocus value={props.name} onChange={(event) => props.onNameChange(event.target.value)} /></Field>
         <Field label="Rucksackkennung"><input value={props.code} onChange={(event) => props.onCodeChange(event.target.value)} /></Field>
         <Field label="Standort"><SearchableSelect onChange={props.onLocationChange} options={props.locations.map((location) => ({ label: location.name, value: location.id }))} value={selectedLocationId} /></Field>
         <Field label="Vorlage"><SearchableSelect onChange={props.onTemplateChange} options={props.templates.map((template) => ({ label: `${template.name} v${template.version}`, value: template.id, keywords: [template.name] }))} value={selectedTemplateId} /></Field>

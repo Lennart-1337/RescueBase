@@ -69,7 +69,7 @@ export function LocationPanel(props: {
       </div>
       <Dialog actions={<><Button disabled={props.isSubmitting} onClick={() => setIsOpen(false)} type="button" variant="ghost"><X data-icon="inline-start" />Abbrechen</Button><Button disabled={!canSubmit || props.isSubmitting} onClick={() => void submit()} type="button">{editingId ? <Save data-icon="inline-start" /> : <Plus data-icon="inline-start" />}{editingId ? "Lagerort speichern" : "Lagerort anlegen"}</Button></>} onClose={() => setIsOpen(false)} open={isOpen} title={editingId ? "Lagerort bearbeiten" : "Lagerort anlegen"}>
         <div className="form-grid form-grid-two">
-          <Field label="Name"><input value={name} onChange={(event) => setName(event.target.value)} /></Field>
+          <Field label="Name"><input autoFocus value={name} onChange={(event) => setName(event.target.value)} /></Field>
           <Field label="Typ"><select value={kind} onChange={(event) => setKind(event.target.value)}><option value="STORAGE">Lager</option><option value="VEHICLE">Fahrzeug</option><option value="ROOM">Raum</option></select></Field>
         </div>
         {props.error ? <InlineError error={props.error} /> : null}

@@ -22,6 +22,13 @@ export function validateBoolean(value: unknown, field: string): boolean {
   return value;
 }
 
+export function validateDisplayText(value: unknown, field: string): string {
+  if (typeof value !== "string" || !value.trim()) throw new BadRequestException(`${field} ist erforderlich.`);
+  const normalized = value.trim();
+  if (normalized.length > 80) throw new BadRequestException(`${field} darf maximal 80 Zeichen lang sein.`);
+  return normalized;
+}
+
 export function validateWarningWindow(value: unknown): number {
   if (!Number.isInteger(value) || Number(value) < 1 || Number(value) > 3650) {
     throw new BadRequestException("Warnzeitraum muss eine ganze Zahl zwischen 1 und 3650 Tagen sein.");

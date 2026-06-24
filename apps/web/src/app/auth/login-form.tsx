@@ -34,6 +34,14 @@ export function LoginForm({ onDone }: { onDone: () => void }) {
     clearPendingLogin();
   }
 
+  function submitLogin() {
+    mutation.mutate(
+      usesPendingLogin
+        ? { loginChallengeId, twoFactorCode }
+        : { email, password, twoFactorCode: twoFactorCode || undefined },
+    );
+  }
+
   const mutation = useMutation({
     mutationFn: rescueBaseApi.login,
     onSuccess: (result) => {
@@ -60,16 +68,22 @@ export function LoginForm({ onDone }: { onDone: () => void }) {
   return (
     <Panel className="auth-panel">
       <div className="panel-header"><div><h2>Anmelden</h2></div><ShieldCheck /></div>
-      <div className="auth-form">
-        <Field label="E-Mail"><input disabled={usesPendingLogin} type="email" value={email} onChange={(event) => setEmail(event.target.value)} /></Field>
+      <form
+        className="auth-form"
+        onSubmit={(event) => {
+          event.preventDefault();
+          if (canSubmit && !mutation.isPending) submitLogin();
+        }}
+      >
+        <Field label="E-Mail"><input autoFocus={!usesPendingLogin} disabled={usesPendingLogin} type="email" value={email} onChange={(event) => setEmail(event.target.value)} /></Field>
         {!usesPendingLogin ? <Field label="Passwort"><input type="password" value={password} onChange={(event) => setPassword(event.target.value)} /></Field> : null}
-        {requiresTwoFactor ? <Field label="2FA-Code"><input inputMode="numeric" value={twoFactorCode} onChange={(event) => setTwoFactorCode(event.target.value)} /></Field> : null}
+        {requiresTwoFactor ? <Field label="2FA-Code"><input autoFocus={usesPendingLogin} inputMode="numeric" value={twoFactorCode} onChange={(event) => setTwoFactorCode(event.target.value)} /></Field> : null}
         {debugCode ? <p className="debug-hint">Lokaler Testcode: {debugCode}</p> : null}
         {mutation.error ? <InlineError error={mutation.error} /> : null}
-        <Button disabled={!canSubmit || mutation.isPending} onClick={() => mutation.mutate(usesPendingLogin ? { loginChallengeId, twoFactorCode } : { email, password, twoFactorCode: twoFactorCode || undefined })} type="button">Anmelden</Button>
+        <Button disabled={!canSubmit || mutation.isPending} type="submit">Anmelden</Button>
         {usesPendingLogin ? <Button onClick={resetPendingStep} type="button" variant="ghost">Neu starten</Button> : null}
         <Link className="text-link" to="/password-reset">Passwort vergessen</Link>
-      </div>
+      </form>
     </Panel>
   );
 }

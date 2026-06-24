@@ -7,13 +7,17 @@ describe("RescueBase routes", () => {
 
   it("renders the admin dashboard from routed API data", async () => {
     stubFetch({
-      "/api/auth/setup/status": { initialized: true },
-      "/api/auth/session": { user: { id: "user-admin", email: "admin@rescuebase.local", displayName: "Admin", role: "ADMIN", twoFactorEnabled: false } },
+      "/api/auth/setup/status": { initialized: true, appName: "RescueBase Pro", appSubtitle: "Bereitschaft Nord" },
+      "/api/auth/session": { user: { id: "user-admin", email: "admin@rescuebase.local", displayName: "Admin", role: "ADMIN", twoFactorEnabled: false }, appName: "RescueBase Pro", appSubtitle: "Bereitschaft Nord" },
       "/api/catalog/kits": [kit],
       "/api/inventory/batches": [batch],
       "/api/replenishment-orders": [order]
     });
     await renderAppAt("/");
+    expect(await screen.findByText("RescueBase Pro")).toBeInTheDocument();
+    expect(screen.getByText("Bereitschaft Nord")).toBeInTheDocument();
+    expect(document.querySelector(".sidebar-main")).not.toBeNull();
+    expect(document.querySelector(".sidebar-user")).not.toBeNull();
     expect(await screen.findByRole("heading", { name: "Nachfüllaufträge" })).toBeInTheDocument();
     expect(await screen.findByRole("button", { name: /Rucksack Fahrzeug 1/ })).toBeInTheDocument();
     expect(screen.getByText("1 Positionen · Offen")).toBeInTheDocument();

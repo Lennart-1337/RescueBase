@@ -17,6 +17,7 @@ describe("UsersPage", () => {
     expect(screen.getByRole("button", { name: /Benutzer einladen/ }).closest(".topbar")).not.toBeNull();
     await clickElement(screen.getByRole("button", { name: /Benutzer einladen/ }));
     const dialog = await screen.findByRole("dialog", { name: "Benutzer einladen" });
+    expect(within(dialog).getByLabelText("Name")).toHaveFocus();
     expect(within(dialog).queryByText("Nur Admins können Einladungen verwalten.")).toBeNull();
     expect(within(dialog).queryByText("Einladungen laufen per E-Mail-Link mit eigenem Passwort-Setup.")).toBeNull();
     await changeValue(within(dialog).getByLabelText("Name"), "Lager Nord");

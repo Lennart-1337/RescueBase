@@ -21,6 +21,8 @@ export function GeneralSettingsPanel({ initial }: { initial: GeneralSettings }) 
   return (
     <SettingsPanel className="settings-panel-compact" isSaving={mutation.isPending} onSave={() => mutation.mutate(draft)} title="Organisation und Zeit">
       <div className="form-grid form-grid-two">
+        <Field label="App-Name"><input onChange={(event) => setDraft({ ...draft, appName: event.target.value })} value={draft.appName} /></Field>
+        <Field label="Untertitel"><input onChange={(event) => setDraft({ ...draft, appSubtitle: event.target.value })} value={draft.appSubtitle} /></Field>
         <Field label="Zeitzone">
           <SearchableSelect
             ariaLabel="Zeitzone"

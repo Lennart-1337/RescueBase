@@ -160,7 +160,7 @@ describe("auth lifecycle", () => {
   it("does not expose the first admin email in setup status", async () => {
     const server = app.getHttpServer();
     const status = await request(server).get("/auth/setup/status").expect(200);
-    expect(status.body).toEqual({ initialized: true });
+    expect(status.body).toMatchObject({ initialized: true, appName: "RescueBase", appSubtitle: "Sanitätslager" });
   });
 
   it("rejects email 2FA challenges that belong to another user", async () => {

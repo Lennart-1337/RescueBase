@@ -111,7 +111,7 @@ export function DevicePanel(props: {
         title={draft.editingId ? "Gerät bearbeiten" : "Gerät anlegen"}
       >
         <div className="form-grid form-grid-three">
-          <Field label="Name"><input value={draft.name} onChange={(event) => setDraft((current) => ({ ...current, name: event.target.value }))} /></Field>
+          <Field label="Name"><input autoFocus value={draft.name} onChange={(event) => setDraft((current) => ({ ...current, name: event.target.value }))} /></Field>
           <Field label="Artikel"><SearchableSelect onChange={(value) => setDraft((current) => ({ ...current, articleId: value }))} options={props.articles.map((article) => ({ label: article.name, value: article.id }))} value={draft.articleId} /></Field>
           <Field label="Lagerort"><SearchableSelect onChange={(value) => setDraft((current) => ({ ...current, locationId: value }))} options={props.locations.map((location) => ({ label: location.name, value: location.id }))} value={draft.locationId} /></Field>
           <Field label="Seriennummer"><input value={draft.serialNumber ?? ""} onChange={(event) => setDraft((current) => ({ ...current, serialNumber: event.target.value }))} /></Field>
