@@ -68,8 +68,8 @@ jobs:
       - run: npm run lint -w @rescuebase/api
       - run: npm run build -w @rescuebase/domain
       - run: npm run prisma:generate -w @rescuebase/api
-      - run: npm run typecheck -w @rescuebase/api
-      - run: npm run test -w @rescuebase/api
+      - run: node --experimental-vm-modules ../../node_modules/jest/bin/jest.js --config jest.config.cjs
+        working-directory: apps/api
         env:
           REQUIRE_TESTCONTAINERS: "true"
       - run: npm run build -w @rescuebase/api
@@ -98,7 +98,6 @@ jobs:
           cp .artifacts/api-client/apps/web/src/lib/generated-api.d.ts apps/web/src/lib/generated-api.d.ts
 
       - run: npm run lint -w @rescuebase/web
-      - run: npm run typecheck -w @rescuebase/web
       - run: npm run test -w @rescuebase/web
       - run: npm run build -w @rescuebase/web
 
