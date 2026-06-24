@@ -1,0 +1,9 @@
+.list-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  color: #465568;
+  font-size: 13px;
+  font-weight: 700;
+}

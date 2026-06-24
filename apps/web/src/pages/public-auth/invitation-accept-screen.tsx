@@ -6,6 +6,7 @@ import { toError } from "../../app/formatters";
 import { ErrorPanel, InlineError, LoadingPanel } from "../../components/state-panels";
 import { Button, Field, Panel } from "../../components/ui";
 import { rescueBaseApi } from "../../lib/api";
+import "../../app/auth/auth-form-layout.css";
 
 export function InvitationAcceptScreen({ token }: { token: string }) {
   const navigate = useNavigate();

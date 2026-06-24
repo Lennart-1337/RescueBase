@@ -1,5 +1,6 @@
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "../../components/ui";
+import "./check-protocol-pagination.css";
 
 export function CheckProtocolPagination(props: { onPageChange: (page: number) => void; page: number; pageSize: number; total: number }) {
   const pageCount = Math.max(1, Math.ceil(props.total / props.pageSize));

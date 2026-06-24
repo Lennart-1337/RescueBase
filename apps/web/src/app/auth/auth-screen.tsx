@@ -1,5 +1,7 @@
 import type { ReactNode } from "react";
 import { getBrandMark, type AppBranding } from "../branding";
+import "../brand-mark.css";
+import "./auth-screen.css";
 
 const defaultBranding: AppBranding = { appName: "RescueBase", appSubtitle: "Sanitätslager" };
 

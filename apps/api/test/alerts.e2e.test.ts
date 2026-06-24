@@ -1,6 +1,6 @@
 import type { INestApplication } from "@nestjs/common";
 import { jest } from "@jest/globals";
-import request from "supertest";
+import * as request from "supertest";
 import { MailService } from "../src/services/mail.service.js";
 import { bootstrapTestApp } from "./bootstrap-test-app.js";
 

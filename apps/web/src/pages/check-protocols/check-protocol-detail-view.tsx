@@ -6,6 +6,7 @@ import {
 import { Badge } from "../../components/ui";
 import type { CheckProtocolDetail } from "../../lib/types";
 import { protocolStatusTone } from "./check-protocol-status";
+import "./check-protocol-detail-view.css";
 
 export function CheckProtocolDetailView({
   detail,

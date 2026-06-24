@@ -1,0 +1,44 @@
+.template-settings-fields {
+  display: grid;
+  gap: 16px;
+}
+
+.template-settings-grid {
+  align-items: stretch;
+}
+
+.template-preview {
+  min-height: 280px;
+  border: 1px solid #e0e6ef;
+  border-radius: 8px;
+  padding: 18px;
+  background: #fbfcfe;
+}
+
+.template-preview > span {
+  display: block;
+  margin-bottom: 16px;
+  color: #657386;
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.template-preview strong,
+.template-preview pre {
+  display: block;
+  white-space: pre-wrap;
+}
+
+.template-preview pre {
+  margin-top: 18px;
+  font: inherit;
+  line-height: 1.6;
+}
+
+.field-help {
+  color: #657386;
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.45;
+}

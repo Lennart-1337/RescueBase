@@ -1,5 +1,6 @@
 import { useEffect, useRef, type PropsWithChildren } from "react";
 import { Button, Panel } from "../../components/ui";
+import "./signature-pad.css";
 
 export function SignaturePad({
   children,

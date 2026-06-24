@@ -1,6 +1,7 @@
 import { Stepper } from "../../components/stepper";
-import { Badge, Panel } from "../../components/ui";
+import { Panel } from "../../components/ui";
 import type { CheckLineState, GroupedTemplatePosition } from "../../lib/check";
+import "./public-check-groups.css";
 
 export function CheckGroups(props: {
   groupedPositions: GroupedTemplatePosition[];
@@ -20,9 +21,8 @@ export function CheckGroups(props: {
                   <div>
                     <span>Materialposition</span>
                     <h3>{position.articleName}</h3>
-                    <p>Soll {position.requiredQuantity} {position.unit}</p>
+                    <p>Soll: {position.requiredQuantity} {position.unit}{position.critical ? " · kritisch" : ""}</p>
                   </div>
-                  {position.critical ? <Badge className="check-item-critical" tone="neutral">kritisch</Badge> : null}
                 </div>
                 <Stepper label="Ist" onChange={(value) => props.onUpdateLine(position.id, { countedQuantity: value })} value={line?.countedQuantity ?? 0} />
                 <Stepper label="Verworfen" onChange={(value) => props.onUpdateLine(position.id, { discardedExpiredQuantity: value })} value={line?.discardedExpiredQuantity ?? 0} />

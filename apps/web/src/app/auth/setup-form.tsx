@@ -4,6 +4,7 @@ import { ShieldCheck } from "lucide-react";
 import { InlineError } from "../../components/state-panels";
 import { Button, Field, Panel } from "../../components/ui";
 import { rescueBaseApi } from "../../lib/api";
+import "./auth-form-layout.css";
 
 export function SetupForm({ onDone }: { onDone: () => void }) {
   const [displayName, setDisplayName] = useState("");

@@ -1,0 +1,54 @@
+.totp-setup-card {
+  display: grid;
+  grid-template-columns: 220px minmax(0, 1fr);
+  gap: 16px;
+  align-items: start;
+}
+
+.totp-qr,
+.totp-qr-placeholder {
+  width: 220px;
+  height: 220px;
+  border-radius: 8px;
+  border: 1px solid #d6dce5;
+  background: #ffffff;
+}
+
+.totp-qr-placeholder {
+  display: grid;
+  place-items: center;
+  color: #657386;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.totp-setup-copy {
+  display: grid;
+  gap: 12px;
+}
+
+.copy-row {
+  display: grid;
+  gap: 6px;
+  padding: 12px;
+  border: 1px solid #edf0f4;
+  border-radius: 8px;
+  background: #fbfcfe;
+}
+
+.copy-row span,
+.copy-row small {
+  color: #657386;
+  word-break: break-word;
+}
+
+.copy-row strong {
+  font-size: 15px;
+  word-break: break-word;
+}
+
+@media (max-width: 980px) {
+  .totp-setup-card {
+    grid-template-columns: 1fr;
+  }
+}

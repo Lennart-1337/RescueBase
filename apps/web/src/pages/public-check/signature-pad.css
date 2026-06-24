@@ -1,0 +1,18 @@
+.signature-panel {
+  margin-top: 12px;
+}
+
+.signature-panel-fields {
+  padding: 0 16px;
+}
+
+.signature-panel canvas {
+  width: calc(100% - 32px);
+  height: 180px;
+  display: block;
+  margin: 16px;
+  border: 1px dashed #98a2b3;
+  border-radius: 8px;
+  background: #ffffff;
+  touch-action: none;
+}

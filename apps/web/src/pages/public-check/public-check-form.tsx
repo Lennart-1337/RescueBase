@@ -6,6 +6,7 @@ import { groupTemplatePositions, initialCheckLines, summarizeCheck, type CheckLi
 import type { PublicKitResponse } from "../../lib/types";
 import { CheckGroups } from "./public-check-groups";
 import { SignaturePad } from "./signature-pad";
+import "./public-check-form.css";
 
 export function PublicCheckForm(props: {
   onSubmit: (body: { checkerName: string; positions: CheckLineState[]; signaturePngDataUrl: string }) => void;

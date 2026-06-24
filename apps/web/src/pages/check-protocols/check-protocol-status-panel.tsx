@@ -1,5 +1,6 @@
 import { Panel } from "../../components/ui";
 import type { CheckProtocolSummary } from "../../lib/types";
+import "./check-protocol-status-panel.css";
 
 export function CheckProtocolStatusPanel(props: {
   protocols: CheckProtocolSummary[];

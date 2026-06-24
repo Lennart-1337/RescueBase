@@ -1,0 +1,247 @@
+.protocol-detail-shell,
+.protocol-detail-layout,
+.protocol-detail-main,
+.protocol-detail-rail,
+.protocol-summary-grid,
+.protocol-position-list,
+.protocol-warning-list {
+  display: grid;
+}
+
+.protocol-detail-shell,
+.protocol-summary-grid {
+  gap: 16px;
+}
+
+.protocol-detail-layout {
+  grid-template-columns: minmax(0, 1.5fr) minmax(280px, 0.78fr);
+  align-items: start;
+  gap: 20px;
+}
+
+.protocol-detail-main,
+.protocol-detail-rail,
+.protocol-position-list,
+.protocol-warning-list {
+  gap: 12px;
+}
+
+.protocol-card,
+.protocol-hero,
+.protocol-position-card,
+.protocol-summary-grid {
+  border: 1px solid #e0e6ef;
+  border-radius: 12px;
+  background: #fbfcfe;
+}
+
+.protocol-card {
+  padding: 20px;
+  display: grid;
+  gap: 16px;
+}
+
+.protocol-card-compact {
+  gap: 14px;
+}
+
+.protocol-card-header {
+  display: grid;
+  gap: 6px;
+}
+
+.protocol-card-header h3,
+.protocol-hero h3,
+.protocol-position-card strong {
+  margin: 0;
+}
+
+.protocol-card-header p,
+.protocol-hero p,
+.protocol-hero small,
+.protocol-position-card small,
+.protocol-summary-item span,
+.protocol-hash-block code,
+.protocol-hash-block span {
+  color: #657386;
+  font-size: 12px;
+}
+
+.protocol-summary-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.protocol-summary-item {
+  display: grid;
+  gap: 6px;
+  padding: 14px 16px;
+  border: 1px solid #e0e6ef;
+  border-radius: 10px;
+  background: #ffffff;
+}
+
+.protocol-hero {
+  padding: 20px 22px;
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  align-items: flex-start;
+}
+
+.protocol-hero-copy {
+  display: grid;
+  gap: 8px;
+}
+
+.protocol-eyebrow {
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.protocol-meta,
+.protocol-card-header p {
+  display: block;
+  margin: 0;
+}
+
+.protocol-hero-badges,
+.protocol-position-badges {
+  display: flex;
+  flex-wrap: wrap;
+  align-content: flex-start;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.protocol-position-badges {
+  display: grid;
+  grid-template-columns: repeat(2, max-content) minmax(0, 1fr);
+  justify-content: end;
+  justify-items: end;
+  column-gap: 8px;
+  row-gap: 8px;
+}
+
+.protocol-position-badge-column {
+  display: grid;
+  align-content: start;
+  justify-items: end;
+  gap: 8px;
+}
+
+.protocol-position-badge-column-issues {
+  min-width: max-content;
+}
+
+.protocol-badge-state {
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.28);
+}
+
+.protocol-badge-data {
+  border: 1px solid #e4e7ec;
+  background: #f8fafc;
+  color: #475467;
+}
+
+.protocol-badge-issue.badge-warning {
+  background: #fef3d6;
+  color: #9a6700;
+}
+
+.protocol-badge-issue.badge-danger {
+  background: #feeceb;
+  color: #b42318;
+}
+
+.protocol-badge-issue.badge-info {
+  background: #e7efff;
+  color: #375dfb;
+}
+
+.protocol-warning-list,
+.protocol-position-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.protocol-warning {
+  padding: 14px 16px;
+  border: 1px solid #f5d7a1;
+  border-radius: 10px;
+  background: #fff9ec;
+  color: #7a4a00;
+  font-weight: 700;
+}
+
+.protocol-position-card {
+  padding: 16px;
+  display: grid;
+  gap: 12px;
+}
+
+.protocol-position-copy {
+  display: grid;
+  gap: 6px;
+}
+
+.protocol-position-meta {
+  display: block;
+}
+
+.protocol-signature-image {
+  width: 100%;
+  min-height: 160px;
+  max-height: 180px;
+  object-fit: contain;
+  border: 1px solid #e0e6ef;
+  border-radius: 10px;
+  background: #ffffff;
+}
+
+.protocol-hash-block {
+  display: grid;
+  gap: 6px;
+  padding-top: 2px;
+}
+
+.protocol-hash-block code,
+.protocol-order-card strong {
+  overflow-wrap: anywhere;
+}
+
+.protocol-order-card {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.protocol-order-card strong {
+  min-width: 0;
+}
+
+@media (max-width: 620px) {
+  .protocol-summary-grid,
+  .protocol-detail-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .protocol-hero,
+  .protocol-hero-badges {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .protocol-position-badges {
+    grid-template-columns: 1fr;
+    justify-content: flex-start;
+    justify-items: start;
+  }
+
+  .protocol-position-badge-column {
+    justify-items: start;
+  }
+}

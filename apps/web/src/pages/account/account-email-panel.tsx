@@ -4,6 +4,7 @@ import { Mail } from "lucide-react";
 import { InlineError } from "../../components/state-panels";
 import { Button, Field, Panel } from "../../components/ui";
 import { rescueBaseApi } from "../../lib/api";
+import "../../app/auth/auth-form-layout.css";
 
 export function AccountEmailPanel() {
   const queryClient = useQueryClient();

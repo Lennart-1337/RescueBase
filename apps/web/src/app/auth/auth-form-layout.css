@@ -1,0 +1,21 @@
+.auth-panel {
+  width: 100%;
+}
+
+.auth-panel .panel-header svg {
+  width: 24px;
+  height: 24px;
+  color: #b42318;
+}
+
+.auth-form {
+  padding: 18px;
+  display: grid;
+  gap: 14px;
+}
+
+.text-link {
+  color: #657386;
+  font-size: 13px;
+  text-decoration: underline;
+}
