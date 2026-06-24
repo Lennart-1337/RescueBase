@@ -101,6 +101,42 @@ describe("MasterDataPage", () => {
     await waitFor(() => expect(postedBody("/api/catalog/templates/template-san-a-v1/revise")).toEqual({ positions: [{ articleId: "article-bandage", moduleName: "Verband", requiredQuantity: 2, critical: false }] }));
   });
 
+  it("asks before closing template edits with unsaved changes and can save them", async () => {
+    stubFetch({
+      ...baseAdminRoutes(),
+      "/api/catalog/templates": [{ ...kit.template, positions: [{ id: "pos-bandage", articleId: "article-bandage", articleName: "Verbandpäckchen mittel", moduleName: "Verband", requiredQuantity: 1, unit: "Stück", critical: false }] }],
+      "/api/catalog/templates/template-san-a-v1/revise": { ok: true }
+    });
+    await renderAppAt("/admin/master-data/templates");
+    await screen.findByRole("heading", { name: "Stammdaten" });
+    await clickElement(await screen.findByRole("button", { name: /Bearbeiten/ }));
+    const dialog = await screen.findByRole("dialog", { name: "Rucksackvorlage bearbeiten" });
+    await changeValue(within(dialog).getByLabelText("Sollmenge"), "2");
+    await clickElement(within(dialog).getByRole("button", { name: "Abbrechen" }));
+
+    const confirmDialog = await screen.findByRole("dialog", { name: "Änderungen an Rucksackvorlage" });
+    expect(within(confirmDialog).getByText("Sie haben ungespeicherte Änderungen. Möchten Sie diese vor dem Schließen speichern?")).toBeInTheDocument();
+    await clickElement(within(confirmDialog).getByRole("button", { name: "Änderungen speichern" }));
+
+    await waitFor(() => expect(postedBody("/api/catalog/templates/template-san-a-v1/revise")).toEqual({
+      positions: [{ articleId: "article-bandage", moduleName: "Verband", requiredQuantity: 2, critical: false }]
+    }));
+    await waitFor(() => expect(screen.queryByRole("dialog", { name: "Rucksackvorlage bearbeiten" })).toBeNull());
+  });
+
+  it("closes template modal directly when nothing changed", async () => {
+    stubFetch(baseAdminRoutes());
+    await renderAppAt("/admin/master-data/templates");
+    await screen.findByRole("heading", { name: "Stammdaten" });
+    await clickElement(await screen.findByRole("button", { name: /Bearbeiten/ }));
+    const dialog = await screen.findByRole("dialog", { name: "Rucksackvorlage bearbeiten" });
+
+    await clickElement(within(dialog).getByRole("button", { name: "Abbrechen" }));
+
+    await waitFor(() => expect(screen.queryByRole("dialog", { name: "Rucksackvorlage bearbeiten" })).toBeNull());
+    expect(screen.queryByRole("dialog", { name: "Änderungen an Rucksackvorlage" })).toBeNull();
+  });
+
   it("opens the new devices tab", async () => {
     stubFetch(baseAdminRoutes());
     await renderAppAt("/admin/master-data/articles");

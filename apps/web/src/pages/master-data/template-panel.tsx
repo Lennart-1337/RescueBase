@@ -6,6 +6,7 @@ import { Badge, Button, Dialog, Field, Panel } from "../../components/ui";
 import type { Article, CreateTemplateRequest, KitTemplate, ReviseTemplateRequest } from "../../lib/types";
 
 type PositionDraft = { articleId: string; critical: boolean; moduleName: string; requiredQuantity: number };
+type TemplateDraft = { name: string; positions: PositionDraft[] };
 
 export function TemplatePanel(props: {
   articles: Article[];
@@ -17,11 +18,14 @@ export function TemplatePanel(props: {
   templates: KitTemplate[];
 }) {
   const [isOpen, setIsOpen] = useState(false);
+  const [isCloseConfirmOpen, setIsCloseConfirmOpen] = useState(false);
   const [name, setName] = useState("");
   const [editingTemplateId, setEditingTemplateId] = useState<string | null>(null);
   const [positions, setPositions] = useState<PositionDraft[]>([{ articleId: props.articles[0]?.id ?? "", critical: false, moduleName: "", requiredQuantity: 1 }]);
+  const [initialDraft, setInitialDraft] = useState<TemplateDraft>({ name: "", positions: [{ articleId: props.articles[0]?.id ?? "", critical: false, moduleName: "", requiredQuantity: 1 }] });
   const normalizedPositions = positions.map((position) => ({ ...position, articleId: position.articleId || props.articles[0]?.id || "", moduleName: position.moduleName.trim() || undefined }));
   const canSubmit = Boolean(name.trim() && props.articles.length > 0 && normalizedPositions.every((position) => position.articleId && position.requiredQuantity > 0));
+  const isDirty = serializeDraft({ name, positions }) !== serializeDraft(initialDraft);
 
   useEffect(() => {
     const firstArticleId = props.articles[0]?.id;
@@ -31,9 +35,12 @@ export function TemplatePanel(props: {
   }, [positions, props.articles]);
 
   function resetForm() {
+    setIsCloseConfirmOpen(false);
     setEditingTemplateId(null);
     setName("");
-    setPositions([{ articleId: props.articles[0]?.id ?? "", critical: false, moduleName: "", requiredQuantity: 1 }]);
+    const emptyDraft = createEmptyDraft(props.articles[0]?.id ?? "");
+    setPositions(emptyDraft.positions);
+    setInitialDraft(emptyDraft);
   }
 
   function openForCreate() {
@@ -42,9 +49,14 @@ export function TemplatePanel(props: {
   }
 
   function openForEdit(template: KitTemplate) {
+    const draft = {
+      name: template.name,
+      positions: template.positions.map((position) => ({ articleId: position.articleId, critical: position.critical, moduleName: position.moduleName ?? "", requiredQuantity: position.requiredQuantity }))
+    };
     setEditingTemplateId(template.id);
-    setName(template.name);
-    setPositions(template.positions.map((position) => ({ articleId: position.articleId, critical: position.critical, moduleName: position.moduleName ?? "", requiredQuantity: position.requiredQuantity })));
+    setName(draft.name);
+    setPositions(draft.positions);
+    setInitialDraft(draft);
     setIsOpen(true);
   }
 
@@ -66,6 +78,19 @@ export function TemplatePanel(props: {
     if (window.confirm(`Rucksackvorlage "${template.name} v${template.version}" wirklich löschen?`)) {
       props.onDelete(template.id);
     }
+  }
+
+  function closeImmediately() {
+    setIsOpen(false);
+    resetForm();
+  }
+
+  function requestClose() {
+    if (!isDirty) {
+      closeImmediately();
+      return;
+    }
+    setIsCloseConfirmOpen(true);
   }
 
   return (
@@ -90,7 +115,7 @@ export function TemplatePanel(props: {
           </div>
         ))}
       </div>
-      <Dialog actions={<><Button disabled={props.isSubmitting} onClick={() => setIsOpen(false)} type="button" variant="ghost"><X data-icon="inline-start" />Abbrechen</Button><Button disabled={!canSubmit || props.isSubmitting} onClick={() => void submit()} type="button">{editingTemplateId ? <Save data-icon="inline-start" /> : <Plus data-icon="inline-start" />}{editingTemplateId ? "Neue Version speichern" : "Vorlage speichern"}</Button></>} onClose={() => setIsOpen(false)} open={isOpen} title={editingTemplateId ? "Rucksackvorlage bearbeiten" : "Rucksackvorlage anlegen"}>
+      <Dialog actions={<><Button disabled={props.isSubmitting} onClick={requestClose} type="button" variant="ghost"><X data-icon="inline-start" />Abbrechen</Button><Button disabled={!canSubmit || props.isSubmitting} onClick={() => void submit()} type="button">{editingTemplateId ? <Save data-icon="inline-start" /> : <Plus data-icon="inline-start" />}{editingTemplateId ? "Neue Version speichern" : "Vorlage speichern"}</Button></>} onClose={requestClose} open={isOpen} title={editingTemplateId ? "Rucksackvorlage bearbeiten" : "Rucksackvorlage anlegen"}>
         <div className="template-form">
           <Field label="Vorlagenname"><input disabled={Boolean(editingTemplateId)} onChange={(event) => setName(event.target.value)} value={name} /></Field>
           <div className="template-position-list">
@@ -108,6 +133,30 @@ export function TemplatePanel(props: {
         </div>
         {props.error ? <InlineError error={props.error} /> : null}
       </Dialog>
+      <Dialog
+        actions={<><Button disabled={props.isSubmitting} onClick={() => setIsCloseConfirmOpen(false)} type="button" variant="ghost">Abbrechen</Button><Button disabled={props.isSubmitting} onClick={closeImmediately} type="button" variant="danger">Ohne Speichern schließen</Button><Button disabled={!canSubmit || props.isSubmitting} onClick={() => void submit()} type="button"><Save data-icon="inline-start" />Änderungen speichern</Button></>}
+        onClose={() => setIsCloseConfirmOpen(false)}
+        open={isCloseConfirmOpen}
+        title="Änderungen an Rucksackvorlage"
+      >
+        <p className="form-hint">Sie haben ungespeicherte Änderungen. Möchten Sie diese vor dem Schließen speichern?</p>
+      </Dialog>
     </Panel>
   );
+}
+
+function createEmptyDraft(articleId: string): TemplateDraft {
+  return { name: "", positions: [{ articleId, critical: false, moduleName: "", requiredQuantity: 1 }] };
+}
+
+function serializeDraft(draft: TemplateDraft) {
+  return JSON.stringify({
+    name: draft.name.trim(),
+    positions: draft.positions.map((position) => ({
+      articleId: position.articleId,
+      critical: position.critical,
+      moduleName: position.moduleName.trim(),
+      requiredQuantity: position.requiredQuantity
+    }))
+  });
 }
