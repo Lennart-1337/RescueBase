@@ -6,7 +6,7 @@ import { AdminShell } from "./admin-shell";
 export function AdminRoute({ children }: { children: (user: AuthenticatedUser) => ReactNode }) {
   return (
     <AdminAuthGate>
-      {(user) => <AdminShell user={user}>{children(user)}</AdminShell>}
+      {(user, branding) => <AdminShell branding={branding} user={user}>{children(user)}</AdminShell>}
     </AdminAuthGate>
   );
 }

@@ -5,8 +5,9 @@ import { Archive, ClipboardCheck, ClipboardList, Cog, LogOut, PackageCheck, Sett
 import { Button } from "../components/ui";
 import { rescueBaseApi } from "../lib/api";
 import type { AuthenticatedUser } from "../lib/types";
+import type { AppBranding } from "./branding";
 
-export function AdminShell({ children, user }: { children: ReactNode; user: AuthenticatedUser }) {
+export function AdminShell({ children, user, branding }: { children: ReactNode; user: AuthenticatedUser; branding: AppBranding }) {
   const queryClient = useQueryClient();
   const logout = useMutation({
     mutationFn: rescueBaseApi.logout,
@@ -18,53 +19,55 @@ export function AdminShell({ children, user }: { children: ReactNode; user: Auth
   return (
     <div className="app-shell">
       <aside className="sidebar">
-        <div className="brand">
-          <div className="brand-mark">RB</div>
-          <div>
-            <strong>RescueBase</strong>
-            <span>Sanitätslager</span>
+        <div className="sidebar-main">
+          <div className="brand">
+            <div className="brand-mark">RB</div>
+            <div>
+              <strong>{branding.appName}</strong>
+              <span>{branding.appSubtitle}</span>
+            </div>
           </div>
+          <nav className="nav-list" aria-label="Hauptnavigation">
+            <Link search={{}} to="/" activeProps={{ className: "active" }} activeOptions={{ exact: true }}>
+              <ClipboardList />
+              Aufträge
+            </Link>
+            <Link search={{}} to="/admin/kits" activeProps={{ className: "active" }}>
+              <PackageCheck />
+              Rucksäcke
+            </Link>
+            <Link search={{}} to="/admin/inventory" activeProps={{ className: "active" }}>
+              <Archive />
+              Lager
+            </Link>
+            <Link search={{}} to="/admin/check-protocols" activeProps={{ className: "active" }}>
+              <ClipboardCheck />
+              Check-Protokolle
+            </Link>
+            {user.role === "ADMIN" ? (
+              <Link search={{}} to="/admin/master-data/articles" activeProps={{ className: "active" }}>
+                <Settings />
+                Stammdaten
+              </Link>
+            ) : null}
+            {user.role === "ADMIN" ? (
+              <Link to="/admin/users" activeProps={{ className: "active" }}>
+                <Users />
+                Benutzer
+              </Link>
+            ) : null}
+            {user.role === "ADMIN" ? (
+              <Link to="/admin/settings" activeProps={{ className: "active" }}>
+                <Cog />
+                Einstellungen
+              </Link>
+            ) : null}
+            <Link to="/admin/account" activeProps={{ className: "active" }}>
+              <ShieldCheck />
+              Sicherheit
+            </Link>
+          </nav>
         </div>
-        <nav className="nav-list" aria-label="Hauptnavigation">
-          <Link search={{}} to="/" activeProps={{ className: "active" }} activeOptions={{ exact: true }}>
-            <ClipboardList />
-            Aufträge
-          </Link>
-          <Link search={{}} to="/admin/kits" activeProps={{ className: "active" }}>
-            <PackageCheck />
-            Rucksäcke
-          </Link>
-          <Link search={{}} to="/admin/inventory" activeProps={{ className: "active" }}>
-            <Archive />
-            Lager
-          </Link>
-          <Link search={{}} to="/admin/check-protocols" activeProps={{ className: "active" }}>
-            <ClipboardCheck />
-            Check-Protokolle
-          </Link>
-          {user.role === "ADMIN" ? (
-            <Link search={{}} to="/admin/master-data/articles" activeProps={{ className: "active" }}>
-              <Settings />
-              Stammdaten
-            </Link>
-          ) : null}
-          {user.role === "ADMIN" ? (
-            <Link to="/admin/users" activeProps={{ className: "active" }}>
-              <Users />
-              Benutzer
-            </Link>
-          ) : null}
-          {user.role === "ADMIN" ? (
-            <Link to="/admin/settings" activeProps={{ className: "active" }}>
-              <Cog />
-              Einstellungen
-            </Link>
-          ) : null}
-          <Link to="/admin/account" activeProps={{ className: "active" }}>
-            <ShieldCheck />
-            Sicherheit
-          </Link>
-        </nav>
         <div className="sidebar-user">
           <span>{user.displayName}</span>
           <small>{user.role === "ADMIN" ? "Admin" : "Lagerwart"}</small>

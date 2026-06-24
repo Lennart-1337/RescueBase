@@ -404,6 +404,8 @@ model InventoryAutomationConfig {
 
 model AppSettings {
   id                                      String   @id @default("singleton")
+  appName                                 String   @default("RescueBase")
+  appSubtitle                             String   @default("Sanitätslager")
   timezone                                String   @default("UTC")
   newUserOrderNotificationsDefaultEnabled Boolean @default(false)
   createdAt                               DateTime @default(now())

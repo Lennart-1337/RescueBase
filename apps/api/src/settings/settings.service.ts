@@ -3,11 +3,13 @@ import type { Prisma } from "@prisma/client";
 import { AuditService } from "../services/audit.service.js";
 import { PrismaService } from "../persistence/prisma.service.js";
 import type { AlertSettingsInput, GeneralSettingsInput, InventorySettingsInput } from "./settings.types.js";
-import { validateBoolean, validateTime, validateTimezone, validateWarningWindow } from "./settings-validation.js";
+import { validateBoolean, validateDisplayText, validateTime, validateTimezone, validateWarningWindow } from "./settings-validation.js";
 import { defaultTimezone } from "./default-timezone.js";
 import { NotificationTemplatesService } from "./notification-templates.service.js";
 
 const singletonId = "singleton";
+export const defaultAppName = "RescueBase";
+export const defaultAppSubtitle = "Sanitätslager";
 
 @Injectable()
 export class SettingsService {
@@ -27,11 +29,23 @@ export class SettingsService {
 
   async updateGeneral(input: GeneralSettingsInput) {
     const data: Prisma.AppSettingsUpdateInput = {};
+    if (input.appName !== undefined) data.appName = validateDisplayText(input.appName, "App-Name");
+    if (input.appSubtitle !== undefined) data.appSubtitle = validateDisplayText(input.appSubtitle, "Untertitel");
     if (input.timezone !== undefined) data.timezone = validateTimezone(input.timezone);
     if (input.newUserOrderNotificationsDefaultEnabled !== undefined) {
       data.newUserOrderNotificationsDefaultEnabled = validateBoolean(input.newUserOrderNotificationsDefaultEnabled, "Standard für Bestellbenachrichtigungen");
     }
-    const row = await this.prisma.appSettings.upsert({ where: { id: singletonId }, update: data, create: { id: singletonId, timezone: defaultTimezone(), ...data as Prisma.AppSettingsCreateInput } });
+    const row = await this.prisma.appSettings.upsert({
+      where: { id: singletonId },
+      update: data,
+      create: {
+        id: singletonId,
+        appName: defaultAppName,
+        appSubtitle: defaultAppSubtitle,
+        timezone: defaultTimezone(),
+        ...data as Prisma.AppSettingsCreateInput
+      }
+    });
     await this.record("APP_SETTINGS_UPDATED", data);
     return this.generalView(row);
   }
@@ -56,7 +70,11 @@ export class SettingsService {
   }
 
   private ensureGeneral() {
-    return this.prisma.appSettings.upsert({ where: { id: singletonId }, update: {}, create: { id: singletonId, timezone: defaultTimezone() } });
+    return this.prisma.appSettings.upsert({
+      where: { id: singletonId },
+      update: {},
+      create: { id: singletonId, appName: defaultAppName, appSubtitle: defaultAppSubtitle, timezone: defaultTimezone() }
+    });
   }
 
   private ensureAlerts() {
@@ -67,8 +85,13 @@ export class SettingsService {
     return this.prisma.inventoryAutomationConfig.upsert({ where: { id: singletonId }, update: {}, create: { id: singletonId } });
   }
 
-  private generalView(row: { timezone: string; newUserOrderNotificationsDefaultEnabled: boolean }) {
-    return { timezone: row.timezone, newUserOrderNotificationsDefaultEnabled: row.newUserOrderNotificationsDefaultEnabled };
+  private generalView(row: { appName: string; appSubtitle: string; timezone: string; newUserOrderNotificationsDefaultEnabled: boolean }) {
+    return {
+      appName: row.appName,
+      appSubtitle: row.appSubtitle,
+      timezone: row.timezone,
+      newUserOrderNotificationsDefaultEnabled: row.newUserOrderNotificationsDefaultEnabled
+    };
   }
 
   private alertsView(row: { dailyDigestEnabled: boolean; dailyDigestTime: string; warningWindowDays: number; lastDigestSentAt: Date | null }) {
