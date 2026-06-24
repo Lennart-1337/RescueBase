@@ -12,7 +12,7 @@ export function PasswordResetRequestScreen() {
 
   return (
     <Panel className="auth-panel">
-      <div className="panel-header"><div><h2>Passwort zurücksetzen</h2><p>Ein Link wird an die hinterlegte E-Mail-Adresse versendet.</p></div><KeyRound /></div>
+      <div className="panel-header"><div><h2>Passwort zurücksetzen</h2></div><KeyRound /></div>
       <div className="auth-form">
         <Field label="E-Mail"><input type="email" value={email} onChange={(event) => setEmail(event.target.value)} /></Field>
         {mutation.data?.debugUrl ? <p className="debug-hint">Lokaler Reset-Link: {mutation.data.debugUrl}</p> : null}

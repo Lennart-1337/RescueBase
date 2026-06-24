@@ -8,9 +8,9 @@ import { Badge, Button, Panel } from "../../components/ui";
 import { AlertPreferenceCard, type AlertCategoryOption } from "./alert-preference-card";
 
 const categories: AlertCategoryOption[] = [
-  { key: "EXPIRY", label: "Ablauf", description: "Warnungen zu Artikeln, die bald ablaufen oder abgelaufen sind." },
-  { key: "STK_DUE", label: "STK", description: "Erinnerungen für fällige sicherheitstechnische Kontrollen." },
-  { key: "MTK_DUE", label: "MTK", description: "Erinnerungen für fällige messtechnische Kontrollen." }
+  { key: "EXPIRY", label: "Ablauf" },
+  { key: "STK_DUE", label: "STK" },
+  { key: "MTK_DUE", label: "MTK" }
 ];
 
 export function AccountAlertsPanel() {
@@ -58,15 +58,11 @@ export function AccountAlertsPanel() {
   return (
     <Panel>
       <div className="panel-header">
-        <div>
-          <h2>Alarm-E-Mails</h2>
-          <p>Wählen Sie pro Alarmtyp, ob Sie alle Standorte oder nur einzelne Standorte abonnieren.</p>
-        </div>
+        <div><h2>Alarm-E-Mails</h2></div>
         <BellRing />
       </div>
       <div className="alert-subscription-summary">
         <Badge tone={selected.size > 0 ? "info" : "neutral"}>{formatRuleCount(selected.size)}</Badge>
-        <span>Globale Regeln gelten auch für künftig angelegte Standorte.</span>
       </div>
       <div className="alert-category-grid">
         {categories.map((category) => (
@@ -81,10 +77,6 @@ export function AccountAlertsPanel() {
         ))}
       </div>
       <div className="form-actions alert-actions">
-        <div className="field">
-          <span>Hinweis</span>
-          <div className="field-help">E-Mails werden nur für aktivierte Alarmtypen und die ausgewählten Standorte gesendet.</div>
-        </div>
         <div className="row-actions">
           <Button disabled={save.isPending} onClick={submit} type="button">
             <Save data-icon="inline-start" />{save.isPending ? "Speichert..." : "Speichern"}

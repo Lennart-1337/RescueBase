@@ -26,7 +26,6 @@ export function InvitationAcceptScreen({ token }: { token: string }) {
         <Field label="Name"><input value={displayName} onChange={(event) => setDisplayName(event.target.value)} /></Field>
         <Field label="Passwort"><input type="password" value={password} onChange={(event) => setPassword(event.target.value)} /></Field>
         <Field label="Passwort wiederholen"><input type="password" value={passwordRepeat} onChange={(event) => setPasswordRepeat(event.target.value)} /></Field>
-        <p className="form-hint">Mindestens 12 Zeichen.</p>
         {accept.error ? <InlineError error={accept.error} /> : null}
         <Button disabled={!displayName.trim() || password.length < 12 || password !== passwordRepeat || accept.isPending} onClick={() => accept.mutate({ displayName, password, token })} type="button">Konto aktivieren</Button>
       </div>

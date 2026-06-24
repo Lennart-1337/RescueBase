@@ -46,7 +46,6 @@ describe("AccountPage", () => {
     await renderAppAt("/admin/account");
 
     const expiryGroup = await screen.findByRole("group", { name: "Ablauf" });
-    expect(within(expiryGroup).getByText("Gilt für alle aktuellen und zukünftigen Standorte.")).toBeInTheDocument();
     expect(within(expiryGroup).getByRole("checkbox", { name: /Alle Standorte/ })).toBeInTheDocument();
     expect(within(expiryGroup).getByRole("checkbox", { name: /Hauptlager/ })).toBeInTheDocument();
     expect(within(expiryGroup).getByRole("checkbox", { name: /zu Hause/ })).toBeInTheDocument();

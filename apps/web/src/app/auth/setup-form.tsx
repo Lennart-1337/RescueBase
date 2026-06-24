@@ -14,12 +14,11 @@ export function SetupForm({ onDone }: { onDone: () => void }) {
 
   return (
     <Panel className="auth-panel">
-      <div className="panel-header"><div><h2>Erstadmin einrichten</h2><p>Dieses Konto verwaltet Benutzer, Lager und Rucksackvorlagen.</p></div><ShieldCheck /></div>
+      <div className="panel-header"><div><h2>Erstadmin einrichten</h2></div><ShieldCheck /></div>
       <div className="auth-form">
         <Field label="Name"><input value={displayName} onChange={(event) => setDisplayName(event.target.value)} /></Field>
         <Field label="E-Mail"><input type="email" value={email} onChange={(event) => setEmail(event.target.value)} /></Field>
         <Field label="Passwort"><input type="password" value={password} onChange={(event) => setPassword(event.target.value)} /></Field>
-        <p className="form-hint">Mindestens 12 Zeichen.</p>
         {mutation.error ? <InlineError error={mutation.error} /> : null}
         <Button disabled={!canSubmit || mutation.isPending} onClick={() => mutation.mutate({ displayName, email, password })} type="button">Erstadmin erstellen</Button>
       </div>

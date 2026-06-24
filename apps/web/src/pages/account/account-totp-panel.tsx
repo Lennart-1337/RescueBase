@@ -4,7 +4,7 @@ import { Copy, KeyRound } from "lucide-react";
 import QRCode from "qrcode";
 import { copyText } from "../../app/clipboard";
 import { InlineError } from "../../components/state-panels";
-import { Badge, Button, Field, Panel } from "../../components/ui";
+import { Button, Field, Panel } from "../../components/ui";
 import { rescueBaseApi } from "../../lib/api";
 
 export function AccountTotpPanel() {
@@ -31,7 +31,7 @@ export function AccountTotpPanel() {
 
   return (
     <Panel>
-      <div className="panel-header"><div><h2>TOTP einrichten</h2><p>Authenticator oder Passwortmanager per QR-Code koppeln und mit Prüfcode aktivieren.</p></div><KeyRound /></div>
+      <div className="panel-header"><div><h2>TOTP einrichten</h2></div><KeyRound /></div>
       <div className="auth-form">
         {totpSetup ? <TotpSetupCard copiedValue={copiedValue} onCopy={setCopiedValue} qrUrl={totpQrUrl} setup={totpSetup} /> : <Button disabled={setupTotp.isPending} onClick={() => setupTotp.mutate()} type="button">TOTP vorbereiten</Button>}
         {totpSetup ? <Field label="TOTP-Code"><input inputMode="numeric" value={totpCode} onChange={(event) => setTotpCode(event.target.value)} /></Field> : null}
@@ -50,7 +50,6 @@ function TotpSetupCard(props: { copiedValue: string; onCopy: (value: string) => 
       <div className="totp-setup-copy">
         <div className="copy-row"><span>Geheimnis</span><strong>{props.setup.secret}</strong><Button onClick={() => copyText(props.setup.secret, "secret", props.onCopy)} type="button" variant="ghost"><Copy data-icon="inline-start" />{props.copiedValue === "secret" ? "Kopiert" : "Kopieren"}</Button></div>
         <div className="copy-row"><span>Einrichtungslink</span><small>{props.setup.otpauthUrl}</small><Button onClick={() => copyText(props.setup.otpauthUrl, "uri", props.onCopy)} type="button" variant="ghost"><Copy data-icon="inline-start" />{props.copiedValue === "uri" ? "Kopiert" : "Kopieren"}</Button></div>
-        <Badge tone="info">Scan mit Passwortmanager oder Authenticator</Badge>
       </div>
     </div>
   );

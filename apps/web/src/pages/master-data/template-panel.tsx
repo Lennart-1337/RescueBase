@@ -73,7 +73,6 @@ export function TemplatePanel(props: {
       <div className="panel-header">
         <div>
           <h2>Rucksackvorlagen</h2>
-          <p>Versionierte Soll-Listen mit Artikeln, Modulen und kritischen Positionen.</p>
         </div>
         <Button disabled={props.articles.length === 0} onClick={openForCreate} type="button"><Plus data-icon="inline-start" />Vorlage hinzufügen</Button>
       </div>

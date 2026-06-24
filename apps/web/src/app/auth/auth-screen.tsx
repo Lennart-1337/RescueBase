@@ -6,7 +6,6 @@ export function AuthScreen({ children }: { children: ReactNode }) {
       <section className="auth-brand">
         <div className="brand-mark">RB</div>
         <h1>RescueBase</h1>
-        <p>Sanitätslager, Rucksackchecks und Nachfüllaufträge.</p>
       </section>
       {children}
     </main>

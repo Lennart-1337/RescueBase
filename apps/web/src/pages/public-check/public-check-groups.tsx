@@ -20,7 +20,6 @@ export function CheckGroups(props: {
                 <div>
                   <span>{position.critical ? "Kritische Position" : "Materialposition"}</span>
                   <h3>{position.articleName}</h3>
-                  <p>Soll: {position.requiredQuantity} {position.unit}</p>
                   {position.critical ? <AlertTriangle aria-hidden="true" size={16} /> : null}
                 </div>
                 <Stepper label="Ist" onChange={(value) => props.onUpdateLine(position.id, { countedQuantity: value })} value={line?.countedQuantity ?? 0} />

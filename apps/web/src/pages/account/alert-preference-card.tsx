@@ -3,7 +3,6 @@ import { Badge, cn } from "../../components/ui";
 export type AlertCategoryOption = {
   key: "EXPIRY" | "STK_DUE" | "MTK_DUE";
   label: string;
-  description: string;
 };
 
 type AlertLocation = {
@@ -26,10 +25,8 @@ export function AlertPreferenceCard({ category, locations, onToggle, selected, s
     <fieldset className="alert-category-card">
       <legend>{category.label}</legend>
       <Badge tone={selectedCount > 0 ? "info" : "neutral"}>{selectedCount} aktiv</Badge>
-      <p>{category.description}</p>
       <AlertOption
         checked={selected.has(subscriptionKey(category.key, null))}
-        help="Gilt für alle aktuellen und zukünftigen Standorte."
         label="Alle Standorte"
         onChange={() => onToggle(category.key, null)}
         tone="global"
@@ -55,13 +52,12 @@ export function AlertPreferenceCard({ category, locations, onToggle, selected, s
   );
 }
 
-function AlertOption({ checked, help, label, onChange, tone }: { checked: boolean; help?: string; label: string; onChange: () => void; tone?: "global" }) {
+function AlertOption({ checked, label, onChange, tone }: { checked: boolean; label: string; onChange: () => void; tone?: "global" }) {
   return (
     <label className={cn("alert-option", checked && "alert-option-selected", tone === "global" && "alert-option-global")}>
       <input checked={checked} onChange={onChange} type="checkbox" />
       <span>
         <strong>{label}</strong>
-        {help ? <small>{help}</small> : null}
       </span>
     </label>
   );

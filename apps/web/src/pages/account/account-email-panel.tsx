@@ -26,7 +26,7 @@ export function AccountEmailPanel() {
 
   return (
     <Panel>
-      <div className="panel-header"><div><h2>E-Mail-Code einrichten</h2><p>Einmalcode an die hinterlegte E-Mail-Adresse senden und verifizieren.</p></div><Mail /></div>
+      <div className="panel-header"><div><h2>E-Mail-Code einrichten</h2></div><Mail /></div>
       <div className="auth-form">
         {!emailChallengeId ? <Button disabled={startEmail.isPending} onClick={() => startEmail.mutate()} type="button">Code senden</Button> : null}
         {emailChallengeId ? <Field label="E-Mail-Code"><input inputMode="numeric" value={emailCode} onChange={(event) => setEmailCode(event.target.value)} /></Field> : null}
