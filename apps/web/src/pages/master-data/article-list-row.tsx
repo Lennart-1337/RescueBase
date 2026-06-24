@@ -10,7 +10,6 @@ export function ArticleListRow(props: {
   onEdit: () => void;
 }) {
   const { article } = props;
-  const sourceSummary = [article.manufacturer, article.notes, article.storageNotes].filter(Boolean).join(" · ");
   const complianceSummary = [article.stkRequired ? `STK ${article.stkIntervalMonths ?? "?"}M` : null, article.mtkRequired ? `MTK ${article.mtkIntervalMonths ?? "?"}M` : null].filter(Boolean).join(" · ");
 
   return (
@@ -20,8 +19,12 @@ export function ArticleListRow(props: {
         <small>{article.unit}{article.barcode ? ` · ${article.barcode}` : ""}</small>
       </span>
       <span className="article-row-detail">
-        <strong>Quelle</strong>
-        <small>{sourceSummary || "Nicht gepflegt"}</small>
+        <strong>Hinweise</strong>
+        <small>{article.notes || ""}</small>
+      </span>
+      <span className="article-row-detail">
+        <strong>Lagerhinweise</strong>
+        <small>{article.storageNotes || ""}</small>
       </span>
       <span className="article-row-detail">
         <strong>Prüfungen</strong>
