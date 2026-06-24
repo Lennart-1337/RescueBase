@@ -9,36 +9,44 @@ export function ArticleListRow(props: {
   onEdit: () => void;
 }) {
   const { article } = props;
-  const subtitle = [article.unit, article.manufacturer, article.category].filter(Boolean).join(" · ");
+  const sourceSummary = [article.manufacturer, article.manufacturerPartNumber, article.category].filter(Boolean).join(" · ");
+  const complianceSummary = [article.stkRequired ? `STK ${article.stkIntervalMonths ?? "?"}M` : null, article.mtkRequired ? `MTK ${article.mtkIntervalMonths ?? "?"}M` : null].filter(Boolean).join(" · ");
 
   return (
-    <div className="compact-list-row compact-list-row-actions article-list-row">
-      <span className="article-row-summary">
+    <div className="table-row article-list-row">
+      <span className="article-row-main">
         <strong>{article.name}</strong>
-        <small>{subtitle}</small>
+        <small>{article.unit}{article.barcode ? ` · ${article.barcode}` : ""}</small>
       </span>
-      <div className="article-row-badges">
+      <span className="article-row-detail">
+        <strong>Quelle</strong>
+        <small>{sourceSummary || "Nicht gepflegt"}</small>
+      </span>
+      <span className="article-row-detail">
+        <strong>Prüfungen</strong>
+        <small>{complianceSummary || "Keine Pflichtprüfungen"}</small>
+      </span>
+      <div className="article-row-badges article-row-flags">
         {article.medicalDevice ? <Badge tone="info">MPDG</Badge> : null}
-        {article.stkRequired ? <Badge tone="info">STK {article.stkIntervalMonths ?? "?"}M</Badge> : null}
-        {article.mtkRequired ? <Badge tone="info">MTK {article.mtkIntervalMonths ?? "?"}M</Badge> : null}
         {article.sterile ? <Badge tone="info">steril</Badge> : null}
         {article.criticalDefault ? <Badge tone="info">kritisch</Badge> : null}
       </div>
       <div className="row-action-buttons">
-        {article.articleUrl ? <AnchorButton href={article.articleUrl} rel="noreferrer" target="_blank" variant="secondary"><ExternalLink data-icon="inline-start" />Link</AnchorButton> : null}
-        <Button onClick={props.onEdit} type="button" variant="ghost">
+        {article.articleUrl ? <AnchorButton className="mobile-icon-button" href={article.articleUrl} rel="noreferrer" target="_blank" variant="secondary"><ExternalLink data-icon="inline-start" /><span className="button-label">Link</span></AnchorButton> : null}
+        <Button className="mobile-icon-button" onClick={props.onEdit} type="button" variant="ghost">
           <Pencil data-icon="inline-start" />
-          Bearbeiten
+          <span className="button-label">Bearbeiten</span>
         </Button>
         <Button
           aria-label={`${article.name} löschen`}
+          className="mobile-icon-button"
           disabled={props.isSubmitting}
           onClick={props.onDelete}
           type="button"
           variant="danger"
         >
           <Trash2 data-icon="inline-start" />
-          Löschen
+          <span className="button-label">Löschen</span>
         </Button>
       </div>
     </div>

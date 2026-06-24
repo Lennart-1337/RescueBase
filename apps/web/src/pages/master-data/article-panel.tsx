@@ -128,7 +128,7 @@ export function ArticlePanel(props: {
       <Panel>
       <div className="panel-header"><div><h2>Artikel</h2></div><Button onClick={openForCreate} type="button"><Plus data-icon="inline-start" />Artikel hinzufügen</Button></div>
       {props.articles.length === 0 ? <div className="compact-list-empty">Noch keine Artikel angelegt.</div> : null}
-      <div className="compact-list">
+      <div className="table">
         {props.articles.map((article) => (
           <ArticleListRow
             article={article}

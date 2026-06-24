@@ -5,7 +5,7 @@ import { Archive, ClipboardCheck, ClipboardList, Cog, LogOut, Menu, PackageCheck
 import { Button } from "../components/ui";
 import { rescueBaseApi } from "../lib/api";
 import type { AuthenticatedUser } from "../lib/types";
-import type { AppBranding } from "./branding";
+import { getBrandMark, type AppBranding } from "./branding";
 
 type NavigationItem = {
   icon: typeof ClipboardList;
@@ -17,6 +17,7 @@ type NavigationItem = {
 export function AdminShell({ children, user, branding }: { children: ReactNode; user: AuthenticatedUser; branding: AppBranding }) {
   const queryClient = useQueryClient();
   const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
+  const brandMark = getBrandMark(branding.appName);
   const logout = useMutation({
     mutationFn: rescueBaseApi.logout,
     onSuccess: async () => {
@@ -40,7 +41,7 @@ export function AdminShell({ children, user, branding }: { children: ReactNode; 
         <div className="sidebar-main">
           <div className="sidebar-topbar">
             <div className="brand">
-              <div className="brand-mark">RB</div>
+              <div className="brand-mark">{brandMark}</div>
               <div>
                 <strong>{branding.appName}</strong>
                 <span>{branding.appSubtitle}</span>
@@ -66,7 +67,7 @@ export function AdminShell({ children, user, branding }: { children: ReactNode; 
           <div aria-label="Navigation" aria-modal="true" className="mobile-drawer" onClick={(event) => event.stopPropagation()} role="dialog">
             <div className="mobile-drawer-header">
               <div className="brand">
-                <div className="brand-mark">RB</div>
+                <div className="brand-mark">{brandMark}</div>
                 <div>
                   <strong>{branding.appName}</strong>
                   <span>{branding.appSubtitle}</span>

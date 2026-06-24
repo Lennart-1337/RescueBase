@@ -1554,11 +1554,35 @@ a {
 }
 
 .article-list-row {
-  grid-template-columns: minmax(0, 1.3fr) minmax(220px, 0.95fr) auto;
+  grid-template-columns: minmax(220px, 1.15fr) minmax(220px, 1fr) minmax(180px, 0.9fr) minmax(130px, 0.7fr) auto;
 }
 
-.article-row-summary {
+.template-row {
+  grid-template-columns: minmax(220px, 1.15fr) minmax(180px, 0.9fr) minmax(180px, 0.85fr) auto;
+}
+
+.article-row-main,
+.article-row-detail,
+.template-row-main,
+.template-row-detail {
   min-width: 0;
+}
+
+.article-row-detail strong,
+.article-row-detail small,
+.template-row-detail strong,
+.template-row-detail small {
+  display: block;
+}
+
+.article-row-flags,
+.template-row-actions {
+  justify-content: flex-start;
+  flex-wrap: wrap;
+}
+
+.template-row-actions {
+  justify-content: flex-end;
 }
 
 .article-row-badges,
@@ -1921,9 +1945,21 @@ a {
   align-items: center;
 }
 
+.check-item-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: flex-start;
+}
+
 .check-item h3 {
   margin: 4px 0 0;
   font-size: 18px;
+}
+
+.check-item-critical.badge-neutral {
+  background: #f2f4f7;
+  color: #667085;
 }
 
 .stepper {
@@ -2122,6 +2158,10 @@ a {
     grid-template-columns: 1fr;
   }
 
+  .template-row {
+    grid-template-columns: 1fr;
+  }
+
   .article-filter-checks,
   .row-action-buttons {
     justify-content: flex-start;
@@ -2182,6 +2222,15 @@ a {
     grid-template-columns: 1fr;
   }
 
+  .template-row-actions .button-label {
+    display: none;
+  }
+
+  .template-row-actions .mobile-icon-button {
+    min-width: 42px;
+    padding: 0 10px;
+  }
+
   .protocol-dialog-body {
     padding: 16px;
   }
@@ -2208,5 +2257,9 @@ a {
 
   .check-item {
     grid-template-columns: 1fr;
+  }
+
+  .check-item-header {
+    align-items: start;
   }
 }

@@ -128,6 +128,30 @@ describe("MasterDataPage", () => {
     }));
   });
 
+  it("renders templates in a denser table-style row with detail columns and mobile-ready action labels", async () => {
+    stubFetch({
+      ...baseAdminRoutes(),
+      "/api/catalog/templates": [{
+        ...kit.template,
+        positions: [
+          { id: "pos-bandage", articleId: "article-bandage", articleName: "Verbandpäckchen mittel", moduleName: "Verband", requiredQuantity: 2, unit: "Stück", critical: true },
+          { id: "pos-airway", articleId: "article-bandage", articleName: "Guedel-Tubus", moduleName: "Atmung", requiredQuantity: 1, unit: "Stück", critical: false },
+          { id: "pos-blank", articleId: "article-bandage", articleName: "Rettungsdecke", moduleName: "", requiredQuantity: 3, unit: "Stück", critical: false }
+        ]
+      }]
+    });
+    await renderAppAt("/admin/master-data/templates");
+
+    const row = (await screen.findByText("Sanitätsrucksack A")).closest(".template-row");
+    expect(row).not.toBeNull();
+    expect(within(row as HTMLElement).getByText("Version 1")).toBeInTheDocument();
+    expect(within(row as HTMLElement).getByText("Verband · Atmung +1")).toBeInTheDocument();
+    expect(within(row as HTMLElement).getByText("3 Positionen")).toBeInTheDocument();
+    expect(within(row as HTMLElement).getByText("Soll gesamt 6 · 1 kritisch")).toBeInTheDocument();
+    expect(row?.querySelector(".template-row-actions")).not.toBeNull();
+    expect(row?.querySelectorAll(".template-row-actions .button-label")).toHaveLength(3);
+  });
+
   it("asks before closing template edits with unsaved changes and can save them", async () => {
     stubFetch({
       ...baseAdminRoutes(),
@@ -239,11 +263,12 @@ describe("MasterDataPage", () => {
     expect(screen.getByRole("tab", { name: "Artikel" })).toHaveAttribute("aria-selected", "true");
   });
 
-  it("separates article badges from row buttons for stable list layout", async () => {
+  it("renders articles in a denser table-style row with detail columns and mobile-ready action labels", async () => {
     stubFetch({
       ...baseAdminRoutes(),
       "/api/catalog/articles": [{
         ...article,
+        manufacturerPartNumber: "VB-1000",
         medicalDevice: true,
         stkRequired: true,
         stkIntervalMonths: 12,
@@ -256,15 +281,19 @@ describe("MasterDataPage", () => {
     const articleName = await screen.findByText("Verbandpäckchen mittel");
     const row = articleName.closest(".article-list-row");
     expect(row).not.toBeNull();
+    expect(within(row as HTMLElement).getByText("Stück · 040000000001")).toBeInTheDocument();
+    expect(within(row as HTMLElement).getByText("Quelle")).toBeInTheDocument();
+    expect(within(row as HTMLElement).getByText("MediSafe · VB-1000 · Verbandmaterial")).toBeInTheDocument();
+    expect(within(row as HTMLElement).getByText("Prüfungen")).toBeInTheDocument();
+    expect(within(row as HTMLElement).getByText("STK 12M · MTK 24M")).toBeInTheDocument();
     expect(row?.querySelector(".article-row-badges")).not.toBeNull();
     expect(row?.querySelector(".row-action-buttons")).not.toBeNull();
     expect(within(row as HTMLElement).getByText("MPDG")).toBeInTheDocument();
-    expect(within(row as HTMLElement).getByText("STK 12M")).toBeInTheDocument();
-    expect(within(row as HTMLElement).getByText("MTK 24M")).toBeInTheDocument();
     expect(within(row as HTMLElement).getByText("kritisch")).toBeInTheDocument();
     expect(within(row as HTMLElement).getByRole("link", { name: "Link" })).toHaveAttribute("href", "https://shop.example.org/articles/verbandpaeckchen-mittel");
     expect(within(row as HTMLElement).getByRole("button", { name: "Bearbeiten" })).toBeInTheDocument();
     expect(within(row as HTMLElement).getByRole("button", { name: /Verbandpäckchen mittel löschen/ })).toBeInTheDocument();
+    expect(row?.querySelectorAll(".row-action-buttons .button-label")).toHaveLength(3);
   });
 
   it("renders article filters in a compact checkbox group", async () => {

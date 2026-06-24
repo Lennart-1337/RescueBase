@@ -1,6 +1,5 @@
-import { AlertTriangle } from "lucide-react";
 import { Stepper } from "../../components/stepper";
-import { Panel } from "../../components/ui";
+import { Badge, Panel } from "../../components/ui";
 import type { CheckLineState, GroupedTemplatePosition } from "../../lib/check";
 
 export function CheckGroups(props: {
@@ -17,10 +16,13 @@ export function CheckGroups(props: {
             const line = props.linesById.get(position.id);
             return (
               <Panel className="check-item" key={position.id}>
-                <div>
-                  <span>{position.critical ? "Kritische Position" : "Materialposition"}</span>
-                  <h3>{position.articleName}</h3>
-                  {position.critical ? <AlertTriangle aria-hidden="true" size={16} /> : null}
+                <div className="check-item-header">
+                  <div>
+                    <span>Materialposition</span>
+                    <h3>{position.articleName}</h3>
+                    <p>Soll {position.requiredQuantity} {position.unit}</p>
+                  </div>
+                  {position.critical ? <Badge className="check-item-critical" tone="neutral">kritisch</Badge> : null}
                 </div>
                 <Stepper label="Ist" onChange={(value) => props.onUpdateLine(position.id, { countedQuantity: value })} value={line?.countedQuantity ?? 0} />
                 <Stepper label="Verworfen" onChange={(value) => props.onUpdateLine(position.id, { discardedExpiredQuantity: value })} value={line?.discardedExpiredQuantity ?? 0} />
