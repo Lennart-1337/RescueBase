@@ -18,11 +18,9 @@ export function ArticleListRow(props: {
         <small>{article.unit}{article.barcode ? ` · ${article.barcode}` : ""}</small>
       </span>
       <span className="article-row-detail">
-        <strong>Hinweise</strong>
         <small>{article.notes || ""}</small>
       </span>
       <span className="article-row-detail">
-        <strong>Lagerhinweise</strong>
         <small>{article.storageNotes || ""}</small>
       </span>
 
