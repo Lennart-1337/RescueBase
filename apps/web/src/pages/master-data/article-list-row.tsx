@@ -10,7 +10,7 @@ export function ArticleListRow(props: {
   onEdit: () => void;
 }) {
   const { article } = props;
-  const sourceSummary = [article.manufacturer, article.manufacturerPartNumber, article.category].filter(Boolean).join(" · ");
+  const sourceSummary = [article.manufacturer, article.notes].filter(Boolean).join(" · ");
   const complianceSummary = [article.stkRequired ? `STK ${article.stkIntervalMonths ?? "?"}M` : null, article.mtkRequired ? `MTK ${article.mtkIntervalMonths ?? "?"}M` : null].filter(Boolean).join(" · ");
 
   return (
