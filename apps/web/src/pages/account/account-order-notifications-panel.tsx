@@ -21,13 +21,12 @@ export function AccountOrderNotificationsPanel({ user }: { user: AuthenticatedUs
 
   return (
     <Panel>
-      <div className="panel-header"><div><h2>Auftrags-E-Mails</h2><p>Optional per E-Mail informieren, wenn neue Nachfüllaufträge entstehen.</p></div><Bell /></div>
+      <div className="panel-header"><div><h2>Auftrags-E-Mails</h2></div><Bell /></div>
       <div className="auth-form">
         <label className="check-field">
           <input checked={enabled} onChange={(event) => setEnabled(event.target.checked)} type="checkbox" />
           <span>Neue Nachfüllaufträge per E-Mail senden</span>
         </label>
-        <div className="field-help">Die Benachrichtigung wird an Ihre hinterlegte Konto-E-Mail gesendet.</div>
         <Button disabled={save.isPending || enabled === Boolean(user.newOrderNotificationsEnabled)} onClick={() => save.mutate({ enabled })} type="button">
           {save.isPending ? "Speichert..." : "Speichern"}
         </Button>

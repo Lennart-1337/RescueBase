@@ -44,7 +44,6 @@ export function CheckProtocolDetailView({
           <section className="protocol-card">
             <div className="protocol-card-header">
               <h3>Prüfstatus</h3>
-              <p>Kernaussagen und Zählwerte des abgeschlossenen Checks.</p>
             </div>
             <div className="protocol-summary-grid">
               <Summary label="Geprüft von" value={detail.checkerName} />
@@ -66,7 +65,6 @@ export function CheckProtocolDetailView({
             <section className="protocol-card">
               <div className="protocol-card-header">
                 <h3>Hinweise</h3>
-                <p>Automatisch erkannte Auffälligkeiten aus diesem Check.</p>
               </div>
               <ul
                 aria-label="Hinweise"
@@ -83,9 +81,6 @@ export function CheckProtocolDetailView({
           <section className="protocol-card">
             <div className="protocol-card-header">
               <h3>Positionen</h3>
-              <p>
-                Gezählte Inhalte, Abweichungen und vermerkte Besonderheiten.
-              </p>
             </div>
             <ul
               aria-label="Positionen"
@@ -101,7 +96,6 @@ export function CheckProtocolDetailView({
           <section className="protocol-card protocol-card-compact">
             <div className="protocol-card-header">
               <h3>Signatur</h3>
-              <p>Digitale Unterschrift und Prüfnachweis.</p>
             </div>
             <img
               alt={`Unterschrift von ${detail.checkerName}`}
@@ -117,7 +111,6 @@ export function CheckProtocolDetailView({
             <section className="protocol-card protocol-card-compact">
               <div className="protocol-card-header">
                 <h3>Verknüpfter Nachfüllauftrag</h3>
-                <p>Folgeauftrag aus diesem Check.</p>
               </div>
               <div className="protocol-order-card">
                 <strong>{detail.replenishmentOrder.id}</strong>

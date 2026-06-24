@@ -52,7 +52,6 @@ export function LocationPanel(props: {
       <div className="panel-header">
         <div>
           <h2>Lagerorte</h2>
-          <p>Standorte für Chargen und physische Rucksäcke.</p>
         </div>
         <Button onClick={openForCreate} type="button"><Plus data-icon="inline-start" />Lagerort hinzufügen</Button>
       </div>

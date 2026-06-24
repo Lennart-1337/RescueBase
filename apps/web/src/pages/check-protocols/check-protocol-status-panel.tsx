@@ -22,10 +22,7 @@ export function CheckProtocolStatusPanel(props: {
   return (
     <Panel>
       <div className="panel-header">
-        <div>
-          <h2>Statusbild</h2>
-          <p>Verteilung der aktuell gefilterten Protokolle.</p>
-        </div>
+        <div><h2>Statusbild</h2></div>
       </div>
       <div className="protocol-status-grid">
         <StatusCard label="Gefiltert" tone="info" value={String(props.total)} />

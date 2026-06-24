@@ -30,7 +30,7 @@ describe("Public auth pages", () => {
 
   it("restores a pending 2FA login after the browser state is recreated", async () => {
     stubFetch({
-      "/api/auth/setup/status": { initialized: true, firstAdminEmail: "admin@rescuebase.local" },
+      "/api/auth/setup/status": { initialized: true },
       "/api/auth/session": {},
       "/api/auth/login": { requiresTwoFactor: true, twoFactorMethod: "EMAIL", loginChallengeId: "challenge-1", debugCode: "123456" }
     });
@@ -44,7 +44,7 @@ describe("Public auth pages", () => {
     vi.restoreAllMocks();
     history.pushState({}, "", "/");
     stubFetch({
-      "/api/auth/setup/status": { initialized: true, firstAdminEmail: "admin@rescuebase.local" },
+      "/api/auth/setup/status": { initialized: true },
       "/api/auth/session": {}
     });
     await renderAppAt("/");

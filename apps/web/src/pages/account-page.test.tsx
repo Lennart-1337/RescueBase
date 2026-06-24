@@ -6,7 +6,7 @@ describe("AccountPage", () => {
 
   it("renders a TOTP QR code after preparing 2FA", async () => {
     stubFetch({
-      "/api/auth/setup/status": { initialized: true, firstAdminEmail: "admin@rescuebase.local" },
+      "/api/auth/setup/status": { initialized: true },
       "/api/auth/session": { user: { id: "user-admin", email: "admin@rescuebase.local", displayName: "Admin", role: "ADMIN", twoFactorEnabled: false } },
       "/api/auth/2fa/totp/setup": { secret: "ABCDEF123456", otpauthUrl: "otpauth://totp/RescueBase:admin@rescuebase.local?secret=ABCDEF123456&issuer=RescueBase" },
       "/api/catalog/locations": [],
@@ -19,9 +19,24 @@ describe("AccountPage", () => {
     expect(screen.getByText("ABCDEF123456")).toBeInTheDocument();
   });
 
+  it("uses the dedicated status action layout for the 2FA disable button", async () => {
+    stubFetch({
+      "/api/auth/setup/status": { initialized: true },
+      "/api/auth/session": { user: { id: "user-admin", email: "admin@rescuebase.local", displayName: "Admin", role: "ADMIN", twoFactorEnabled: true, twoFactorMethod: "EMAIL" } },
+      "/api/catalog/locations": [],
+      "/api/alerts/subscriptions/me": []
+    });
+
+    await renderAppAt("/admin/account");
+
+    const button = await screen.findByRole("button", { name: "2FA deaktivieren" });
+    expect(button.closest(".account-status-actions")).not.toBeNull();
+    expect(button.closest(".account-status-body")).not.toBeNull();
+  });
+
   it("saves alert preferences from the account page", async () => {
     stubFetch({
-      "/api/auth/setup/status": { initialized: true, firstAdminEmail: "admin@rescuebase.local" },
+      "/api/auth/setup/status": { initialized: true },
       "/api/auth/session": { user: { id: "user-admin", email: "admin@rescuebase.local", displayName: "Admin", role: "ADMIN", twoFactorEnabled: false } },
       "/api/catalog/locations": [{ id: "loc-main", name: "Hauptlager", kind: "STORAGE" }],
       "/api/alerts/subscriptions/me": []
@@ -34,7 +49,7 @@ describe("AccountPage", () => {
 
   it("groups alarm preferences by category with clear global and location choices", async () => {
     stubFetch({
-      "/api/auth/setup/status": { initialized: true, firstAdminEmail: "admin@rescuebase.local" },
+      "/api/auth/setup/status": { initialized: true },
       "/api/auth/session": { user: { id: "user-admin", email: "admin@rescuebase.local", displayName: "Admin", role: "ADMIN", twoFactorEnabled: false } },
       "/api/catalog/locations": [
         { id: "loc-main", name: "Hauptlager", kind: "STORAGE" },
@@ -46,7 +61,10 @@ describe("AccountPage", () => {
     await renderAppAt("/admin/account");
 
     const expiryGroup = await screen.findByRole("group", { name: "Ablauf" });
-    expect(within(expiryGroup).getByText("Gilt für alle aktuellen und zukünftigen Standorte.")).toBeInTheDocument();
+    const header = expiryGroup.querySelector(".alert-category-card-header");
+    expect(header).not.toBeNull();
+    expect(within(header as HTMLElement).getByRole("heading", { name: "Ablauf" })).toBeInTheDocument();
+    expect(within(header as HTMLElement).getByText("0 aktiv")).toBeInTheDocument();
     expect(within(expiryGroup).getByRole("checkbox", { name: /Alle Standorte/ })).toBeInTheDocument();
     expect(within(expiryGroup).getByRole("checkbox", { name: /Hauptlager/ })).toBeInTheDocument();
     expect(within(expiryGroup).getByRole("checkbox", { name: /zu Hause/ })).toBeInTheDocument();
@@ -54,7 +72,7 @@ describe("AccountPage", () => {
 
   it("saves the order mail preference from the account page", async () => {
     stubFetch({
-      "/api/auth/setup/status": { initialized: true, firstAdminEmail: "admin@rescuebase.local" },
+      "/api/auth/setup/status": { initialized: true },
       "/api/auth/session": { user: { id: "user-admin", email: "admin@rescuebase.local", displayName: "Admin", role: "ADMIN", twoFactorEnabled: false, newOrderNotificationsEnabled: false } },
       "/api/catalog/locations": [],
       "/api/alerts/subscriptions/me": [],

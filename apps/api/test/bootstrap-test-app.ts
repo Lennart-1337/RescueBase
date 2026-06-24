@@ -1,6 +1,6 @@
 import { Test } from "@nestjs/testing";
 import { execFileSync } from "node:child_process";
-import cookieParser from "cookie-parser";
+import { configureApp } from "../src/app-config.js";
 import { AppModule } from "../src/modules/app.module.js";
 import { createMysqlTestEnvironment } from "./mysql-test-environment.js";
 
@@ -29,7 +29,7 @@ export async function bootstrapTestApp(options: BootstrapOptions) {
 
   const moduleRef = await Test.createTestingModule({ imports: [AppModule] }).compile();
   const app = moduleRef.createNestApplication();
-  app.use(cookieParser());
+  configureApp(app, { enableDocs: false });
   await app.init();
 
   return {

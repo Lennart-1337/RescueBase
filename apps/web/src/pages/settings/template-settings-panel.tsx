@@ -48,7 +48,7 @@ function TemplateEditor(props: { template: NotificationTemplate; templates: Noti
         </div>
         <div className="template-preview" aria-live="polite">
           <span>Vorschau</span>
-          {preview.data ? <><strong>{preview.data.subject}</strong><pre>{preview.data.text}</pre></> : <p>Vorschau mit realistischen Beispieldaten erzeugen.</p>}
+          {preview.data ? <><strong>{preview.data.subject}</strong><pre>{preview.data.text}</pre></> : null}
         </div>
       </div>
       {preview.error || save.error ? <InlineError error={(preview.error ?? save.error) as Error} /> : null}

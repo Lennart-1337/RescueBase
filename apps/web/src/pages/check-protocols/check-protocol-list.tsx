@@ -12,10 +12,7 @@ export function CheckProtocolList(props: {
   return (
     <Panel>
       <div className="panel-header">
-        <div>
-          <h2>Protokolle</h2>
-          <p>Abgeschlossene Rucksackchecks in chronologischer Reihenfolge.</p>
-        </div>
+        <div><h2>Protokolle</h2></div>
       </div>
       {props.protocols.length === 0 ? (
         <EmptyState

@@ -23,7 +23,6 @@ export function PasswordResetConfirmScreen({ token }: { token: string }) {
       <div className="auth-form">
         <Field label="Passwort"><input type="password" value={password} onChange={(event) => setPassword(event.target.value)} /></Field>
         <Field label="Passwort wiederholen"><input type="password" value={passwordRepeat} onChange={(event) => setPasswordRepeat(event.target.value)} /></Field>
-        <p className="form-hint">Mindestens 12 Zeichen.</p>
         {mutation.error ? <InlineError error={mutation.error} /> : null}
         <Button disabled={password.length < 12 || password !== passwordRepeat || mutation.isPending} onClick={() => mutation.mutate({ password, token })} type="button">Passwort speichern</Button>
       </div>

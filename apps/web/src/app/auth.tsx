@@ -18,6 +18,6 @@ export function AdminAuthGate({ children }: { children: (user: AuthenticatedUser
   if (setup.isLoading || (setup.data?.initialized && session.isLoading)) return <LoadingPanel label="RescueBase wird geladen" />;
   if (setup.isError) return <ErrorPanel error={toError(setup.error)} onRetry={() => void setup.refetch()} />;
   if (setup.data && !setup.data.initialized) return <AuthScreen><SetupForm onDone={() => void Promise.all([queryClient.invalidateQueries({ queryKey: ["setup-status"] }), queryClient.invalidateQueries({ queryKey: ["session"] })])} /></AuthScreen>;
-  if (session.isError || !session.data?.user) return <AuthScreen><LoginForm firstAdminEmail={setup.data?.firstAdminEmail} onDone={() => void queryClient.invalidateQueries({ queryKey: ["session"] })} /></AuthScreen>;
+  if (session.isError || !session.data?.user) return <AuthScreen><LoginForm onDone={() => void queryClient.invalidateQueries({ queryKey: ["session"] })} /></AuthScreen>;
   return children(session.data.user);
 }

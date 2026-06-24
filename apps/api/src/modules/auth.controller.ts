@@ -17,7 +17,7 @@ import type { Request, Response } from "express";
 import { AuditService } from "../services/audit.service.js";
 import { MailService } from "../services/mail.service.js";
 import { PrismaService } from "../persistence/prisma.service.js";
-import { PublicRoute, Roles } from "../auth/auth.decorators.js";
+import { PublicRoute, RateLimit, Roles } from "../auth/auth.decorators.js";
 import { AuthService } from "../auth/auth.service.js";
 import type { AuthenticatedRequest } from "../auth/auth.guard.js";
 import { defaultTimezone } from "../settings/default-timezone.js";
@@ -47,13 +47,15 @@ export class AuthController {
   ) {}
 
   @PublicRoute()
+  @RateLimit({ limit: 20, windowMs: 10 * 60 * 1000 })
   @Get("setup/status")
-  async setupStatus(): Promise<{ initialized: boolean; firstAdminEmail?: string }> {
+  async setupStatus(): Promise<{ initialized: boolean }> {
     const firstAdmin = await this.prisma.user.findFirst({ where: { role: "ADMIN", deletedAt: null } });
-    return { initialized: Boolean(firstAdmin), firstAdminEmail: firstAdmin?.email };
+    return { initialized: Boolean(firstAdmin) };
   }
 
   @PublicRoute()
+  @RateLimit({ limit: 5, windowMs: 10 * 60 * 1000 })
   @Post("setup/first-admin")
   async createFirstAdmin(
     @Body() body: { email: string; displayName: string; password: string },
@@ -93,6 +95,7 @@ export class AuthController {
   }
 
   @PublicRoute()
+  @RateLimit({ limit: 10, windowMs: 10 * 60 * 1000 })
   @Post("login")
   async login(
     @Body() body: { email?: string; password?: string; twoFactorCode?: string; emailChallengeId?: string; loginChallengeId?: string },
@@ -117,7 +120,7 @@ export class AuthController {
         throw new UnauthorizedException("2FA-Code ist ungültig.");
       }
       if (challenge.method === "EMAIL") {
-        if (!challenge.emailChallengeId || !(await this.auth.verifyEmailTwoFactorChallenge(challenge.emailChallengeId, body.twoFactorCode))) {
+        if (!challenge.emailChallengeId || !(await this.auth.verifyEmailTwoFactorChallenge(challenge.user.id, challenge.emailChallengeId, body.twoFactorCode))) {
           throw new UnauthorizedException("2FA-Code ist ungültig.");
         }
       }
@@ -147,7 +150,7 @@ export class AuthController {
 
     if (user.twoFactorEnabled && user.twoFactorMethod === "EMAIL") {
       if (body.emailChallengeId?.trim() && body.twoFactorCode?.trim()) {
-        const valid = await this.auth.verifyEmailTwoFactorChallenge(body.emailChallengeId, body.twoFactorCode);
+        const valid = await this.auth.verifyEmailTwoFactorChallenge(user.id, body.emailChallengeId, body.twoFactorCode);
         if (!valid) {
           throw new UnauthorizedException("2FA-Code ist ungültig.");
         }
@@ -173,6 +176,7 @@ export class AuthController {
   }
 
   @PublicRoute()
+  @RateLimit({ limit: 30, windowMs: 10 * 60 * 1000 })
   @Get("invitations/:token")
   async invitation(@Param("token") token: string): Promise<{
     email: string;
@@ -191,6 +195,7 @@ export class AuthController {
   }
 
   @PublicRoute()
+  @RateLimit({ limit: 10, windowMs: 10 * 60 * 1000 })
   @Post("invitations/accept")
   async acceptInvitation(
     @Body() body: { token: string; password: string; displayName?: string },
@@ -227,6 +232,7 @@ export class AuthController {
   }
 
   @PublicRoute()
+  @RateLimit({ limit: 5, windowMs: 15 * 60 * 1000 })
   @Post("password-reset/request")
   async requestPasswordReset(@Body() body: { email: string }): Promise<{ ok: true; debugUrl?: string }> {
     const user = await this.prisma.user.findFirst({
@@ -250,6 +256,7 @@ export class AuthController {
   }
 
   @PublicRoute()
+  @RateLimit({ limit: 30, windowMs: 10 * 60 * 1000 })
   @Get("password-reset/:token")
   async passwordReset(@Param("token") token: string): Promise<{ email: string; displayName: string }> {
     const reset = await this.auth.getPasswordReset(token);
@@ -260,6 +267,7 @@ export class AuthController {
   }
 
   @PublicRoute()
+  @RateLimit({ limit: 10, windowMs: 10 * 60 * 1000 })
   @Post("password-reset/confirm")
   async confirmPasswordReset(@Body() body: { token: string; password: string }): Promise<{ ok: true }> {
     this.assertPassword(body.password);
@@ -310,6 +318,7 @@ export class AuthController {
   }
 
   @Post("2fa/totp/enable")
+  @RateLimit({ limit: 10, windowMs: 10 * 60 * 1000 })
   async enableTotp(@Req() request: AuthenticatedRequest, @Body() body: { code: string }): Promise<{ ok: true }> {
     const user = await this.prisma.user.findUniqueOrThrow({ where: { id: request.user?.id } });
     if (!this.auth.verifyTotp(body.code, user.twoFactorSecret)) {
@@ -331,12 +340,13 @@ export class AuthController {
   }
 
   @Post("2fa/email/enable")
+  @RateLimit({ limit: 10, windowMs: 10 * 60 * 1000 })
   async enableEmailTwoFactor(
     @Req() request: AuthenticatedRequest,
     @Body() body: { challengeId: string; code: string }
   ): Promise<{ ok: true }> {
     const user = await this.prisma.user.findUniqueOrThrow({ where: { id: request.user?.id } });
-    const valid = await this.auth.verifyEmailTwoFactorChallenge(body.challengeId, body.code);
+    const valid = await this.auth.verifyEmailTwoFactorChallenge(user.id, body.challengeId, body.code);
     if (!valid) {
       throw new UnauthorizedException("2FA-Code ist ungültig.");
     }

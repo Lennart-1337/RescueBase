@@ -1030,7 +1030,6 @@ export interface components {
         ReplenishmentReason: "SHORTAGE" | "DISCARDED_EXPIRED" | "SHORTAGE_AND_DISCARDED_EXPIRED";
         SetupStatus: {
             initialized: boolean;
-            firstAdminEmail?: string;
         };
         AuthenticatedUser: {
             id: string;

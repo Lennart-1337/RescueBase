@@ -29,7 +29,6 @@ describe("CheckProtocolsPage", () => {
     stubFetch({
       "/api/auth/setup/status": {
         initialized: true,
-        firstAdminEmail: "admin@rescuebase.local",
       },
       "/api/auth/session": {
         user: {

@@ -217,7 +217,7 @@ describe("MasterDataPage", () => {
 
 function baseAdminRoutes() {
   return {
-    "/api/auth/setup/status": { initialized: true, firstAdminEmail: "admin@rescuebase.local" },
+    "/api/auth/setup/status": { initialized: true },
     "/api/auth/session": { user: { id: "user-admin", email: "admin@rescuebase.local", displayName: "Admin", role: "ADMIN", twoFactorEnabled: false } },
     "/api/catalog/articles": [article],
     "/api/catalog/locations": [location],

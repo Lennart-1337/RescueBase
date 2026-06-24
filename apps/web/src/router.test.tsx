@@ -7,7 +7,7 @@ describe("RescueBase routes", () => {
 
   it("renders the admin dashboard from routed API data", async () => {
     stubFetch({
-      "/api/auth/setup/status": { initialized: true, firstAdminEmail: "admin@rescuebase.local" },
+      "/api/auth/setup/status": { initialized: true },
       "/api/auth/session": { user: { id: "user-admin", email: "admin@rescuebase.local", displayName: "Admin", role: "ADMIN", twoFactorEnabled: false } },
       "/api/catalog/kits": [kit],
       "/api/inventory/batches": [batch],

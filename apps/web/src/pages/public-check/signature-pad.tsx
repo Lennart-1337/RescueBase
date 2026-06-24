@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type PropsWithChildren } from "react";
+import { useEffect, useRef, type PropsWithChildren } from "react";
 import { Button, Panel } from "../../components/ui";
 
 export function SignaturePad({
@@ -7,7 +7,6 @@ export function SignaturePad({
 }: PropsWithChildren<{ onChange: (signature: string) => void }>) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const isDrawingRef = useRef(false);
-  const [hasInk, setHasInk] = useState(false);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -22,12 +21,11 @@ export function SignaturePad({
   return (
     <Panel className="signature-panel">
       <div className="panel-header">
-        <div><h2>Unterschrift</h2><p>Name, Zeitstempel und Signatur werden 3 Jahre gespeichert.</p></div>
+        <div><h2>Unterschrift</h2></div>
         <Button onClick={clear} type="button" variant="ghost">Löschen</Button>
       </div>
       {children ? <div className="signature-panel-fields">{children}</div> : null}
       <canvas ref={canvasRef} aria-label="Unterschriftenfeld" height="220" onPointerCancel={endStroke} onPointerDown={startStroke} onPointerMove={drawStroke} onPointerUp={endStroke} width="640" />
-      {!hasInk ? <p className="form-hint">Bitte im Feld unterschreiben.</p> : null}
     </Panel>
   );
 
@@ -39,7 +37,6 @@ export function SignaturePad({
     event.currentTarget.setPointerCapture(event.pointerId);
     context.beginPath();
     context.moveTo(point.x, point.y);
-    setHasInk(true);
   }
 
   function drawStroke(event: React.PointerEvent<HTMLCanvasElement>) {
@@ -64,7 +61,6 @@ export function SignaturePad({
     const context = canvas?.getContext("2d");
     if (!canvas || !context) return;
     context.clearRect(0, 0, canvas.width, canvas.height);
-    setHasInk(false);
     onChange("");
   }
 }

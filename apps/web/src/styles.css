@@ -724,6 +724,19 @@ a {
   flex-wrap: wrap;
   gap: 8px;
   justify-content: flex-end;
+  align-items: center;
+}
+
+.account-status-panel {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.account-status-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
 }
 
 .mobile-check {
@@ -924,6 +937,10 @@ a {
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
+.form-grid-one {
+  grid-template-columns: minmax(0, 1fr);
+}
+
 .form-grid-three {
   grid-template-columns: repeat(3, minmax(0, 1fr));
 }
@@ -966,10 +983,30 @@ a {
   gap: 10px;
 }
 
+.form-actions.account-status-actions {
+  min-height: 72px;
+  padding: 18px;
+  justify-content: flex-end;
+  align-items: center;
+}
+
 .settings-stack,
 .template-settings-fields {
   display: grid;
   gap: 16px;
+}
+
+.settings-page {
+  display: grid;
+  gap: 18px;
+}
+
+.settings-page .page-header {
+  padding-bottom: 0;
+}
+
+.settings-page .page-section {
+  gap: 12px;
 }
 
 .settings-meta {
@@ -995,6 +1032,60 @@ a {
 
 .settings-subsection .check-field {
   margin-top: 4px;
+}
+
+.settings-panel-compact .panel-header {
+  padding: 14px 16px;
+}
+
+.settings-panel-compact .panel-header h2 {
+  font-size: 17px;
+}
+
+.settings-panel-compact .panel-header,
+.settings-panel-compact .topbar-actions {
+  align-items: center;
+}
+
+.settings-panel-compact .form-grid {
+  padding: 14px 16px;
+  gap: 12px;
+  align-items: start;
+}
+
+.settings-panel-compact .settings-toggle-row {
+  padding-bottom: 8px;
+}
+
+.settings-panel-compact .settings-fields-row {
+  padding-top: 0;
+}
+
+.settings-panel-compact .field > span,
+.settings-panel-compact .settings-subsection > span,
+.settings-panel-compact .settings-meta {
+  font-size: 12px;
+}
+
+.settings-panel-compact .field > span {
+  margin-bottom: 4px;
+}
+
+.settings-panel-compact .settings-subsection {
+  gap: 4px;
+  padding: 8px 10px;
+}
+
+.settings-panel-compact .settings-subsection .check-field {
+  margin-top: 2px;
+}
+
+.settings-panel-compact .settings-toggle-row .check-field {
+  min-height: auto;
+}
+
+.settings-panel-compact .settings-meta {
+  margin: 0 16px 12px;
 }
 
 .template-settings-grid {
@@ -1455,26 +1546,23 @@ a {
   background: #fbfcfe;
 }
 
-.alert-category-card legend {
-  float: left;
-  padding: 0;
+.alert-category-card-header {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.alert-category-card-header h3 {
+  margin: 0;
   color: #17202c;
   font-size: 16px;
   font-weight: 800;
 }
 
-.alert-category-card > .badge {
-  float: right;
-}
-
-.alert-category-card p {
-  clear: both;
-  min-height: 40px;
-  margin: 8px 0 12px;
-  color: #657386;
-  font-size: 13px;
-  font-weight: 600;
-  line-height: 1.45;
+.alert-category-card-header > .badge {
+  flex-shrink: 0;
 }
 
 .alert-option {

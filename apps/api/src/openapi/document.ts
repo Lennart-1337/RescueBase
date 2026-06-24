@@ -41,8 +41,7 @@ const rescueBaseOpenApiDocumentDefinition = {
       InventoryProcurementStatus: stringEnum(["OPEN", "IN_PROGRESS", "DONE", "CANCELLED"]),
       ReplenishmentReason: stringEnum(["SHORTAGE", "DISCARDED_EXPIRED", "SHORTAGE_AND_DISCARDED_EXPIRED"]),
       SetupStatus: objectSchema({
-        initialized: { type: "boolean" },
-        firstAdminEmail: { type: "string" }
+        initialized: { type: "boolean" }
       }, ["initialized"]),
       AuthenticatedUser: objectSchema({
         id: { type: "string" },

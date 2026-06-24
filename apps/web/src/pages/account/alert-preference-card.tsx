@@ -1,9 +1,9 @@
+import { useId } from "react";
 import { Badge, cn } from "../../components/ui";
 
 export type AlertCategoryOption = {
   key: "EXPIRY" | "STK_DUE" | "MTK_DUE";
   label: string;
-  description: string;
 };
 
 type AlertLocation = {
@@ -20,16 +20,17 @@ type AlertPreferenceCardProps = {
 };
 
 export function AlertPreferenceCard({ category, locations, onToggle, selected, subscriptionKey }: AlertPreferenceCardProps) {
+  const titleId = useId();
   const selectedCount = Number(selected.has(subscriptionKey(category.key, null))) + locations.filter((location) => selected.has(subscriptionKey(category.key, location.id))).length;
 
   return (
-    <fieldset className="alert-category-card">
-      <legend>{category.label}</legend>
-      <Badge tone={selectedCount > 0 ? "info" : "neutral"}>{selectedCount} aktiv</Badge>
-      <p>{category.description}</p>
+    <section aria-labelledby={titleId} className="alert-category-card" role="group">
+      <div className="alert-category-card-header">
+        <h3 id={titleId}>{category.label}</h3>
+        <Badge tone={selectedCount > 0 ? "info" : "neutral"}>{selectedCount} aktiv</Badge>
+      </div>
       <AlertOption
         checked={selected.has(subscriptionKey(category.key, null))}
-        help="Gilt für alle aktuellen und zukünftigen Standorte."
         label="Alle Standorte"
         onChange={() => onToggle(category.key, null)}
         tone="global"
@@ -51,17 +52,16 @@ export function AlertPreferenceCard({ category, locations, onToggle, selected, s
           <div className="alert-location-empty">Noch keine Standorte angelegt.</div>
         )}
       </div>
-    </fieldset>
+    </section>
   );
 }
 
-function AlertOption({ checked, help, label, onChange, tone }: { checked: boolean; help?: string; label: string; onChange: () => void; tone?: "global" }) {
+function AlertOption({ checked, label, onChange, tone }: { checked: boolean; label: string; onChange: () => void; tone?: "global" }) {
   return (
     <label className={cn("alert-option", checked && "alert-option-selected", tone === "global" && "alert-option-global")}>
       <input checked={checked} onChange={onChange} type="checkbox" />
       <span>
         <strong>{label}</strong>
-        {help ? <small>{help}</small> : null}
       </span>
     </label>
   );

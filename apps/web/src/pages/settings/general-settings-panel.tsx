@@ -19,7 +19,7 @@ export function GeneralSettingsPanel({ initial }: { initial: GeneralSettings }) 
     }
   });
   return (
-    <SettingsPanel isSaving={mutation.isPending} onSave={() => mutation.mutate(draft)} title="Organisation und Zeit">
+    <SettingsPanel className="settings-panel-compact" isSaving={mutation.isPending} onSave={() => mutation.mutate(draft)} title="Organisation und Zeit">
       <div className="form-grid form-grid-two">
         <Field label="Zeitzone">
           <SearchableSelect
