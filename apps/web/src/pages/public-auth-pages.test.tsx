@@ -1,4 +1,4 @@
-import { screen, waitFor } from "@testing-library/react";
+import { fireEvent, screen, waitFor } from "@testing-library/react";
 import { changeValue, clickElement, postedBody, renderAppAt, resetTestBrowser, stubFetch } from "../test-support/app-test-helpers";
 
 describe("Public auth pages", () => {
@@ -28,6 +28,26 @@ describe("Public auth pages", () => {
     expect(screen.getByText(/Lokaler Reset-Link/)).toBeInTheDocument();
   });
 
+  it("autofocuses login and submits it through the form", async () => {
+    stubFetch({
+      "/api/auth/setup/status": { initialized: true },
+      "/api/auth/session": {},
+      "/api/auth/login": { user: { id: "user-admin", email: "admin@rescuebase.local", displayName: "Admin", role: "ADMIN", twoFactorEnabled: false } }
+    });
+    await renderAppAt("/");
+    const emailInput = await screen.findByLabelText("E-Mail");
+    expect(emailInput).toHaveFocus();
+
+    await changeValue(emailInput, "admin@rescuebase.local");
+    await changeValue(screen.getByLabelText("Passwort"), "rescuebase-admin");
+    fireEvent.submit(screen.getByRole("button", { name: "Anmelden" }).closest("form") as HTMLFormElement);
+
+    await waitFor(() => expect(postedBody("/api/auth/login")).toEqual({
+      email: "admin@rescuebase.local",
+      password: "rescuebase-admin"
+    }));
+  });
+
   it("restores a pending 2FA login after the browser state is recreated", async () => {
     stubFetch({
       "/api/auth/setup/status": { initialized: true, appName: "RescueBase Pro", appSubtitle: "Bereitschaft Nord" },
@@ -50,7 +70,7 @@ describe("Public auth pages", () => {
       "/api/auth/session": {}
     });
     await renderAppAt("/");
-    expect(await screen.findByLabelText("2FA-Code")).toBeInTheDocument();
+    expect(await screen.findByLabelText("2FA-Code")).toHaveFocus();
     expect(screen.queryByLabelText("Passwort")).not.toBeInTheDocument();
     expect(screen.getByLabelText("E-Mail")).toHaveValue("lager-neu@rescuebase.local");
   });

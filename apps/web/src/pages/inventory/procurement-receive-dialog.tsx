@@ -29,7 +29,7 @@ export function ProcurementReceiveDialog(props: {
         {props.draftItems.map((item, index) => (
           <div className="compact-list-row compact-list-row-actions" key={index}>
             <div className="form-grid form-grid-three procurement-receipt-grid">
-              <Field label="Chargennummer"><input value={item.lotNumber} onChange={(event) => props.onChangeItem(index, { ...item, lotNumber: event.target.value })} /></Field>
+              <Field label="Chargennummer"><input autoFocus={index === 0} value={item.lotNumber} onChange={(event) => props.onChangeItem(index, { ...item, lotNumber: event.target.value })} /></Field>
               <Field label="Ablaufdatum"><input type="date" value={item.expiresAt} onChange={(event) => props.onChangeItem(index, { ...item, expiresAt: event.target.value })} /></Field>
               <Field label="Menge"><input min="1" type="number" value={item.quantity} onChange={(event) => props.onChangeItem(index, { ...item, quantity: event.target.value })} /></Field>
             </div>

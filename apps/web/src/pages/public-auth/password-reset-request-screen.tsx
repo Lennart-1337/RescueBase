@@ -13,13 +13,19 @@ export function PasswordResetRequestScreen() {
   return (
     <Panel className="auth-panel">
       <div className="panel-header"><div><h2>Passwort zurücksetzen</h2></div><KeyRound /></div>
-      <div className="auth-form">
-        <Field label="E-Mail"><input type="email" value={email} onChange={(event) => setEmail(event.target.value)} /></Field>
+      <form
+        className="auth-form"
+        onSubmit={(event) => {
+          event.preventDefault();
+          if (email.trim() && !mutation.isPending) mutation.mutate({ email });
+        }}
+      >
+        <Field label="E-Mail"><input autoFocus type="email" value={email} onChange={(event) => setEmail(event.target.value)} /></Field>
         {mutation.data?.debugUrl ? <p className="debug-hint">Lokaler Reset-Link: {mutation.data.debugUrl}</p> : null}
         {mutation.error ? <InlineError error={mutation.error} /> : null}
-        <Button disabled={!email.trim() || mutation.isPending} onClick={() => mutation.mutate({ email })} type="button">Reset-Link senden</Button>
+        <Button disabled={!email.trim() || mutation.isPending} type="submit">Reset-Link senden</Button>
         <Link className="text-link" search={{}} to="/">Zur Anmeldung</Link>
-      </div>
+      </form>
     </Panel>
   );
 }

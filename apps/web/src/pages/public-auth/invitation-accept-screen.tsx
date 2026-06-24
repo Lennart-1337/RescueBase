@@ -22,13 +22,21 @@ export function InvitationAcceptScreen({ token }: { token: string }) {
   return (
     <Panel className="auth-panel">
       <div className="panel-header"><div><h2>Einladung annehmen</h2><p>{invitation.data.email} · {invitation.data.role === "ADMIN" ? "Admin" : "Lagerwart"}</p></div><Users /></div>
-      <div className="auth-form">
-        <Field label="Name"><input value={displayName} onChange={(event) => setDisplayName(event.target.value)} /></Field>
+      <form
+        className="auth-form"
+        onSubmit={(event) => {
+          event.preventDefault();
+          if (displayName.trim() && password.length >= 12 && password === passwordRepeat && !accept.isPending) {
+            accept.mutate({ displayName, password, token });
+          }
+        }}
+      >
+        <Field label="Name"><input autoFocus value={displayName} onChange={(event) => setDisplayName(event.target.value)} /></Field>
         <Field label="Passwort"><input type="password" value={password} onChange={(event) => setPassword(event.target.value)} /></Field>
         <Field label="Passwort wiederholen"><input type="password" value={passwordRepeat} onChange={(event) => setPasswordRepeat(event.target.value)} /></Field>
         {accept.error ? <InlineError error={accept.error} /> : null}
-        <Button disabled={!displayName.trim() || password.length < 12 || password !== passwordRepeat || accept.isPending} onClick={() => accept.mutate({ displayName, password, token })} type="button">Konto aktivieren</Button>
-      </div>
+        <Button disabled={!displayName.trim() || password.length < 12 || password !== passwordRepeat || accept.isPending} type="submit">Konto aktivieren</Button>
+      </form>
     </Panel>
   );
 }
