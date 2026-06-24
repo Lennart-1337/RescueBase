@@ -1,4 +1,4 @@
-FROM node:22-bookworm-slim AS deps
+FROM node:24.10.0-bookworm-slim AS deps
 WORKDIR /app
 RUN apt-get update \
   && apt-get install -y --no-install-recommends openssl \
@@ -15,7 +15,7 @@ RUN npm run prisma:generate -w @rescuebase/api
 RUN npm run build -w @rescuebase/domain
 RUN npm run build -w @rescuebase/api
 
-FROM node:22-bookworm-slim AS runtime
+FROM node:24.10.0-bookworm-slim AS runtime
 WORKDIR /app
 ENV NODE_ENV=production
 RUN apt-get update \

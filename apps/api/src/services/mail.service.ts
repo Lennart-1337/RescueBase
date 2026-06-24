@@ -85,6 +85,9 @@ export class MailService {
     const apiKey = process.env.RESEND_API_KEY?.trim();
     if (!apiKey) {
       this.logger.log(`MAIL ${input.subject} -> ${input.email}\n${input.text}`);
+      if (process.env.NODE_ENV === "production") {
+        return {};
+      }
       return {
         debugCode: input.debugCode,
         debugUrl: input.debugUrl

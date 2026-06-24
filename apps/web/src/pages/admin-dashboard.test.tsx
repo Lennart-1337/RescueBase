@@ -8,7 +8,7 @@ describe("AdminDashboard", () => {
 
   it("opens order fulfillment in a dialog and submits partial fulfillment", async () => {
     stubFetch({
-      "/api/auth/setup/status": { initialized: true, firstAdminEmail: "admin@rescuebase.local" },
+      "/api/auth/setup/status": { initialized: true },
       "/api/auth/session": { user: { id: "user-admin", email: "admin@rescuebase.local", displayName: "Admin", role: "ADMIN", twoFactorEnabled: false } },
       "/api/catalog/kits": [kit],
       "/api/inventory/batches": [
@@ -44,7 +44,7 @@ describe("AdminDashboard", () => {
 
   it("filters replenishment orders by location from the URL", async () => {
     stubFetch({
-      "/api/auth/setup/status": { initialized: true, firstAdminEmail: "admin@rescuebase.local" },
+      "/api/auth/setup/status": { initialized: true },
       "/api/auth/session": { user: { id: "user-admin", email: "admin@rescuebase.local", displayName: "Admin", role: "ADMIN", twoFactorEnabled: false } },
       "/api/catalog/kits": [kit, { ...kit, id: "kit-rucksack-2", name: "Reserve Rucksack", locationId: "loc-alt", location: { id: "loc-alt", name: "Außenlager" }, publicToken: "SAN-RS-002" }],
       "/api/inventory/batches": [batch],
@@ -63,7 +63,7 @@ describe("AdminDashboard", () => {
 
   it("keeps the dashboard header and panels compact", async () => {
     stubFetch({
-      "/api/auth/setup/status": { initialized: true, firstAdminEmail: "admin@rescuebase.local" },
+      "/api/auth/setup/status": { initialized: true },
       "/api/auth/session": { user: { id: "user-admin", email: "admin@rescuebase.local", displayName: "Admin", role: "ADMIN", twoFactorEnabled: false } },
       "/api/catalog/kits": [kit],
       "/api/inventory/batches": [batch],

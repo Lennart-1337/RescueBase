@@ -13,7 +13,7 @@ describe("KitsPage", () => {
       const method = init?.method ?? "GET";
 
       if (pathname === "/api/auth/setup/status") {
-        return jsonResponse({ initialized: true, firstAdminEmail: "admin@rescuebase.local" });
+        return jsonResponse({ initialized: true });
       }
       if (pathname === "/api/auth/session") {
         return jsonResponse({
@@ -78,7 +78,7 @@ describe("KitsPage", () => {
       const pathname = url.startsWith("http") ? new URL(url).pathname : url;
       const method = init?.method ?? "GET";
 
-      if (pathname === "/api/auth/setup/status") return jsonResponse({ initialized: true, firstAdminEmail: "admin@rescuebase.local" });
+      if (pathname === "/api/auth/setup/status") return jsonResponse({ initialized: true });
       if (pathname === "/api/auth/session") {
         return jsonResponse({ user: { id: "user-admin", email: "admin@rescuebase.local", displayName: "Admin", role: "ADMIN", twoFactorEnabled: false } });
       }
@@ -106,7 +106,7 @@ describe("KitsPage", () => {
       const pathname = url.startsWith("http") ? new URL(url).pathname : url;
       const method = init?.method ?? "GET";
 
-      if (pathname === "/api/auth/setup/status") return jsonResponse({ initialized: true, firstAdminEmail: "admin@rescuebase.local" });
+      if (pathname === "/api/auth/setup/status") return jsonResponse({ initialized: true });
       if (pathname === "/api/auth/session") {
         return jsonResponse({ user: { id: "user-admin", email: "admin@rescuebase.local", displayName: "Admin", role: "ADMIN", twoFactorEnabled: false } });
       }
@@ -133,7 +133,7 @@ describe("KitsPage", () => {
       const pathname = url.startsWith("http") ? new URL(url).pathname : url;
       const method = init?.method ?? "GET";
 
-      if (pathname === "/api/auth/setup/status") return jsonResponse({ initialized: true, firstAdminEmail: "admin@rescuebase.local" });
+      if (pathname === "/api/auth/setup/status") return jsonResponse({ initialized: true });
       if (pathname === "/api/auth/session") return jsonResponse({ user: { id: "user-admin", email: "admin@rescuebase.local", displayName: "Admin", role: "ADMIN", twoFactorEnabled: false } });
       if (pathname === "/api/catalog/kits" && method === "GET") return jsonResponse([kit]);
       if (pathname === "/api/catalog/locations") return jsonResponse([kit.location]);
@@ -155,7 +155,7 @@ describe("KitsPage", () => {
       const pathname = url.startsWith("http") ? new URL(url).pathname : url;
       const method = init?.method ?? "GET";
 
-      if (pathname === "/api/auth/setup/status") return jsonResponse({ initialized: true, firstAdminEmail: "admin@rescuebase.local" });
+      if (pathname === "/api/auth/setup/status") return jsonResponse({ initialized: true });
       if (pathname === "/api/auth/session") return jsonResponse({ user: { id: "user-admin", email: "admin@rescuebase.local", displayName: "Admin", role: "ADMIN", twoFactorEnabled: false } });
       if (pathname === "/api/catalog/kits" && method === "GET") {
         return jsonResponse([kit, { ...kit, id: "kit-rucksack-2", name: "Reserve Rucksack", code: "SAN-RS-002", status: "NOT_READY" }]);

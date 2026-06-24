@@ -16,7 +16,7 @@ describe("SettingsPage", () => {
 
   it("loads and saves the app-wide configuration groups", async () => {
     stubFetch({
-      "/api/auth/setup/status": { initialized: true, firstAdminEmail: admin.email },
+      "/api/auth/setup/status": { initialized: true },
       "/api/auth/session": { user: admin },
       "/api/admin/settings": settings,
       "/api/admin/settings/general": { ...settings.general, timezone: "Europe/Madrid" },
@@ -53,7 +53,7 @@ describe("SettingsPage", () => {
 
   it("edits and previews operational email templates", async () => {
     stubFetch({
-      "/api/auth/setup/status": { initialized: true, firstAdminEmail: admin.email },
+      "/api/auth/setup/status": { initialized: true },
       "/api/auth/session": { user: admin },
       "/api/admin/settings": settings,
       "/api/admin/settings/templates/ALERT_DIGEST/preview": { subject: "Tägliche Übersicht", text: "Guten Morgen\n3 offene Warnungen", html: "<p>Guten Morgen</p><p>3 offene Warnungen</p>" },
@@ -72,7 +72,7 @@ describe("SettingsPage", () => {
 
   it("rejects direct access for non-admin users", async () => {
     stubFetch({
-      "/api/auth/setup/status": { initialized: true, firstAdminEmail: admin.email },
+      "/api/auth/setup/status": { initialized: true },
       "/api/auth/session": { user: { ...admin, id: "warehouse", role: "WAREHOUSE" } }
     });
     await renderAppAt("/admin/settings");

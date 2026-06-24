@@ -156,7 +156,82 @@ describe("auth lifecycle", () => {
     expect(row.deletedAt).toBeInstanceOf(Date);
     expect(row.active).toBe(false);
   });
+
+  it("does not expose the first admin email in setup status", async () => {
+    const server = app.getHttpServer();
+    const status = await request(server).get("/auth/setup/status").expect(200);
+    expect(status.body).toEqual({ initialized: true });
+  });
+
+  it("rejects email 2FA challenges that belong to another user", async () => {
+    const server = app.getHttpServer();
+    const prisma = app.get(PrismaService);
+    const admin = request.agent(server);
+    await loginAs(admin, prisma, { email: "admin@rescuebase.local", password: "rescuebase-admin" });
+
+    const first = await inviteAndEnableEmailTwoFactor(admin, server, "first-2fa@rescuebase.local");
+    const second = await inviteAndEnableEmailTwoFactor(admin, server, "second-2fa@rescuebase.local");
+
+    const firstLogin = await request(server).post("/auth/login").send({
+      email: first.email,
+      password: first.password
+    }).expect(201);
+
+    const secondLogin = await request(server).post("/auth/login").send({
+      email: second.email,
+      password: second.password
+    }).expect(201);
+
+    await request(server).post("/auth/login").send({
+      email: first.email,
+      password: first.password,
+      emailChallengeId: secondLogin.body.emailChallengeId,
+      twoFactorCode: secondLogin.body.debugCode
+    }).expect(401);
+
+    await request(server).post("/auth/login").send({
+      loginChallengeId: firstLogin.body.loginChallengeId,
+      twoFactorCode: firstLogin.body.debugCode
+    }).expect(201);
+  });
+
+  it("rate-limits repeated login attempts", async () => {
+    const server = app.getHttpServer();
+    for (let attempt = 0; attempt < 10; attempt += 1) {
+      await request(server).post("/auth/login").send({
+        email: "ratelimit@rescuebase.local",
+        password: "wrong-password"
+      }).expect(401);
+    }
+    await request(server).post("/auth/login").send({
+      email: "ratelimit@rescuebase.local",
+      password: "wrong-password"
+    }).expect(429);
+  });
 });
+
+async function inviteAndEnableEmailTwoFactor(
+  admin: ReturnType<typeof request.agent>,
+  server: Parameters<typeof request>[0],
+  email: string
+) {
+  const password = "rescuebase-email-2fa";
+  const invitation = await admin.post("/auth/invite").send({
+    email,
+    displayName: email,
+    role: "WAREHOUSE"
+  }).expect(201);
+  const token = invitation.body.invitationUrl.split("/").pop();
+  const user = request.agent(server);
+  await user.post("/auth/invitations/accept").send({ token, password }).expect(201);
+  const challenge = await user.post("/auth/2fa/email/start").send({}).expect(201);
+  await user.post("/auth/2fa/email/enable").send({
+    challengeId: challenge.body.challengeId,
+    code: challenge.body.debugCode
+  }).expect(201);
+  await user.post("/auth/logout").expect(201);
+  return { email, password };
+}
 
 async function loginAs(
   agent: ReturnType<typeof request.agent>,

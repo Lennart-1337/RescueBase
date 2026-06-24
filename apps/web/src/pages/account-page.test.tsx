@@ -6,7 +6,7 @@ describe("AccountPage", () => {
 
   it("renders a TOTP QR code after preparing 2FA", async () => {
     stubFetch({
-      "/api/auth/setup/status": { initialized: true, firstAdminEmail: "admin@rescuebase.local" },
+      "/api/auth/setup/status": { initialized: true },
       "/api/auth/session": { user: { id: "user-admin", email: "admin@rescuebase.local", displayName: "Admin", role: "ADMIN", twoFactorEnabled: false } },
       "/api/auth/2fa/totp/setup": { secret: "ABCDEF123456", otpauthUrl: "otpauth://totp/RescueBase:admin@rescuebase.local?secret=ABCDEF123456&issuer=RescueBase" },
       "/api/catalog/locations": [],
@@ -21,7 +21,7 @@ describe("AccountPage", () => {
 
   it("saves alert preferences from the account page", async () => {
     stubFetch({
-      "/api/auth/setup/status": { initialized: true, firstAdminEmail: "admin@rescuebase.local" },
+      "/api/auth/setup/status": { initialized: true },
       "/api/auth/session": { user: { id: "user-admin", email: "admin@rescuebase.local", displayName: "Admin", role: "ADMIN", twoFactorEnabled: false } },
       "/api/catalog/locations": [{ id: "loc-main", name: "Hauptlager", kind: "STORAGE" }],
       "/api/alerts/subscriptions/me": []
@@ -34,7 +34,7 @@ describe("AccountPage", () => {
 
   it("groups alarm preferences by category with clear global and location choices", async () => {
     stubFetch({
-      "/api/auth/setup/status": { initialized: true, firstAdminEmail: "admin@rescuebase.local" },
+      "/api/auth/setup/status": { initialized: true },
       "/api/auth/session": { user: { id: "user-admin", email: "admin@rescuebase.local", displayName: "Admin", role: "ADMIN", twoFactorEnabled: false } },
       "/api/catalog/locations": [
         { id: "loc-main", name: "Hauptlager", kind: "STORAGE" },
@@ -54,7 +54,7 @@ describe("AccountPage", () => {
 
   it("saves the order mail preference from the account page", async () => {
     stubFetch({
-      "/api/auth/setup/status": { initialized: true, firstAdminEmail: "admin@rescuebase.local" },
+      "/api/auth/setup/status": { initialized: true },
       "/api/auth/session": { user: { id: "user-admin", email: "admin@rescuebase.local", displayName: "Admin", role: "ADMIN", twoFactorEnabled: false, newOrderNotificationsEnabled: false } },
       "/api/catalog/locations": [],
       "/api/alerts/subscriptions/me": [],

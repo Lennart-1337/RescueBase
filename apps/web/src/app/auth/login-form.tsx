@@ -7,9 +7,9 @@ import { Button, Field, Panel } from "../../components/ui";
 import { rescueBaseApi } from "../../lib/api";
 import { clearPendingLogin, loadPendingLogin, savePendingLogin } from "./pending-login";
 
-export function LoginForm({ firstAdminEmail, onDone }: { firstAdminEmail?: string; onDone: () => void }) {
+export function LoginForm({ onDone }: { onDone: () => void }) {
   const [pendingLogin, setPendingLogin] = useState(() => loadPendingLogin());
-  const [email, setEmail] = useState(pendingLogin?.email ?? firstAdminEmail ?? "");
+  const [email, setEmail] = useState(pendingLogin?.email ?? "");
   const [password, setPassword] = useState("");
   const [twoFactorCode, setTwoFactorCode] = useState("");
   const [twoFactorMethod, setTwoFactorMethod] = useState<"TOTP" | "EMAIL" | "">(pendingLogin?.twoFactorMethod ?? "");

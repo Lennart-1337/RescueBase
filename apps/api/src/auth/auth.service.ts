@@ -208,9 +208,9 @@ export class AuthService {
     return { challengeId: challenge.id, code, expiresAt };
   }
 
-  async verifyEmailTwoFactorChallenge(challengeId: string, code: string): Promise<boolean> {
+  async verifyEmailTwoFactorChallenge(userId: string, challengeId: string, code: string): Promise<boolean> {
     const challenge = await this.prisma.emailTwoFactorChallenge.findUnique({ where: { id: challengeId } });
-    if (!challenge || challenge.consumedAt || challenge.expiresAt <= new Date()) {
+    if (!challenge || challenge.userId !== userId || challenge.consumedAt || challenge.expiresAt <= new Date()) {
       return false;
     }
     const valid = challenge.codeHash === this.hashOpaqueToken(code);

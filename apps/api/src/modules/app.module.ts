@@ -20,6 +20,8 @@ import { InventoryProcurementService } from "../services/inventory-procurement.s
 import { ReportService } from "../services/report.service.js";
 import { PrismaService } from "../persistence/prisma.service.js";
 import { AuthGuard } from "../auth/auth.guard.js";
+import { RateLimitGuard } from "../auth/rate-limit.guard.js";
+import { RateLimitService } from "../auth/rate-limit.service.js";
 import { AuthService } from "../auth/auth.service.js";
 import { SettingsService } from "../settings/settings.service.js";
 import { NotificationTemplatesService } from "../settings/notification-templates.service.js";
@@ -50,6 +52,8 @@ import { NotificationTemplatesService } from "../settings/notification-templates
     ReportService,
     SettingsService,
     NotificationTemplatesService,
+    RateLimitService,
+    { provide: APP_GUARD, useClass: RateLimitGuard },
     { provide: APP_GUARD, useClass: AuthGuard }
   ]
 })

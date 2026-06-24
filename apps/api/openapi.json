@@ -102,9 +102,6 @@
         "properties": {
           "initialized": {
             "type": "boolean"
-          },
-          "firstAdminEmail": {
-            "type": "string"
           }
         },
         "required": [

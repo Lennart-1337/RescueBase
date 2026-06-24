@@ -5,14 +5,29 @@ describe("MailService", () => {
   const originalFetch = global.fetch;
   const originalApiKey = process.env.RESEND_API_KEY;
   const originalFrom = process.env.RESEND_FROM;
+  const originalNodeEnv = process.env.NODE_ENV;
 
   afterEach(() => {
     global.fetch = originalFetch;
+    if (originalNodeEnv === undefined) delete process.env.NODE_ENV;
+    else process.env.NODE_ENV = originalNodeEnv;
     if (originalApiKey === undefined) delete process.env.RESEND_API_KEY;
     else process.env.RESEND_API_KEY = originalApiKey;
     if (originalFrom === undefined) delete process.env.RESEND_FROM;
     else process.env.RESEND_FROM = originalFrom;
     jest.restoreAllMocks();
+  });
+
+  it("does not return debug delivery secrets in production", async () => {
+    process.env.NODE_ENV = "production";
+    delete process.env.RESEND_API_KEY;
+    const fetchMock = jest.fn();
+    global.fetch = fetchMock as typeof fetch;
+
+    const result = await new MailService().sendPasswordReset("lager@rescuebase.local", "http://localhost/reset-123");
+
+    expect(result).toEqual({});
+    expect(fetchMock).not.toHaveBeenCalled();
   });
 
   it("returns debug data when no Resend API key is configured", async () => {

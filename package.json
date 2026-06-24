@@ -9,7 +9,7 @@
     "packages/domain"
   ],
   "engines": {
-    "node": ">=22"
+    "node": ">=24.10.0 <25"
   },
   "scripts": {
     "build": "npm run build -w @rescuebase/domain && npm run build -w @rescuebase/api && npm run build -w @rescuebase/web",
