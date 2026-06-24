@@ -1,3 +1,4 @@
+import { useId } from "react";
 import { Badge, cn } from "../../components/ui";
 
 export type AlertCategoryOption = {
@@ -19,12 +20,15 @@ type AlertPreferenceCardProps = {
 };
 
 export function AlertPreferenceCard({ category, locations, onToggle, selected, subscriptionKey }: AlertPreferenceCardProps) {
+  const titleId = useId();
   const selectedCount = Number(selected.has(subscriptionKey(category.key, null))) + locations.filter((location) => selected.has(subscriptionKey(category.key, location.id))).length;
 
   return (
-    <fieldset className="alert-category-card">
-      <legend>{category.label}</legend>
-      <Badge tone={selectedCount > 0 ? "info" : "neutral"}>{selectedCount} aktiv</Badge>
+    <section aria-labelledby={titleId} className="alert-category-card" role="group">
+      <div className="alert-category-card-header">
+        <h3 id={titleId}>{category.label}</h3>
+        <Badge tone={selectedCount > 0 ? "info" : "neutral"}>{selectedCount} aktiv</Badge>
+      </div>
       <AlertOption
         checked={selected.has(subscriptionKey(category.key, null))}
         label="Alle Standorte"
@@ -48,7 +52,7 @@ export function AlertPreferenceCard({ category, locations, onToggle, selected, s
           <div className="alert-location-empty">Noch keine Standorte angelegt.</div>
         )}
       </div>
-    </fieldset>
+    </section>
   );
 }
 

@@ -46,6 +46,10 @@ describe("AccountPage", () => {
     await renderAppAt("/admin/account");
 
     const expiryGroup = await screen.findByRole("group", { name: "Ablauf" });
+    const header = expiryGroup.querySelector(".alert-category-card-header");
+    expect(header).not.toBeNull();
+    expect(within(header as HTMLElement).getByRole("heading", { name: "Ablauf" })).toBeInTheDocument();
+    expect(within(header as HTMLElement).getByText("0 aktiv")).toBeInTheDocument();
     expect(within(expiryGroup).getByRole("checkbox", { name: /Alle Standorte/ })).toBeInTheDocument();
     expect(within(expiryGroup).getByRole("checkbox", { name: /Hauptlager/ })).toBeInTheDocument();
     expect(within(expiryGroup).getByRole("checkbox", { name: /zu Hause/ })).toBeInTheDocument();

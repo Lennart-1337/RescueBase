@@ -1455,26 +1455,23 @@ a {
   background: #fbfcfe;
 }
 
-.alert-category-card legend {
-  float: left;
-  padding: 0;
+.alert-category-card-header {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.alert-category-card-header h3 {
+  margin: 0;
   color: #17202c;
   font-size: 16px;
   font-weight: 800;
 }
 
-.alert-category-card > .badge {
-  float: right;
-}
-
-.alert-category-card p {
-  clear: both;
-  min-height: 40px;
-  margin: 8px 0 12px;
-  color: #657386;
-  font-size: 13px;
-  font-weight: 600;
-  line-height: 1.45;
+.alert-category-card-header > .badge {
+  flex-shrink: 0;
 }
 
 .alert-option {
