@@ -1,7 +1,8 @@
 import type { INestApplication } from "@nestjs/common";
 import { jest } from "@jest/globals";
 import { authenticator } from "otplib";
-import * as request from "supertest";
+// @ts-expect-error supertest ships export= typings; default import is correct with ts-jest runtime.
+import request from "supertest";
 import { bootstrapTestApp } from "./bootstrap-test-app.js";
 import { PrismaService } from "../src/persistence/prisma.service.js";
 
