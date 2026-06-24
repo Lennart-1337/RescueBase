@@ -288,11 +288,11 @@ describe("MasterDataPage", () => {
     expect(within(row as HTMLElement).getByText("Nicht fallen lassen!")).toBeInTheDocument();
     expect(within(row as HTMLElement).getByText("Lagerhinweise")).toBeInTheDocument();
     expect(within(row as HTMLElement).getByText("Trocken lagern")).toBeInTheDocument();
-    expect(within(row as HTMLElement).getByText("Prüfungen")).toBeInTheDocument();
-    expect(within(row as HTMLElement).getByText("STK 12M · MTK 24M")).toBeInTheDocument();
     expect(row?.querySelector(".article-row-badges")).not.toBeNull();
     expect(row?.querySelector(".row-action-buttons")).not.toBeNull();
     expect(within(row as HTMLElement).getByText("MPDG")).toBeInTheDocument();
+    expect(within(row as HTMLElement).getByText("STK")).toBeInTheDocument();
+    expect(within(row as HTMLElement).getByText("MTK")).toBeInTheDocument();
     expect(within(row as HTMLElement).getByText("kritisch")).toBeInTheDocument();
     expect(within(row as HTMLElement).getByRole("link", { name: "Link" })).toHaveAttribute("href", "https://shop.example.org/articles/verbandpaeckchen-mittel");
     expect(within(row as HTMLElement).getByRole("button", { name: "Bearbeiten" })).toBeInTheDocument();
