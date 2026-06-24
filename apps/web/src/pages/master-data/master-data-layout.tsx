@@ -1,6 +1,7 @@
 import { Link, Outlet, useRouterState } from "@tanstack/react-router";
 import { PageHeader } from "../../components/page-layout";
 import { cn } from "../../components/ui";
+import "./master-data-layout.css";
 
 const tabs = [
   { label: "Artikel", path: "/admin/master-data/articles" },

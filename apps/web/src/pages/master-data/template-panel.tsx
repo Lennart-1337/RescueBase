@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react";
-import { Copy, Pencil, Plus, Save, Trash2, X } from "lucide-react";
+import { Plus, Save, X } from "lucide-react";
 import { SearchableSelect } from "../../components/searchable-select";
 import { InlineError } from "../../components/state-panels";
-import { Badge, Button, Dialog, Field, Panel } from "../../components/ui";
+import { Button, Dialog, Field, Panel } from "../../components/ui";
 import type { Article, CreateTemplateRequest, KitTemplate, ReviseTemplateRequest } from "../../lib/types";
+import { TemplateListRow } from "./template-list-row";
+import "./template-panel.css";
 
 type PositionDraft = { articleId: string; critical: boolean; moduleName: string; requiredQuantity: number };
 type TemplateDraft = { name: string; positions: PositionDraft[] };
@@ -110,17 +112,16 @@ export function TemplatePanel(props: {
       </div>
       {props.articles.length === 0 ? <div className="compact-list-empty">Vorlagen benötigen zuerst mindestens einen Artikel.</div> : null}
       {props.templates.length === 0 ? <div className="compact-list-empty">Noch keine Vorlagen angelegt.</div> : null}
-      <div className="compact-list">
+      <div className="table">
         {props.templates.map((template) => (
-          <div className="compact-list-row compact-list-row-actions" key={template.id}>
-            <span><strong>{template.name} v{template.version}</strong><small>{template.positions.length} Positionen</small></span>
-            <div className="row-actions">
-              {template.positions.some((position) => position.critical) ? <Badge tone="info">enthält kritisch</Badge> : null}
-              <Button aria-label={`${template.name} v${template.version} duplizieren`} onClick={() => openForDuplicate(template)} type="button" variant="ghost"><Copy data-icon="inline-start" />Duplizieren</Button>
-              <Button onClick={() => openForEdit(template)} type="button" variant="ghost"><Pencil data-icon="inline-start" />Bearbeiten</Button>
-              <Button aria-label={`${template.name} v${template.version} löschen`} disabled={props.isSubmitting} onClick={() => confirmDelete(template)} type="button" variant="danger"><Trash2 data-icon="inline-start" />Löschen</Button>
-            </div>
-          </div>
+          <TemplateListRow
+            isSubmitting={props.isSubmitting}
+            key={template.id}
+            onDelete={() => confirmDelete(template)}
+            onDuplicate={() => openForDuplicate(template)}
+            onEdit={() => openForEdit(template)}
+            template={template}
+          />
         ))}
       </div>
       <Dialog actions={<><Button disabled={props.isSubmitting} onClick={requestClose} type="button" variant="ghost"><X data-icon="inline-start" />Abbrechen</Button><Button disabled={!canSubmit || props.isSubmitting} onClick={() => void submit()} type="button">{editingTemplateId ? <Save data-icon="inline-start" /> : <Plus data-icon="inline-start" />}{editingTemplateId ? "Neue Version speichern" : "Vorlage speichern"}</Button></>} onClose={requestClose} open={isOpen} title={editingTemplateId ? "Rucksackvorlage bearbeiten" : "Rucksackvorlage anlegen"}>

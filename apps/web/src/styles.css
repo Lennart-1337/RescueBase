@@ -367,8 +367,7 @@ a {
 
 .workspace-main,
 .workspace-rail,
-.page-section,
-.master-data-content {
+.page-section {
   display: grid;
   gap: 16px;
   min-width: 0;
@@ -1023,20 +1022,6 @@ a {
   padding-top: 14px;
 }
 
-.article-filter-grid {
-  grid-template-columns: minmax(0, 1.35fr) minmax(260px, 1fr) auto;
-  align-items: end;
-}
-
-.article-filter-checks {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: flex-end;
-  align-items: center;
-  gap: 10px 14px;
-  min-height: 46px;
-}
-
 .filter-bar-actions {
   align-items: center;
   padding-top: 0;
@@ -1553,30 +1538,6 @@ a {
   grid-template-columns: minmax(0, 1fr) auto;
 }
 
-.article-list-row {
-  grid-template-columns: minmax(0, 1.3fr) minmax(220px, 0.95fr) auto;
-}
-
-.article-row-summary {
-  min-width: 0;
-}
-
-.article-row-badges,
-.row-action-buttons {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  align-items: center;
-}
-
-.article-row-badges {
-  justify-content: flex-start;
-}
-
-.row-action-buttons {
-  justify-content: flex-end;
-}
-
 .metric-row {
   display: flex;
   flex-wrap: wrap;
@@ -1817,37 +1778,8 @@ a {
   padding: 18px;
 }
 
-.template-form {
-  display: grid;
-  gap: 14px;
-  padding: 18px;
-}
-
-.template-position-list {
-  display: grid;
-  gap: 10px;
-}
-
-.template-position-row {
-  display: grid;
-  grid-template-columns: minmax(170px, 1.2fr) minmax(
-      140px,
-      1fr
-    ) 120px 110px auto;
-  gap: 10px;
-  align-items: end;
-  padding: 12px;
-  border: 1px solid #edf0f4;
-  border-radius: 8px;
-  background: #fbfcfe;
-}
-
 .panel-subheader {
   border-top: 1px solid #edf0f4;
-}
-
-.template-critical {
-  align-self: end;
 }
 
 .check-list {
@@ -1921,9 +1853,21 @@ a {
   align-items: center;
 }
 
+.check-item-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: flex-start;
+}
+
 .check-item h3 {
   margin: 4px 0 0;
   font-size: 18px;
+}
+
+.check-item-critical.badge-neutral {
+  background: #f2f4f7;
+  color: #667085;
 }
 
 .stepper {
@@ -2087,11 +2031,9 @@ a {
   .lower-grid,
   .admin-grid,
   .alert-category-grid,
-  .article-filter-grid,
   .form-grid-three,
   .form-grid-four,
   .form-grid-five,
-  .template-position-row,
   .totp-setup-card {
     grid-template-columns: 1fr;
   }
@@ -2116,19 +2058,6 @@ a {
   .row-actions {
     flex-wrap: wrap;
     justify-content: flex-start;
-  }
-
-  .article-list-row {
-    grid-template-columns: 1fr;
-  }
-
-  .article-filter-checks,
-  .row-action-buttons {
-    justify-content: flex-start;
-  }
-
-  .row-action-buttons {
-    min-width: 0;
   }
 }
 
@@ -2208,5 +2137,9 @@ a {
 
   .check-item {
     grid-template-columns: 1fr;
+  }
+
+  .check-item-header {
+    align-items: start;
   }
 }
