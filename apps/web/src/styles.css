@@ -1700,6 +1700,10 @@ a {
   box-shadow: 0 24px 60px rgba(15, 23, 42, 0.22);
 }
 
+.modal-dialog-wide {
+  width: min(1120px, 100%);
+}
+
 .modal-header,
 .modal-footer {
   padding: 18px 20px;
@@ -1729,6 +1733,16 @@ a {
 
 .modal-body {
   overflow: auto;
+}
+
+.confirm-dialog-body {
+  padding: 24px;
+}
+
+.confirm-dialog-body .form-hint {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.6;
 }
 
 .modal-footer {

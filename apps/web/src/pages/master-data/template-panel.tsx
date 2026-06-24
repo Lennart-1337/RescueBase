@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Pencil, Plus, Save, Trash2, X } from "lucide-react";
+import { Copy, Pencil, Plus, Save, Trash2, X } from "lucide-react";
 import { SearchableSelect } from "../../components/searchable-select";
 import { InlineError } from "../../components/state-panels";
 import { Badge, Button, Dialog, Field, Panel } from "../../components/ui";
@@ -49,11 +49,18 @@ export function TemplatePanel(props: {
   }
 
   function openForEdit(template: KitTemplate) {
-    const draft = {
-      name: template.name,
-      positions: template.positions.map((position) => ({ articleId: position.articleId, critical: position.critical, moduleName: position.moduleName ?? "", requiredQuantity: position.requiredQuantity }))
-    };
+    const draft = createDraftFromTemplate(template);
     setEditingTemplateId(template.id);
+    setName(draft.name);
+    setPositions(draft.positions);
+    setInitialDraft(draft);
+    setIsOpen(true);
+  }
+
+  function openForDuplicate(template: KitTemplate) {
+    const draft = { ...createDraftFromTemplate(template), name: `${template.name} Kopie` };
+    setIsCloseConfirmOpen(false);
+    setEditingTemplateId(null);
     setName(draft.name);
     setPositions(draft.positions);
     setInitialDraft(draft);
@@ -109,6 +116,7 @@ export function TemplatePanel(props: {
             <span><strong>{template.name} v{template.version}</strong><small>{template.positions.length} Positionen</small></span>
             <div className="row-actions">
               {template.positions.some((position) => position.critical) ? <Badge tone="info">enthält kritisch</Badge> : null}
+              <Button aria-label={`${template.name} v${template.version} duplizieren`} onClick={() => openForDuplicate(template)} type="button" variant="ghost"><Copy data-icon="inline-start" />Duplizieren</Button>
               <Button onClick={() => openForEdit(template)} type="button" variant="ghost"><Pencil data-icon="inline-start" />Bearbeiten</Button>
               <Button aria-label={`${template.name} v${template.version} löschen`} disabled={props.isSubmitting} onClick={() => confirmDelete(template)} type="button" variant="danger"><Trash2 data-icon="inline-start" />Löschen</Button>
             </div>
@@ -135,8 +143,10 @@ export function TemplatePanel(props: {
       </Dialog>
       <Dialog
         actions={<><Button disabled={props.isSubmitting} onClick={() => setIsCloseConfirmOpen(false)} type="button" variant="ghost">Abbrechen</Button><Button disabled={props.isSubmitting} onClick={closeImmediately} type="button" variant="danger">Ohne Speichern schließen</Button><Button disabled={!canSubmit || props.isSubmitting} onClick={() => void submit()} type="button"><Save data-icon="inline-start" />Änderungen speichern</Button></>}
+        bodyClassName="confirm-dialog-body"
         onClose={() => setIsCloseConfirmOpen(false)}
         open={isCloseConfirmOpen}
+        size="wide"
         title="Änderungen an Rucksackvorlage"
       >
         <p className="form-hint">Sie haben ungespeicherte Änderungen. Möchten Sie diese vor dem Schließen speichern?</p>
@@ -147,6 +157,18 @@ export function TemplatePanel(props: {
 
 function createEmptyDraft(articleId: string): TemplateDraft {
   return { name: "", positions: [{ articleId, critical: false, moduleName: "", requiredQuantity: 1 }] };
+}
+
+function createDraftFromTemplate(template: KitTemplate): TemplateDraft {
+  return {
+    name: template.name,
+    positions: template.positions.map((position) => ({
+      articleId: position.articleId,
+      critical: position.critical,
+      moduleName: position.moduleName ?? "",
+      requiredQuantity: position.requiredQuantity
+    }))
+  };
 }
 
 function serializeDraft(draft: TemplateDraft) {

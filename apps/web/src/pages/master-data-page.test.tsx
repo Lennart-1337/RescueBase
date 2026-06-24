@@ -101,6 +101,33 @@ describe("MasterDataPage", () => {
     await waitFor(() => expect(postedBody("/api/catalog/templates/template-san-a-v1/revise")).toEqual({ positions: [{ articleId: "article-bandage", moduleName: "Verband", requiredQuantity: 2, critical: false }] }));
   });
 
+  it("duplicates templates into a prefilled create flow that allows renaming and changing positions", async () => {
+    stubFetch({
+      ...baseAdminRoutes(),
+      "/api/catalog/templates": [{ ...kit.template, positions: [{ id: "pos-bandage", articleId: "article-bandage", articleName: "Verbandpäckchen mittel", moduleName: "Verband", requiredQuantity: 1, unit: "Stück", critical: false }] }],
+      "/api/catalog/templates?refresh=1": [{ ...kit.template, positions: [{ id: "pos-bandage", articleId: "article-bandage", articleName: "Verbandpäckchen mittel", moduleName: "Verband", requiredQuantity: 1, unit: "Stück", critical: false }] }]
+    });
+    await renderAppAt("/admin/master-data/templates");
+    await screen.findByRole("heading", { name: "Stammdaten" });
+
+    await clickElement(await screen.findByRole("button", { name: "Sanitätsrucksack A v1 duplizieren" }));
+
+    const dialog = await screen.findByRole("dialog", { name: "Rucksackvorlage anlegen" });
+    expect(within(dialog).getByLabelText("Vorlagenname")).toHaveValue("Sanitätsrucksack A Kopie");
+    expect(within(dialog).getByLabelText("Modul")).toHaveValue("Verband");
+    expect(within(dialog).getByLabelText("Sollmenge")).toHaveValue(1);
+
+    await changeValue(within(dialog).getByLabelText("Vorlagenname"), "Sanitätsrucksack B");
+    await changeValue(within(dialog).getByLabelText("Modul"), "Atmung");
+    await changeValue(within(dialog).getByLabelText("Sollmenge"), "4");
+    await clickElement(within(dialog).getByRole("button", { name: "Vorlage speichern" }));
+
+    await waitFor(() => expect(postedBody("/api/catalog/templates")).toEqual({
+      name: "Sanitätsrucksack B",
+      positions: [{ articleId: "article-bandage", moduleName: "Atmung", requiredQuantity: 4, critical: false }]
+    }));
+  });
+
   it("asks before closing template edits with unsaved changes and can save them", async () => {
     stubFetch({
       ...baseAdminRoutes(),
@@ -115,6 +142,8 @@ describe("MasterDataPage", () => {
     await clickElement(within(dialog).getByRole("button", { name: "Abbrechen" }));
 
     const confirmDialog = await screen.findByRole("dialog", { name: "Änderungen an Rucksackvorlage" });
+    expect(confirmDialog).toHaveClass("modal-dialog-wide");
+    expect(confirmDialog.querySelector(".confirm-dialog-body")).not.toBeNull();
     expect(within(confirmDialog).getByText("Sie haben ungespeicherte Änderungen. Möchten Sie diese vor dem Schließen speichern?")).toBeInTheDocument();
     await clickElement(within(confirmDialog).getByRole("button", { name: "Änderungen speichern" }));
 

@@ -72,16 +72,22 @@ export function Tabs({
 
 export function Dialog({
   actions,
+  bodyClassName,
+  className,
   children,
   description,
   onClose,
   open,
+  size = "default",
   title
 }: PropsWithChildren<{
   actions?: ReactNode;
+  bodyClassName?: string;
+  className?: string;
   description?: string;
   onClose: () => void;
   open: boolean;
+  size?: "default" | "wide";
   title: string;
 }>) {
   const titleId = useId();
@@ -97,7 +103,7 @@ export function Dialog({
         aria-describedby={description ? descriptionId : undefined}
         aria-labelledby={titleId}
         aria-modal="true"
-        className="modal-dialog"
+        className={cn("modal-dialog", size === "wide" && "modal-dialog-wide", className)}
         onClick={(event) => event.stopPropagation()}
         role="dialog"
       >
@@ -116,7 +122,7 @@ export function Dialog({
             ×
           </Button>
         </div>
-        <div className="modal-body">{children}</div>
+        <div className={cn("modal-body", bodyClassName)}>{children}</div>
         {actions ? <div className="modal-footer">{actions}</div> : null}
       </div>
     </div>
