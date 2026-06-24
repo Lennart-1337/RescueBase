@@ -271,6 +271,8 @@ describe("MasterDataPage", () => {
         manufacturerPartNumber: "VB-1000",
         medicalDevice: true,
         stkRequired: true,
+        notes: "Nicht fallen lassen!",
+        storageNotes: "Trocken lagern",
         stkIntervalMonths: 12,
         mtkRequired: true,
         mtkIntervalMonths: 24,
@@ -283,7 +285,7 @@ describe("MasterDataPage", () => {
     expect(row).not.toBeNull();
     expect(within(row as HTMLElement).getByText("Stück · 040000000001")).toBeInTheDocument();
     expect(within(row as HTMLElement).getByText("Quelle")).toBeInTheDocument();
-    expect(within(row as HTMLElement).getByText("MediSafe · VB-1000 · Verbandmaterial")).toBeInTheDocument();
+    expect(within(row as HTMLElement).getByText("MediSafe · Nicht fallen lassen! · Trocken lagern")).toBeInTheDocument();
     expect(within(row as HTMLElement).getByText("Prüfungen")).toBeInTheDocument();
     expect(within(row as HTMLElement).getByText("STK 12M · MTK 24M")).toBeInTheDocument();
     expect(row?.querySelector(".article-row-badges")).not.toBeNull();
