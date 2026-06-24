@@ -5,6 +5,7 @@ import { InlineError } from "../../components/state-panels";
 import { Button, Dialog, Field, Panel } from "../../components/ui";
 import type { Article, CreateTemplateRequest, KitTemplate, ReviseTemplateRequest } from "../../lib/types";
 import { TemplateListRow } from "./template-list-row";
+import "./template-panel.css";
 
 type PositionDraft = { articleId: string; critical: boolean; moduleName: string; requiredQuantity: number };
 type TemplateDraft = { name: string; positions: PositionDraft[] };

@@ -1,6 +1,7 @@
 import { ExternalLink, Pencil, Trash2 } from "lucide-react";
 import type { Article } from "../../lib/types";
 import { AnchorButton, Badge, Button } from "../../components/ui";
+import "./article-list-row.css";
 
 export function ArticleListRow(props: {
   article: Article;

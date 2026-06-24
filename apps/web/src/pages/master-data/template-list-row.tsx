@@ -1,6 +1,7 @@
 import { Copy, Pencil, Trash2 } from "lucide-react";
 import { Badge, Button } from "../../components/ui";
 import type { KitTemplate } from "../../lib/types";
+import "./template-list-row.css";
 
 export function TemplateListRow(props: {
   isSubmitting: boolean;

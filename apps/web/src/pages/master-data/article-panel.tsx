@@ -7,6 +7,7 @@ import type { Article, CreateArticleRequest, UpdateArticleRequest } from "../../
 import { InlineError } from "../../components/state-panels";
 import { Button, Dialog, Field, Panel } from "../../components/ui";
 import { ArticleListRow } from "./article-list-row";
+import "./article-panel.css";
 
 type ArticleDraft = {
   isOpen: boolean;
