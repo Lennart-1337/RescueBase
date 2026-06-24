@@ -7,6 +7,13 @@ import { rescueBaseApi } from "../lib/api";
 import type { AuthenticatedUser } from "../lib/types";
 import type { AppBranding } from "./branding";
 
+type NavigationItem = {
+  icon: typeof ClipboardList;
+  label: string;
+  search?: Record<string, never>;
+  to: "/" | "/admin/kits" | "/admin/inventory" | "/admin/check-protocols" | "/admin/master-data/articles" | "/admin/users" | "/admin/settings" | "/admin/account";
+};
+
 export function AdminShell({ children, user, branding }: { children: ReactNode; user: AuthenticatedUser; branding: AppBranding }) {
   const queryClient = useQueryClient();
   const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
@@ -90,7 +97,7 @@ function NavigationList({
   items,
   onNavigate
 }: {
-  items: ReadonlyArray<{ icon: typeof ClipboardList; label: string; search?: {}; to: "/" | "/admin/kits" | "/admin/inventory" | "/admin/check-protocols" | "/admin/master-data/articles" | "/admin/users" | "/admin/settings" | "/admin/account" }>;
+  items: ReadonlyArray<NavigationItem>;
   onNavigate?: () => void;
 }) {
   return (
