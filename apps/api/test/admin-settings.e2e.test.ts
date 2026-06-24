@@ -1,6 +1,7 @@
 import type { INestApplication } from "@nestjs/common";
 import { jest } from "@jest/globals";
-import * as request from "supertest";
+// @ts-expect-error supertest ships export= typings; default import is correct with ts-jest runtime.
+import request from "supertest";
 import { PrismaService } from "../src/persistence/prisma.service.js";
 import { bootstrapTestApp } from "./bootstrap-test-app.js";
 import { defaultTimezone } from "../src/settings/default-timezone.js";
