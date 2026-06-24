@@ -19,6 +19,21 @@ describe("AccountPage", () => {
     expect(screen.getByText("ABCDEF123456")).toBeInTheDocument();
   });
 
+  it("uses the dedicated status action layout for the 2FA disable button", async () => {
+    stubFetch({
+      "/api/auth/setup/status": { initialized: true },
+      "/api/auth/session": { user: { id: "user-admin", email: "admin@rescuebase.local", displayName: "Admin", role: "ADMIN", twoFactorEnabled: true, twoFactorMethod: "EMAIL" } },
+      "/api/catalog/locations": [],
+      "/api/alerts/subscriptions/me": []
+    });
+
+    await renderAppAt("/admin/account");
+
+    const button = await screen.findByRole("button", { name: "2FA deaktivieren" });
+    expect(button.closest(".account-status-actions")).not.toBeNull();
+    expect(button.closest(".account-status-body")).not.toBeNull();
+  });
+
   it("saves alert preferences from the account page", async () => {
     stubFetch({
       "/api/auth/setup/status": { initialized: true },

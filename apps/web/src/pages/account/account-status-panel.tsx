@@ -13,11 +13,13 @@ export function AccountStatusPanel({ user }: { user: AuthenticatedUser }) {
   });
 
   return (
-    <Panel>
+    <Panel className="account-status-panel">
       <div className="panel-header"><div><h2>Aktiver Schutz</h2></div><ShieldCheck /></div>
-      <div className="compact-list"><div className="compact-list-row"><span><strong>{user.displayName}</strong><small>{user.email}</small></span><Badge tone={user.twoFactorEnabled ? "ready" : "warning"}>{user.twoFactorEnabled ? `2FA ${user.twoFactorMethod}` : "Nur Passwort"}</Badge></div></div>
-      {disable.error ? <InlineError error={disable.error} /> : null}
-      <div className="form-actions"><Button disabled={!user.twoFactorEnabled || disable.isPending} onClick={() => disable.mutate()} type="button" variant="danger">2FA deaktivieren</Button></div>
+      <div className="account-status-body">
+        <div className="compact-list"><div className="compact-list-row"><span><strong>{user.displayName}</strong><small>{user.email}</small></span><Badge tone={user.twoFactorEnabled ? "ready" : "warning"}>{user.twoFactorEnabled ? `2FA ${user.twoFactorMethod}` : "Nur Passwort"}</Badge></div></div>
+        {disable.error ? <InlineError error={disable.error} /> : null}
+        <div className="form-actions account-status-actions"><Button disabled={!user.twoFactorEnabled || disable.isPending} onClick={() => disable.mutate()} type="button" variant="danger">2FA deaktivieren</Button></div>
+      </div>
     </Panel>
   );
 }

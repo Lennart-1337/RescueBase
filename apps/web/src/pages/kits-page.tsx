@@ -5,7 +5,7 @@ import { matchesFilterText, toOptionalString, withPrunedSearch } from "../app/fi
 import { toError } from "../app/formatters";
 import { PageHeader, PageToolbar } from "../components/page-layout";
 import { ErrorPanel, LoadingPanel } from "../components/state-panels";
-import { Badge, Button } from "../components/ui";
+import { Button } from "../components/ui";
 import { Plus } from "lucide-react";
 import { rescueBaseApi } from "../lib/api";
 import type { Kit } from "../lib/types";
@@ -103,7 +103,7 @@ export function KitsPage() {
 
   return (
     <>
-      <PageHeader actions={<><Badge tone="info">{filteredKits.length}/{kits.data.length} sichtbar</Badge><Button onClick={openForCreate} type="button"><Plus data-icon="inline-start" />Rucksack hinzufügen</Button></>} title="Rucksäcke" />
+      <PageHeader actions={<Button onClick={openForCreate} type="button"><Plus data-icon="inline-start" />Rucksack hinzufügen</Button>} title="Rucksäcke" />
       <PageToolbar label="Rucksäcke filtern"><KitFilterToolbar countLabel={`${filteredKits.length}/${kits.data.length} sichtbar`} filters={filters} locations={locations.data} onChange={updateFilters} onReset={resetFilters} templates={templates.data} /></PageToolbar>
       <KitListPanel actionError={rotateMutation.error ?? deleteMutation.error ?? null} actionPending={rotateMutation.isPending || deleteMutation.isPending} kits={filteredKits} onDelete={(id) => deleteMutation.mutate(id)} onEdit={openForEdit} onRotate={(id) => rotateMutation.mutate(id)} />
       <KitFormPanel code={code} editingId={editingId} error={createMutation.error || updateMutation.error ? toError(createMutation.error ?? updateMutation.error) : null} isOpen={isOpen} isSubmitting={createMutation.isPending || updateMutation.isPending} locationId={locationId} locations={locations.data} name={name} onClose={closeDialog} onCodeChange={setCode} onLocationChange={setLocationId} onNameChange={setName} onSubmit={() => void submit()} onTemplateChange={setTemplateId} templateId={templateId} templates={templates.data} />

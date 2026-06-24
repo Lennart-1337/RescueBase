@@ -18,9 +18,11 @@ export function InventorySettingsPanel({ initial }: { initial: InventorySettings
     }
   });
   return (
-    <SettingsPanel isSaving={mutation.isPending} onSave={() => mutation.mutate({ enabled: draft.enabled, dailyReconcileTime: draft.dailyReconcileTime })} title="Lagerautomatik">
-      <div className="form-grid form-grid-two">
+    <SettingsPanel className="settings-panel-compact" isSaving={mutation.isPending} onSave={() => mutation.mutate({ enabled: draft.enabled, dailyReconcileTime: draft.dailyReconcileTime })} title="Lagerautomatik">
+      <div className="form-grid settings-toggle-row">
         <label className="check-field"><input checked={draft.enabled} onChange={(event) => setDraft({ ...draft, enabled: event.target.checked })} type="checkbox" /><span>Automatische Bestandsprüfung aktiv</span></label>
+      </div>
+      <div className="form-grid form-grid-one settings-fields-row">
         <Field label="Prüfzeit"><input disabled={!draft.enabled} onChange={(event) => setDraft({ ...draft, dailyReconcileTime: event.target.value })} type="time" value={draft.dailyReconcileTime} /></Field>
       </div>
       <p className="settings-meta">Letzte Prüfung: {draft.lastReconciledAt ? formatDateTime(draft.lastReconciledAt) : "noch nicht ausgeführt"}</p>

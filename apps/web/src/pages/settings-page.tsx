@@ -15,14 +15,18 @@ export function SettingsPage({ user }: { user: AuthenticatedUser }) {
   if (settings.isLoading) return <LoadingPanel label="App-Einstellungen werden geladen" />;
   if (settings.isError || !settings.data) return <ErrorPanel error={toError(settings.error)} onRetry={() => void settings.refetch()} />;
   return (
-    <>
+    <div className="settings-page">
       <PageHeader title="App-Einstellungen" />
       <PageSection title="Allgemein">
-        <div className="settings-stack"><GeneralSettingsPanel initial={settings.data.general} /><AlertSettingsPanel initial={settings.data.alerts} /><InventorySettingsPanel initial={settings.data.inventory} /></div>
+        <div className="settings-stack">
+          <GeneralSettingsPanel initial={settings.data.general} />
+          <AlertSettingsPanel initial={settings.data.alerts} />
+          <InventorySettingsPanel initial={settings.data.inventory} />
+        </div>
       </PageSection>
       <PageSection title="Kommunikation">
         <TemplateSettingsPanel templates={settings.data.templates} />
       </PageSection>
-    </>
+    </div>
   );
 }

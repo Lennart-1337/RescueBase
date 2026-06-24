@@ -53,7 +53,9 @@ describe("KitsPage", () => {
     await renderAppAt("/admin/kits");
     await screen.findByRole("heading", { level: 1, name: "Rucksäcke" });
     expect(screen.getByRole("search", { name: "Rucksäcke filtern" })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Rucksack hinzufügen" }).closest(".topbar")).not.toBeNull();
+    const topbar = screen.getByRole("button", { name: "Rucksack hinzufügen" }).closest(".topbar") as HTMLElement;
+    expect(topbar).not.toBeNull();
+    expect(within(topbar).queryByText("1/1 sichtbar")).toBeNull();
 
     const row = screen.getByText("Rucksack Fahrzeug 1").closest(".table-row") as HTMLElement;
     await clickElement(within(row).getByRole("button", { name: /Rotieren/ }));

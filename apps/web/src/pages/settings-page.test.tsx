@@ -25,6 +25,8 @@ describe("SettingsPage", () => {
     });
     await renderAppAt("/admin/settings");
     expect(await screen.findByRole("heading", { name: "App-Einstellungen" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Allgemein" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Kommunikation" })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: /Einstellungen/ })).toHaveClass("active");
 
     const general = screen.getByRole("region", { name: "Organisation und Zeit" });
