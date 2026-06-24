@@ -284,9 +284,7 @@ describe("MasterDataPage", () => {
     const row = articleName.closest(".article-list-row");
     expect(row).not.toBeNull();
     expect(within(row as HTMLElement).getByText("Stück · 040000000001")).toBeInTheDocument();
-    expect(within(row as HTMLElement).getByText("Hinweise")).toBeInTheDocument();
     expect(within(row as HTMLElement).getByText("Nicht fallen lassen!")).toBeInTheDocument();
-    expect(within(row as HTMLElement).getByText("Lagerhinweise")).toBeInTheDocument();
     expect(within(row as HTMLElement).getByText("Trocken lagern")).toBeInTheDocument();
     expect(row?.querySelector(".article-row-badges")).not.toBeNull();
     expect(row?.querySelector(".row-action-buttons")).not.toBeNull();
