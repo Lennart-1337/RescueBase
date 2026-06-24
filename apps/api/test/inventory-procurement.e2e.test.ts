@@ -1,6 +1,6 @@
 import type { INestApplication } from "@nestjs/common";
 import { jest } from "@jest/globals";
-import request from "supertest";
+import * as request from "supertest";
 import { bootstrapTestApp } from "./bootstrap-test-app.js";
 
 jest.setTimeout(30_000);

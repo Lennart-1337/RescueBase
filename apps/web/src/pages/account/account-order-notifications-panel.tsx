@@ -5,6 +5,7 @@ import { rescueBaseApi } from "../../lib/api";
 import type { AuthenticatedUser } from "../../lib/types";
 import { InlineError } from "../../components/state-panels";
 import { Button, Panel } from "../../components/ui";
+import "../../app/auth/auth-form-layout.css";
 
 export function AccountOrderNotificationsPanel({ user }: { user: AuthenticatedUser }) {
   const queryClient = useQueryClient();

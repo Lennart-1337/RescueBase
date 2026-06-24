@@ -1,0 +1,48 @@
+.protocol-status-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  padding: 18px;
+  border-top: 1px solid #edf0f4;
+}
+
+.protocol-status-card {
+  border: 1px solid #e0e6ef;
+  border-radius: 12px;
+  background: #fbfcfe;
+  padding: 12px;
+  display: grid;
+  gap: 4px;
+}
+
+.protocol-status-card span {
+  color: #657386;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.protocol-status-card strong {
+  font-size: 24px;
+}
+
+.protocol-status-card-ready strong {
+  color: #157347;
+}
+
+.protocol-status-card-warning strong {
+  color: #9a6700;
+}
+
+.protocol-status-card-danger strong {
+  color: #a51d15;
+}
+
+.protocol-status-card-info strong {
+  color: #1d4ed8;
+}
+
+@media (max-width: 620px) {
+  .protocol-status-grid {
+    grid-template-columns: 1fr;
+  }
+}

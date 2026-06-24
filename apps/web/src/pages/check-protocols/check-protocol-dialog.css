@@ -1,0 +1,9 @@
+.protocol-dialog-body {
+  padding: 24px;
+}
+
+@media (max-width: 620px) {
+  .protocol-dialog-body {
+    padding: 16px;
+  }
+}

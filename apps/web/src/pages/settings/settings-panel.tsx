@@ -1,5 +1,6 @@
 import type { PropsWithChildren, ReactNode } from "react";
 import { Button, Panel, cn } from "../../components/ui";
+import "./settings-panel.css";
 
 export function SettingsPanel(props: PropsWithChildren<{
   description?: string;

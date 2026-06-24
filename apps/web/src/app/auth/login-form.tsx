@@ -6,6 +6,7 @@ import { InlineError } from "../../components/state-panels";
 import { Button, Field, Panel } from "../../components/ui";
 import { rescueBaseApi } from "../../lib/api";
 import { clearPendingLogin, loadPendingLogin, savePendingLogin } from "./pending-login";
+import "./auth-form-layout.css";
 
 export function LoginForm({ onDone }: { onDone: () => void }) {
   const [pendingLogin, setPendingLogin] = useState(() => loadPendingLogin());

@@ -6,6 +6,8 @@ import { Button } from "../components/ui";
 import { rescueBaseApi } from "../lib/api";
 import type { AuthenticatedUser } from "../lib/types";
 import { getBrandMark, type AppBranding } from "./branding";
+import "./admin-shell.css";
+import "./brand-mark.css";
 
 type NavigationItem = {
   icon: typeof ClipboardList;

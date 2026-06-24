@@ -59,9 +59,8 @@ describe("RescueBase routes", () => {
     expect(await screen.findByRole("heading", { name: "Rucksack Fahrzeug 1" })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Verband" })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Blutung" })).toBeInTheDocument();
-    expect(screen.getByText("Soll 6 Stück")).toBeInTheDocument();
-    expect(screen.getByText("Soll 1 Stück")).toBeInTheDocument();
-    expect(screen.getByText("kritisch")).toBeInTheDocument();
+    expect(screen.getByText("Soll: 6 Stück")).toBeInTheDocument();
+    expect(screen.getByText("Soll: 1 Stück · kritisch")).toBeInTheDocument();
   });
 
   it("does not render seeded fallback data when the API is unavailable", async () => {

@@ -4,6 +4,7 @@ import { EmptyState } from "../../components/state-panels";
 import { Badge, Button, Panel } from "../../components/ui";
 import type { CheckProtocolSummary } from "../../lib/types";
 import { protocolStatusTone } from "./check-protocol-status";
+import "./check-protocol-list.css";
 
 export function CheckProtocolList(props: {
   protocols: CheckProtocolSummary[];

@@ -5,6 +5,7 @@ import { InlineError } from "../../components/state-panels";
 import { Button, Field, Panel } from "../../components/ui";
 import { rescueBaseApi } from "../../lib/api";
 import type { NotificationTemplate, NotificationTemplateKey } from "../../lib/admin-settings-types";
+import "./template-settings-panel.css";
 
 const labels: Record<NotificationTemplateKey, string> = {
   ALERT_IMMEDIATE: "Sofortwarnung",

@@ -6,6 +6,7 @@ import { Badge, Panel } from "../components/ui";
 import { rescueBaseApi } from "../lib/api";
 import type { CompleteCheckResponse } from "../lib/types";
 import { PublicCheckForm } from "./public-check/public-check-form";
+import "./public-check/public-check-page.css";
 
 export function PublicCheck({ token }: { token: string }) {
   const query = useQuery({ queryKey: ["public-kit", token], queryFn: () => rescueBaseApi.publicKit(token) });

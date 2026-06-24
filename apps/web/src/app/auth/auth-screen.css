@@ -1,0 +1,51 @@
+.auth-screen {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: minmax(320px, 0.8fr) minmax(360px, 520px);
+  gap: 48px;
+  align-items: center;
+  justify-content: center;
+  padding: 32px;
+  background: #f6f7f9;
+}
+
+.auth-brand {
+  display: grid;
+  gap: 12px;
+  align-content: center;
+}
+
+.auth-brand .brand-mark {
+  width: 54px;
+  height: 54px;
+}
+
+.auth-brand h1 {
+  margin: 0;
+  font-size: 42px;
+  line-height: 1.05;
+}
+
+.auth-brand p {
+  margin: 0;
+  max-width: 360px;
+  color: #657386;
+  font-size: 18px;
+}
+
+@media (max-width: 620px) {
+  .auth-screen {
+    grid-template-columns: 1fr;
+    gap: 24px;
+    padding: 18px;
+    align-content: center;
+  }
+
+  .auth-brand h1 {
+    font-size: 32px;
+  }
+
+  .auth-brand p {
+    font-size: 16px;
+  }
+}

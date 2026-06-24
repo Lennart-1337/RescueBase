@@ -2,6 +2,7 @@ import { LoadingPanel } from "../../components/state-panels";
 import { Button, Dialog } from "../../components/ui";
 import type { CheckProtocolDetail } from "../../lib/types";
 import { CheckProtocolDetailView } from "./check-protocol-detail-view";
+import "./check-protocol-dialog.css";
 
 export function CheckProtocolDialog(props: {
   detail?: CheckProtocolDetail;

@@ -1,0 +1,18 @@
+.account-status-panel {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.account-status-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.form-actions.account-status-actions {
+  min-height: 72px;
+  padding: 18px;
+  justify-content: flex-end;
+  align-items: center;
+}

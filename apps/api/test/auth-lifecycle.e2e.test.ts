@@ -1,7 +1,7 @@
 import type { INestApplication } from "@nestjs/common";
 import { jest } from "@jest/globals";
 import { authenticator } from "otplib";
-import request from "supertest";
+import * as request from "supertest";
 import { bootstrapTestApp } from "./bootstrap-test-app.js";
 import { PrismaService } from "../src/persistence/prisma.service.js";
 

@@ -1,0 +1,17 @@
+.settings-stack {
+  display: grid;
+  gap: 16px;
+}
+
+.settings-page {
+  display: grid;
+  gap: 18px;
+}
+
+.settings-page .page-header {
+  padding-bottom: 0;
+}
+
+.settings-page .page-section {
+  gap: 12px;
+}

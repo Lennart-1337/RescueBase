@@ -8,6 +8,7 @@ import { AlertSettingsPanel } from "./settings/alert-settings-panel";
 import { GeneralSettingsPanel } from "./settings/general-settings-panel";
 import { InventorySettingsPanel } from "./settings/inventory-settings-panel";
 import { TemplateSettingsPanel } from "./settings/template-settings-panel";
+import "./settings/settings-page.css";
 
 export function SettingsPage({ user }: { user: AuthenticatedUser }) {
   const settings = useQuery({ queryKey: ["admin-settings"], queryFn: rescueBaseApi.adminSettings, enabled: user.role === "ADMIN" });

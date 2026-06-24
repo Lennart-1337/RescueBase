@@ -1,0 +1,13 @@
+.mobile-check {
+  max-width: 720px;
+  min-height: 100vh;
+  margin: 0 auto;
+  padding: 16px 16px 120px;
+  background: #f6f7f9;
+}
+
+.mobile-check.loading {
+  display: grid;
+  place-items: center;
+  color: #657386;
+}
