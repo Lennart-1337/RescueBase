@@ -19,4 +19,17 @@ describe("Dialog", () => {
     fireEvent.click(closeButton);
     expect(onClose).toHaveBeenCalledTimes(1);
   });
+
+  it("supports wider dialog layouts with dedicated body styling hooks", () => {
+    render(
+      <Dialog bodyClassName="confirm-dialog-body" className="custom-modal" onClose={vi.fn()} open size="wide" title="Bestätigung">
+        <p>Inhalt</p>
+      </Dialog>,
+    );
+
+    const dialog = screen.getByRole("dialog", { name: "Bestätigung" });
+    expect(dialog).toHaveClass("modal-dialog-wide");
+    expect(dialog).toHaveClass("custom-modal");
+    expect(dialog.querySelector(".confirm-dialog-body")).not.toBeNull();
+  });
 });
