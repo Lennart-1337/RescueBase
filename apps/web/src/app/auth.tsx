@@ -12,7 +12,7 @@ export { AuthScreen } from "./auth/auth-screen";
 
 export function AdminAuthGate({ children }: { children: (user: AuthenticatedUser) => ReactNode }) {
   const queryClient = useQueryClient();
-  const setup = useQuery({ queryKey: ["setup-status"], queryFn: rescueBaseApi.setupStatus });
+  const setup = useQuery({ queryKey: ["setup-status"], queryFn: rescueBaseApi.setupStatus, staleTime: 5 * 60 * 1000 });
   const session = useQuery({ queryKey: ["session"], queryFn: rescueBaseApi.session, enabled: setup.data?.initialized === true });
 
   if (setup.isLoading || (setup.data?.initialized && session.isLoading)) return <LoadingPanel label="RescueBase wird geladen" />;
