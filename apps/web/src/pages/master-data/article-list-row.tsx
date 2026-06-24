@@ -35,7 +35,7 @@ export function ArticleListRow(props: {
         {article.sterile ? <Badge tone="info">steril</Badge> : null}
         {article.criticalDefault ? <Badge tone="info">kritisch</Badge> : null}
       </div>
-      <div className="row-action-buttons">
+      <div className="article-row-actions row-action-buttons">
         {article.articleUrl ? <AnchorButton className="mobile-icon-button" href={article.articleUrl} rel="noreferrer" target="_blank" variant="secondary"><ExternalLink data-icon="inline-start" /><span className="button-label">Link</span></AnchorButton> : null}
         <Button className="mobile-icon-button" onClick={props.onEdit} type="button" variant="ghost">
           <Pencil data-icon="inline-start" />
