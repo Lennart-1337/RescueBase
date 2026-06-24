@@ -127,19 +127,33 @@ export function ArticlePanel(props: {
         </div>
       </ListFilterBar></PageToolbar>
       <Panel>
-        <div className="panel-header"><div><h2>Artikel</h2><div>Hinweise</div><div>Lagerhinweise</div></div><Button onClick={openForCreate} type="button"><Plus data-icon="inline-start" />Artikel hinzufügen</Button></div>
-      {props.articles.length === 0 ? <div className="compact-list-empty">Noch keine Artikel angelegt.</div> : null}
-      <div className="table">
-        {props.articles.map((article) => (
-          <ArticleListRow
-            article={article}
-            isSubmitting={props.isSubmitting}
-            key={article.id}
-            onDelete={() => confirmDelete(article)}
-            onEdit={() => openForEdit(article)}
-          />
-        ))}
-      </div>
+        <div className="panel-header article-panel-header">
+          <div className="article-panel-heading">
+            <h2>Artikel</h2>
+            <p>{props.articles.length}/{props.totalCount} sichtbar</p>
+          </div>
+          <Button onClick={openForCreate} type="button"><Plus data-icon="inline-start" />Artikel hinzufügen</Button>
+        </div>
+        <div className="article-table-header" aria-hidden="true">
+          <span>Artikel</span>
+          <span>Hinweise</span>
+          <span>Lagerhinweise</span>
+          <span>Prüfungen</span>
+          <span>Merkmale</span>
+          <span>Aktionen</span>
+        </div>
+        {props.articles.length === 0 ? <div className="compact-list-empty">Noch keine Artikel angelegt.</div> : null}
+        <div className="table article-table">
+          {props.articles.map((article) => (
+            <ArticleListRow
+              article={article}
+              isSubmitting={props.isSubmitting}
+              key={article.id}
+              onDelete={() => confirmDelete(article)}
+              onEdit={() => openForEdit(article)}
+            />
+          ))}
+        </div>
       <Dialog actions={<><Button disabled={props.isSubmitting} onClick={() => setDraft(emptyDraft())} type="button" variant="ghost"><X data-icon="inline-start" />Abbrechen</Button><Button disabled={!canSubmit || props.isSubmitting} onClick={() => void submit()} type="button">{draft.editingId ? <Save data-icon="inline-start" /> : <Plus data-icon="inline-start" />}{draft.editingId ? "Artikel speichern" : "Artikel anlegen"}</Button></>} onClose={() => setDraft(emptyDraft())} open={draft.isOpen} title={draft.editingId ? "Artikel bearbeiten" : "Artikel anlegen"}>
         <div className="form-grid form-grid-three">
           <Field label="Name"><input autoFocus onChange={(event) => setDraft((current) => ({ ...current, name: event.target.value }))} value={draft.name} /></Field>
