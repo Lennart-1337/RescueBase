@@ -135,8 +135,12 @@ export function ArticlePanel(props: {
           <Button onClick={openForCreate} type="button"><Plus data-icon="inline-start" />Artikel hinzufügen</Button>
         </div>
         <div className="article-table-header" aria-hidden="true">
+          <span></span>
           <span>Hinweise</span>
           <span>Lagerhinweise</span>
+          <span>Merkmale</span>
+          <span></span>
+          <span></span>
         </div>
         {props.articles.length === 0 ? <div className="compact-list-empty">Noch keine Artikel angelegt.</div> : null}
         <div className="table article-table">
