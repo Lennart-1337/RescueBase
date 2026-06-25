@@ -283,9 +283,8 @@ describe("MasterDataPage", () => {
     const articleName = await screen.findByText("Verbandpäckchen mittel");
     const tableHeader = document.querySelector(".article-table-header");
     expect(tableHeader).not.toBeNull();
-    expect(within(tableHeader as HTMLElement).getByText("Artikel")).toBeInTheDocument();
     expect(within(tableHeader as HTMLElement).getByText("Hinweise")).toBeInTheDocument();
-    expect(within(tableHeader as HTMLElement).getByText("Aktionen")).toBeInTheDocument();
+    expect(within(tableHeader as HTMLElement).getByText("Lagerhinweise")).toBeInTheDocument();
     const row = articleName.closest(".article-list-row");
     expect(row).not.toBeNull();
     expect(within(row as HTMLElement).getByText("Stück · 040000000001")).toBeInTheDocument();
