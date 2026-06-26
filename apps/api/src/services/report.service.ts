@@ -1,5 +1,5 @@
 import { Injectable, NotFoundException } from "@nestjs/common";
-import { InventoryProcurementStatus } from "@prisma/client";
+import { InventoryProcurementStatus, PurchaseOrderStatus } from "@prisma/client";
 import PDFDocument from "pdfkit";
 import QRCode from "qrcode";
 import { PrismaService } from "../persistence/prisma.service.js";
@@ -31,6 +31,26 @@ type ProcurementOrderReportRecord = {
   article: { name: string; unit: string; manufacturer: string | null; manufacturerPartNumber: string | null; articleUrl: string | null };
   location: { name: string };
   receipts: Array<{ lotNumber: string }>;
+};
+type PurchaseOrderPdfRecord = {
+  id: string;
+  orderNumber: string;
+  supplierName: string;
+  status: PurchaseOrderStatus;
+  notes: string | null;
+  approvedAt: Date | null;
+  approvedByName: string | null;
+  createdAt: Date;
+  location: { name: string };
+  lines: Array<{
+    articleNameSnapshot: string;
+    supplierArticleNumberSnapshot: string | null;
+    articleUrlSnapshot: string | null;
+    grossUnitPriceCents: number;
+    orderedQuantity: number;
+    unitSnapshot: string;
+    note: string | null;
+  }>;
 };
 
 @Injectable()
@@ -198,6 +218,69 @@ export class ReportService {
         y += 20;
       }
       this.drawOperationalNotes(doc, y);
+    });
+  }
+
+  async purchaseOrderPdf(orderId: string, options: { includeLineNotes?: boolean }): Promise<Buffer> {
+    const order: PurchaseOrderPdfRecord | null = await this.prisma.purchaseOrder.findUnique({
+      where: { id: orderId },
+      include: {
+        location: { select: { name: true } },
+        lines: { orderBy: { createdAt: "asc" } }
+      }
+    });
+    if (!order) {
+      throw new NotFoundException("Bestellung nicht gefunden.");
+    }
+
+    return this.renderPdf((doc) => {
+      this.drawDocumentHeader(doc, "Bestellung", order.orderNumber, order.supplierName);
+      this.drawMetaGrid(doc, [
+        ["Status", formatPurchaseOrderStatus(order.status)],
+        ["Zielort", order.location.name],
+        ["Erstellt", formatDateTime(order.createdAt)],
+        ["Freigabe", order.approvedAt ? `${order.approvedByName ?? "Unbekannt"} · ${formatDateTime(order.approvedAt)}` : "Noch nicht freigegeben"]
+      ], { x: 48, width: doc.page.width - 96 });
+
+      if (order.notes) {
+        doc.moveDown(0.5);
+        doc.fillColor(palette.ink).font("Helvetica-Bold").fontSize(10).text("Hinweise", 48, doc.y);
+        doc.fillColor(palette.muted).font("Helvetica").fontSize(9).text(order.notes, 48, doc.y + 4, { width: doc.page.width - 96 });
+      }
+
+      let y = this.drawPurchaseOrderTableHeader(doc, doc.y + 20);
+      order.lines.forEach((line, index) => {
+        const rowHeight = this.measurePurchaseOrderLine(doc, line, Boolean(options.includeLineNotes));
+        if (needsPageBreak({
+          currentY: y,
+          requiredHeight: rowHeight,
+          pageHeight: doc.page.height,
+          bottomMargin: doc.page.margins.bottom,
+          reserve: 64
+        })) {
+          doc.addPage();
+          this.drawContinuationHeader(doc, "Bestellung", `${order.orderNumber} · Fortsetzung`);
+          y = this.drawPurchaseOrderTableHeader(doc, doc.y + 12);
+        }
+        y = this.drawPurchaseOrderLine(doc, y, line, index, Boolean(options.includeLineNotes));
+      });
+
+      const totalGrossCents = order.lines.reduce((sum, line) => sum + line.grossUnitPriceCents * line.orderedQuantity, 0);
+      if (needsPageBreak({
+        currentY: y,
+        requiredHeight: 42,
+        pageHeight: doc.page.height,
+        bottomMargin: doc.page.margins.bottom,
+        reserve: 0
+      })) {
+        doc.addPage();
+        this.drawContinuationHeader(doc, "Bestellung", `${order.orderNumber} · Summe`);
+        y = doc.y + 10;
+      }
+      doc.moveTo(330, y + 4).lineTo(doc.page.width - 48, y + 4).strokeColor(palette.line).stroke();
+      doc.fillColor(palette.ink).font("Helvetica-Bold").fontSize(12)
+        .text("Gesamt", 340, y + 18, { width: 80 })
+        .text(formatCents(totalGrossCents), 438, y + 18, { width: 96, align: "right" });
     });
   }
 
@@ -392,6 +475,65 @@ export class ReportService {
     return y + 20;
   }
 
+  private drawPurchaseOrderTableHeader(doc: PDFKit.PDFDocument, y: number) {
+    doc.fillColor(palette.muted).font("Helvetica-Bold").fontSize(8);
+    doc.text("ARTIKEL", 48, y, { width: 176 });
+    doc.text("ART.-NR.", 232, y, { width: 70 });
+    doc.text("MENGE", 310, y, { width: 48, align: "right" });
+    doc.text("PREIS", 366, y, { width: 64, align: "right" });
+    doc.text("SUMME", 438, y, { width: 64, align: "right" });
+    doc.text("LINK", 510, y, { width: 34, align: "right" });
+    doc.moveTo(48, y + 14).lineTo(doc.page.width - 48, y + 14).strokeColor(palette.line).stroke();
+    return y + 22;
+  }
+
+  private measurePurchaseOrderLine(
+    doc: PDFKit.PDFDocument,
+    line: PurchaseOrderPdfRecord["lines"][number],
+    includeLineNotes: boolean
+  ) {
+    const articleHeight = doc.font("Helvetica-Bold").fontSize(10).heightOfString(line.articleNameSnapshot, { width: 176 });
+    const noteHeight = includeLineNotes && line.note
+      ? doc.font("Helvetica").fontSize(8).heightOfString(line.note, { width: 454 }) + 10
+      : 0;
+    return Math.max(34, articleHeight + 16) + noteHeight;
+  }
+
+  private drawPurchaseOrderLine(
+    doc: PDFKit.PDFDocument,
+    y: number,
+    line: PurchaseOrderPdfRecord["lines"][number],
+    index: number,
+    includeLineNotes: boolean
+  ) {
+    const rowHeight = this.measurePurchaseOrderLine(doc, line, includeLineNotes);
+    if (index % 2 === 0) {
+      doc.rect(48, y - 4, doc.page.width - 96, rowHeight + 4).fill(palette.stripe);
+    }
+    doc.fillColor(palette.ink).font("Helvetica-Bold").fontSize(10).text(line.articleNameSnapshot, 48, y, { width: 176 });
+    doc.font("Helvetica").fontSize(8).fillColor(palette.muted).text(line.unitSnapshot, 48, y + 18, { width: 176 });
+    doc.fillColor(palette.ink).font("Helvetica").fontSize(9);
+    doc.text(line.supplierArticleNumberSnapshot ?? "-", 232, y + 2, { width: 70 });
+    doc.text(String(line.orderedQuantity), 310, y + 2, { width: 48, align: "right" });
+    doc.text(formatCents(line.grossUnitPriceCents), 366, y + 2, { width: 64, align: "right" });
+    doc.font("Helvetica-Bold").text(formatCents(line.grossUnitPriceCents * line.orderedQuantity), 438, y + 2, { width: 64, align: "right" });
+    if (line.articleUrlSnapshot) {
+      doc.fillColor(palette.accent).font("Helvetica").fontSize(9).text("Link", 510, y + 2, {
+        width: 34,
+        align: "right",
+        link: line.articleUrlSnapshot,
+        underline: true
+      });
+    } else {
+      doc.fillColor(palette.muted).font("Helvetica").fontSize(9).text("-", 510, y + 2, { width: 34, align: "right" });
+    }
+    if (includeLineNotes && line.note) {
+      doc.fillColor(palette.muted).font("Helvetica").fontSize(8).text(line.note, 48, y + 34, { width: 454 });
+    }
+    doc.moveTo(48, y + rowHeight + 4).lineTo(doc.page.width - 48, y + rowHeight + 4).strokeColor(palette.line).stroke();
+    return y + rowHeight + 10;
+  }
+
   private measureProcurementOrderRow(doc: PDFKit.PDFDocument, order: ProcurementOrderReportRecord) {
     const articleHeight = doc.font("Helvetica-Bold").fontSize(11).heightOfString(order.article.name, { width: 170 });
     const detailHeight = doc.font("Helvetica").fontSize(8).heightOfString(procurementDetails(order).join("\n"), { width: 232 });
@@ -480,6 +622,21 @@ function formatOrderStatus(status: string) {
 function formatProcurementStatus(status: InventoryProcurementStatus) {
   if (status === InventoryProcurementStatus.OPEN) return "Offen";
   return "In Bearbeitung";
+}
+
+function formatPurchaseOrderStatus(status: PurchaseOrderStatus) {
+  if (status === PurchaseOrderStatus.DRAFT) return "Entwurf";
+  if (status === PurchaseOrderStatus.APPROVED) return "Freigegeben";
+  if (status === PurchaseOrderStatus.ORDERED) return "Bestellt";
+  if (status === PurchaseOrderStatus.PARTIALLY_RECEIVED) return "Teilweise erhalten";
+  return "Erhalten";
+}
+
+function formatCents(cents: number) {
+  return new Intl.NumberFormat("de-DE", {
+    style: "currency",
+    currency: "EUR"
+  }).format(cents / 100);
 }
 
 function procurementDetails(order: ProcurementOrderReportRecord) {

@@ -98,3 +98,31 @@ export const procurementOrder = {
   location: { id: "loc-main", name: "Hauptlager" },
   receipts: []
 };
+
+export const purchaseOrder = {
+  id: "purchase-order-1",
+  orderNumber: "PO-2026-000001",
+  supplierName: "MediSafe Einkauf",
+  locationId: "loc-main",
+  status: "DRAFT",
+  notes: "Bitte gesammelt liefern.",
+  totalGrossCents: 996,
+  createdAt: "2026-06-26T09:00:00.000Z",
+  updatedAt: "2026-06-26T09:00:00.000Z",
+  location: { id: "loc-main", name: "Hauptlager" },
+  lines: [{
+    id: "purchase-line-1",
+    articleId: "article-bandage",
+    articleName: "Verbandpäckchen mittel",
+    supplierArticleNumber: "VB-1000",
+    articleUrl: "https://shop.example.org/articles/verbandpaeckchen-mittel",
+    manufacturerPartNumber: "VB-1000",
+    unit: "Stück",
+    grossUnitPriceCents: 249,
+    orderedQuantity: 4,
+    receivedQuantity: 0,
+    remainingQuantity: 4,
+    lineTotalGrossCents: 996
+  }],
+  receipts: []
+};

@@ -9,6 +9,7 @@ import { CheckRecordsController } from "./check-records.controller.js";
 import { MedicalDevicesController } from "./medical-devices.controller.js";
 import { InventoryController } from "./inventory.controller.js";
 import { PublicChecksController } from "./public-checks.controller.js";
+import { PurchaseOrdersController } from "./purchase-orders.controller.js";
 import { ReplenishmentController } from "./replenishment.controller.js";
 import { ReportsController } from "./reports.controller.js";
 import { AuditService } from "../services/audit.service.js";
@@ -17,6 +18,7 @@ import { AlertsService } from "../services/alerts.service.js";
 import { MailService } from "../services/mail.service.js";
 import { OrderNotificationsService } from "../services/order-notifications.service.js";
 import { InventoryProcurementService } from "../services/inventory-procurement.service.js";
+import { PurchaseOrdersService } from "../services/purchase-orders.service.js";
 import { ReportService } from "../services/report.service.js";
 import { PrismaService } from "../persistence/prisma.service.js";
 import { AuthGuard } from "../auth/auth.guard.js";
@@ -37,6 +39,7 @@ import { NotificationTemplatesService } from "../settings/notification-templates
     MedicalDevicesController,
     InventoryController,
     PublicChecksController,
+    PurchaseOrdersController,
     ReplenishmentController,
     ReportsController
   ],
@@ -47,6 +50,7 @@ import { NotificationTemplatesService } from "../settings/notification-templates
     CheckRecordsService,
     AlertsService,
     InventoryProcurementService,
+    PurchaseOrdersService,
     MailService,
     OrderNotificationsService,
     ReportService,

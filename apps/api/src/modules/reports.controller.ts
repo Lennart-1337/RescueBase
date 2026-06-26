@@ -62,4 +62,19 @@ export class ReportsController {
     response.setHeader("expires", "0");
     response.send(pdf);
   }
+
+  @Get("purchase-orders/:orderId.pdf")
+  async purchaseOrder(
+    @Param("orderId") orderId: string,
+    @Query("includeLineNotes") includeLineNotes: string | undefined,
+    @Res() response: Response
+  ): Promise<void> {
+    const pdf = await this.reports.purchaseOrderPdf(orderId, { includeLineNotes: includeLineNotes === "true" });
+    response.setHeader("content-type", "application/pdf");
+    response.setHeader("content-disposition", `inline; filename="bestellung-${orderId}.pdf"`);
+    response.setHeader("cache-control", "no-store, max-age=0");
+    response.setHeader("pragma", "no-cache");
+    response.setHeader("expires", "0");
+    response.send(pdf);
+  }
 }

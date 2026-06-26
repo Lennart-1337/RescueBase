@@ -56,6 +56,8 @@ export async function seedRescueBaseDevelopmentData(prisma: PrismaClient): Promi
       category: "Verbandmaterial",
       barcode: "040000000001",
       articleUrl: "https://shop.example.org/articles/verbandpaeckchen-mittel",
+      defaultSupplierName: "MediSafe Einkauf",
+      defaultGrossPriceCents: 249,
       sterile: true,
       storageNotes: "Trocken lagern",
       criticalDefault: false
@@ -74,6 +76,8 @@ export async function seedRescueBaseDevelopmentData(prisma: PrismaClient): Promi
       category: "Medizinprodukt",
       barcode: "040000000002",
       articleUrl: "https://shop.example.org/articles/tourniquet",
+      defaultSupplierName: "Rescue Tech",
+      defaultGrossPriceCents: 3295,
       sterile: false,
       medicalDevice: true,
       stkRequired: true,
@@ -95,6 +99,8 @@ export async function seedRescueBaseDevelopmentData(prisma: PrismaClient): Promi
       category: "Schutzausrüstung",
       barcode: "040000000003",
       articleUrl: "https://shop.example.org/articles/einmalhandschuhe-m",
+      defaultSupplierName: "SafeHands",
+      defaultGrossPriceCents: 799,
       sterile: false,
       storageNotes: "Vor Hitze schützen",
       criticalDefault: false
