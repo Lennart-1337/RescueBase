@@ -49,6 +49,7 @@ export async function seedRescueBaseDevelopmentData(prisma: PrismaClient): Promi
     create: {
       id: "article-bandage",
       name: "Verbandpäckchen mittel",
+      sortOrder: 1,
       unit: "Stück",
       manufacturer: "MediSafe",
       manufacturerPartNumber: "VB-1000",
@@ -66,6 +67,7 @@ export async function seedRescueBaseDevelopmentData(prisma: PrismaClient): Promi
     create: {
       id: "article-tourniquet",
       name: "Tourniquet",
+      sortOrder: 3,
       unit: "Stück",
       manufacturer: "Rescue Tech",
       manufacturerPartNumber: "TQ-TACT-01",
@@ -86,6 +88,7 @@ export async function seedRescueBaseDevelopmentData(prisma: PrismaClient): Promi
     create: {
       id: "article-gloves",
       name: "Einmalhandschuhe Größe M",
+      sortOrder: 2,
       unit: "Paar",
       manufacturer: "SafeHands",
       manufacturerPartNumber: "GL-M-200",
@@ -147,6 +150,7 @@ export async function seedRescueBaseDevelopmentData(prisma: PrismaClient): Promi
           {
             id: "pos-bandage",
             articleId: "article-bandage",
+            sortOrder: 1,
             moduleName: "Verband",
             requiredQuantity: 6,
             critical: false
@@ -154,6 +158,7 @@ export async function seedRescueBaseDevelopmentData(prisma: PrismaClient): Promi
           {
             id: "pos-tourniquet",
             articleId: "article-tourniquet",
+            sortOrder: 2,
             moduleName: "Blutung",
             requiredQuantity: 2,
             critical: true
@@ -161,6 +166,7 @@ export async function seedRescueBaseDevelopmentData(prisma: PrismaClient): Promi
           {
             id: "pos-gloves",
             articleId: "article-gloves",
+            sortOrder: 3,
             requiredQuantity: 8,
             critical: false
           }

@@ -1,19 +1,9 @@
 .template-row {
-  grid-template-columns:
-    minmax(220px, 1.15fr)
-    minmax(180px, 0.9fr)
-    minmax(180px, 0.85fr)
-    auto;
+  grid-template-columns: minmax(220px, 1fr) auto;
 }
 
-.template-row-main,
-.template-row-detail {
+.template-row-main {
   min-width: 0;
-}
-
-.template-row-detail strong,
-.template-row-detail small {
-  display: block;
 }
 
 .template-row-actions {

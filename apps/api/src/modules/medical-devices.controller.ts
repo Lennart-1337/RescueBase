@@ -1,4 +1,4 @@
-import { BadRequestException, Body, Controller, Get, NotFoundException, Param, Patch, Post } from "@nestjs/common";
+import { BadRequestException, Body, Controller, Delete, Get, NotFoundException, Param, Patch, Post } from "@nestjs/common";
 import { ApiTags } from "@nestjs/swagger";
 import { Roles } from "../auth/auth.decorators.js";
 import { AlertsService } from "../services/alerts.service.js";
@@ -19,7 +19,7 @@ export class MedicalDevicesController {
   async list() {
     const devices = await this.prisma.medicalDevice.findMany({
       where: { active: true },
-      include: { article: true, location: true },
+      include: deviceInclude,
       orderBy: [{ location: { name: "asc" } }, { name: "asc" }]
     });
     return devices.map(mapDevice);
@@ -30,7 +30,7 @@ export class MedicalDevicesController {
     const input = await this.normalize(body);
     const device = await this.prisma.medicalDevice.create({
       data: input,
-      include: { article: true, location: true }
+      include: deviceInclude
     });
     await this.audit.record({
       actorType: "USER",
@@ -46,7 +46,7 @@ export class MedicalDevicesController {
 
   @Patch(":id")
   async update(@Param("id") id: string, @Body() body: MedicalDeviceWriteBody) {
-    const existing = await this.prisma.medicalDevice.findUnique({ where: { id }, include: { article: true, location: true } });
+    const existing = await this.prisma.medicalDevice.findUnique({ where: { id }, include: deviceInclude });
     if (!existing) {
       throw new NotFoundException("Gerät nicht gefunden.");
     }
@@ -54,7 +54,7 @@ export class MedicalDevicesController {
     const device = await this.prisma.medicalDevice.update({
       where: { id },
       data: input,
-      include: { article: true, location: true }
+      include: deviceInclude
     });
     await this.audit.record({
       actorType: "USER",
@@ -68,23 +68,51 @@ export class MedicalDevicesController {
     return mapDevice(device);
   }
 
+  @Delete(":id")
+  async delete(@Param("id") id: string): Promise<{ ok: true }> {
+    const existing = await this.prisma.medicalDevice.findUnique({ where: { id }, include: deviceInclude });
+    if (!existing) {
+      throw new NotFoundException("Gerät nicht gefunden.");
+    }
+    await this.prisma.medicalDevice.delete({ where: { id } });
+    await this.audit.record({
+      actorType: "USER",
+      actorLabel: "Admin",
+      action: "MEDICAL_DEVICE_DELETED",
+      entityType: "MedicalDevice",
+      entityId: existing.id,
+      payload: mapDevice(existing)
+    });
+    await this.alerts.syncAlerts("device-deleted");
+    return { ok: true };
+  }
+
   private async normalize(body: MedicalDeviceWriteBody) {
-    if (!body.name?.trim() || !body.articleId?.trim() || !body.locationId?.trim()) {
-      throw new BadRequestException("Name, Artikel und Lagerort sind erforderlich.");
+    if (!body.name?.trim() || !body.articleId?.trim()) {
+      throw new BadRequestException("Name und Artikel sind erforderlich.");
     }
     const article = await this.prisma.article.findUnique({ where: { id: body.articleId } });
     if (!article) {
       throw new BadRequestException("Artikel nicht gefunden.");
     }
-    const location = await this.prisma.location.findUnique({ where: { id: body.locationId } });
-    if (!location) {
-      throw new BadRequestException("Lagerort nicht gefunden.");
+    const hasKit = Boolean(body.kitId?.trim());
+    const hasLocation = Boolean(body.locationId?.trim());
+    if (hasKit === hasLocation) {
+      throw new BadRequestException("Wählen Sie genau einen Lagerort oder einen Rucksack aus.");
+    }
+
+    const storage = hasKit
+      ? await this.resolveKitStorage(body.kitId as string)
+      : await this.resolveLocationStorage(body.locationId as string);
+    if (!storage) {
+      throw new BadRequestException(hasKit ? "Rucksack nicht gefunden." : "Lagerort nicht gefunden.");
     }
 
     return {
       name: body.name.trim(),
       articleId: body.articleId,
-      locationId: body.locationId,
+      locationId: storage.locationId,
+      kitId: storage.kitId,
       serialNumber: optionalText(body.serialNumber),
       inventoryNumber: optionalText(body.inventoryNumber),
       lastStkAt: parseDate(body.lastStkAt),
@@ -95,12 +123,29 @@ export class MedicalDevicesController {
       notes: optionalText(body.notes)
     };
   }
+
+  private async resolveKitStorage(kitId: string) {
+    const kit = await this.prisma.kit.findFirst({
+      where: { id: kitId.trim(), deletedAt: null },
+      select: { id: true, locationId: true }
+    });
+    return kit ? { kitId: kit.id, locationId: kit.locationId } : null;
+  }
+
+  private async resolveLocationStorage(locationId: string) {
+    const location = await this.prisma.location.findFirst({
+      where: { id: locationId.trim(), deletedAt: null },
+      select: { id: true }
+    });
+    return location ? { kitId: null, locationId: location.id } : null;
+  }
 }
 
 type MedicalDeviceWriteBody = {
   name: string;
   articleId: string;
-  locationId: string;
+  locationId?: string;
+  kitId?: string;
   serialNumber?: string;
   inventoryNumber?: string;
   lastStkAt?: string | null;
@@ -116,6 +161,7 @@ function mapDevice(device: {
   name: string;
   articleId: string;
   locationId: string;
+  kitId: string | null;
   serialNumber: string | null;
   inventoryNumber: string | null;
   lastStkAt: Date | null;
@@ -126,12 +172,14 @@ function mapDevice(device: {
   notes: string | null;
   article: { id: string; name: string; stkRequired: boolean; mtkRequired: boolean; stkIntervalMonths: number | null; mtkIntervalMonths: number | null };
   location: { id: string; name: string };
+  kit: null | { id: string; name: string; code: string; locationId: string; location: { name: string } };
 }) {
   return {
     id: device.id,
     name: device.name,
     articleId: device.articleId,
     locationId: device.locationId,
+    kitId: device.kitId,
     serialNumber: device.serialNumber,
     inventoryNumber: device.inventoryNumber,
     lastStkAt: device.lastStkAt?.toISOString() ?? null,
@@ -151,9 +199,28 @@ function mapDevice(device: {
     location: {
       id: device.location.id,
       name: device.location.name
-    }
+    },
+    kit: device.kit ? {
+      id: device.kit.id,
+      name: device.kit.name,
+      code: device.kit.code,
+      locationId: device.kit.locationId,
+      locationName: device.kit.location.name
+    } : null
   };
 }
+
+const deviceInclude = {
+  article: true,
+  location: true,
+  kit: {
+    include: {
+      location: {
+        select: { name: true }
+      }
+    }
+  }
+} as const;
 
 function optionalText(value?: string) {
   const normalized = value?.trim();

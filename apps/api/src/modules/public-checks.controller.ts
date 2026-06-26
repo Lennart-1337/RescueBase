@@ -14,6 +14,10 @@ import { PublicRoute } from "../auth/auth.decorators.js";
 
 type PublicCheckTransaction = Pick<PrismaService, "check" | "kit" | "replenishmentOrder" | "auditEvent">;
 type PublicKitRecord = Omit<KitRecord, "location">;
+const templatePositionsInclude = {
+  include: { article: true },
+  orderBy: { sortOrder: "asc" as const }
+};
 
 @ApiTags("Öffentliche Checks")
 @PublicRoute()
@@ -155,7 +159,7 @@ export class PublicChecksController {
     const kit: PublicKitRecord | null = await this.prisma.kit.findFirst({
       where: { publicToken: token, deletedAt: null },
       include: {
-        template: { include: { positions: { include: { article: true } } } }
+        template: { include: { positions: templatePositionsInclude } }
       }
     });
     if (!kit) {

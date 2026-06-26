@@ -31,6 +31,7 @@ export type MedicalDevice = {
   name: string;
   articleId: string;
   locationId: string;
+  kitId: string | null;
   serialNumber: string | null;
   inventoryNumber: string | null;
   lastStkAt: string | null;
@@ -41,6 +42,7 @@ export type MedicalDevice = {
   notes: string | null;
   article: { id: string; name: string; stkRequired: boolean; mtkRequired: boolean; stkIntervalMonths: number | null; mtkIntervalMonths: number | null };
   location: { id: string; name: string };
+  kit: null | { id: string; name: string; code: string; locationId: string; locationName: string };
 };
 
 export async function getAlertOverview() {
@@ -83,10 +85,15 @@ export async function updateMedicalDevice(id: string, body: MedicalDeviceWriteBo
   });
 }
 
+export async function deleteMedicalDevice(id: string) {
+  return requestJson<{ ok: true }>(`/catalog/devices/${encodeURIComponent(id)}`, { method: "DELETE" });
+}
+
 export type MedicalDeviceWriteBody = {
   name: string;
   articleId: string;
-  locationId: string;
+  locationId?: string;
+  kitId?: string;
   serialNumber?: string;
   inventoryNumber?: string;
   lastStkAt?: string | null;

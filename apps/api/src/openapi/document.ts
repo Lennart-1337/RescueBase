@@ -218,6 +218,9 @@ const rescueBaseOpenApiDocumentDefinition = {
         notes: { type: "string" },
         criticalDefault: { type: "boolean" }
       }, ["name", "unit", "sterile", "criticalDefault"]),
+      ReorderArticlesRequest: objectSchema({
+        articleIds: arrayOf({ type: "string" })
+      }, ["articleIds"]),
       Location: objectSchema({
         id: { type: "string" },
         name: { type: "string" },
@@ -233,6 +236,57 @@ const rescueBaseOpenApiDocumentDefinition = {
         name: { type: "string" },
         kind: { type: "string" }
       }, ["name", "kind"]),
+      MedicalDeviceArticle: objectSchema({
+        id: { type: "string" },
+        name: { type: "string" },
+        stkRequired: { type: "boolean" },
+        mtkRequired: { type: "boolean" },
+        stkIntervalMonths: { type: "integer" },
+        mtkIntervalMonths: { type: "integer" }
+      }, ["id", "name", "stkRequired", "mtkRequired"]),
+      MedicalDeviceLocation: objectSchema({
+        id: { type: "string" },
+        name: { type: "string" }
+      }, ["id", "name"]),
+      MedicalDeviceKit: objectSchema({
+        id: { type: "string" },
+        name: { type: "string" },
+        code: { type: "string" },
+        locationId: { type: "string" },
+        locationName: { type: "string" }
+      }, ["id", "name", "code", "locationId", "locationName"]),
+      MedicalDevice: objectSchema({
+        id: { type: "string" },
+        name: { type: "string" },
+        articleId: { type: "string" },
+        locationId: { type: "string" },
+        kitId: { type: "string" },
+        serialNumber: { type: "string" },
+        inventoryNumber: { type: "string" },
+        lastStkAt: { type: "string", format: "date-time" },
+        lastMtkAt: { type: "string", format: "date-time" },
+        stkIntervalMonths: { type: "integer" },
+        mtkIntervalMonths: { type: "integer" },
+        active: { type: "boolean" },
+        notes: { type: "string" },
+        article: ref("MedicalDeviceArticle"),
+        location: ref("MedicalDeviceLocation"),
+        kit: ref("MedicalDeviceKit")
+      }, ["id", "name", "articleId", "locationId", "active", "article", "location"]),
+      MedicalDeviceWriteRequest: objectSchema({
+        name: { type: "string" },
+        articleId: { type: "string" },
+        locationId: { type: "string" },
+        kitId: { type: "string" },
+        serialNumber: { type: "string" },
+        inventoryNumber: { type: "string" },
+        lastStkAt: { type: "string", format: "date-time" },
+        lastMtkAt: { type: "string", format: "date-time" },
+        stkIntervalMonths: { type: "integer" },
+        mtkIntervalMonths: { type: "integer" },
+        active: { type: "boolean" },
+        notes: { type: "string" }
+      }, ["name", "articleId"]),
       TemplatePosition: objectSchema({
         id: { type: "string" },
         articleId: { type: "string" },
@@ -645,6 +699,9 @@ const rescueBaseOpenApiDocumentDefinition = {
       get: operation("Stammdaten", "CatalogController_articles", {}, response(200, "Articles", arrayOf(ref("Article")))),
       post: operation("Stammdaten", "CatalogController_createArticle", request("CreateArticleRequest"), response(201, "Article created", ref("Article")))
     },
+    "/catalog/articles/reorder": {
+      post: operation("Stammdaten", "CatalogController_reorderArticles", request("ReorderArticlesRequest"), response(201, "Articles reordered", ref("OkResponse")))
+    },
     "/catalog/articles/{id}": {
       patch: operation("Stammdaten", "CatalogController_updateArticle", { ...pathParam("id"), ...request("UpdateArticleRequest") }, response(200, "Article updated", ref("Article"))),
       delete: operation("Stammdaten", "CatalogController_deleteArticle", pathParam("id"), response(200, "Article deleted", ref("OkResponse")))
@@ -656,6 +713,14 @@ const rescueBaseOpenApiDocumentDefinition = {
     "/catalog/locations/{id}": {
       patch: operation("Stammdaten", "CatalogController_updateLocation", { ...pathParam("id"), ...request("UpdateLocationRequest") }, response(200, "Location updated", ref("Location"))),
       delete: operation("Stammdaten", "CatalogController_deleteLocation", pathParam("id"), response(200, "Location deleted", ref("OkResponse")))
+    },
+    "/catalog/devices": {
+      get: operation("Stammdaten", "MedicalDevicesController_list", {}, response(200, "Medical devices", arrayOf(ref("MedicalDevice")))),
+      post: operation("Stammdaten", "MedicalDevicesController_create", request("MedicalDeviceWriteRequest"), response(201, "Medical device created", ref("MedicalDevice")))
+    },
+    "/catalog/devices/{id}": {
+      patch: operation("Stammdaten", "MedicalDevicesController_update", { ...pathParam("id"), ...request("MedicalDeviceWriteRequest") }, response(200, "Medical device updated", ref("MedicalDevice"))),
+      delete: operation("Stammdaten", "MedicalDevicesController_delete", pathParam("id"), response(200, "Medical device deleted", ref("OkResponse")))
     },
     "/catalog/templates": {
       get: operation("Stammdaten", "CatalogController_templates", {}, response(200, "Templates", arrayOf(ref("KitTemplate")))),

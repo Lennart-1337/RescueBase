@@ -6,6 +6,7 @@ describe("RescueBase OpenAPI contract", () => {
       expect.arrayContaining([
         "Article",
         "CreateArticleRequest",
+        "ReorderArticlesRequest",
         "CreateLocationRequest",
         "CreateTemplateRequest",
         "CreateBatchRequest",
@@ -43,6 +44,10 @@ describe("RescueBase OpenAPI contract", () => {
       operationId: "CatalogController_updateArticle",
       requestBody: expect.any(Object)
     });
+    expect(rescueBaseOpenApiDocument.paths["/catalog/articles/reorder"]?.post).toMatchObject({
+      operationId: "CatalogController_reorderArticles",
+      requestBody: expect.any(Object)
+    });
     expect(rescueBaseOpenApiDocument.paths["/catalog/locations/{id}"]?.patch).toMatchObject({
       operationId: "CatalogController_updateLocation",
       requestBody: expect.any(Object)
@@ -54,6 +59,10 @@ describe("RescueBase OpenAPI contract", () => {
     expect(rescueBaseOpenApiDocument.paths["/catalog/kits/{id}"]?.patch).toMatchObject({
       operationId: "CatalogController_updateKit",
       requestBody: expect.any(Object)
+    });
+    expect(rescueBaseOpenApiDocument.paths["/catalog/devices/{id}"]?.delete).toMatchObject({
+      operationId: "MedicalDevicesController_delete",
+      responses: expect.any(Object)
     });
   });
 

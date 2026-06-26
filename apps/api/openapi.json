@@ -97,15 +97,43 @@
           "SHORTAGE_AND_DISCARDED_EXPIRED"
         ]
       },
+      "AppBranding": {
+        "type": "object",
+        "properties": {
+          "appName": {
+            "type": "string",
+            "example": "RescueBase"
+          },
+          "appSubtitle": {
+            "type": "string",
+            "example": "Sanitätslager"
+          }
+        },
+        "required": [
+          "appName",
+          "appSubtitle"
+        ],
+        "additionalProperties": false
+      },
       "SetupStatus": {
         "type": "object",
         "properties": {
           "initialized": {
             "type": "boolean"
+          },
+          "appName": {
+            "type": "string",
+            "example": "RescueBase"
+          },
+          "appSubtitle": {
+            "type": "string",
+            "example": "Sanitätslager"
           }
         },
         "required": [
-          "initialized"
+          "initialized",
+          "appName",
+          "appSubtitle"
         ],
         "additionalProperties": false
       },
@@ -150,10 +178,20 @@
         "properties": {
           "user": {
             "$ref": "#/components/schemas/AuthenticatedUser"
+          },
+          "appName": {
+            "type": "string",
+            "example": "RescueBase"
+          },
+          "appSubtitle": {
+            "type": "string",
+            "example": "Sanitätslager"
           }
         },
         "required": [
-          "user"
+          "user",
+          "appName",
+          "appSubtitle"
         ],
         "additionalProperties": false
       },
@@ -753,6 +791,21 @@
         ],
         "additionalProperties": false
       },
+      "ReorderArticlesRequest": {
+        "type": "object",
+        "properties": {
+          "articleIds": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "articleIds"
+        ],
+        "additionalProperties": false
+      },
       "Location": {
         "type": "object",
         "properties": {
@@ -810,6 +863,193 @@
         "required": [
           "name",
           "kind"
+        ],
+        "additionalProperties": false
+      },
+      "MedicalDeviceArticle": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "stkRequired": {
+            "type": "boolean"
+          },
+          "mtkRequired": {
+            "type": "boolean"
+          },
+          "stkIntervalMonths": {
+            "type": "integer"
+          },
+          "mtkIntervalMonths": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "stkRequired",
+          "mtkRequired"
+        ],
+        "additionalProperties": false
+      },
+      "MedicalDeviceLocation": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "name"
+        ],
+        "additionalProperties": false
+      },
+      "MedicalDeviceKit": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "code": {
+            "type": "string"
+          },
+          "locationId": {
+            "type": "string"
+          },
+          "locationName": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "code",
+          "locationId",
+          "locationName"
+        ],
+        "additionalProperties": false
+      },
+      "MedicalDevice": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "articleId": {
+            "type": "string"
+          },
+          "locationId": {
+            "type": "string"
+          },
+          "kitId": {
+            "type": "string"
+          },
+          "serialNumber": {
+            "type": "string"
+          },
+          "inventoryNumber": {
+            "type": "string"
+          },
+          "lastStkAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "lastMtkAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "stkIntervalMonths": {
+            "type": "integer"
+          },
+          "mtkIntervalMonths": {
+            "type": "integer"
+          },
+          "active": {
+            "type": "boolean"
+          },
+          "notes": {
+            "type": "string"
+          },
+          "article": {
+            "$ref": "#/components/schemas/MedicalDeviceArticle"
+          },
+          "location": {
+            "$ref": "#/components/schemas/MedicalDeviceLocation"
+          },
+          "kit": {
+            "$ref": "#/components/schemas/MedicalDeviceKit"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "articleId",
+          "locationId",
+          "active",
+          "article",
+          "location"
+        ],
+        "additionalProperties": false
+      },
+      "MedicalDeviceWriteRequest": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "articleId": {
+            "type": "string"
+          },
+          "locationId": {
+            "type": "string"
+          },
+          "kitId": {
+            "type": "string"
+          },
+          "serialNumber": {
+            "type": "string"
+          },
+          "inventoryNumber": {
+            "type": "string"
+          },
+          "lastStkAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "lastMtkAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "stkIntervalMonths": {
+            "type": "integer"
+          },
+          "mtkIntervalMonths": {
+            "type": "integer"
+          },
+          "active": {
+            "type": "boolean"
+          },
+          "notes": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "articleId"
         ],
         "additionalProperties": false
       },
@@ -1576,6 +1816,14 @@
       "GeneralSettings": {
         "type": "object",
         "properties": {
+          "appName": {
+            "type": "string",
+            "example": "RescueBase"
+          },
+          "appSubtitle": {
+            "type": "string",
+            "example": "Sanitätslager"
+          },
           "timezone": {
             "type": "string",
             "example": "Europe/Berlin"
@@ -1585,6 +1833,8 @@
           }
         },
         "required": [
+          "appName",
+          "appSubtitle",
           "timezone",
           "newUserOrderNotificationsDefaultEnabled"
         ],
@@ -1711,6 +1961,12 @@
       "UpdateGeneralSettingsRequest": {
         "type": "object",
         "properties": {
+          "appName": {
+            "type": "string"
+          },
+          "appSubtitle": {
+            "type": "string"
+          },
           "timezone": {
             "type": "string"
           },
@@ -3290,6 +3546,36 @@
         }
       }
     },
+    "/catalog/articles/reorder": {
+      "post": {
+        "tags": [
+          "Stammdaten"
+        ],
+        "operationId": "CatalogController_reorderArticles",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReorderArticlesRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Articles reordered",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OkResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/catalog/articles/{id}": {
       "patch": {
         "tags": [
@@ -3466,6 +3752,125 @@
         "responses": {
           "200": {
             "description": "Location deleted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OkResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/catalog/devices": {
+      "get": {
+        "tags": [
+          "Stammdaten"
+        ],
+        "operationId": "MedicalDevicesController_list",
+        "responses": {
+          "200": {
+            "description": "Medical devices",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/MedicalDevice"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Stammdaten"
+        ],
+        "operationId": "MedicalDevicesController_create",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MedicalDeviceWriteRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Medical device created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MedicalDevice"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/catalog/devices/{id}": {
+      "patch": {
+        "tags": [
+          "Stammdaten"
+        ],
+        "operationId": "MedicalDevicesController_update",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MedicalDeviceWriteRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Medical device updated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MedicalDevice"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Stammdaten"
+        ],
+        "operationId": "MedicalDevicesController_delete",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Medical device deleted",
             "content": {
               "application/json": {
                 "schema": {

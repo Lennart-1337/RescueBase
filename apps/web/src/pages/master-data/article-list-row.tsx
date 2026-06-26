@@ -1,13 +1,18 @@
 import { ExternalLink, Pencil, Trash2 } from "lucide-react";
 import type { Article } from "../../lib/types";
 import { AnchorButton, Badge, Button } from "../../components/ui";
+import type { ReorderDirection } from "./reorder";
+import { ReorderControls } from "./reorder-controls";
 import "./article-list-row.css";
 
 export function ArticleListRow(props: {
   article: Article;
+  canMoveDown: boolean;
+  canMoveUp: boolean;
   isSubmitting: boolean;
   onDelete: () => void;
   onEdit: () => void;
+  onMove: (direction: ReorderDirection) => void;
 }) {
   const { article } = props;
 
@@ -32,6 +37,7 @@ export function ArticleListRow(props: {
         {article.mtkRequired ? <Badge>MTK</Badge> : null}
       </div>
       <div className="article-row-actions row-action-buttons">
+        <ReorderControls disabled={props.isSubmitting} isFirst={!props.canMoveUp} isLast={!props.canMoveDown} label={article.name} onMove={props.onMove} />
         {article.articleUrl ? <AnchorButton className="mobile-icon-button" href={article.articleUrl} rel="noreferrer" target="_blank" variant="secondary"><ExternalLink data-icon="inline-start" /><span className="button-label">Link</span></AnchorButton> : null}
         <Button className="mobile-icon-button" onClick={props.onEdit} type="button" variant="ghost">
           <Pencil data-icon="inline-start" />

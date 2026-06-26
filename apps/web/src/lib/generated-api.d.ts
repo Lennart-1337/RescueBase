@@ -436,6 +436,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/catalog/articles/reorder": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["CatalogController_reorderArticles"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/catalog/articles/{id}": {
         parameters: {
             query?: never;
@@ -482,6 +498,38 @@ export interface paths {
         options?: never;
         head?: never;
         patch: operations["CatalogController_updateLocation"];
+        trace?: never;
+    };
+    "/catalog/devices": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["MedicalDevicesController_list"];
+        put?: never;
+        post: operations["MedicalDevicesController_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/catalog/devices/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete: operations["MedicalDevicesController_delete"];
+        options?: never;
+        head?: never;
+        patch: operations["MedicalDevicesController_update"];
         trace?: never;
     };
     "/catalog/templates": {
@@ -1029,12 +1077,16 @@ export interface components {
         /** @enum {string} */
         ReplenishmentReason: "SHORTAGE" | "DISCARDED_EXPIRED" | "SHORTAGE_AND_DISCARDED_EXPIRED";
         AppBranding: {
+            /** @example RescueBase */
             appName: string;
+            /** @example Sanitätslager */
             appSubtitle: string;
         };
         SetupStatus: {
             initialized: boolean;
+            /** @example RescueBase */
             appName: string;
+            /** @example Sanitätslager */
             appSubtitle: string;
         };
         AuthenticatedUser: {
@@ -1049,7 +1101,9 @@ export interface components {
         };
         SessionResponse: {
             user: components["schemas"]["AuthenticatedUser"];
+            /** @example RescueBase */
             appName: string;
+            /** @example Sanitätslager */
             appSubtitle: string;
         };
         FirstAdminRequest: {
@@ -1226,6 +1280,9 @@ export interface components {
             notes?: string;
             criticalDefault: boolean;
         };
+        ReorderArticlesRequest: {
+            articleIds: string[];
+        };
         Location: {
             id: string;
             name: string;
@@ -1242,6 +1299,61 @@ export interface components {
         UpdateLocationRequest: {
             name: string;
             kind: string;
+        };
+        MedicalDeviceArticle: {
+            id: string;
+            name: string;
+            stkRequired: boolean;
+            mtkRequired: boolean;
+            stkIntervalMonths?: number;
+            mtkIntervalMonths?: number;
+        };
+        MedicalDeviceLocation: {
+            id: string;
+            name: string;
+        };
+        MedicalDeviceKit: {
+            id: string;
+            name: string;
+            code: string;
+            locationId: string;
+            locationName: string;
+        };
+        MedicalDevice: {
+            id: string;
+            name: string;
+            articleId: string;
+            locationId: string;
+            kitId?: string;
+            serialNumber?: string;
+            inventoryNumber?: string;
+            /** Format: date-time */
+            lastStkAt?: string;
+            /** Format: date-time */
+            lastMtkAt?: string;
+            stkIntervalMonths?: number;
+            mtkIntervalMonths?: number;
+            active: boolean;
+            notes?: string;
+            article: components["schemas"]["MedicalDeviceArticle"];
+            location: components["schemas"]["MedicalDeviceLocation"];
+            kit?: components["schemas"]["MedicalDeviceKit"];
+        };
+        MedicalDeviceWriteRequest: {
+            name: string;
+            articleId: string;
+            locationId?: string;
+            kitId?: string;
+            serialNumber?: string;
+            inventoryNumber?: string;
+            /** Format: date-time */
+            lastStkAt?: string;
+            /** Format: date-time */
+            lastMtkAt?: string;
+            stkIntervalMonths?: number;
+            mtkIntervalMonths?: number;
+            active?: boolean;
+            notes?: string;
         };
         TemplatePosition: {
             id: string;
@@ -2320,6 +2432,30 @@ export interface operations {
             };
         };
     };
+    CatalogController_reorderArticles: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ReorderArticlesRequest"];
+            };
+        };
+        responses: {
+            /** @description Articles reordered */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OkResponse"];
+                };
+            };
+        };
+    };
     CatalogController_deleteArticle: {
         parameters: {
             query?: never;
@@ -2456,6 +2592,98 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["Location"];
+                };
+            };
+        };
+    };
+    MedicalDevicesController_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Medical devices */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MedicalDevice"][];
+                };
+            };
+        };
+    };
+    MedicalDevicesController_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MedicalDeviceWriteRequest"];
+            };
+        };
+        responses: {
+            /** @description Medical device created */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MedicalDevice"];
+                };
+            };
+        };
+    };
+    MedicalDevicesController_delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Medical device deleted */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OkResponse"];
+                };
+            };
+        };
+    };
+    MedicalDevicesController_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MedicalDeviceWriteRequest"];
+            };
+        };
+        responses: {
+            /** @description Medical device updated */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MedicalDevice"];
                 };
             };
         };

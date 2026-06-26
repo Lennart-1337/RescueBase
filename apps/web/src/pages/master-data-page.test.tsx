@@ -1,6 +1,6 @@
 import { screen, waitFor, within } from "@testing-library/react";
-import { article, kit, location } from "../test-support/fixtures";
-import { changeValue, clickElement, getActiveRouter, postedBody, renderAppAt, requestBody, resetTestBrowser, stubFetch, wasRequested } from "../test-support/app-test-helpers";
+import { article, kit, location, medicalDevice } from "../test-support/fixtures";
+import { changeValue, clickElement, getActiveRouter, mouseDownElement, postedBody, renderAppAt, requestBody, resetTestBrowser, stubFetch, wasRequested } from "../test-support/app-test-helpers";
 
 describe("MasterDataPage", () => {
   afterEach(resetTestBrowser);
@@ -128,7 +128,7 @@ describe("MasterDataPage", () => {
     }));
   });
 
-  it("renders templates in a denser table-style row with detail columns and mobile-ready action labels", async () => {
+  it("renders templates in a denser table-style row with only version details and mobile-ready action labels", async () => {
     stubFetch({
       ...baseAdminRoutes(),
       "/api/catalog/templates": [{
@@ -145,11 +145,46 @@ describe("MasterDataPage", () => {
     const row = (await screen.findByText("Sanitätsrucksack A")).closest(".template-row");
     expect(row).not.toBeNull();
     expect(within(row as HTMLElement).getByText("Version 1")).toBeInTheDocument();
-    expect(within(row as HTMLElement).getByText("Verband · Atmung +1")).toBeInTheDocument();
-    expect(within(row as HTMLElement).getByText("3 Positionen")).toBeInTheDocument();
-    expect(within(row as HTMLElement).getByText("Soll gesamt 6 · 1 kritisch")).toBeInTheDocument();
+    expect(within(row as HTMLElement).queryByText("Module")).not.toBeInTheDocument();
+    expect(within(row as HTMLElement).queryByText("Positionen", { exact: false })).not.toBeInTheDocument();
+    expect(within(row as HTMLElement).queryByText("Soll gesamt", { exact: false })).not.toBeInTheDocument();
     expect(row?.querySelector(".template-row-actions")).not.toBeNull();
     expect(row?.querySelectorAll(".template-row-actions .button-label")).toHaveLength(3);
+  });
+
+  it("reorders template positions before saving a new version", async () => {
+    const secondArticle = {
+      ...article,
+      id: "article-gloves",
+      name: "Einmalhandschuhe Größe M",
+      barcode: "040000000003"
+    };
+    stubFetch({
+      ...baseAdminRoutes(),
+      "/api/catalog/articles": [article, secondArticle],
+      "/api/catalog/templates": [{
+        ...kit.template,
+        positions: [
+          { id: "pos-bandage", articleId: article.id, articleName: article.name, moduleName: "Verband", requiredQuantity: 1, unit: "Stück", critical: false },
+          { id: "pos-gloves", articleId: secondArticle.id, articleName: secondArticle.name, moduleName: "Schutz", requiredQuantity: 2, unit: "Stück", critical: false }
+        ]
+      }],
+      "/api/catalog/templates/template-san-a-v1/revise": { ok: true }
+    });
+    await renderAppAt("/admin/master-data/templates");
+    await screen.findByRole("heading", { name: "Stammdaten" });
+    await clickElement(await screen.findByRole("button", { name: /Bearbeiten/ }));
+
+    const dialog = await screen.findByRole("dialog", { name: "Rucksackvorlage bearbeiten" });
+    await clickElement(within(dialog).getByRole("button", { name: "Position 1 nach unten verschieben" }));
+    await clickElement(within(dialog).getByRole("button", { name: "Neue Version speichern" }));
+
+    await waitFor(() => expect(postedBody("/api/catalog/templates/template-san-a-v1/revise")).toEqual({
+      positions: [
+        { articleId: secondArticle.id, moduleName: "Schutz", requiredQuantity: 2, critical: false },
+        { articleId: article.id, moduleName: "Verband", requiredQuantity: 1, critical: false }
+      ]
+    }));
   });
 
   it("asks before closing template edits with unsaved changes and can save them", async () => {
@@ -198,27 +233,55 @@ describe("MasterDataPage", () => {
     expect(await screen.findByRole("button", { name: /Gerät hinzufügen/ })).toBeInTheDocument();
   });
 
+  it("assigns devices to kits from the create dialog", async () => {
+    stubFetch(baseAdminRoutes());
+    await renderAppAt("/admin/master-data/devices");
+    await screen.findByRole("heading", { name: "Stammdaten" });
+    await clickElement(await screen.findByRole("button", { name: "Gerät hinzufügen" }));
+
+    const dialog = await screen.findByRole("dialog", { name: "Gerät anlegen" });
+    await changeValue(within(dialog).getByLabelText("Name"), "AED im Rucksack");
+    await changeValue(within(dialog).getByRole("combobox", { name: "Lagerort" }), "Rucksack");
+    await mouseDownElement(await screen.findByRole("option", { name: "Rucksack Fahrzeug 1" }));
+    await clickElement(within(dialog).getByRole("button", { name: "Gerät anlegen" }));
+
+    await waitFor(() => expect(postedBody("/api/catalog/devices")).toEqual({
+      name: "AED im Rucksack",
+      articleId: article.id,
+      kitId: kit.id,
+      stkIntervalMonths: null,
+      mtkIntervalMonths: null,
+      active: true
+    }));
+  });
+
+  it("reorders articles from the master-data list", async () => {
+    const secondArticle = {
+      ...article,
+      id: "article-gloves",
+      name: "Einmalhandschuhe Größe M",
+      barcode: "040000000003"
+    };
+    stubFetch({
+      ...baseAdminRoutes(),
+      "/api/catalog/articles": [article, secondArticle],
+      "/api/catalog/articles/reorder": { ok: true }
+    });
+    await renderAppAt("/admin/master-data/articles");
+
+    const row = (await screen.findByText("Einmalhandschuhe Größe M")).closest(".article-list-row");
+    expect(row).not.toBeNull();
+    await clickElement(within(row as HTMLElement).getByRole("button", { name: "Einmalhandschuhe Größe M nach oben verschieben" }));
+
+    await waitFor(() => expect(requestBody("/api/catalog/articles/reorder", "POST")).toEqual({
+      articleIds: [secondArticle.id, article.id]
+    }));
+  });
+
   it("restores the active master-data tab and device filters from the URL", async () => {
     stubFetch({
       ...baseAdminRoutes(),
-      "/api/catalog/devices": [
-        {
-          id: "device-1",
-          name: "Corpuls C3",
-          articleId: article.id,
-          locationId: location.id,
-          serialNumber: "SER-1",
-          inventoryNumber: "INV-1",
-          lastStkAt: null,
-          lastMtkAt: null,
-          stkIntervalMonths: null,
-          mtkIntervalMonths: null,
-          active: false,
-          notes: null,
-          article,
-          location
-        }
-      ]
+      "/api/catalog/devices": [{ ...medicalDevice, active: false }]
     });
     await renderAppAt("/admin/master-data/devices?active=inactive");
     await screen.findByLabelText("Status");
@@ -231,13 +294,36 @@ describe("MasterDataPage", () => {
     expect(getActiveRouter()?.state.location.search).toEqual({});
   });
 
+  it("renders kit assignments in the device list", async () => {
+    stubFetch({
+      ...baseAdminRoutes(),
+      "/api/catalog/devices": [{
+        ...medicalDevice,
+        kit: {
+          id: kit.id,
+          name: kit.name,
+          code: kit.code,
+          locationId: kit.locationId,
+          locationName: kit.location.name
+        }
+      }]
+    });
+    await renderAppAt("/admin/master-data/devices");
+
+    const row = (await screen.findByText("Corpuls C3")).closest(".compact-list-row");
+    expect(row).not.toBeNull();
+    expect(within(row as HTMLElement).getByText("Rucksack Fahrzeug 1 · Verbandpäckchen mittel")).toBeInTheDocument();
+  });
+
   it("soft-deletes master data entries after confirmation", async () => {
     vi.spyOn(window, "confirm").mockReturnValue(true);
     stubFetch({
       ...baseAdminRoutes(),
       "/api/catalog/articles/article-bandage": { ok: true },
       "/api/catalog/locations/loc-main": { ok: true },
-      "/api/catalog/templates/template-san-a-v1": { ok: true }
+      "/api/catalog/templates/template-san-a-v1": { ok: true },
+      "/api/catalog/devices/device-1": { ok: true },
+      "/api/catalog/devices": [medicalDevice]
     });
     await renderAppAt("/admin/master-data/articles");
     await screen.findByRole("button", { name: /Verbandpäckchen mittel löschen/ });
@@ -247,11 +333,14 @@ describe("MasterDataPage", () => {
     await clickElement(await screen.findByRole("button", { name: /Hauptlager löschen/ }));
     await clickElement(screen.getByRole("tab", { name: "Rucksackvorlagen" }));
     await clickElement(await screen.findByRole("button", { name: /Sanitätsrucksack A v1 löschen/ }));
+    await clickElement(screen.getByRole("tab", { name: "Geräte" }));
+    await clickElement(await screen.findByRole("button", { name: /Corpuls C3 löschen/ }));
 
     await waitFor(() => {
       expect(wasRequested("/api/catalog/articles/article-bandage", "DELETE")).toBe(true);
       expect(wasRequested("/api/catalog/locations/loc-main", "DELETE")).toBe(true);
       expect(wasRequested("/api/catalog/templates/template-san-a-v1", "DELETE")).toBe(true);
+      expect(wasRequested("/api/catalog/devices/device-1", "DELETE")).toBe(true);
     });
   });
 
@@ -283,10 +372,14 @@ describe("MasterDataPage", () => {
     const articleName = await screen.findByText("Verbandpäckchen mittel");
     const tableHeader = document.querySelector(".article-table-header");
     expect(tableHeader).not.toBeNull();
+    expect(within(tableHeader as HTMLElement).queryByText("Artikel")).toBeNull();
     expect(within(tableHeader as HTMLElement).getByText("Hinweise")).toBeInTheDocument();
     expect(within(tableHeader as HTMLElement).getByText("Lagerhinweise")).toBeInTheDocument();
+    expect(within(tableHeader as HTMLElement).queryByText("Aktionen")).toBeNull();
     const row = articleName.closest(".article-list-row");
     expect(row).not.toBeNull();
+    expect(screen.getAllByText("Hinweise")).toHaveLength(1);
+    expect(screen.getAllByText("Lagerhinweise")).toHaveLength(1);
     expect(within(row as HTMLElement).getByText("Stück · 040000000001")).toBeInTheDocument();
     expect(within(row as HTMLElement).getByText("Nicht fallen lassen!")).toBeInTheDocument();
     expect(within(row as HTMLElement).getByText("Trocken lagern")).toBeInTheDocument();
@@ -321,6 +414,7 @@ function baseAdminRoutes() {
     "/api/auth/session": { user: { id: "user-admin", email: "admin@rescuebase.local", displayName: "Admin", role: "ADMIN", twoFactorEnabled: false } },
     "/api/catalog/articles": [article],
     "/api/catalog/locations": [location],
+    "/api/catalog/kits": [kit],
     "/api/catalog/templates": [kit.template],
     "/api/catalog/devices": []
   };
