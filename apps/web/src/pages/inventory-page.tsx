@@ -18,6 +18,7 @@ import { ProcurementReceiveDialog } from "./inventory/procurement-receive-dialog
 import { TargetDialog } from "./inventory/target-dialog";
 import { TargetPanel } from "./inventory/target-panel";
 import type { InventoryFilters, ReceiptDraftItem, TargetDraft } from "./inventory/types";
+import "./inventory-page.css";
 
 export function InventoryPage({ user: _user }: { user: AuthenticatedUser }) {
   const [articleId, setArticleId] = useState("");

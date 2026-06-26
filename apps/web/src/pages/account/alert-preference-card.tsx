@@ -1,5 +1,6 @@
 import { useId } from "react";
 import { Badge, cn } from "../../components/ui";
+import "./alert-preference-card.css";
 
 export type AlertCategoryOption = {
   key: "EXPIRY" | "STK_DUE" | "MTK_DUE";

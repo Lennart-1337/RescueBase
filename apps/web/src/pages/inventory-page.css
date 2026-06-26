@@ -1,0 +1,23 @@
+.inventory-workspace {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.inventory-workspace .workspace-main,
+.inventory-workspace .inventory-planning-grid {
+  grid-column: 1 / -1;
+}
+
+.inventory-workspace .inventory-planning-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.inventory-planning-grid .panel-header {
+  flex-direction: row;
+}
+
+@media (max-width: 980px) {
+  .inventory-workspace,
+  .inventory-workspace .inventory-planning-grid {
+    grid-template-columns: 1fr;
+  }
+}

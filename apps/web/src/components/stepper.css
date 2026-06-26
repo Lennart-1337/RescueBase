@@ -1,0 +1,41 @@
+.stepper {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  align-items: stretch;
+  min-width: 0;
+}
+
+.stepper > span {
+  color: #344054;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.stepper > div {
+  height: 42px;
+  display: grid;
+  grid-template-columns: 36px 1fr 36px;
+  align-items: center;
+  border: 1px solid #d6dce5;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.stepper button {
+  height: 100%;
+  border: 0;
+  background: #f8fafc;
+  color: #344054;
+  display: grid;
+  place-items: center;
+}
+
+.stepper button svg {
+  width: 16px;
+  height: 16px;
+}
+
+.stepper strong {
+  text-align: center;
+}

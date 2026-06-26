@@ -12,6 +12,7 @@ import { rescueBaseApi } from "../lib/api";
 import { AlertSummaryPanel } from "./dashboard/alert-summary-panel";
 import { OrderFilterToolbar } from "./dashboard/order-filter-toolbar";
 import { OrderDetailDialog } from "./dashboard/order-detail-dialog";
+import "./dashboard/order-layout.css";
 
 export function AdminDashboard() {
   const [activeOrderId, setActiveOrderId] = useState("");

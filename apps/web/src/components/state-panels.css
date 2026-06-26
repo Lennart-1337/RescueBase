@@ -1,0 +1,130 @@
+.metric-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.metric-grid-compact {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.metric {
+  padding: 16px;
+  display: grid;
+  grid-template-columns: 42px 1fr;
+  gap: 4px 12px;
+  align-items: center;
+}
+
+.metric svg,
+.empty-state svg,
+.success-panel svg {
+  width: 18px;
+  height: 18px;
+}
+
+.metric span {
+  color: #657386;
+}
+
+.metric-icon {
+  width: 42px;
+  height: 42px;
+  grid-row: span 2;
+  border-radius: 8px;
+  display: grid;
+  place-items: center;
+}
+
+.metric-icon.ready {
+  background: #ecfdf3;
+  color: #067647;
+}
+
+.metric-icon.warning {
+  background: #fffaeb;
+  color: #b54708;
+}
+
+.metric-icon.danger {
+  background: #fff1f0;
+  color: #b42318;
+}
+
+.metric-icon.info {
+  background: #eff4ff;
+  color: #3538cd;
+}
+
+.metric strong {
+  font-size: 26px;
+}
+
+.empty-state,
+.success-panel,
+.state-panel {
+  min-height: 280px;
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: 10px;
+  text-align: center;
+  padding: 24px;
+}
+
+.state-panel {
+  min-height: 420px;
+}
+
+.empty-state h2 {
+  margin: 0;
+  font-size: 18px;
+  line-height: 1.2;
+}
+
+.state-panel svg {
+  width: 32px;
+  height: 32px;
+}
+
+.state-panel h1 {
+  margin: 0;
+  font-size: 22px;
+}
+
+.state-panel p,
+.success-panel p,
+.empty-state p {
+  margin: 0;
+  color: #657386;
+}
+
+.error-state {
+  color: #a51d15;
+}
+
+.inline-error {
+  margin: 12px 18px 0;
+  min-height: 42px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border: 1px solid #fecdca;
+  border-radius: 8px;
+  background: #fff1f0;
+  color: #a51d15;
+  padding: 10px 12px;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.inline-error svg {
+  width: 18px;
+  height: 18px;
+}
+
+@media (max-width: 980px) {
+  .metric-grid {
+    grid-template-columns: 1fr;
+  }
+}

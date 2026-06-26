@@ -6,6 +6,7 @@ import {
   type PropsWithChildren,
   type ReactNode
 } from "react";
+import "./ui.css";
 export { Badge } from "./badge";
 
 export function cn(...values: Array<string | false | null | undefined>): string {

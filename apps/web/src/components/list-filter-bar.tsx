@@ -1,5 +1,6 @@
 import type { PropsWithChildren } from "react";
 import { Badge, Button, cn } from "./ui";
+import "./list-filter-bar.css";
 
 export function ListFilterBar({
   children,

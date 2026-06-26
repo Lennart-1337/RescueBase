@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import { AlertTriangle, ClipboardList } from "lucide-react";
 import { Button, Panel } from "./ui";
+import "./state-panels.css";
 
 export function Metric(props: { icon: ReactNode; label: string; tone: "ready" | "warning" | "danger" | "info"; value: string }) {
   return (

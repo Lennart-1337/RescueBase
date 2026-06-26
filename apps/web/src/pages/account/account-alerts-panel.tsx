@@ -6,6 +6,7 @@ import { getMyAlertSubscriptions, saveMyAlertSubscriptions } from "../../lib/ext
 import { InlineError, LoadingPanel } from "../../components/state-panels";
 import { Badge, Button, Panel } from "../../components/ui";
 import { AlertPreferenceCard, type AlertCategoryOption } from "./alert-preference-card";
+import "./account-alerts-panel.css";
 
 const categories: AlertCategoryOption[] = [
   { key: "EXPIRY", label: "Ablauf" },
