@@ -1,12 +1,14 @@
 import { useState } from "react";
-import { Pencil, Plus, Save, X } from "lucide-react";
+import { Plus, Save, X } from "lucide-react";
 import { ListFilterBar } from "../../components/list-filter-bar";
 import { PageToolbar } from "../../components/page-layout";
 import { SearchableSelect } from "../../components/searchable-select";
 import { InlineError } from "../../components/state-panels";
-import { Badge, Button, Dialog, Field, Panel } from "../../components/ui";
-import type { Article, Location } from "../../lib/types";
+import { Button, Dialog, Field, Panel } from "../../components/ui";
+import type { Article, Kit, Location } from "../../lib/types";
 import type { MedicalDevice, MedicalDeviceWriteBody } from "../../lib/extra-api";
+import { DeviceListRow } from "./device-list-row";
+import { buildDeviceStorageOptions, decodeDeviceStorage, selectedDeviceStorageValue } from "./device-storage";
 
 type Draft = MedicalDeviceWriteBody & { isOpen: boolean; editingId: string | null; active: boolean };
 
@@ -20,15 +22,19 @@ export function DevicePanel(props: {
     q: string;
   };
   isSubmitting: boolean;
+  kits: Kit[];
   locations: Location[];
   devices: MedicalDevice[];
   onFilterChange: (patch: Partial<{ active: string; articleId: string; locationId: string; q: string }>) => void;
   onResetFilters: () => void;
   onCreate: (body: MedicalDeviceWriteBody) => Promise<unknown>;
+  onDelete: (id: string) => void;
   onSave: (id: string, body: MedicalDeviceWriteBody) => Promise<unknown>;
   totalCount: number;
 }) {
   const [draft, setDraft] = useState(emptyDraft(props.articles[0]?.id ?? "", props.locations[0]?.id ?? ""));
+  const canSubmit = Boolean(draft.name.trim() && draft.articleId && (draft.kitId || draft.locationId));
+  const storageOptions = buildDeviceStorageOptions(props.locations, props.kits);
 
   function openForCreate() {
     setDraft(emptyDraft(props.articles[0]?.id ?? "", props.locations[0]?.id ?? ""));
@@ -41,7 +47,8 @@ export function DevicePanel(props: {
       editingId: device.id,
       name: device.name,
       articleId: device.articleId,
-      locationId: device.locationId,
+      kitId: device.kitId ?? undefined,
+      locationId: device.kitId ? undefined : device.locationId,
       serialNumber: device.serialNumber ?? "",
       inventoryNumber: device.inventoryNumber ?? "",
       lastStkAt: device.lastStkAt?.slice(0, 10) ?? "",
@@ -53,14 +60,13 @@ export function DevicePanel(props: {
     });
   }
 
-  const canSubmit = Boolean(draft.name.trim() && draft.articleId && draft.locationId);
-
   async function submit() {
     if (!canSubmit) return;
     const body: MedicalDeviceWriteBody = {
       name: draft.name,
       articleId: draft.articleId,
       locationId: draft.locationId,
+      kitId: draft.kitId,
       serialNumber: optionalText(draft.serialNumber),
       inventoryNumber: optionalText(draft.inventoryNumber),
       lastStkAt: optionalText(draft.lastStkAt),
@@ -72,6 +78,12 @@ export function DevicePanel(props: {
     };
     const succeeded = await (draft.editingId ? props.onSave(draft.editingId, body) : props.onCreate(body)).then(() => true).catch(() => false);
     if (succeeded) setDraft(emptyDraft(props.articles[0]?.id ?? "", props.locations[0]?.id ?? ""));
+  }
+
+  function confirmDelete(device: MedicalDevice) {
+    if (window.confirm(`Gerät "${device.name}" wirklich löschen?`)) {
+      props.onDelete(device.id);
+    }
   }
 
   return (
@@ -90,18 +102,13 @@ export function DevicePanel(props: {
       {props.devices.length === 0 ? <div className="compact-list-empty">Noch keine Geräte angelegt.</div> : null}
       <div className="compact-list">
         {props.devices.map((device) => (
-          <div className="compact-list-row compact-list-row-actions" key={device.id}>
-            <span>
-              <strong>{device.name}</strong>
-              <small>{device.location.name} · {device.article.name}</small>
-            </span>
-            <div className="row-actions">
-              {device.article.stkRequired ? <Badge tone="info">STK</Badge> : null}
-              {device.article.mtkRequired ? <Badge tone="info">MTK</Badge> : null}
-              {device.active ? <Badge tone="ready">aktiv</Badge> : <Badge tone="warning">inaktiv</Badge>}
-              <Button onClick={() => openForEdit(device)} type="button" variant="ghost"><Pencil data-icon="inline-start" />Bearbeiten</Button>
-            </div>
-          </div>
+          <DeviceListRow
+            device={device}
+            isSubmitting={props.isSubmitting}
+            key={device.id}
+            onDelete={() => confirmDelete(device)}
+            onEdit={() => openForEdit(device)}
+          />
         ))}
       </div>
       <Dialog
@@ -113,7 +120,7 @@ export function DevicePanel(props: {
         <div className="form-grid form-grid-three">
           <Field label="Name"><input autoFocus value={draft.name} onChange={(event) => setDraft((current) => ({ ...current, name: event.target.value }))} /></Field>
           <Field label="Artikel"><SearchableSelect onChange={(value) => setDraft((current) => ({ ...current, articleId: value }))} options={props.articles.map((article) => ({ label: article.name, value: article.id }))} value={draft.articleId} /></Field>
-          <Field label="Lagerort"><SearchableSelect onChange={(value) => setDraft((current) => ({ ...current, locationId: value }))} options={props.locations.map((location) => ({ label: location.name, value: location.id }))} value={draft.locationId} /></Field>
+          <Field label="Lagerort"><SearchableSelect onChange={(value) => setDraft((current) => ({ ...current, ...decodeDeviceStorage(value) }))} options={storageOptions} value={selectedDeviceStorageValue(draft)} /></Field>
           <Field label="Seriennummer"><input value={draft.serialNumber ?? ""} onChange={(event) => setDraft((current) => ({ ...current, serialNumber: event.target.value }))} /></Field>
           <Field label="Inventarnummer"><input value={draft.inventoryNumber ?? ""} onChange={(event) => setDraft((current) => ({ ...current, inventoryNumber: event.target.value }))} /></Field>
           <Field label="Last STK"><input type="date" value={draft.lastStkAt ?? ""} onChange={(event) => setDraft((current) => ({ ...current, lastStkAt: event.target.value }))} /></Field>

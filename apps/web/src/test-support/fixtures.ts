@@ -43,6 +43,25 @@ export const article = {
 };
 export const location = { id: "loc-main", name: "Hauptlager", kind: "STORAGE" };
 
+export const medicalDevice = {
+  id: "device-1",
+  name: "Corpuls C3",
+  articleId: article.id,
+  locationId: location.id,
+  kitId: null,
+  serialNumber: "SER-1",
+  inventoryNumber: "INV-1",
+  lastStkAt: null,
+  lastMtkAt: null,
+  stkIntervalMonths: null,
+  mtkIntervalMonths: null,
+  active: true,
+  notes: null,
+  article,
+  location,
+  kit: null
+};
+
 export const order = {
   id: "order-1001",
   kitId: "kit-rucksack-1",

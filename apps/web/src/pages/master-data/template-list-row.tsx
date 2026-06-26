@@ -12,22 +12,12 @@ export function TemplateListRow(props: {
 }) {
   const { template } = props;
   const criticalPositions = template.positions.filter((position) => position.critical).length;
-  const totalRequiredQuantity = template.positions.reduce((sum, position) => sum + position.requiredQuantity, 0);
-  const moduleSummary = summarizeModules(template);
 
   return (
     <div className="table-row template-row">
       <span className="template-row-main">
         <strong>{template.name}</strong>
         <small>Version {template.version}</small>
-      </span>
-      <span className="template-row-detail">
-        <strong>Module</strong>
-        <small>{moduleSummary}</small>
-      </span>
-      <span className="template-row-detail">
-        <strong>{template.positions.length} Positionen</strong>
-        <small>Soll gesamt {totalRequiredQuantity}{criticalPositions > 0 ? ` · ${criticalPositions} kritisch` : ""}</small>
       </span>
       <div className="row-actions template-row-actions">
         {criticalPositions > 0 ? <Badge tone="info">kritisch</Badge> : null}
@@ -37,10 +27,4 @@ export function TemplateListRow(props: {
       </div>
     </div>
   );
-}
-
-function summarizeModules(template: KitTemplate) {
-  const modules = Array.from(new Set(template.positions.map((position) => position.moduleName?.trim() || "Ohne Modul")));
-  if (modules.length <= 2) return modules.join(" · ");
-  return `${modules.slice(0, 2).join(" · ")} +${modules.length - 2}`;
 }

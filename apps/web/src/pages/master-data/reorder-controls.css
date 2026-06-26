@@ -1,0 +1,11 @@
+.reorder-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+}
+
+.reorder-controls .button {
+  min-width: 40px;
+  padding: 0 10px;
+}

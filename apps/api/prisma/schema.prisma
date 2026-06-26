@@ -166,6 +166,7 @@ model Location {
 model Article {
   id                    String             @id @default(cuid())
   name                  String
+  sortOrder             Int                @default(0)
   unit                  String
   manufacturer          String?
   manufacturerPartNumber String?
@@ -282,6 +283,7 @@ model TemplatePosition {
   id               String      @id @default(cuid())
   templateId       String
   articleId        String
+  sortOrder        Int         @default(0)
   moduleName       String?
   requiredQuantity Int
   critical         Boolean     @default(false)
@@ -300,6 +302,7 @@ model Kit {
   tokenRotatedAt DateTime             @default(now())
   location       Location             @relation(fields: [locationId], references: [id])
   template       KitTemplate          @relation(fields: [templateId], references: [id])
+  medicalDevices MedicalDevice[]
   checks         Check[]
   orders         ReplenishmentOrder[]
   deletedAt      DateTime?
@@ -449,6 +452,7 @@ model MedicalDevice {
   id                String   @id @default(cuid())
   articleId         String
   locationId        String
+  kitId             String?
   name              String
   serialNumber      String?
   inventoryNumber   String?
@@ -460,10 +464,12 @@ model MedicalDevice {
   notes             String?  @db.Text
   article           Article  @relation(fields: [articleId], references: [id])
   location          Location @relation(fields: [locationId], references: [id])
+  kit               Kit?     @relation(fields: [kitId], references: [id])
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
 
   @@index([articleId])
+  @@index([kitId])
   @@index([locationId])
 }
 

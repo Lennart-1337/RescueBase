@@ -11,7 +11,7 @@
 
 .template-position-row {
   display: grid;
-  grid-template-columns: minmax(170px, 1.2fr) minmax(140px, 1fr) 120px 110px auto;
+  grid-template-columns: minmax(170px, 1.2fr) minmax(140px, 1fr) 120px 110px auto auto;
   gap: 10px;
   align-items: end;
   padding: 12px;

@@ -50,6 +50,7 @@ export const rescueBaseApi = {
   templates: () => openApiClient.get("/catalog/templates"),
   createArticle: (body: CreateArticleRequest) => openApiClient.post("/catalog/articles", body),
   updateArticle: (id: string, body: UpdateArticleRequest) => openApiClient.patch("/catalog/articles/{id}", body, { params: { id } }),
+  reorderArticles: (body: { articleIds: string[] }) => openApiClient.post("/catalog/articles/reorder", body),
   deleteArticle: (id: string) => openApiClient.delete("/catalog/articles/{id}", { params: { id } }),
   createLocation: (body: CreateLocationRequest) => openApiClient.post("/catalog/locations", body),
   updateLocation: (id: string, body: UpdateLocationRequest) => openApiClient.patch("/catalog/locations/{id}", body, { params: { id } }),

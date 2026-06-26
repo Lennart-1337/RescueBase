@@ -6,6 +6,11 @@ import { PrismaService } from "../persistence/prisma.service.js";
 import { mapKit, mapTemplate } from "../persistence/mappers.js";
 import { Roles } from "../auth/auth.decorators.js";
 
+const templatePositionsInclude = {
+  include: { article: true },
+  orderBy: { sortOrder: "asc" as const }
+};
+
 @ApiTags("Stammdaten")
 @Roles("ADMIN")
 @Controller("catalog")
@@ -18,7 +23,7 @@ export class CatalogController {
   @Roles("ADMIN", "WAREHOUSE")
   @Get("articles")
   articles() {
-    return this.prisma.article.findMany({ where: { deletedAt: null }, orderBy: { name: "asc" } });
+    return this.prisma.article.findMany({ where: { deletedAt: null }, orderBy: [{ sortOrder: "asc" }, { name: "asc" }] });
   }
 
   @Post("articles")
@@ -27,7 +32,10 @@ export class CatalogController {
       throw new BadRequestException("Artikelname und Einheit sind erforderlich.");
     }
     const article = await this.prisma.article.create({
-      data: toArticleWriteData(body)
+      data: {
+        ...toArticleWriteData(body),
+        sortOrder: await this.nextArticleSortOrder()
+      }
     });
     await this.audit.record({
       actorType: "USER",
@@ -38,6 +46,37 @@ export class CatalogController {
       payload: article
     });
     return article;
+  }
+
+  @Post("articles/reorder")
+  async reorderArticles(@Body() body: { articleIds: string[] }) {
+    if (!Array.isArray(body.articleIds) || body.articleIds.length === 0) {
+      throw new BadRequestException("Für die Sortierung werden Artikel-IDs benötigt.");
+    }
+    const activeArticles = await this.prisma.article.findMany({
+      where: { deletedAt: null },
+      select: { id: true }
+    });
+    const activeIds = activeArticles.map((article) => article.id);
+    if (body.articleIds.length !== activeIds.length || new Set(body.articleIds).size !== body.articleIds.length) {
+      throw new BadRequestException("Die Sortierung muss jeden aktiven Artikel genau einmal enthalten.");
+    }
+    if (body.articleIds.some((id) => !activeIds.includes(id))) {
+      throw new BadRequestException("Die Sortierung enthält unbekannte Artikel.");
+    }
+    await this.prisma.$transaction(body.articleIds.map((id, index) => this.prisma.article.update({
+      where: { id },
+      data: { sortOrder: index + 1 }
+    })));
+    await this.audit.record({
+      actorType: "USER",
+      actorLabel: "Admin",
+      action: "ARTICLE_REORDERED",
+      entityType: "Article",
+      entityId: "catalog",
+      payload: { articleIds: body.articleIds }
+    });
+    return { ok: true };
   }
 
   @Patch("articles/:id")
@@ -153,8 +192,9 @@ export class CatalogController {
     }
     const activeBatchCount = await this.prisma.batch.count({ where: { locationId: id, deletedAt: null } });
     const activeKitCount = await this.prisma.kit.count({ where: { locationId: id, deletedAt: null } });
-    if (activeBatchCount > 0 || activeKitCount > 0) {
-      throw new BadRequestException("Lagerort kann erst gelöscht werden, wenn keine aktiven Chargen oder Rucksäcke darauf verweisen.");
+    const medicalDeviceCount = await this.prisma.medicalDevice.count({ where: { locationId: id } });
+    if (activeBatchCount > 0 || activeKitCount > 0 || medicalDeviceCount > 0) {
+      throw new BadRequestException("Lagerort kann erst gelöscht werden, wenn keine aktiven Chargen, Rucksäcke oder Geräte darauf verweisen.");
     }
     const deletedAt = new Date();
     await this.prisma.location.update({ where: { id }, data: { deletedAt } });
@@ -174,7 +214,7 @@ export class CatalogController {
   async templates() {
     const templates = await this.prisma.kitTemplate.findMany({
       where: { deletedAt: null },
-      include: { positions: { include: { article: true } } },
+      include: { positions: templatePositionsInclude },
       orderBy: [{ name: "asc" }, { version: "desc" }]
     });
     return templates.map(mapTemplate);
@@ -209,7 +249,7 @@ export class CatalogController {
         version,
         positions: { create: positionPayload }
       },
-      include: { positions: { include: { article: true } } }
+      include: { positions: templatePositionsInclude }
     }).catch((error: unknown) => {
       if (isPrismaUniqueError(error)) {
         throw new BadRequestException("Diese Vorlagenversion existiert bereits.");
@@ -234,7 +274,7 @@ export class CatalogController {
   ) {
     const existing = await this.prisma.kitTemplate.findFirst({
       where: { id, deletedAt: null },
-      include: { positions: { include: { article: true } } }
+      include: { positions: templatePositionsInclude }
     });
     if (!existing) {
       throw new NotFoundException("Rucksackvorlage nicht gefunden.");
@@ -249,7 +289,7 @@ export class CatalogController {
         version: await this.nextTemplateVersion(existing.name),
         positions: { create: await this.validateTemplatePositions(body.positions) }
       },
-      include: { positions: { include: { article: true } } }
+      include: { positions: templatePositionsInclude }
     });
     await this.audit.record({
       actorType: "USER",
@@ -296,7 +336,7 @@ export class CatalogController {
       where: { deletedAt: null },
       include: {
         location: true,
-        template: { include: { positions: { include: { article: true } } } }
+        template: { include: { positions: templatePositionsInclude } }
       },
       orderBy: { code: "asc" }
     });
@@ -321,7 +361,7 @@ export class CatalogController {
       },
       include: {
         location: true,
-        template: { include: { positions: { include: { article: true } } } }
+        template: { include: { positions: templatePositionsInclude } }
       }
     });
     await this.audit.record({
@@ -343,7 +383,7 @@ export class CatalogController {
       where: { id, deletedAt: null },
       include: {
         location: true,
-        template: { include: { positions: { include: { article: true } } } }
+        template: { include: { positions: templatePositionsInclude } }
       }
     });
     if (!existing) {
@@ -360,8 +400,12 @@ export class CatalogController {
       },
       include: {
         location: true,
-        template: { include: { positions: { include: { article: true } } } }
+        template: { include: { positions: templatePositionsInclude } }
       }
+    });
+    await this.prisma.medicalDevice.updateMany({
+      where: { kitId: id },
+      data: { locationId: kit.locationId }
     });
     await this.audit.record({
       actorType: "USER",
@@ -401,7 +445,7 @@ export class CatalogController {
       },
       include: {
         location: true,
-        template: { include: { positions: { include: { article: true } } } }
+        template: { include: { positions: templatePositionsInclude } }
       }
     });
     await this.audit.record({
@@ -420,9 +464,13 @@ export class CatalogController {
     if (!kit) {
       throw new NotFoundException("Rucksack nicht gefunden.");
     }
+    const medicalDeviceCount = await this.prisma.medicalDevice.count({ where: { kitId: id } });
     const openOrderCount = await this.prisma.replenishmentOrder.count({
       where: { kitId: id, status: { in: ["OPEN", "IN_PROGRESS"] } }
     });
+    if (medicalDeviceCount > 0) {
+      throw new BadRequestException("Rucksack kann erst gelöscht werden, wenn keine Geräte mehr darauf verweisen.");
+    }
     if (openOrderCount > 0) {
       throw new BadRequestException("Rucksack kann erst gelöscht werden, wenn keine offenen Nachfüllaufträge existieren.");
     }
@@ -448,14 +496,24 @@ export class CatalogController {
     return (latest?.version ?? 0) + 1;
   }
 
+  private async nextArticleSortOrder(): Promise<number> {
+    const latest = await this.prisma.article.findFirst({
+      where: { deletedAt: null },
+      orderBy: { sortOrder: "desc" },
+      select: { sortOrder: true }
+    });
+    return (latest?.sortOrder ?? 0) + 1;
+  }
+
   private async validateTemplatePositions(positions: Array<{ articleId: string; moduleName?: string; requiredQuantity: number; critical?: boolean }>) {
-    const positionPayload = positions.map((position) => {
+    const positionPayload = positions.map((position, index) => {
       const requiredQuantity = Math.trunc(position.requiredQuantity);
       if (!position.articleId?.trim() || !Number.isFinite(requiredQuantity) || requiredQuantity <= 0) {
         throw new BadRequestException("Jede Vorlagenposition benötigt Artikel und Sollmenge.");
       }
       return {
         articleId: position.articleId,
+        sortOrder: index + 1,
         moduleName: position.moduleName?.trim() || undefined,
         requiredQuantity,
         critical: Boolean(position.critical)

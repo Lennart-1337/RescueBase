@@ -3,9 +3,9 @@
     minmax(220px, 1.2fr)
     minmax(180px, 0.95fr)
     minmax(180px, 0.9fr)
-    minmax(140px, 0.75fr)
-    minmax(160px, 0.7fr)
-    minmax(250px, auto);
+    minmax(160px, 0.8fr)
+    420px;
+  align-items: start;
 }
 
 .article-row-main,
@@ -16,6 +16,8 @@
 .article-row-detail strong,
 .article-row-detail small {
   display: block;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 .article-row-flags {
@@ -33,14 +35,25 @@
 
 .article-row-badges {
   justify-content: flex-start;
+  align-self: start;
 }
 
 .row-action-buttons {
   justify-content: flex-end;
+  align-self: start;
   min-width: max-content;
 }
 
 @media (max-width: 1320px) {
+  .article-list-row {
+    grid-template-columns:
+      minmax(220px, 1.2fr)
+      minmax(180px, 0.95fr)
+      minmax(180px, 0.9fr)
+      minmax(160px, 0.8fr)
+      320px;
+  }
+
   .article-row-actions .button-label {
     display: none;
   }

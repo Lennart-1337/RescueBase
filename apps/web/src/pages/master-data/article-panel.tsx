@@ -7,6 +7,7 @@ import type { Article, CreateArticleRequest, UpdateArticleRequest } from "../../
 import { InlineError } from "../../components/state-panels";
 import { Button, Dialog, Field, Panel } from "../../components/ui";
 import { ArticleListRow } from "./article-list-row";
+import type { ReorderDirection } from "./reorder";
 import "./article-panel.css";
 
 type ArticleDraft = {
@@ -53,6 +54,7 @@ export function ArticlePanel(props: {
   onResetFilters: () => void;
   onCreate: (body: CreateArticleRequest) => Promise<unknown>;
   onDelete: (id: string) => void;
+  onMoveArticle: (id: string, direction: ReorderDirection) => Promise<unknown>;
   onSave: (id: string, body: UpdateArticleRequest) => Promise<unknown>;
   totalCount: number;
 }) {
@@ -135,18 +137,24 @@ export function ArticlePanel(props: {
           <Button onClick={openForCreate} type="button"><Plus data-icon="inline-start" />Artikel hinzufügen</Button>
         </div>
         <div className="article-table-header" aria-hidden="true">
+          <span></span>
           <span>Hinweise</span>
           <span>Lagerhinweise</span>
+          <span>Merkmale</span>
+          <span></span>
         </div>
         {props.articles.length === 0 ? <div className="compact-list-empty">Noch keine Artikel angelegt.</div> : null}
         <div className="table article-table">
-          {props.articles.map((article) => (
+          {props.articles.map((article, index) => (
             <ArticleListRow
               article={article}
+              canMoveDown={index < props.articles.length - 1}
+              canMoveUp={index > 0}
               isSubmitting={props.isSubmitting}
               key={article.id}
               onDelete={() => confirmDelete(article)}
               onEdit={() => openForEdit(article)}
+              onMove={(direction) => void props.onMoveArticle(article.id, direction)}
             />
           ))}
         </div>
