@@ -1,0 +1,72 @@
+.order-list,
+.fulfillment-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.order-row,
+.fulfillment-row {
+  border: 0;
+  background: transparent;
+  min-height: 68px;
+  padding: 14px 18px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  gap: 12px;
+  align-items: center;
+  text-align: left;
+  border-bottom: 1px solid #edf0f4;
+}
+
+.order-row {
+  cursor: pointer;
+  grid-template-columns: minmax(0, 1fr) auto;
+}
+
+.order-row.selected {
+  background: #fff8f7;
+}
+
+.order-row strong,
+.order-row small,
+.fulfillment-row strong,
+.fulfillment-row small {
+  display: block;
+}
+
+.order-row small,
+.fulfillment-row small {
+  color: #657386;
+}
+
+.order-detail {
+  display: flex;
+  flex-direction: column;
+}
+
+.fulfillment-row {
+  grid-template-columns: minmax(0, 1fr) minmax(180px, 230px) 180px;
+}
+
+.fulfillment-row > * {
+  min-width: 0;
+}
+
+.fulfillment-row select {
+  min-height: 42px;
+  width: 100%;
+  border: 1px solid #d6dce5;
+  border-radius: 8px;
+  background: #ffffff;
+  color: #243145;
+  padding: 0 10px;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+@media (max-width: 980px) {
+  .fulfillment-row {
+    grid-template-columns: 1fr;
+  }
+}

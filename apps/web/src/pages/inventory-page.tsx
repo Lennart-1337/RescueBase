@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
-import { useNavigate, useSearch } from "@tanstack/react-router";
+import { Link, useNavigate, useSearch } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { matchesFilterText, toOptionalBoolean, toOptionalString, withPrunedSearch } from "../app/filter-utils";
-import { AlertTriangle, Archive, Download, Plus } from "lucide-react";
+import { AlertTriangle, Archive, Download, Plus, ShoppingCart } from "lucide-react";
 import { daysUntil, toError } from "../app/formatters";
 import { ErrorPanel, LoadingPanel, Metric } from "../components/state-panels";
 import { PageHeader, PageToolbar, Workspace, WorkspaceMain, WorkspaceRail } from "../components/page-layout";
@@ -18,6 +18,7 @@ import { ProcurementReceiveDialog } from "./inventory/procurement-receive-dialog
 import { TargetDialog } from "./inventory/target-dialog";
 import { TargetPanel } from "./inventory/target-panel";
 import type { InventoryFilters, ReceiptDraftItem, TargetDraft } from "./inventory/types";
+import "./inventory-page.css";
 
 export function InventoryPage({ user: _user }: { user: AuthenticatedUser }) {
   const [articleId, setArticleId] = useState("");
@@ -154,7 +155,7 @@ export function InventoryPage({ user: _user }: { user: AuthenticatedUser }) {
 
   return (
     <>
-      <PageHeader actions={<><AnchorButton href={rescueBaseApi.reportUrl("/reports/csv/inventory")} variant="secondary"><Download data-icon="inline-start" />CSV Bestand</AnchorButton><Button onClick={() => setCreateOpen(true)} type="button"><Plus data-icon="inline-start" />Charge hinzufügen</Button></>} title="Lager" />
+      <PageHeader actions={<><Link className="button button-secondary" search={{ mode: "shortages" }} to="/admin/purchase-orders/new"><ShoppingCart data-icon="inline-start" />Bestellung aus Fehlmengen</Link><AnchorButton href={rescueBaseApi.reportUrl("/reports/csv/inventory")} variant="secondary"><Download data-icon="inline-start" />CSV Bestand</AnchorButton><Button onClick={() => setCreateOpen(true)} type="button"><Plus data-icon="inline-start" />Charge hinzufügen</Button></>} title="Lager" />
       <section className="metric-grid metric-grid-compact" aria-label="Lagerkennzahlen"><Metric icon={<Archive />} label="Chargen" tone="info" value={String(batches.data.length)} /><Metric icon={<AlertTriangle />} label="Ablaufwarnungen" tone="danger" value={String(expiring.length)} /></section>
       <PageToolbar label="Bestand filtern"><InventoryFilterToolbar articles={articles.data} countLabel={`${filteredBatches.length}/${batches.data.length} Chargen sichtbar`} filters={filters} locations={locations.data} onChange={updateFilters} onReset={resetFilters} /></PageToolbar>
       <Workspace className="inventory-workspace">

@@ -1,0 +1,12 @@
+.filter-bar {
+  padding-top: 14px;
+}
+
+.filter-bar-actions {
+  align-items: center;
+  padding-top: 0;
+}
+
+.split-actions {
+  justify-content: space-between;
+}

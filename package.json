@@ -21,6 +21,7 @@
     "generate:api-client": "npm run generate:openapi && openapi-typescript apps/api/openapi.json -o apps/web/src/lib/generated-api.d.ts",
     "dev:api": "npm run dev -w @rescuebase/api",
     "dev:web": "npm run dev -w @rescuebase/web",
+    "dev:stack": "node scripts/dev-stack.mjs",
     "admin:reset": "node scripts/reset-admin.mjs",
     "prisma:generate": "npm run prisma:generate -w @rescuebase/api",
     "prisma:deploy": "npm run prisma:deploy -w @rescuebase/api",

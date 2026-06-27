@@ -3,6 +3,7 @@ import { AlertTriangle } from "lucide-react";
 import { getAlertOverview } from "../../lib/extra-api";
 import { Badge, Panel } from "../../components/ui";
 import { InlineError, LoadingPanel } from "../../components/state-panels";
+import "./alert-summary-panel.css";
 
 export function AlertSummaryPanel() {
   const query = useQuery({ queryKey: ["alert-overview"], queryFn: getAlertOverview });

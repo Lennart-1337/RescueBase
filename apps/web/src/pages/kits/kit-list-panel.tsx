@@ -5,6 +5,7 @@ import { InlineError } from "../../components/state-panels";
 import { AnchorButton, Badge, Button, Panel } from "../../components/ui";
 import { rescueBaseApi } from "../../lib/api";
 import type { Kit } from "../../lib/types";
+import "./kit-list-panel.css";
 
 export function KitListPanel(props: {
   actionError: Error | null;

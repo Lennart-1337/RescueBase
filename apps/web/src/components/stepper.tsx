@@ -1,4 +1,5 @@
 import { Minus, Plus } from "lucide-react";
+import "./stepper.css";
 
 export function Stepper({
   label,

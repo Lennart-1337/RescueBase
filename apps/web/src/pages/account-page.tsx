@@ -5,6 +5,7 @@ import { AccountEmailPanel } from "./account/account-email-panel";
 import { AccountOrderNotificationsPanel } from "./account/account-order-notifications-panel";
 import { AccountStatusPanel } from "./account/account-status-panel";
 import { AccountTotpPanel } from "./account/account-totp-panel";
+import "./account-page.css";
 
 export function AccountPage({ user }: { user: AuthenticatedUser }) {
   return (

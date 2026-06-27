@@ -6,6 +6,7 @@ import { InlineError } from "../../components/state-panels";
 import { AnchorButton, Badge, Field } from "../../components/ui";
 import { Stepper } from "../../components/stepper";
 import type { Batch, ReplenishmentOrder } from "../../lib/types";
+import "./order-layout.css";
 
 export function OrderDetail(props: {
   batches: Batch[];

@@ -1,21 +1,20 @@
 import { Injectable, NotFoundException } from "@nestjs/common";
-import { InventoryProcurementStatus } from "@prisma/client";
+import { InventoryProcurementStatus, PurchaseOrderStatus } from "@prisma/client";
 import PDFDocument from "pdfkit";
 import QRCode from "qrcode";
 import { PrismaService } from "../persistence/prisma.service.js";
 import type { BatchRecord, OrderRecord } from "../persistence/mappers.js";
 import { createQrSheetLayout, needsPageBreak } from "./report-layout.js";
-
-const palette = {
-  ink: "#173042",
-  muted: "#5d7686",
-  accent: "#1f6f8b",
-  accentSoft: "#d9ecf3",
-  critical: "#b42318",
-  line: "#d3dde4",
-  paper: "#ffffff",
-  stripe: "#f5f8fa"
-};
+import {
+  drawContinuationHeader,
+  drawDocumentHeader,
+  drawInfoGrid,
+  drawStatStrip,
+  drawTableHeader,
+  drawTotalBar,
+  fitSingleLine,
+  reportPalette as palette
+} from "./report-theme.js";
 
 type QrPdfFormat = "a4" | "label";
 type ProcurementPdfFilters = { articleId?: string; locationId?: string; q?: string };
@@ -31,6 +30,27 @@ type ProcurementOrderReportRecord = {
   article: { name: string; unit: string; manufacturer: string | null; manufacturerPartNumber: string | null; articleUrl: string | null };
   location: { name: string };
   receipts: Array<{ lotNumber: string }>;
+};
+type PurchaseOrderPdfRecord = {
+  id: string;
+  orderNumber: string;
+  supplierName: string;
+  status: PurchaseOrderStatus;
+  notes: string | null;
+  approvedAt: Date | null;
+  approvedByName: string | null;
+  createdAt: Date;
+  location: { name: string };
+  lines: Array<{
+    articleNameSnapshot: string;
+    supplierArticleNumberSnapshot: string | null;
+    articleUrlSnapshot: string | null;
+    grossUnitPriceCents: number;
+    orderedQuantity: number;
+    receivedQuantity: number;
+    unitSnapshot: string;
+    note: string | null;
+  }>;
 };
 
 @Injectable()
@@ -159,10 +179,10 @@ export class ReportService {
       const totalRequested = order.items.reduce((sum: number, item: OrderRecord["items"][number]) => sum + item.requestedQuantity, 0);
       const totalFulfilled = order.items.reduce((sum: number, item: OrderRecord["items"][number]) => sum + item.fulfilledQuantity, 0);
       this.drawSummaryLine(doc, [
-        `Positionen ${order.items.length}`,
-        `Soll ${totalRequested}`,
-        `Erfüllt ${totalFulfilled}`,
-        `Offen ${Math.max(totalRequested - totalFulfilled, 0)}`
+        `${order.items.length} Positionen`,
+        `${totalRequested} Soll`,
+        `${totalFulfilled} erfüllt`,
+        `${Math.max(totalRequested - totalFulfilled, 0)} offen`
       ]);
 
       let y = doc.y + 20;
@@ -201,6 +221,78 @@ export class ReportService {
     });
   }
 
+  async purchaseOrderPdf(orderId: string, options: { includeLineNotes?: boolean }): Promise<Buffer> {
+    const order: PurchaseOrderPdfRecord | null = await this.prisma.purchaseOrder.findUnique({
+      where: { id: orderId },
+      include: {
+        location: { select: { name: true } },
+        lines: { orderBy: { createdAt: "asc" } }
+      }
+    });
+    if (!order) {
+      throw new NotFoundException("Bestellung nicht gefunden.");
+    }
+
+    return this.renderPdf((doc) => {
+      this.drawDocumentHeader(doc, "Bestellung", order.orderNumber, order.supplierName);
+      this.drawMetaGrid(doc, [
+        ["Status", formatPurchaseOrderStatus(order.status)],
+        ["Zielort", order.location.name],
+        ["Erstellt", formatDateTime(order.createdAt)],
+        ["Freigabe", order.approvedAt ? `${order.approvedByName ?? "Unbekannt"} · ${formatDateTime(order.approvedAt)}` : "Noch nicht freigegeben"]
+      ], { x: 48, width: doc.page.width - 96 });
+
+      const totalGrossCents = order.lines.reduce((sum, line) => sum + line.grossUnitPriceCents * line.orderedQuantity, 0);
+      const totalOrdered = order.lines.reduce((sum, line) => sum + line.orderedQuantity, 0);
+      const totalReceived = order.lines.reduce((sum, line) => sum + line.receivedQuantity, 0);
+      this.drawSummaryLine(doc, [
+        `${order.lines.length} Positionen`,
+        `${totalOrdered} bestellt`,
+        `${Math.max(totalOrdered - totalReceived, 0)} offen`,
+        formatCents(totalGrossCents)
+      ]);
+
+      if (order.notes) {
+        const noteTop = doc.y + 6;
+        const noteHeight = doc.font("Helvetica").fontSize(9).heightOfString(order.notes, { width: doc.page.width - 96 });
+        doc.fillColor(palette.muted).font("Helvetica-Bold").fontSize(8).text("HINWEISE", 48, noteTop);
+        doc.fillColor(palette.ink).font("Helvetica").fontSize(9).text(order.notes, 48, noteTop + 14, { width: doc.page.width - 96 });
+        doc.moveTo(48, noteTop + noteHeight + 24).lineTo(doc.page.width - 48, noteTop + noteHeight + 24).strokeColor(palette.line).stroke();
+        doc.y = noteTop + noteHeight + 32;
+      }
+
+      let y = this.drawPurchaseOrderTableHeader(doc, doc.y + 20);
+      order.lines.forEach((line, index) => {
+        const rowHeight = this.measurePurchaseOrderLine(doc, line, Boolean(options.includeLineNotes));
+        if (needsPageBreak({
+          currentY: y,
+          requiredHeight: rowHeight,
+          pageHeight: doc.page.height,
+          bottomMargin: doc.page.margins.bottom,
+          reserve: 64
+        })) {
+          doc.addPage();
+          this.drawContinuationHeader(doc, "Bestellung", `${order.orderNumber} · Fortsetzung`);
+          y = this.drawPurchaseOrderTableHeader(doc, doc.y + 12);
+        }
+        y = this.drawPurchaseOrderLine(doc, y, line, index, Boolean(options.includeLineNotes));
+      });
+
+      if (needsPageBreak({
+        currentY: y,
+        requiredHeight: 42,
+        pageHeight: doc.page.height,
+        bottomMargin: doc.page.margins.bottom,
+        reserve: 0
+      })) {
+        doc.addPage();
+        this.drawContinuationHeader(doc, "Bestellung", `${order.orderNumber} · Summe`);
+        y = doc.y + 10;
+      }
+      drawTotalBar(doc, y + 4, "Gesamt", formatCents(totalGrossCents));
+    });
+  }
+
   private drawQrSheet(doc: PDFKit.PDFDocument, kit: { name: string; code: string; publicToken: string; location: { name: string }; template: { name: string; version: number } }, publicUrl: string, qrImage: Buffer) {
     this.drawDocumentHeader(doc, "QR-/NFC-Etikett", kit.name, kit.code);
     const layout = createQrSheetLayout(doc.page.width, doc.page.height);
@@ -218,16 +310,18 @@ export class ReportService {
       ["Vorlage", `${kit.template.name} v${kit.template.version}`]
     ], { x: layout.leftColumn.x, y: layout.leftColumn.y + 56, width: layout.leftColumn.width });
     const linkTop = Math.max(layout.linkTop, doc.y + 16);
-    doc.fillColor(palette.ink).font("Helvetica-Bold").fontSize(11).text("Direktlink", 48, linkTop);
-    doc.font("Helvetica").fontSize(9).fillColor(palette.muted).text(publicUrl, 48, linkTop + 18, {
+    const urlHeight = doc.font("Helvetica").fontSize(9).heightOfString(publicUrl, { width: doc.page.width - 96 });
+    doc.fillColor(palette.muted).font("Helvetica-Bold").fontSize(8).text("DIREKTLINK", 48, linkTop);
+    doc.fillColor(palette.ink).font("Helvetica").fontSize(9).text(publicUrl, 48, linkTop + 14, {
       width: doc.page.width - 96
     });
     doc.fillColor(palette.muted).fontSize(9).text(
       "Hinweis: Bei Tokenrotation muss dieses Etikett ersetzt werden. Das alte Etikett verliert danach sofort seine Gültigkeit.",
       48,
-      linkTop + 54,
+      linkTop + 26 + urlHeight,
       { width: doc.page.width - 96 }
     );
+    doc.moveTo(48, linkTop + 58 + urlHeight).lineTo(doc.page.width - 48, linkTop + 58 + urlHeight).strokeColor(palette.line).stroke();
   }
 
   private drawQrLabel(doc: PDFKit.PDFDocument, kit: { name: string; code: string; location: { name: string } }, publicUrl: string, qrImage: Buffer) {
@@ -236,69 +330,45 @@ export class ReportService {
     const qrX = doc.page.width - margin - qrSize - 6;
     const textWidth = qrX - margin - 12;
     const compactUrl = this.fitSingleLine(doc.font("Helvetica").fontSize(6), publicUrl.replace(/^https?:\/\//, ""), doc.page.width - margin * 2 - 16);
-    doc.roundedRect(margin, margin, doc.page.width - margin * 2, doc.page.height - margin * 2, 8).fillAndStroke("#fbfdff", palette.line);
-    doc.rect(margin, margin, doc.page.width - margin * 2, 14).fill(palette.accent);
-    doc.fillColor(palette.paper).font("Helvetica-Bold").fontSize(8).text("RESCUEBASE CHECK", margin + 8, margin + 4);
-    doc.fillColor(palette.ink).font("Helvetica-Bold").fontSize(13).text(kit.code, margin + 8, 34, { width: textWidth });
-    doc.font("Helvetica").fontSize(8).fillColor(palette.muted).text(kit.name, margin + 8, 51, { width: textWidth, height: 24 });
-    doc.fontSize(7).text(kit.location.name, margin + 8, 79, { width: textWidth });
+    doc.rect(margin, margin, doc.page.width - margin * 2, doc.page.height - margin * 2).strokeColor(palette.lineStrong).stroke();
+    doc.fillColor(palette.muted).font("Helvetica-Bold").fontSize(7).text("RESCUEBASE CHECK", margin + 8, margin + 8);
+    doc.fillColor(palette.ink).font("Helvetica-Bold").fontSize(13).text(kit.code, margin + 8, 28, { width: textWidth });
+    doc.font("Helvetica").fontSize(8).fillColor(palette.ink).text(kit.name, margin + 8, 45, { width: textWidth, height: 24 });
+    doc.fontSize(7).fillColor(palette.muted).text(kit.location.name, margin + 8, 73, { width: textWidth });
     doc.image(qrImage, qrX, 33, { width: qrSize, height: qrSize });
     doc.fillColor(palette.muted).font("Helvetica-Bold").fontSize(6).text("Scan für Check", qrX - 2, 96, { width: qrSize + 4, align: "center" });
-    doc.font("Helvetica").fontSize(6).text(compactUrl, margin + 8, doc.page.height - 20, { lineBreak: false });
+    doc.moveTo(margin + 8, doc.page.height - 26).lineTo(doc.page.width - margin - 8, doc.page.height - 26).strokeColor(palette.line).stroke();
+    doc.font("Helvetica").fontSize(6).fillColor(palette.muted).text(compactUrl, margin + 8, doc.page.height - 18, { lineBreak: false });
   }
 
   private drawDocumentHeader(doc: PDFKit.PDFDocument, eyebrow: string, title: string, subtitle: string) {
-    doc.rect(48, 48, doc.page.width - 96, 52).fill(palette.accentSoft);
-    doc.fillColor(palette.accent).font("Helvetica-Bold").fontSize(9).text(eyebrow.toUpperCase(), 60, 62);
-    doc.fillColor(palette.ink).font("Helvetica-Bold").fontSize(22).text(title, 60, 74);
-    doc.font("Helvetica").fontSize(10).fillColor(palette.muted).text(subtitle, 60, 100);
-    doc.y = 144;
+    drawDocumentHeader(doc, eyebrow, title, subtitle);
   }
 
   private drawMetaGrid(doc: PDFKit.PDFDocument, rows: Array<[string, string]>, options: { x: number; y?: number; width: number }) {
-    let y = options.y ?? doc.y;
-    rows.forEach(([label, value]) => {
-      const labelWidth = Math.min(96, options.width * 0.32);
-      const valueWidth = options.width - labelWidth - 16;
-      const valueHeight = doc.font("Helvetica").fontSize(11).heightOfString(value, { width: valueWidth });
-      const rowHeight = Math.max(24, valueHeight + 6);
-      doc.fillColor(palette.muted).font("Helvetica-Bold").fontSize(8).text(label.toUpperCase(), options.x, y + 4, {
-        width: labelWidth
-      });
-      doc.fillColor(palette.ink).font("Helvetica").fontSize(11).text(value, options.x + labelWidth + 16, y + 2, {
-        width: valueWidth
-      });
-      doc.moveTo(options.x, y + rowHeight).lineTo(options.x + options.width, y + rowHeight).strokeColor(palette.line).stroke();
-      y += rowHeight + 10;
-    });
-    doc.y = y;
+    drawInfoGrid(doc, rows, { ...options, columns: options.width < 340 ? 1 : 2 });
   }
 
   private drawSummaryLine(doc: PDFKit.PDFDocument, items: string[]) {
-    doc.moveDown(0.8);
-    doc.fillColor(palette.accent).font("Helvetica-Bold").fontSize(9).text(items.join("  •  "), 48, doc.y);
+    drawStatStrip(doc, items);
   }
 
   private drawTableHeader(doc: PDFKit.PDFDocument, y: number, headers: string[]) {
-    doc.fillColor(palette.muted).font("Helvetica-Bold").fontSize(8);
-    doc.text(headers[0] ?? "", 56, y);
-    doc.text(headers[1] ?? "", 255, y);
-    doc.text(headers[2] ?? "", 358, y, { width: 40, align: "right" });
-    doc.text(headers[3] ?? "", 418, y, { width: 44, align: "right" });
-    doc.text(headers[4] ?? "", 482, y, { width: 48, align: "right" });
-    doc.moveTo(48, y + 14).lineTo(doc.page.width - 48, y + 14).strokeColor(palette.line).stroke();
-    return y + 22;
+    return drawTableHeader(doc, y, [
+      { label: headers[0] ?? "", x: 56, width: 190 },
+      { label: headers[1] ?? "", x: 255, width: 92 },
+      { label: headers[2] ?? "", x: 358, width: 40, align: "right" },
+      { label: headers[3] ?? "", x: 418, width: 44, align: "right" },
+      { label: headers[4] ?? "", x: 482, width: 48, align: "right" }
+    ]);
   }
 
   private drawContinuationHeader(doc: PDFKit.PDFDocument, title: string, subtitle: string) {
-    doc.fillColor(palette.ink).font("Helvetica-Bold").fontSize(16).text(title, 48, 48);
-    doc.font("Helvetica").fontSize(9).fillColor(palette.muted).text(subtitle, 48, 68);
-    doc.moveTo(48, 88).lineTo(doc.page.width - 48, 88).strokeColor(palette.line).stroke();
-    doc.y = 98;
+    drawContinuationHeader(doc, title, subtitle);
   }
 
   private drawQrCard(doc: PDFKit.PDFDocument, box: { x: number; y: number; width: number; height: number }, qrImage: Buffer) {
-    doc.roundedRect(box.x - 12, box.y - 12, box.width + 24, box.height + 42, 12).fillAndStroke("#fbfdff", palette.line);
+    doc.rect(box.x - 12, box.y - 12, box.width + 24, box.height + 42).strokeColor(palette.line).stroke();
     doc.image(qrImage, box.x, box.y, { width: box.width, height: box.height });
     doc.fillColor(palette.muted).font("Helvetica-Bold").fontSize(8).text("Öffentlicher Check", box.x, box.y + box.height + 10, {
       width: box.width,
@@ -330,7 +400,7 @@ export class ReportService {
   ) {
     const rowHeight = this.measureReplenishmentRow(doc, item);
     if (index % 2 === 0) {
-      doc.rect(48, y - 4, doc.page.width - 96, rowHeight + 4).fill(palette.stripe);
+      doc.rect(48, y - 4, doc.page.width - 96, rowHeight + 6).fill(palette.panelSoft);
     }
     doc.fillColor(item.critical ? palette.critical : palette.ink).font("Helvetica-Bold").fontSize(10).text(item.articleName, 56, y, { width: 190 });
     doc.fillColor(palette.muted).font("Helvetica").fontSize(8).text(item.critical ? `Kritisch · ${item.unit}` : item.unit, 56, y + rowHeight - 14, {
@@ -341,55 +411,100 @@ export class ReportService {
     doc.text(String(item.fulfilledQuantity), 418, y + 2, { width: 44, align: "right" });
     doc.font(item.fulfilledQuantity < item.requestedQuantity ? "Helvetica-Bold" : "Helvetica")
       .text(String(item.requestedQuantity - item.fulfilledQuantity), 482, y + 2, { width: 48, align: "right" });
-    doc.moveTo(48, y + rowHeight + 4).lineTo(doc.page.width - 48, y + rowHeight + 4).strokeColor(palette.line).stroke();
+    doc.moveTo(48, y + rowHeight + 8).lineTo(doc.page.width - 48, y + rowHeight + 8).strokeColor(palette.line).stroke();
     return y + rowHeight + 10;
   }
 
   private drawOperationalNotes(doc: PDFKit.PDFDocument, y: number) {
-    doc.moveTo(48, y).lineTo(doc.page.width - 48, y).strokeColor(palette.line).stroke();
-    doc.fillColor(palette.ink).font("Helvetica-Bold").fontSize(11).text("Operative Hinweise", 48, y + 14);
-    doc.font("Helvetica").fontSize(9).fillColor(palette.muted)
-      .text("Chargen bitte im System buchen. Teilfüllungen und Restmengen müssen nachvollziehbar bleiben.", 48, y + 30, {
+    doc.fillColor(palette.muted).font("Helvetica-Bold").fontSize(8).text("OPERATIVE HINWEISE", 48, y);
+    doc.fillColor(palette.ink).font("Helvetica").fontSize(9)
+      .text("Chargen bitte im System buchen. Teilfüllungen und Restmengen müssen nachvollziehbar bleiben.", 48, y + 14, {
         width: doc.page.width - 96
       });
-    doc.moveTo(48, y + 82).lineTo(doc.page.width - 48, y + 82).strokeColor(palette.line).stroke();
-    doc.moveTo(48, y + 116).lineTo(240, y + 116).strokeColor(palette.line).stroke();
-    doc.moveTo(320, y + 116).lineTo(doc.page.width - 48, y + 116).strokeColor(palette.line).stroke();
-    doc.fillColor(palette.muted).fontSize(8).text("Bearbeitet von", 48, y + 120).text("Datum / Unterschrift", 320, y + 120);
+    doc.moveTo(48, y + 66).lineTo(doc.page.width - 48, y + 66).strokeColor(palette.line).stroke();
+    doc.moveTo(48, y + 100).lineTo(240, y + 100).strokeColor(palette.line).stroke();
+    doc.moveTo(320, y + 100).lineTo(doc.page.width - 48, y + 100).strokeColor(palette.line).stroke();
+    doc.fillColor(palette.muted).fontSize(8).text("Bearbeitet von", 48, y + 104).text("Datum / Unterschrift", 320, y + 104);
   }
 
   private fitSingleLine(doc: PDFKit.PDFDocument, text: string, width: number) {
-    if (doc.widthOfString(text) <= width) {
-      return text;
-    }
-    let result = text;
-    while (result.length > 1 && doc.widthOfString(`${result}...`) > width) {
-      result = result.slice(0, -1);
-    }
-    return `${result}...`;
+    return fitSingleLine(doc, text, width);
   }
 
   private drawProcurementHeader(doc: PDFKit.PDFDocument, filterLabel: string, totalRemaining: number, orderCount: number) {
-    doc.fillColor("#000000").font("Helvetica-Bold").fontSize(11).text("BESCHAFFUNG", 48, 48);
-    doc.fontSize(24).text("Einkaufsliste", 48, 64);
-    doc.font("Helvetica").fontSize(10).fillColor("#444444").text("Offene Beschaffungsaufträge für den Einkauf.", 48, 92);
-    doc.moveTo(48, 116).lineTo(doc.page.width - 48, 116).strokeColor("#000000").stroke();
-    doc.fillColor("#000000").font("Helvetica").fontSize(10)
-      .text(`Stand: ${formatDateTime(new Date())}`, 48, 128)
-      .text(`Positionen: ${orderCount}`, 220, 128)
-      .text(`Offene Menge: ${totalRemaining}`, 340, 128)
-      .text(`Filter: ${filterLabel}`, 48, 144, { width: doc.page.width - 96 });
-    doc.moveTo(48, 166).lineTo(doc.page.width - 48, 166).strokeColor(palette.line).stroke();
-    doc.y = 174;
+    this.drawDocumentHeader(doc, "Beschaffung", "Einkaufsliste", "Offene Beschaffungsaufträge für den Einkauf.");
+    this.drawMetaGrid(doc, [
+      ["Stand", formatDateTime(new Date())],
+      ["Filter", filterLabel],
+      ["Positionen", String(orderCount)],
+      ["Offene Menge", String(totalRemaining)]
+    ], { x: 48, width: doc.page.width - 96 });
   }
 
   private drawProcurementTableHeader(doc: PDFKit.PDFDocument, y: number) {
-    doc.fillColor("#000000").font("Helvetica-Bold").fontSize(8);
-    doc.text("ARTIKEL", 48, y);
-    doc.text("STANDORT / DETAILS", 230, y);
-    doc.text("OFFEN", 478, y, { width: 56, align: "right" });
-    doc.moveTo(48, y + 14).lineTo(doc.page.width - 48, y + 14).strokeColor("#000000").stroke();
-    return y + 20;
+    return drawTableHeader(doc, y, [
+      { label: "ARTIKEL", x: 56, width: 164 },
+      { label: "STANDORT / DETAILS", x: 230, width: 220 },
+      { label: "OFFEN", x: 478, width: 56, align: "right" }
+    ]);
+  }
+
+  private drawPurchaseOrderTableHeader(doc: PDFKit.PDFDocument, y: number) {
+    return drawTableHeader(doc, y, [
+      { label: "ARTIKEL", x: 56, width: 168 },
+      { label: "ART.-NR.", x: 232, width: 70 },
+      { label: "MENGE", x: 310, width: 48, align: "right" },
+      { label: "PREIS", x: 366, width: 64, align: "right" },
+      { label: "SUMME", x: 438, width: 64, align: "right" },
+      { label: "LINK", x: 510, width: 24, align: "right" }
+    ]);
+  }
+
+  private measurePurchaseOrderLine(
+    doc: PDFKit.PDFDocument,
+    line: PurchaseOrderPdfRecord["lines"][number],
+    includeLineNotes: boolean
+  ) {
+    const articleHeight = doc.font("Helvetica-Bold").fontSize(10).heightOfString(line.articleNameSnapshot, { width: 176 });
+    const noteHeight = includeLineNotes && line.note
+      ? doc.font("Helvetica").fontSize(8).heightOfString(line.note, { width: 454 }) + 10
+      : 0;
+    return Math.max(34, articleHeight + 16) + noteHeight;
+  }
+
+  private drawPurchaseOrderLine(
+    doc: PDFKit.PDFDocument,
+    y: number,
+    line: PurchaseOrderPdfRecord["lines"][number],
+    index: number,
+    includeLineNotes: boolean
+  ) {
+    const rowHeight = this.measurePurchaseOrderLine(doc, line, includeLineNotes);
+    if (index % 2 === 0) {
+      doc.rect(48, y - 4, doc.page.width - 96, rowHeight + 6).fill(palette.panelSoft);
+    }
+    doc.fillColor(palette.ink).font("Helvetica-Bold").fontSize(10).text(line.articleNameSnapshot, 48, y, { width: 176 });
+    doc.font("Helvetica").fontSize(8).fillColor(palette.muted).text(line.unitSnapshot, 48, y + 18, { width: 176 });
+    doc.fillColor(palette.ink).font("Helvetica").fontSize(9);
+    doc.text(line.supplierArticleNumberSnapshot ?? "-", 232, y + 2, { width: 70 });
+    doc.text(String(line.orderedQuantity), 310, y + 2, { width: 48, align: "right" });
+    doc.text(formatCents(line.grossUnitPriceCents), 366, y + 2, { width: 64, align: "right" });
+    doc.font("Helvetica-Bold").text(formatCents(line.grossUnitPriceCents * line.orderedQuantity), 438, y + 2, { width: 64, align: "right" });
+    if (line.articleUrlSnapshot) {
+      doc.fillColor(palette.ink).font("Helvetica-Bold").fontSize(9).text("Link", 510, y + 2, {
+        width: 34,
+        align: "right",
+        link: line.articleUrlSnapshot,
+        underline: true
+      });
+    } else {
+      doc.fillColor(palette.muted).font("Helvetica").fontSize(9).text("-", 510, y + 2, { width: 34, align: "right" });
+    }
+    if (includeLineNotes && line.note) {
+      doc.fillColor(palette.muted).font("Helvetica").fontSize(8).text(line.note, 48, y + 34, { width: 454 });
+    }
+    doc.moveTo(48, y + rowHeight + 8).lineTo(doc.page.width - 48, y + rowHeight + 8).strokeColor(palette.line).stroke();
+    return y + rowHeight + 10;
   }
 
   private measureProcurementOrderRow(doc: PDFKit.PDFDocument, order: ProcurementOrderReportRecord) {
@@ -409,14 +524,14 @@ export class ReportService {
     const detailText = procurementDetails(order).join("\n");
 
     if (index % 2 === 0) {
-      doc.rect(48, y - 4, doc.page.width - 96, rowHeight + 4).fill("#fafafa");
+      doc.rect(48, y - 4, doc.page.width - 96, rowHeight + 6).fill(palette.panelSoft);
     }
 
-    doc.fillColor("#000000").font("Helvetica-Bold").fontSize(11).text(order.article.name, 48, y, { width: 170 });
-    doc.font("Helvetica").fontSize(8).fillColor("#222222").text(detailText, 230, y, { width: 232 });
-    doc.fillColor("#000000").font("Helvetica-Bold").fontSize(16).text(String(remainingQuantity), 478, y + 2, { width: 56, align: "right" });
-    doc.font("Helvetica").fontSize(8).text(order.article.unit, 478, y + 22, { width: 56, align: "right" });
-    doc.font("Helvetica").fontSize(7).fillColor("#444444").text(formatProcurementStatus(order.status), 478, y + 34, { width: 56, align: "right" });
+    doc.fillColor(palette.ink).font("Helvetica-Bold").fontSize(11).text(order.article.name, 48, y, { width: 170 });
+    doc.font("Helvetica").fontSize(8).fillColor(palette.ink).text(detailText, 230, y, { width: 232 });
+    doc.fillColor(palette.ink).font("Helvetica-Bold").fontSize(16).text(String(remainingQuantity), 478, y + 2, { width: 56, align: "right" });
+    doc.font("Helvetica").fontSize(8).fillColor(palette.muted).text(order.article.unit, 478, y + 22, { width: 56, align: "right" });
+    doc.font("Helvetica-Bold").fontSize(7).fillColor(palette.muted).text(formatProcurementStatus(order.status), 478, y + 34, { width: 56, align: "right" });
 
     if (articleUrl) {
       const shopY = y + Math.max(
@@ -424,14 +539,14 @@ export class ReportService {
         doc.heightOfString(detailText, { width: 232 }),
         34
       ) + 6;
-      doc.fillColor("#000000").font("Helvetica").fontSize(8).text(`Shop: ${articleUrl}`, 48, shopY, {
+      doc.fillColor(palette.muted).font("Helvetica").fontSize(8).text(`Shop: ${articleUrl}`, 48, shopY, {
         width: 486,
         link: articleUrl,
         underline: true
       });
     }
 
-    doc.moveTo(48, y + rowHeight + 4).lineTo(doc.page.width - 48, y + rowHeight + 4).strokeColor(palette.line).stroke();
+    doc.moveTo(48, y + rowHeight + 8).lineTo(doc.page.width - 48, y + rowHeight + 8).strokeColor(palette.line).stroke();
     return y + rowHeight + 10;
   }
 
@@ -480,6 +595,21 @@ function formatOrderStatus(status: string) {
 function formatProcurementStatus(status: InventoryProcurementStatus) {
   if (status === InventoryProcurementStatus.OPEN) return "Offen";
   return "In Bearbeitung";
+}
+
+function formatPurchaseOrderStatus(status: PurchaseOrderStatus) {
+  if (status === PurchaseOrderStatus.DRAFT) return "Entwurf";
+  if (status === PurchaseOrderStatus.APPROVED) return "Freigegeben";
+  if (status === PurchaseOrderStatus.ORDERED) return "Bestellt";
+  if (status === PurchaseOrderStatus.PARTIALLY_RECEIVED) return "Teilweise erhalten";
+  return "Erhalten";
+}
+
+function formatCents(cents: number) {
+  return new Intl.NumberFormat("de-DE", {
+    style: "currency",
+    currency: "EUR"
+  }).format(cents / 100);
 }
 
 function procurementDetails(order: ProcurementOrderReportRecord) {

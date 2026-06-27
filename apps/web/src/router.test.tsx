@@ -1,5 +1,5 @@
 import { screen, waitFor, within } from "@testing-library/react";
-import { batch, kit, order } from "./test-support/fixtures";
+import { batch, kit, order, purchaseOrder } from "./test-support/fixtures";
 import { clickElement, renderAppAt, resetTestBrowser, stubFetch } from "./test-support/app-test-helpers";
 
 describe("RescueBase routes", () => {
@@ -45,6 +45,38 @@ describe("RescueBase routes", () => {
 
     await clickElement(screen.getByRole("button", { name: "Menü schließen" }));
     await waitFor(() => expect(screen.queryByRole("dialog", { name: "Navigation" })).toBeNull());
+  });
+
+  it("renders the purchase-order list from the Bestellungen route", async () => {
+    stubFetch({
+      "/api/auth/setup/status": { initialized: true, appName: "RescueBase Pro", appSubtitle: "Bereitschaft Nord" },
+      "/api/auth/session": { user: { id: "user-admin", email: "admin@rescuebase.local", displayName: "Admin", role: "ADMIN", twoFactorEnabled: false }, appName: "RescueBase Pro", appSubtitle: "Bereitschaft Nord" },
+      "/api/purchase-orders": [purchaseOrder]
+    });
+
+    await renderAppAt("/admin/purchase-orders");
+
+    expect(await screen.findByRole("heading", { name: "Bestellungen" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: /Bestellungen/ })).toBeInTheDocument();
+    expect(screen.getByText("PO-2026-000001")).toBeInTheDocument();
+    expect(screen.getByText(/MediSafe Einkauf/)).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: /PDF/ })).toHaveAttribute("href", "/api/reports/purchase-orders/purchase-order-1.pdf");
+  });
+
+  it("renders the purchase-order detail without duplicating the admin sidebar", async () => {
+    stubFetch({
+      "/api/auth/setup/status": { initialized: true, appName: "RescueBase Pro", appSubtitle: "Bereitschaft Nord" },
+      "/api/auth/session": { user: { id: "user-admin", email: "admin@rescuebase.local", displayName: "Admin", role: "ADMIN", twoFactorEnabled: false }, appName: "RescueBase Pro", appSubtitle: "Bereitschaft Nord" },
+      "/api/purchase-orders/purchase-order-1": purchaseOrder,
+      "/api/purchase-orders": [purchaseOrder]
+    });
+
+    await renderAppAt("/admin/purchase-orders/purchase-order-1");
+
+    expect(await screen.findByRole("heading", { name: "PO-2026-000001" })).toBeInTheDocument();
+    expect(document.querySelectorAll(".sidebar")).toHaveLength(1);
+    expect(screen.getByRole("button", { name: /Freigeben/ })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Zurück" })).toHaveAttribute("href", "/admin/purchase-orders");
   });
 
   it("renders the public check route from the token path", async () => {

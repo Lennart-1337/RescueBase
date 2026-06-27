@@ -553,6 +553,8 @@ type ArticleWriteBody = {
   category?: string;
   barcode?: string;
   articleUrl?: string;
+  defaultSupplierName?: string;
+  defaultGrossPriceCents?: number | string;
   sterile?: boolean;
   medicalDevice?: boolean;
   stkRequired?: boolean;
@@ -575,6 +577,8 @@ function toArticleWriteData(body: ArticleWriteBody) {
     category: optionalText(body.category),
     barcode: optionalText(body.barcode),
     articleUrl: optionalUrl(body.articleUrl),
+    defaultSupplierName: optionalText(body.defaultSupplierName),
+    defaultGrossPriceCents: normalizeOptionalCents(body.defaultGrossPriceCents),
     sterile: Boolean(body.sterile),
     medicalDevice: Boolean(body.medicalDevice),
     stkRequired,
@@ -619,6 +623,15 @@ function optionalUrl(value?: string) {
   } catch {
     throw new BadRequestException("Artikel-Link muss eine gültige http- oder https-URL sein.");
   }
+}
+
+function normalizeOptionalCents(value: number | string | undefined) {
+  if (value === undefined || String(value).trim() === "") return null;
+  const normalized = Math.trunc(Number(value));
+  if (!Number.isFinite(normalized) || normalized < 0) {
+    throw new BadRequestException("Preis muss als ganze Cent-Zahl größer oder gleich 0 angegeben werden.");
+  }
+  return normalized;
 }
 
 function isPrismaUniqueError(error: unknown): boolean {

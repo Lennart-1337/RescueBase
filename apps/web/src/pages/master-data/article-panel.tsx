@@ -7,6 +7,7 @@ import type { Article, CreateArticleRequest, UpdateArticleRequest } from "../../
 import { InlineError } from "../../components/state-panels";
 import { Button, Dialog, Field, Panel } from "../../components/ui";
 import { ArticleListRow } from "./article-list-row";
+import { centsInput, parseCents } from "../purchase-orders/format";
 import type { ReorderDirection } from "./reorder";
 import "./article-panel.css";
 
@@ -20,6 +21,8 @@ type ArticleDraft = {
   category: string;
   barcode: string;
   articleUrl: string;
+  defaultSupplierName: string;
+  defaultGrossPrice: string;
   sterile: boolean;
   medicalDevice: boolean;
   stkRequired: boolean;
@@ -74,6 +77,8 @@ export function ArticlePanel(props: {
       category: article.category ?? "",
       barcode: article.barcode ?? "",
       articleUrl: article.articleUrl ?? "",
+      defaultSupplierName: article.defaultSupplierName ?? "",
+      defaultGrossPrice: centsInput(article.defaultGrossPriceCents),
       sterile: article.sterile,
       medicalDevice: article.medicalDevice ?? false,
       stkRequired: article.stkRequired ?? false,
@@ -96,6 +101,8 @@ export function ArticlePanel(props: {
       category: optionalText(draft.category),
       barcode: optionalText(draft.barcode),
       articleUrl: optionalText(draft.articleUrl),
+      defaultSupplierName: optionalText(draft.defaultSupplierName),
+      defaultGrossPriceCents: optionalCents(draft.defaultGrossPrice),
       sterile: draft.sterile,
       medicalDevice: draft.medicalDevice,
       stkRequired: draft.stkRequired,
@@ -167,6 +174,8 @@ export function ArticlePanel(props: {
           <Field label="Hersteller-Art.-Nr."><input onChange={(event) => setDraft((current) => ({ ...current, manufacturerPartNumber: event.target.value }))} value={draft.manufacturerPartNumber} /></Field>
           <Field label="Barcode/DataMatrix"><input onChange={(event) => setDraft((current) => ({ ...current, barcode: event.target.value }))} value={draft.barcode} /></Field>
           <Field label="Artikel-Link"><input onChange={(event) => setDraft((current) => ({ ...current, articleUrl: event.target.value }))} placeholder="https://…" type="url" value={draft.articleUrl} /></Field>
+          <Field label="Standard-Lieferant"><input onChange={(event) => setDraft((current) => ({ ...current, defaultSupplierName: event.target.value }))} value={draft.defaultSupplierName} /></Field>
+          <Field label="Standardpreis brutto"><input inputMode="decimal" onChange={(event) => setDraft((current) => ({ ...current, defaultGrossPrice: event.target.value }))} placeholder="0,00" value={draft.defaultGrossPrice} /></Field>
           <Field label="Lagerhinweise"><input onChange={(event) => setDraft((current) => ({ ...current, storageNotes: event.target.value }))} value={draft.storageNotes} /></Field>
           <Field label="Hinweise"><textarea onChange={(event) => setDraft((current) => ({ ...current, notes: event.target.value }))} rows={1} value={draft.notes} /></Field>
           <div className="form-grid">
@@ -187,7 +196,7 @@ export function ArticlePanel(props: {
 }
 
 function emptyDraft(): ArticleDraft {
-  return { isOpen: false, editingId: null, name: "", unit: "Stück", manufacturer: "", manufacturerPartNumber: "", category: "", barcode: "", articleUrl: "", sterile: false, medicalDevice: false, stkRequired: false, stkIntervalMonths: "", mtkRequired: false, mtkIntervalMonths: "", storageNotes: "", notes: "", criticalDefault: false };
+  return { isOpen: false, editingId: null, name: "", unit: "Stück", manufacturer: "", manufacturerPartNumber: "", category: "", barcode: "", articleUrl: "", defaultSupplierName: "", defaultGrossPrice: "", sterile: false, medicalDevice: false, stkRequired: false, stkIntervalMonths: "", mtkRequired: false, mtkIntervalMonths: "", storageNotes: "", notes: "", criticalDefault: false };
 }
 
 function optionalText(value: string) {
@@ -198,6 +207,10 @@ function optionalText(value: string) {
 function intervalValue(required: boolean, value: string) {
   if (!required) return undefined;
   return Number.parseInt(value, 10);
+}
+
+function optionalCents(value: string) {
+  return value.trim() ? parseCents(value) : undefined;
 }
 
 function intervalsValid(draft: ArticleDraft) {

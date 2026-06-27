@@ -18,6 +18,7 @@ const rescueBaseOpenApiDocumentDefinition = {
     { name: "Auth" },
     { name: "Stammdaten" },
     { name: "Lager" },
+    { name: "Bestellungen" },
     { name: "Öffentliche Checks" },
     { name: "Check-Protokolle" },
     { name: "Nachfüllaufträge" },
@@ -39,6 +40,7 @@ const rescueBaseOpenApiDocumentDefinition = {
       KitOperationalStatus: stringEnum(["READY", "CONDITIONAL", "NOT_READY"]),
       ReplenishmentStatus: stringEnum(["OPEN", "IN_PROGRESS", "DONE", "CANCELLED"]),
       InventoryProcurementStatus: stringEnum(["OPEN", "IN_PROGRESS", "DONE", "CANCELLED"]),
+      PurchaseOrderStatus: stringEnum(["DRAFT", "APPROVED", "ORDERED", "PARTIALLY_RECEIVED", "RECEIVED"]),
       ReplenishmentReason: stringEnum(["SHORTAGE", "DISCARDED_EXPIRED", "SHORTAGE_AND_DISCARDED_EXPIRED"]),
       AppBranding: objectSchema({
         appName: { type: "string", example: "RescueBase" },
@@ -170,6 +172,8 @@ const rescueBaseOpenApiDocumentDefinition = {
         category: { type: "string" },
         barcode: { type: "string" },
         articleUrl: { type: "string", format: "uri" },
+        defaultSupplierName: { type: "string" },
+        defaultGrossPriceCents: { type: "integer", minimum: 0 },
         sterile: { type: "boolean" },
         medicalDevice: { type: "boolean" },
         stkRequired: { type: "boolean" },
@@ -190,6 +194,8 @@ const rescueBaseOpenApiDocumentDefinition = {
         category: { type: "string" },
         barcode: { type: "string" },
         articleUrl: { type: "string", format: "uri" },
+        defaultSupplierName: { type: "string" },
+        defaultGrossPriceCents: { type: "integer", minimum: 0 },
         sterile: { type: "boolean" },
         medicalDevice: { type: "boolean" },
         stkRequired: { type: "boolean" },
@@ -208,6 +214,8 @@ const rescueBaseOpenApiDocumentDefinition = {
         category: { type: "string" },
         barcode: { type: "string" },
         articleUrl: { type: "string", format: "uri" },
+        defaultSupplierName: { type: "string" },
+        defaultGrossPriceCents: { type: "integer", minimum: 0 },
         sterile: { type: "boolean" },
         medicalDevice: { type: "boolean" },
         stkRequired: { type: "boolean" },
@@ -450,6 +458,92 @@ const rescueBaseOpenApiDocumentDefinition = {
         items: arrayOf(ref("ReceiveProcurementOrderItemRequest")),
         verified: { type: "boolean" }
       }, ["items", "verified"]),
+      PurchaseOrderLine: objectSchema({
+        id: { type: "string" },
+        articleId: { type: "string" },
+        articleName: { type: "string" },
+        supplierArticleNumber: { type: "string" },
+        articleUrl: { type: "string", format: "uri" },
+        manufacturerPartNumber: { type: "string" },
+        unit: { type: "string" },
+        grossUnitPriceCents: { type: "integer", minimum: 0 },
+        orderedQuantity: { type: "integer", minimum: 1 },
+        receivedQuantity: { type: "integer", minimum: 0 },
+        remainingQuantity: { type: "integer", minimum: 0 },
+        lineTotalGrossCents: { type: "integer", minimum: 0 },
+        note: { type: "string" }
+      }, ["id", "articleId", "articleName", "unit", "grossUnitPriceCents", "orderedQuantity", "receivedQuantity", "remainingQuantity", "lineTotalGrossCents"]),
+      PurchaseOrderReceipt: objectSchema({
+        id: { type: "string" },
+        lineId: { type: "string" },
+        batchId: { type: "string" },
+        quantity: { type: "integer", minimum: 1 },
+        lotNumber: { type: "string" },
+        expiresAt: { type: "string", format: "date" },
+        receivedAt: { type: "string", format: "date-time" },
+        receivedBy: { type: "string" },
+        createdAt: { type: "string", format: "date-time" }
+      }, ["id", "lineId", "batchId", "quantity", "lotNumber", "expiresAt", "receivedAt", "receivedBy", "createdAt"]),
+      PurchaseOrder: objectSchema({
+        id: { type: "string" },
+        orderNumber: { type: "string" },
+        supplierName: { type: "string" },
+        locationId: { type: "string" },
+        status: ref("PurchaseOrderStatus"),
+        notes: { type: "string" },
+        approvedAt: { type: "string", format: "date-time" },
+        approvedByName: { type: "string" },
+        orderedAt: { type: "string", format: "date-time" },
+        receivedAt: { type: "string", format: "date-time" },
+        totalGrossCents: { type: "integer", minimum: 0 },
+        createdAt: { type: "string", format: "date-time" },
+        updatedAt: { type: "string", format: "date-time" },
+        location: ref("InventoryTargetLocation"),
+        lines: arrayOf(ref("PurchaseOrderLine")),
+        receipts: arrayOf(ref("PurchaseOrderReceipt"))
+      }, ["id", "orderNumber", "supplierName", "locationId", "status", "totalGrossCents", "createdAt", "updatedAt", "location", "lines", "receipts"]),
+      PurchaseOrderLineWriteRequest: objectSchema({
+        articleId: { type: "string" },
+        orderedQuantity: { type: "integer", minimum: 1 },
+        grossUnitPriceCents: { type: "integer", minimum: 0 },
+        note: { type: "string" },
+        supplierArticleNumber: { type: "string" }
+      }, ["articleId", "orderedQuantity"]),
+      PurchaseOrderWriteRequest: objectSchema({
+        supplierName: { type: "string" },
+        locationId: { type: "string" },
+        notes: { type: "string" },
+        lines: arrayOf(ref("PurchaseOrderLineWriteRequest"))
+      }, ["supplierName", "locationId", "lines"]),
+      PurchaseOrderLineNoteRequest: objectSchema({
+        lineId: { type: "string" },
+        note: { type: "string" }
+      }, ["lineId"]),
+      UpdatePurchaseOrderRequest: objectSchema({
+        supplierName: { type: "string" },
+        locationId: { type: "string" },
+        notes: { type: "string" },
+        lines: arrayOf(ref("PurchaseOrderLineWriteRequest")),
+        lineNotes: arrayOf(ref("PurchaseOrderLineNoteRequest"))
+      }),
+      CreatePurchaseOrdersFromShortagesRequest: objectSchema({
+        locationId: { type: "string" },
+        groupingMode: stringEnum(["single", "supplier"]),
+        supplierName: { type: "string" },
+        articleIds: arrayOf({ type: "string" })
+      }, ["locationId", "groupingMode"]),
+      PurchaseOrderReceiptBatchRequest: objectSchema({
+        lotNumber: { type: "string" },
+        expiresAt: { type: "string", format: "date" },
+        quantity: { type: "integer", minimum: 1 }
+      }, ["lotNumber", "expiresAt", "quantity"]),
+      PurchaseOrderReceiveLineRequest: objectSchema({
+        lineId: { type: "string" },
+        batches: arrayOf(ref("PurchaseOrderReceiptBatchRequest"))
+      }, ["lineId", "batches"]),
+      ReceivePurchaseOrderRequest: objectSchema({
+        lines: arrayOf(ref("PurchaseOrderReceiveLineRequest"))
+      }, ["lines"]),
       InventoryAutomationConfig: objectSchema({
         enabled: { type: "boolean" },
         dailyReconcileTime: { type: "string" },
@@ -785,6 +879,26 @@ const rescueBaseOpenApiDocumentDefinition = {
     "/inventory/expiry-warnings": {
       get: operation("Lager", "InventoryController_expiryWarnings", {}, response(200, "Expiry warnings", arrayOf(ref("ExpiryWarning"))))
     },
+    "/purchase-orders": {
+      get: operation("Bestellungen", "PurchaseOrdersController_list", {}, response(200, "Purchase orders", arrayOf(ref("PurchaseOrder")))),
+      post: operation("Bestellungen", "PurchaseOrdersController_create", request("PurchaseOrderWriteRequest"), response(201, "Purchase order created", ref("PurchaseOrder")))
+    },
+    "/purchase-orders/from-shortages": {
+      post: operation("Bestellungen", "PurchaseOrdersController_createFromShortages", request("CreatePurchaseOrdersFromShortagesRequest"), response(201, "Purchase orders created", arrayOf(ref("PurchaseOrder"))))
+    },
+    "/purchase-orders/{id}": {
+      get: operation("Bestellungen", "PurchaseOrdersController_get", pathParam("id"), response(200, "Purchase order", ref("PurchaseOrder"))),
+      patch: operation("Bestellungen", "PurchaseOrdersController_update", { ...pathParam("id"), ...request("UpdatePurchaseOrderRequest") }, response(200, "Purchase order updated", ref("PurchaseOrder")))
+    },
+    "/purchase-orders/{id}/approve": {
+      post: operation("Bestellungen", "PurchaseOrdersController_approve", pathParam("id"), response(201, "Purchase order approved", ref("PurchaseOrder")))
+    },
+    "/purchase-orders/{id}/order": {
+      post: operation("Bestellungen", "PurchaseOrdersController_markOrdered", pathParam("id"), response(201, "Purchase order marked ordered", ref("PurchaseOrder")))
+    },
+    "/purchase-orders/{id}/receive": {
+      post: operation("Bestellungen", "PurchaseOrdersController_receive", { ...pathParam("id"), ...request("ReceivePurchaseOrderRequest") }, response(201, "Purchase order received", ref("PurchaseOrder")))
+    },
     "/public/kits/{token}": {
       get: operation("Öffentliche Checks", "PublicChecksController_getPublicKit", pathParam("token"), response(200, "Public kit", ref("PublicKitResponse")), false)
     },
@@ -833,7 +947,17 @@ const rescueBaseOpenApiDocumentDefinition = {
         }
       ])
     },
-    "/reports/replenishment/{orderId}.pdf": { get: fileOperation("Reports", "ReportsController_replenishment", pdf, "orderId") }
+    "/reports/replenishment/{orderId}.pdf": { get: fileOperation("Reports", "ReportsController_replenishment", pdf, "orderId") },
+    "/reports/purchase-orders/{orderId}.pdf": {
+      get: fileOperation("Reports", "ReportsController_purchaseOrder", pdf, "orderId", [
+        {
+          name: "includeLineNotes",
+          in: "query",
+          required: false,
+          schema: { type: "string", enum: ["true", "false"] }
+        }
+      ])
+    }
   }
 };
 

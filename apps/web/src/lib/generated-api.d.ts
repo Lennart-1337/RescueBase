@@ -836,6 +836,102 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/purchase-orders": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["PurchaseOrdersController_list"];
+        put?: never;
+        post: operations["PurchaseOrdersController_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/purchase-orders/from-shortages": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["PurchaseOrdersController_createFromShortages"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/purchase-orders/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["PurchaseOrdersController_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch: operations["PurchaseOrdersController_update"];
+        trace?: never;
+    };
+    "/purchase-orders/{id}/approve": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["PurchaseOrdersController_approve"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/purchase-orders/{id}/order": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["PurchaseOrdersController_markOrdered"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/purchase-orders/{id}/receive": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["PurchaseOrdersController_receive"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/public/kits/{token}": {
         parameters: {
             query?: never;
@@ -1060,6 +1156,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/reports/purchase-orders/{orderId}.pdf": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["ReportsController_purchaseOrder"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -1074,6 +1186,8 @@ export interface components {
         ReplenishmentStatus: "OPEN" | "IN_PROGRESS" | "DONE" | "CANCELLED";
         /** @enum {string} */
         InventoryProcurementStatus: "OPEN" | "IN_PROGRESS" | "DONE" | "CANCELLED";
+        /** @enum {string} */
+        PurchaseOrderStatus: "DRAFT" | "APPROVED" | "ORDERED" | "PARTIALLY_RECEIVED" | "RECEIVED";
         /** @enum {string} */
         ReplenishmentReason: "SHORTAGE" | "DISCARDED_EXPIRED" | "SHORTAGE_AND_DISCARDED_EXPIRED";
         AppBranding: {
@@ -1228,6 +1342,8 @@ export interface components {
             barcode?: string;
             /** Format: uri */
             articleUrl?: string;
+            defaultSupplierName?: string;
+            defaultGrossPriceCents?: number;
             sterile: boolean;
             medicalDevice?: boolean;
             stkRequired?: boolean;
@@ -1251,6 +1367,8 @@ export interface components {
             barcode?: string;
             /** Format: uri */
             articleUrl?: string;
+            defaultSupplierName?: string;
+            defaultGrossPriceCents?: number;
             sterile: boolean;
             medicalDevice?: boolean;
             stkRequired?: boolean;
@@ -1270,6 +1388,8 @@ export interface components {
             barcode?: string;
             /** Format: uri */
             articleUrl?: string;
+            defaultSupplierName?: string;
+            defaultGrossPriceCents?: number;
             sterile: boolean;
             medicalDevice?: boolean;
             stkRequired?: boolean;
@@ -1542,6 +1662,103 @@ export interface components {
         ReceiveProcurementOrderRequest: {
             items: components["schemas"]["ReceiveProcurementOrderItemRequest"][];
             verified: boolean;
+        };
+        PurchaseOrderLine: {
+            id: string;
+            articleId: string;
+            articleName: string;
+            supplierArticleNumber?: string;
+            /** Format: uri */
+            articleUrl?: string;
+            manufacturerPartNumber?: string;
+            unit: string;
+            grossUnitPriceCents: number;
+            orderedQuantity: number;
+            receivedQuantity: number;
+            remainingQuantity: number;
+            lineTotalGrossCents: number;
+            note?: string;
+        };
+        PurchaseOrderReceipt: {
+            id: string;
+            lineId: string;
+            batchId: string;
+            quantity: number;
+            lotNumber: string;
+            /** Format: date */
+            expiresAt: string;
+            /** Format: date-time */
+            receivedAt: string;
+            receivedBy: string;
+            /** Format: date-time */
+            createdAt: string;
+        };
+        PurchaseOrder: {
+            id: string;
+            orderNumber: string;
+            supplierName: string;
+            locationId: string;
+            status: components["schemas"]["PurchaseOrderStatus"];
+            notes?: string;
+            /** Format: date-time */
+            approvedAt?: string;
+            approvedByName?: string;
+            /** Format: date-time */
+            orderedAt?: string;
+            /** Format: date-time */
+            receivedAt?: string;
+            totalGrossCents: number;
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: date-time */
+            updatedAt: string;
+            location: components["schemas"]["InventoryTargetLocation"];
+            lines: components["schemas"]["PurchaseOrderLine"][];
+            receipts: components["schemas"]["PurchaseOrderReceipt"][];
+        };
+        PurchaseOrderLineWriteRequest: {
+            articleId: string;
+            orderedQuantity: number;
+            grossUnitPriceCents?: number;
+            note?: string;
+            supplierArticleNumber?: string;
+        };
+        PurchaseOrderWriteRequest: {
+            supplierName: string;
+            locationId: string;
+            notes?: string;
+            lines: components["schemas"]["PurchaseOrderLineWriteRequest"][];
+        };
+        PurchaseOrderLineNoteRequest: {
+            lineId: string;
+            note?: string;
+        };
+        UpdatePurchaseOrderRequest: {
+            supplierName?: string;
+            locationId?: string;
+            notes?: string;
+            lines?: components["schemas"]["PurchaseOrderLineWriteRequest"][];
+            lineNotes?: components["schemas"]["PurchaseOrderLineNoteRequest"][];
+        };
+        CreatePurchaseOrdersFromShortagesRequest: {
+            locationId: string;
+            /** @enum {string} */
+            groupingMode: "single" | "supplier";
+            supplierName?: string;
+            articleIds?: string[];
+        };
+        PurchaseOrderReceiptBatchRequest: {
+            lotNumber: string;
+            /** Format: date */
+            expiresAt: string;
+            quantity: number;
+        };
+        PurchaseOrderReceiveLineRequest: {
+            lineId: string;
+            batches: components["schemas"]["PurchaseOrderReceiptBatchRequest"][];
+        };
+        ReceivePurchaseOrderRequest: {
+            lines: components["schemas"]["PurchaseOrderReceiveLineRequest"][];
         };
         InventoryAutomationConfig: {
             enabled: boolean;
@@ -3252,6 +3469,192 @@ export interface operations {
             };
         };
     };
+    PurchaseOrdersController_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Purchase orders */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PurchaseOrder"][];
+                };
+            };
+        };
+    };
+    PurchaseOrdersController_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PurchaseOrderWriteRequest"];
+            };
+        };
+        responses: {
+            /** @description Purchase order created */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PurchaseOrder"];
+                };
+            };
+        };
+    };
+    PurchaseOrdersController_createFromShortages: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreatePurchaseOrdersFromShortagesRequest"];
+            };
+        };
+        responses: {
+            /** @description Purchase orders created */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PurchaseOrder"][];
+                };
+            };
+        };
+    };
+    PurchaseOrdersController_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Purchase order */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PurchaseOrder"];
+                };
+            };
+        };
+    };
+    PurchaseOrdersController_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdatePurchaseOrderRequest"];
+            };
+        };
+        responses: {
+            /** @description Purchase order updated */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PurchaseOrder"];
+                };
+            };
+        };
+    };
+    PurchaseOrdersController_approve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Purchase order approved */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PurchaseOrder"];
+                };
+            };
+        };
+    };
+    PurchaseOrdersController_markOrdered: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Purchase order marked ordered */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PurchaseOrder"];
+                };
+            };
+        };
+    };
+    PurchaseOrdersController_receive: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ReceivePurchaseOrderRequest"];
+            };
+        };
+        responses: {
+            /** @description Purchase order received */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PurchaseOrder"];
+                };
+            };
+        };
+    };
     PublicChecksController_getPublicKit: {
         parameters: {
             query?: never;
@@ -3548,6 +3951,30 @@ export interface operations {
     ReportsController_replenishment: {
         parameters: {
             query?: never;
+            header?: never;
+            path: {
+                orderId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Binary report */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/pdf": string;
+                };
+            };
+        };
+    };
+    ReportsController_purchaseOrder: {
+        parameters: {
+            query?: {
+                includeLineNotes?: "true" | "false";
+            };
             header?: never;
             path: {
                 orderId: string;

@@ -1,6 +1,7 @@
 import { useEffect, useId, useMemo, useRef, useState, type KeyboardEvent } from "react";
 import { Check, ChevronDown } from "lucide-react";
 import { cn } from "./ui";
+import "./searchable-select.css";
 
 type Option = { label: string; value: string; keywords?: string[] };
 

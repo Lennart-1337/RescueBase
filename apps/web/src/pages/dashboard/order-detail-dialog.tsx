@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Button, Dialog } from "../../components/ui";
 import type { Batch, ReplenishmentOrder } from "../../lib/types";
 import { OrderDetail } from "./order-detail";
+import "./order-detail-dialog.css";
 
 export function OrderDetailDialog(props: { batches: Batch[]; error: Error | null; formatReason: (reason: string) => string; formatStatus: (status: string) => string; isOpen: boolean; isSubmitting: boolean; onClose: () => void; onFulfill: (items: Array<{ itemId: string; batchId: string; quantity: number }>) => void; order: ReplenishmentOrder | null; pdfHref?: string; selectedBatchQuantity: (batches: Batch[], batchId: string) => number; }) {
   const [fulfillmentItems, setFulfillmentItems] = useState<Array<{ itemId: string; batchId: string; quantity: number }>>([]);

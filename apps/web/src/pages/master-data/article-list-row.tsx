@@ -1,6 +1,7 @@
 import { ExternalLink, Pencil, Trash2 } from "lucide-react";
 import type { Article } from "../../lib/types";
 import { AnchorButton, Badge, Button } from "../../components/ui";
+import { formatMoney } from "../purchase-orders/format";
 import type { ReorderDirection } from "./reorder";
 import { ReorderControls } from "./reorder-controls";
 import "./article-list-row.css";
@@ -20,7 +21,7 @@ export function ArticleListRow(props: {
     <div className="table-row article-list-row">
       <span className="article-row-main">
         <strong>{article.name}</strong>
-        <small>{article.unit}{article.barcode ? ` · ${article.barcode}` : ""}</small>
+        <small>{article.unit}{article.barcode ? ` · ${article.barcode}` : ""}{article.defaultSupplierName ? ` · ${article.defaultSupplierName}` : ""}</small>
       </span>
       <span className="article-row-detail">
         <small>{article.notes || ""}</small>
@@ -35,6 +36,7 @@ export function ArticleListRow(props: {
         {article.criticalDefault ? <Badge>kritisch</Badge> : null}
         {article.stkRequired ? <Badge>STK</Badge> : null}
         {article.mtkRequired ? <Badge>MTK</Badge> : null}
+        {typeof article.defaultGrossPriceCents === "number" ? <Badge>{formatMoney(article.defaultGrossPriceCents)}</Badge> : null}
       </div>
       <div className="article-row-actions row-action-buttons">
         <ReorderControls disabled={props.isSubmitting} isFirst={!props.canMoveUp} isLast={!props.canMoveDown} label={article.name} onMove={props.onMove} />

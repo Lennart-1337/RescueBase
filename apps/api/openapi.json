@@ -22,6 +22,9 @@
       "name": "Lager"
     },
     {
+      "name": "Bestellungen"
+    },
+    {
       "name": "Öffentliche Checks"
     },
     {
@@ -87,6 +90,16 @@
           "IN_PROGRESS",
           "DONE",
           "CANCELLED"
+        ]
+      },
+      "PurchaseOrderStatus": {
+        "type": "string",
+        "enum": [
+          "DRAFT",
+          "APPROVED",
+          "ORDERED",
+          "PARTIALLY_RECEIVED",
+          "RECEIVED"
         ]
       },
       "ReplenishmentReason": {
@@ -624,6 +637,13 @@
             "type": "string",
             "format": "uri"
           },
+          "defaultSupplierName": {
+            "type": "string"
+          },
+          "defaultGrossPriceCents": {
+            "type": "integer",
+            "minimum": 0
+          },
           "sterile": {
             "type": "boolean"
           },
@@ -694,6 +714,13 @@
             "type": "string",
             "format": "uri"
           },
+          "defaultSupplierName": {
+            "type": "string"
+          },
+          "defaultGrossPriceCents": {
+            "type": "integer",
+            "minimum": 0
+          },
           "sterile": {
             "type": "boolean"
           },
@@ -754,6 +781,13 @@
           "articleUrl": {
             "type": "string",
             "format": "uri"
+          },
+          "defaultSupplierName": {
+            "type": "string"
+          },
+          "defaultGrossPriceCents": {
+            "type": "integer",
+            "minimum": 0
           },
           "sterile": {
             "type": "boolean"
@@ -1777,6 +1811,376 @@
         "required": [
           "items",
           "verified"
+        ],
+        "additionalProperties": false
+      },
+      "PurchaseOrderLine": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "articleId": {
+            "type": "string"
+          },
+          "articleName": {
+            "type": "string"
+          },
+          "supplierArticleNumber": {
+            "type": "string"
+          },
+          "articleUrl": {
+            "type": "string",
+            "format": "uri"
+          },
+          "manufacturerPartNumber": {
+            "type": "string"
+          },
+          "unit": {
+            "type": "string"
+          },
+          "grossUnitPriceCents": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "orderedQuantity": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "receivedQuantity": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "remainingQuantity": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "lineTotalGrossCents": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "note": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "articleId",
+          "articleName",
+          "unit",
+          "grossUnitPriceCents",
+          "orderedQuantity",
+          "receivedQuantity",
+          "remainingQuantity",
+          "lineTotalGrossCents"
+        ],
+        "additionalProperties": false
+      },
+      "PurchaseOrderReceipt": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "lineId": {
+            "type": "string"
+          },
+          "batchId": {
+            "type": "string"
+          },
+          "quantity": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "lotNumber": {
+            "type": "string"
+          },
+          "expiresAt": {
+            "type": "string",
+            "format": "date"
+          },
+          "receivedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "receivedBy": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "lineId",
+          "batchId",
+          "quantity",
+          "lotNumber",
+          "expiresAt",
+          "receivedAt",
+          "receivedBy",
+          "createdAt"
+        ],
+        "additionalProperties": false
+      },
+      "PurchaseOrder": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "orderNumber": {
+            "type": "string"
+          },
+          "supplierName": {
+            "type": "string"
+          },
+          "locationId": {
+            "type": "string"
+          },
+          "status": {
+            "$ref": "#/components/schemas/PurchaseOrderStatus"
+          },
+          "notes": {
+            "type": "string"
+          },
+          "approvedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "approvedByName": {
+            "type": "string"
+          },
+          "orderedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "receivedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "totalGrossCents": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "location": {
+            "$ref": "#/components/schemas/InventoryTargetLocation"
+          },
+          "lines": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PurchaseOrderLine"
+            }
+          },
+          "receipts": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PurchaseOrderReceipt"
+            }
+          }
+        },
+        "required": [
+          "id",
+          "orderNumber",
+          "supplierName",
+          "locationId",
+          "status",
+          "totalGrossCents",
+          "createdAt",
+          "updatedAt",
+          "location",
+          "lines",
+          "receipts"
+        ],
+        "additionalProperties": false
+      },
+      "PurchaseOrderLineWriteRequest": {
+        "type": "object",
+        "properties": {
+          "articleId": {
+            "type": "string"
+          },
+          "orderedQuantity": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "grossUnitPriceCents": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "note": {
+            "type": "string"
+          },
+          "supplierArticleNumber": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "articleId",
+          "orderedQuantity"
+        ],
+        "additionalProperties": false
+      },
+      "PurchaseOrderWriteRequest": {
+        "type": "object",
+        "properties": {
+          "supplierName": {
+            "type": "string"
+          },
+          "locationId": {
+            "type": "string"
+          },
+          "notes": {
+            "type": "string"
+          },
+          "lines": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PurchaseOrderLineWriteRequest"
+            }
+          }
+        },
+        "required": [
+          "supplierName",
+          "locationId",
+          "lines"
+        ],
+        "additionalProperties": false
+      },
+      "PurchaseOrderLineNoteRequest": {
+        "type": "object",
+        "properties": {
+          "lineId": {
+            "type": "string"
+          },
+          "note": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "lineId"
+        ],
+        "additionalProperties": false
+      },
+      "UpdatePurchaseOrderRequest": {
+        "type": "object",
+        "properties": {
+          "supplierName": {
+            "type": "string"
+          },
+          "locationId": {
+            "type": "string"
+          },
+          "notes": {
+            "type": "string"
+          },
+          "lines": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PurchaseOrderLineWriteRequest"
+            }
+          },
+          "lineNotes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PurchaseOrderLineNoteRequest"
+            }
+          }
+        },
+        "required": [],
+        "additionalProperties": false
+      },
+      "CreatePurchaseOrdersFromShortagesRequest": {
+        "type": "object",
+        "properties": {
+          "locationId": {
+            "type": "string"
+          },
+          "groupingMode": {
+            "type": "string",
+            "enum": [
+              "single",
+              "supplier"
+            ]
+          },
+          "supplierName": {
+            "type": "string"
+          },
+          "articleIds": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "locationId",
+          "groupingMode"
+        ],
+        "additionalProperties": false
+      },
+      "PurchaseOrderReceiptBatchRequest": {
+        "type": "object",
+        "properties": {
+          "lotNumber": {
+            "type": "string"
+          },
+          "expiresAt": {
+            "type": "string",
+            "format": "date"
+          },
+          "quantity": {
+            "type": "integer",
+            "minimum": 1
+          }
+        },
+        "required": [
+          "lotNumber",
+          "expiresAt",
+          "quantity"
+        ],
+        "additionalProperties": false
+      },
+      "PurchaseOrderReceiveLineRequest": {
+        "type": "object",
+        "properties": {
+          "lineId": {
+            "type": "string"
+          },
+          "batches": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PurchaseOrderReceiptBatchRequest"
+            }
+          }
+        },
+        "required": [
+          "lineId",
+          "batches"
+        ],
+        "additionalProperties": false
+      },
+      "ReceivePurchaseOrderRequest": {
+        "type": "object",
+        "properties": {
+          "lines": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PurchaseOrderReceiveLineRequest"
+            }
+          }
+        },
+        "required": [
+          "lines"
         ],
         "additionalProperties": false
       },
@@ -4627,6 +5031,258 @@
         }
       }
     },
+    "/purchase-orders": {
+      "get": {
+        "tags": [
+          "Bestellungen"
+        ],
+        "operationId": "PurchaseOrdersController_list",
+        "responses": {
+          "200": {
+            "description": "Purchase orders",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PurchaseOrder"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Bestellungen"
+        ],
+        "operationId": "PurchaseOrdersController_create",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PurchaseOrderWriteRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Purchase order created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PurchaseOrder"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/purchase-orders/from-shortages": {
+      "post": {
+        "tags": [
+          "Bestellungen"
+        ],
+        "operationId": "PurchaseOrdersController_createFromShortages",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreatePurchaseOrdersFromShortagesRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Purchase orders created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PurchaseOrder"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/purchase-orders/{id}": {
+      "get": {
+        "tags": [
+          "Bestellungen"
+        ],
+        "operationId": "PurchaseOrdersController_get",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Purchase order",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PurchaseOrder"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "Bestellungen"
+        ],
+        "operationId": "PurchaseOrdersController_update",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdatePurchaseOrderRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Purchase order updated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PurchaseOrder"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/purchase-orders/{id}/approve": {
+      "post": {
+        "tags": [
+          "Bestellungen"
+        ],
+        "operationId": "PurchaseOrdersController_approve",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Purchase order approved",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PurchaseOrder"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/purchase-orders/{id}/order": {
+      "post": {
+        "tags": [
+          "Bestellungen"
+        ],
+        "operationId": "PurchaseOrdersController_markOrdered",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Purchase order marked ordered",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PurchaseOrder"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/purchase-orders/{id}/receive": {
+      "post": {
+        "tags": [
+          "Bestellungen"
+        ],
+        "operationId": "PurchaseOrdersController_receive",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReceivePurchaseOrderRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Purchase order received",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PurchaseOrder"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/public/kits/{token}": {
       "get": {
         "tags": [
@@ -5074,6 +5730,49 @@
             "required": true,
             "schema": {
               "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Binary report",
+            "content": {
+              "application/pdf": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/reports/purchase-orders/{orderId}.pdf": {
+      "get": {
+        "tags": [
+          "Reports"
+        ],
+        "operationId": "ReportsController_purchaseOrder",
+        "parameters": [
+          {
+            "name": "orderId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "includeLineNotes",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "true",
+                "false"
+              ]
             }
           }
         ],

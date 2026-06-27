@@ -2,6 +2,7 @@ import { Trash2 } from "lucide-react";
 import { InlineError } from "../../components/state-panels";
 import { Badge, Button, Panel } from "../../components/ui";
 import type { UserSummary } from "../../lib/types";
+import "./user-list-panel.css";
 
 export function UserListPanel(props: { currentUserId: string; error: Error | null; isSubmitting: boolean; onDelete: (id: string) => void; onToggle: (id: string, active: boolean) => void; users: UserSummary[] }) {
   const confirmDelete = (entry: UserSummary) => {
