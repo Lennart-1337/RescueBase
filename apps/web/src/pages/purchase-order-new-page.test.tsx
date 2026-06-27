@@ -1,9 +1,25 @@
 import { screen, waitFor } from "@testing-library/react";
 import { article, inventoryTarget, location } from "../test-support/fixtures";
-import { changeValue, clickElement, mouseDownElement, postedBody, renderAppAt, resetTestBrowser, stubFetch } from "../test-support/app-test-helpers";
+import { changeValue, clickElement, getActiveRouter, mouseDownElement, postedBody, renderAppAt, resetTestBrowser, stubFetch } from "../test-support/app-test-helpers";
 
 describe("PurchaseOrderNewPage", () => {
   afterEach(resetTestBrowser);
+
+  it("offers a back link to the purchase order overview", async () => {
+    stubFetch({
+      "/api/auth/setup/status": { initialized: true },
+      "/api/auth/session": { user: { id: "user-admin", email: "admin@rescuebase.local", displayName: "Admin", role: "ADMIN", twoFactorEnabled: false } },
+      "/api/catalog/articles": [article],
+      "/api/catalog/locations": [location],
+      "/api/inventory/targets": [inventoryTarget],
+      "/api/purchase-orders": []
+    });
+
+    await renderAppAt("/admin/purchase-orders/new");
+    await clickElement(await screen.findByRole("link", { name: "Zurück" }));
+
+    await waitFor(() => expect(getActiveRouter()?.state.location.pathname).toEqual("/admin/purchase-orders"));
+  });
 
   it("submits supplier article number and note as separate manual line fields", async () => {
     stubFetch({

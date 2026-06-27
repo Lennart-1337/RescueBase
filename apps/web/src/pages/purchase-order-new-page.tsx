@@ -1,7 +1,7 @@
 import { useState } from "react";
-import { useNavigate, useSearch } from "@tanstack/react-router";
+import { Link, useNavigate, useSearch } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Plus, Save, Trash2 } from "lucide-react";
+import { ArrowLeft, Plus, Save, Trash2 } from "lucide-react";
 import { PageHeader } from "../components/page-layout";
 import { toError } from "../app/formatters";
 import { SearchableSelect } from "../components/searchable-select";
@@ -79,7 +79,10 @@ export function PurchaseOrderNewPage() {
 
   return (
     <>
-      <PageHeader title="Bestellung anlegen" />
+      <div className="purchase-order-page-header">
+        <Link className="purchase-order-back-link" to="/admin/purchase-orders"><ArrowLeft data-icon="inline-start" />Zurück</Link>
+        <PageHeader title="Bestellung anlegen" />
+      </div>
       <Panel className="purchase-order-new-panel">
         <Tabs label="Erstellmodus" value={mode} onChange={setMode} items={[{ label: "Manuell", value: "manual" }, { label: "Aus Fehlmengen", value: "shortages" }]} />
         {mode === "manual" ? (

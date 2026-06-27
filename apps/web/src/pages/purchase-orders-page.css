@@ -5,13 +5,35 @@
 
 .purchase-order-page-header {
   display: grid;
-  gap: 6px;
+  gap: 2px;
   justify-items: start;
 }
 
+.purchase-order-page-header .page-header {
+  padding-bottom: 0;
+}
+
 .purchase-order-back-link {
-  min-height: 32px;
-  padding-inline: 12px;
+  align-items: center;
+  color: #657386;
+  display: inline-flex;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1;
+  min-height: 0;
+  padding: 0;
+  text-decoration: none;
+  transition: color 160ms ease;
+}
+
+.purchase-order-back-link:hover {
+  color: #243145;
+}
+
+.purchase-order-back-link svg {
+  height: 15px;
+  width: 15px;
 }
 
 .purchase-order-workspace {
