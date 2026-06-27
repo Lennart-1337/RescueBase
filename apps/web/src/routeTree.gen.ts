@@ -22,6 +22,7 @@ import { Route as AdminKitsRouteImport } from './routes/admin/kits'
 import { Route as AdminInventoryRouteImport } from './routes/admin/inventory'
 import { Route as AdminCheckProtocolsRouteImport } from './routes/admin/check-protocols'
 import { Route as AdminAccountRouteImport } from './routes/admin/account'
+import { Route as AdminPurchaseOrdersIndexRouteImport } from './routes/admin/purchase-orders/index'
 import { Route as AdminMasterDataIndexRouteImport } from './routes/admin/master-data/index'
 import { Route as AdminPurchaseOrdersNewRouteImport } from './routes/admin/purchase-orders/new'
 import { Route as AdminPurchaseOrdersOrderIdRouteImport } from './routes/admin/purchase-orders/$orderId'
@@ -95,6 +96,12 @@ const AdminAccountRoute = AdminAccountRouteImport.update({
   path: '/admin/account',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminPurchaseOrdersIndexRoute =
+  AdminPurchaseOrdersIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => AdminPurchaseOrdersRoute,
+  } as any)
 const AdminMasterDataIndexRoute = AdminMasterDataIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -155,6 +162,7 @@ export interface FileRoutesByFullPath {
   '/admin/purchase-orders/$orderId': typeof AdminPurchaseOrdersOrderIdRoute
   '/admin/purchase-orders/new': typeof AdminPurchaseOrdersNewRoute
   '/admin/master-data/': typeof AdminMasterDataIndexRoute
+  '/admin/purchase-orders/': typeof AdminPurchaseOrdersIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -162,7 +170,6 @@ export interface FileRoutesByTo {
   '/admin/check-protocols': typeof AdminCheckProtocolsRoute
   '/admin/inventory': typeof AdminInventoryRoute
   '/admin/kits': typeof AdminKitsRoute
-  '/admin/purchase-orders': typeof AdminPurchaseOrdersRouteWithChildren
   '/admin/settings': typeof AdminSettingsRoute
   '/admin/users': typeof AdminUsersRoute
   '/check/$token': typeof CheckTokenRoute
@@ -176,6 +183,7 @@ export interface FileRoutesByTo {
   '/admin/purchase-orders/$orderId': typeof AdminPurchaseOrdersOrderIdRoute
   '/admin/purchase-orders/new': typeof AdminPurchaseOrdersNewRoute
   '/admin/master-data': typeof AdminMasterDataIndexRoute
+  '/admin/purchase-orders': typeof AdminPurchaseOrdersIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -199,6 +207,7 @@ export interface FileRoutesById {
   '/admin/purchase-orders/$orderId': typeof AdminPurchaseOrdersOrderIdRoute
   '/admin/purchase-orders/new': typeof AdminPurchaseOrdersNewRoute
   '/admin/master-data/': typeof AdminMasterDataIndexRoute
+  '/admin/purchase-orders/': typeof AdminPurchaseOrdersIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -223,6 +232,7 @@ export interface FileRouteTypes {
     | '/admin/purchase-orders/$orderId'
     | '/admin/purchase-orders/new'
     | '/admin/master-data/'
+    | '/admin/purchase-orders/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -230,7 +240,6 @@ export interface FileRouteTypes {
     | '/admin/check-protocols'
     | '/admin/inventory'
     | '/admin/kits'
-    | '/admin/purchase-orders'
     | '/admin/settings'
     | '/admin/users'
     | '/check/$token'
@@ -244,6 +253,7 @@ export interface FileRouteTypes {
     | '/admin/purchase-orders/$orderId'
     | '/admin/purchase-orders/new'
     | '/admin/master-data'
+    | '/admin/purchase-orders'
   id:
     | '__root__'
     | '/'
@@ -266,6 +276,7 @@ export interface FileRouteTypes {
     | '/admin/purchase-orders/$orderId'
     | '/admin/purchase-orders/new'
     | '/admin/master-data/'
+    | '/admin/purchase-orders/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -377,6 +388,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminAccountRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/purchase-orders/': {
+      id: '/admin/purchase-orders/'
+      path: '/'
+      fullPath: '/admin/purchase-orders/'
+      preLoaderRoute: typeof AdminPurchaseOrdersIndexRouteImport
+      parentRoute: typeof AdminPurchaseOrdersRoute
+    }
     '/admin/master-data/': {
       id: '/admin/master-data/'
       path: '/'
@@ -452,11 +470,13 @@ const AdminMasterDataRouteWithChildren = AdminMasterDataRoute._addFileChildren(
 interface AdminPurchaseOrdersRouteChildren {
   AdminPurchaseOrdersOrderIdRoute: typeof AdminPurchaseOrdersOrderIdRoute
   AdminPurchaseOrdersNewRoute: typeof AdminPurchaseOrdersNewRoute
+  AdminPurchaseOrdersIndexRoute: typeof AdminPurchaseOrdersIndexRoute
 }
 
 const AdminPurchaseOrdersRouteChildren: AdminPurchaseOrdersRouteChildren = {
   AdminPurchaseOrdersOrderIdRoute: AdminPurchaseOrdersOrderIdRoute,
   AdminPurchaseOrdersNewRoute: AdminPurchaseOrdersNewRoute,
+  AdminPurchaseOrdersIndexRoute: AdminPurchaseOrdersIndexRoute,
 }
 
 const AdminPurchaseOrdersRouteWithChildren =

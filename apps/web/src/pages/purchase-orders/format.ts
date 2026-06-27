@@ -23,7 +23,7 @@ export function formatPurchaseStatus(status: PurchaseOrderStatus) {
 }
 
 export function purchaseStatusTone(status: PurchaseOrderStatus) {
-  if (status === "DRAFT") return "warning" as const;
+  if (status === "DRAFT") return "neutral" as const;
   if (status === "RECEIVED") return "ready" as const;
   return "info" as const;
 }

@@ -5,17 +5,18 @@ import { matchesFilterText, toOptionalString, withPrunedSearch } from "../app/fi
 import { toError } from "../app/formatters";
 import { PageHeader, PageToolbar } from "../components/page-layout";
 import { ErrorPanel, LoadingPanel, Metric } from "../components/state-panels";
-import { AnchorButton, Badge, Button, Field, Panel } from "../components/ui";
+import { AnchorButton, Badge, Panel } from "../components/ui";
 import { rescueBaseApi } from "../lib/api";
-import type { PurchaseOrder, PurchaseOrderStatus } from "../lib/types";
+import type { PurchaseOrder } from "../lib/types";
 import { formatMoney, formatPurchaseStatus, purchaseStatusTone } from "./purchase-orders/format";
+import { PurchaseOrderFilterToolbar } from "./purchase-orders/purchase-order-filter-toolbar";
 import "./purchase-orders-page.css";
 
 type PurchaseOrderSearch = { q?: string; status?: string };
 
 export function PurchaseOrdersPage() {
-  const navigate = useNavigate({ from: "/admin/purchase-orders" });
-  const search = useSearch({ from: "/admin/purchase-orders" }) as PurchaseOrderSearch;
+  const navigate = useNavigate({ from: "/admin/purchase-orders/" });
+  const search = useSearch({ from: "/admin/purchase-orders/" }) as PurchaseOrderSearch;
   const orders = useQuery({ queryKey: ["purchase-orders"], queryFn: rescueBaseApi.purchaseOrders });
 
   if (orders.isLoading) return <LoadingPanel label="Bestellungen werden geladen" />;
@@ -37,20 +38,7 @@ export function PurchaseOrdersPage() {
         <Metric icon={<ShoppingCart />} label="Bestellungen" tone="info" value={String(orders.data.length)} />
         <Metric icon={<ShoppingCart />} label="Offen" tone="warning" value={String(orders.data.filter((order) => order.status !== "RECEIVED").length)} />
       </section>
-      <PageToolbar label="Bestellungen filtern">
-        <div className="filter-grid">
-          <Field label="Suche"><input onChange={(event) => updateFilters({ q: event.target.value })} placeholder="Nummer, Lieferant oder Zielort" value={search.q ?? ""} /></Field>
-          <Field label="Status">
-            <select onChange={(event) => updateFilters({ status: event.target.value })} value={search.status ?? ""}>
-              <option value="">Alle Status</option>
-              {(["DRAFT", "APPROVED", "ORDERED", "PARTIALLY_RECEIVED", "RECEIVED"] as PurchaseOrderStatus[]).map((status) => (
-                <option key={status} value={status}>{formatPurchaseStatus(status)}</option>
-              ))}
-            </select>
-          </Field>
-          <Button onClick={() => void navigate({ replace: true, search: {} })} type="button" variant="secondary">Zurücksetzen</Button>
-        </div>
-      </PageToolbar>
+      <PageToolbar label="Bestellungen filtern"><PurchaseOrderFilterToolbar countLabel={`${filtered.length}/${orders.data.length} sichtbar`} filters={search} onChange={updateFilters} onReset={() => void navigate({ replace: true, search: {} })} /></PageToolbar>
       <Panel>
         <div className="purchase-order-list">
           {filtered.map((order) => <PurchaseOrderRow key={order.id} order={order} />)}

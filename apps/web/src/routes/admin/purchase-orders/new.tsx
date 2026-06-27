@@ -1,6 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { readStringSearch, withPrunedSearch } from "../../../app/filter-utils";
-import { AdminRoute } from "../../../app/admin-route";
 import { PurchaseOrderNewPage } from "../../../pages/purchase-order-new-page";
 
 type PurchaseOrderNewSearch = {
@@ -14,5 +13,5 @@ export const Route = createFileRoute("/admin/purchase-orders/new")({
 });
 
 function PurchaseOrderNewRoute() {
-  return <AdminRoute>{() => <PurchaseOrderNewPage />}</AdminRoute>;
+  return <PurchaseOrderNewPage />;
 }

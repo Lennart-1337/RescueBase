@@ -63,6 +63,22 @@ describe("RescueBase routes", () => {
     expect(screen.getByRole("link", { name: /PDF/ })).toHaveAttribute("href", "/api/reports/purchase-orders/purchase-order-1.pdf");
   });
 
+  it("renders the purchase-order detail without duplicating the admin sidebar", async () => {
+    stubFetch({
+      "/api/auth/setup/status": { initialized: true, appName: "RescueBase Pro", appSubtitle: "Bereitschaft Nord" },
+      "/api/auth/session": { user: { id: "user-admin", email: "admin@rescuebase.local", displayName: "Admin", role: "ADMIN", twoFactorEnabled: false }, appName: "RescueBase Pro", appSubtitle: "Bereitschaft Nord" },
+      "/api/purchase-orders/purchase-order-1": purchaseOrder,
+      "/api/purchase-orders": [purchaseOrder]
+    });
+
+    await renderAppAt("/admin/purchase-orders/purchase-order-1");
+
+    expect(await screen.findByRole("heading", { name: "PO-2026-000001" })).toBeInTheDocument();
+    expect(document.querySelectorAll(".sidebar")).toHaveLength(1);
+    expect(screen.getByRole("button", { name: /Freigeben/ })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Zurück" })).toHaveAttribute("href", "/admin/purchase-orders");
+  });
+
   it("renders the public check route from the token path", async () => {
     stubFetch({
       "/api/public/kits/SAN-RS-001-ZUGANG-2026": { kit, template: { ...kit.template, positions: [
