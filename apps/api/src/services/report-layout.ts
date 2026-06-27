@@ -11,7 +11,7 @@ export interface QrSheetLayout {
   linkTop: number;
 }
 
-export interface InfoGridCell extends PdfBox {}
+export type InfoGridCell = PdfBox;
 
 export function createQrSheetLayout(pageWidth: number, pageHeight: number): QrSheetLayout {
   const margin = 48;

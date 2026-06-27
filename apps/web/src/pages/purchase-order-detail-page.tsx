@@ -5,7 +5,7 @@ import { ArrowLeft } from "lucide-react";
 import { PageHeader, Workspace, WorkspaceMain, WorkspaceRail } from "../components/page-layout";
 import { toError } from "../app/formatters";
 import { ErrorPanel, InlineError, LoadingPanel } from "../components/state-panels";
-import { AnchorButton, Badge, Button, Dialog, Field, Panel } from "../components/ui";
+import { Button, Dialog, Field } from "../components/ui";
 import { rescueBaseApi } from "../lib/api";
 import { PurchaseOrderEditDialog } from "./purchase-orders/purchase-order-edit-dialog";
 import { PurchaseOrderDetailMain } from "./purchase-orders/purchase-order-detail-main";
