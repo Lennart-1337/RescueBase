@@ -1,0 +1,90 @@
+.form-hint {
+  margin: -6px 0 0;
+  color: #657386;
+  font-size: 13px;
+}
+
+.form-grid {
+  padding: 18px;
+  display: grid;
+  gap: 14px;
+  align-items: end;
+}
+
+.form-grid-one {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.form-grid-two {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.form-grid-three {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.form-grid-four {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.form-grid-five {
+  grid-template-columns: 1.1fr 1.1fr 1fr 1fr 0.7fr;
+}
+
+.form-actions {
+  padding: 0 18px 18px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.check-field {
+  min-height: 43px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #344054;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.check-field-compact {
+  min-height: 32px;
+  gap: 8px;
+}
+
+.check-field input {
+  width: 18px;
+  height: 18px;
+  margin: 0;
+}
+
+.debug-hint,
+.text-link {
+  color: #657386;
+  font-size: 13px;
+}
+
+.debug-hint {
+  margin: 0 18px 12px;
+  word-break: break-word;
+}
+
+.text-link {
+  text-decoration: underline;
+}
+
+@media (max-width: 980px) {
+  .form-grid-three,
+  .form-grid-four,
+  .form-grid-five {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 620px) {
+  .form-grid-two,
+  .form-grid-three {
+    grid-template-columns: 1fr;
+  }
+}

@@ -5,9 +5,11 @@ import { matchesFilterText, toOptionalString, withPrunedSearch } from "../app/fi
 import { AlertTriangle, Archive, ClipboardList, PackageCheck } from "lucide-react";
 import { selectedBatchQuantity, useDashboardData } from "../app/dashboard-data";
 import { daysUntil, formatReason, formatStatus, toError } from "../app/formatters";
+import { PanelHeader } from "../components/panel-header";
 import { PageHeader, PageToolbar, Workspace, WorkspaceMain, WorkspaceRail } from "../components/page-layout";
-import { EmptyState, ErrorPanel, LoadingPanel, Metric } from "../components/state-panels";
-import { AnchorButton, Badge, Panel } from "../components/ui";
+import { EmptyState, ErrorPanel, LoadingPanel, MetricGrid } from "../components/state-panels";
+import { StatusBadge } from "../components/status-badge";
+import { AnchorButton, Panel } from "../components/ui";
 import { rescueBaseApi } from "../lib/api";
 import { AlertSummaryPanel } from "./dashboard/alert-summary-panel";
 import { OrderFilterToolbar } from "./dashboard/order-filter-toolbar";
@@ -82,10 +84,15 @@ export function AdminDashboard() {
   return (
     <>
       <PageHeader actions={<AnchorButton href={rescueBaseApi.reportUrl("/reports/csv/replenishment")} variant="secondary">CSV Aufträge</AnchorButton>} title="Nachfüllaufträge" />
-      <section className="metric-grid" aria-label="Kennzahlen"><Metric icon={<ClipboardList />} label="Offene Aufträge" tone="warning" value={String(openOrders)} /><Metric icon={<PackageCheck />} label="Rucksäcke bereit" tone="ready" value={`${kits.filter((kit) => kit.status === "READY").length}/${kits.length}`} /><Metric icon={<AlertTriangle />} label="Ablaufwarnungen" tone="danger" value={String(expiringBatches)} /><Metric icon={<Archive />} label="Bestand gesamt" tone="info" value={String(stockTotal)} /></section>
+      <MetricGrid items={[
+        { icon: <ClipboardList />, label: "Offene Aufträge", tone: "warning", value: String(openOrders) },
+        { icon: <PackageCheck />, label: "Rucksäcke bereit", tone: "ready", value: `${kits.filter((kit) => kit.status === "READY").length}/${kits.length}` },
+        { icon: <AlertTriangle />, label: "Ablaufwarnungen", tone: "danger", value: String(expiringBatches) },
+        { icon: <Archive />, label: "Bestand gesamt", tone: "info", value: String(stockTotal) }
+      ]} label="Kennzahlen" />
       <PageToolbar label="Aufträge filtern"><OrderFilterToolbar countLabel={`${filteredOrders.length}/${orders.length} sichtbar`} filters={filters} kits={kits} onChange={updateFilters} onReset={resetFilters} /></PageToolbar>
       <Workspace>
-        <WorkspaceMain label="Nachfüllaufträge"><Panel className="orders-panel"><div className="panel-header"><div><h2>Auftragsliste</h2></div></div>{filteredOrders.length > 0 ? <div className="order-list">{filteredOrders.map((order) => <button className="order-row" key={order.id} onClick={() => { setActiveOrderId(order.id); setOrderOpen(true); }} type="button"><span><strong>{order.kit?.name ?? order.kitId}</strong><small>{order.items.length} Positionen · {formatStatus(order.status)}</small></span><Badge tone={order.status === "OPEN" ? "warning" : order.status === "DONE" ? "ready" : "info"}>{formatStatus(order.status)}</Badge></button>)}</div> : <EmptyState text="Aktuell gibt es keine Nachfüllaufträge für die gesetzten Filter." title="Keine Nachfüllaufträge" />}</Panel></WorkspaceMain>
+        <WorkspaceMain label="Nachfüllaufträge"><Panel className="orders-panel"><PanelHeader title="Auftragsliste" />{filteredOrders.length > 0 ? <div className="order-list">{filteredOrders.map((order) => <button className="order-row" key={order.id} onClick={() => { setActiveOrderId(order.id); setOrderOpen(true); }} type="button"><span><strong>{order.kit?.name ?? order.kitId}</strong><small>{order.items.length} Positionen · {formatStatus(order.status)}</small></span><StatusBadge kind="replenishment" status={order.status} /></button>)}</div> : <EmptyState text="Aktuell gibt es keine Nachfüllaufträge für die gesetzten Filter." title="Keine Nachfüllaufträge" />}</Panel></WorkspaceMain>
         <WorkspaceRail label="Warnungen"><AlertSummaryPanel /></WorkspaceRail>
       </Workspace>
       <OrderDetailDialog batches={batches} error={fulfillMutation.error ? toError(fulfillMutation.error) : null} formatReason={formatReason} formatStatus={formatStatus} isOpen={orderOpen} isSubmitting={fulfillMutation.isPending} onClose={() => { setOrderOpen(false); setActiveOrderId(""); }} onFulfill={(items) => activeOrder && fulfillMutation.mutate({ items, orderId: activeOrder.id })} order={activeOrder} pdfHref={activeOrder ? rescueBaseApi.reportUrl(`/reports/replenishment/${activeOrder.id}.pdf`) : undefined} selectedBatchQuantity={selectedBatchQuantity} />

@@ -1,5 +1,6 @@
 import type { PropsWithChildren, ReactNode } from "react";
 import { cn } from "./ui";
+import "./page-layout.css";
 
 export function PageHeader(props: { actions?: ReactNode; description?: string; title: string }) {
   return (

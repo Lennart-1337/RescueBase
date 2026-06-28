@@ -1,5 +1,7 @@
 import { History, Trash2 } from "lucide-react";
 import { daysUntil, formatDate } from "../../app/formatters";
+import { RowActions } from "../../components/list-row";
+import { PanelHeader } from "../../components/panel-header";
 import { InlineError } from "../../components/state-panels";
 import { Badge, Button, Panel } from "../../components/ui";
 import type { Batch } from "../../lib/types";
@@ -22,13 +24,13 @@ export function BatchListPanel(props: {
 
   return (
     <Panel>
-      <div className="panel-header"><div><h2>Bestandschargen</h2></div></div>
+      <PanelHeader title="Bestandschargen" />
       <div className="table">
         {props.batches.map((batch) => (
           <div className="table-row" key={batch.id}>
             <span><strong>{batch.article.name}</strong><small>{batch.lotNumber} · {batch.location.name}</small></span>
             <span>{batch.quantity} {batch.article.unit}</span>
-            <div className="row-actions"><Badge tone={daysUntil(batch.expiresAt) <= 90 ? "danger" : "neutral"}>{formatDate(batch.expiresAt)}</Badge><Button onClick={() => props.onSelect(batch.id)} type="button" variant={props.selectedBatchId === batch.id ? "secondary" : "ghost"}><History data-icon="inline-start" />Korrigieren</Button><Button aria-label={`Charge ${batch.lotNumber} löschen`} disabled={props.isSubmitting} onClick={() => confirmDelete(batch)} type="button" variant="danger"><Trash2 data-icon="inline-start" />Löschen</Button></div>
+            <RowActions><Badge tone={daysUntil(batch.expiresAt) <= 90 ? "danger" : "neutral"}>{formatDate(batch.expiresAt)}</Badge><Button onClick={() => props.onSelect(batch.id)} type="button" variant={props.selectedBatchId === batch.id ? "secondary" : "ghost"}><History data-icon="inline-start" />Korrigieren</Button><Button aria-label={`Charge ${batch.lotNumber} löschen`} disabled={props.isSubmitting} onClick={() => confirmDelete(batch)} type="button" variant="danger"><Trash2 data-icon="inline-start" />Löschen</Button></RowActions>
           </div>
         ))}
       </div>

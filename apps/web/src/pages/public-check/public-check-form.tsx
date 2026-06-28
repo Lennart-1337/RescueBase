@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
-import { statusLabels } from "../../app/formatters";
 import { InlineError } from "../../components/state-panels";
-import { Badge, Button, Field, Panel } from "../../components/ui";
+import { StatusBadge, statusLabel } from "../../components/status-badge";
+import { Button, Field, Panel } from "../../components/ui";
 import { groupTemplatePositions, initialCheckLines, summarizeCheck, type CheckLineState } from "../../lib/check";
 import type { PublicKitResponse } from "../../lib/types";
 import { CheckGroups } from "./public-check-groups";
@@ -26,7 +26,7 @@ export function PublicCheckForm(props: {
     <main className="mobile-check">
       <header className="check-header">
         <div><span>{props.publicKit.kit.code}</span><h1>{props.publicKit.kit.name}</h1><p>{props.publicKit.template.name} · Version {props.publicKit.template.version}</p></div>
-        <Badge tone={summary.effectiveStatus === "READY" ? "ready" : summary.effectiveStatus === "CONDITIONAL" ? "warning" : "danger"}>{statusLabels[summary.effectiveStatus]}</Badge>
+        <StatusBadge kind="kit" status={summary.effectiveStatus} />
       </header>
       <Panel className="check-summary">
         <div className="check-summary-row">
@@ -42,7 +42,7 @@ export function PublicCheckForm(props: {
       {signatureError ? <InlineError error={new Error(signatureError)} /> : null}
       {props.submitError ? <InlineError error={props.submitError} /> : null}
       <footer className="check-footer">
-        <div><strong>{statusLabels[summary.effectiveStatus]}</strong></div>
+        <div><strong>{statusLabel("kit", summary.effectiveStatus)}</strong></div>
         <Button disabled={!canSubmit} onClick={() => signature ? props.onSubmit({ checkerName, positions: lines, signaturePngDataUrl: signature }) : setSignatureError("Bitte unterschreiben Sie den Check.")} type="button">Check abschließen</Button>
       </footer>
     </main>

@@ -3,12 +3,14 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Archive, Download, Pencil, Plus, RotateCcw, ShoppingCart } from "lucide-react";
 import { matchesFilterText, toOptionalString, withPrunedSearch } from "../app/filter-utils";
 import { toError } from "../app/formatters";
+import { ListRow, RowActions } from "../components/list-row";
 import { PageHeader, PageToolbar } from "../components/page-layout";
-import { ErrorPanel, LoadingPanel, Metric } from "../components/state-panels";
-import { AnchorButton, Badge, Button, Panel, Tabs } from "../components/ui";
+import { ErrorPanel, LoadingPanel, MetricGrid } from "../components/state-panels";
+import { StatusBadge } from "../components/status-badge";
+import { AnchorButton, Button, Panel, Tabs } from "../components/ui";
 import { rescueBaseApi } from "../lib/api";
 import type { PurchaseOrder } from "../lib/types";
-import { formatMoney, formatPurchaseStatus, purchaseStatusTone } from "./purchase-orders/format";
+import { formatMoney } from "./purchase-orders/format";
 import { PurchaseOrderFilterToolbar } from "./purchase-orders/purchase-order-filter-toolbar";
 import "./purchase-orders-page.css";
 
@@ -50,10 +52,10 @@ export function PurchaseOrdersPage() {
   return (
     <>
       <PageHeader actions={<Link className="button button-primary" to="/admin/purchase-orders/new"><Plus data-icon="inline-start" />Bestellung anlegen</Link>} title="Bestellungen" />
-      <section className="metric-grid metric-grid-compact" aria-label="Bestellkennzahlen">
-        <Metric icon={<ShoppingCart />} label="Aktiv" tone="info" value={String(activeOrders.length)} />
-        <Metric icon={<ShoppingCart />} label="Archiviert" tone="warning" value={String(archivedOrders.length)} />
-      </section>
+      <MetricGrid compact items={[
+        { icon: <ShoppingCart />, label: "Aktiv", tone: "info", value: String(activeOrders.length) },
+        { icon: <ShoppingCart />, label: "Archiviert", tone: "warning", value: String(archivedOrders.length) }
+      ]} label="Bestellkennzahlen" />
       <Tabs
         items={[
           { label: `Aktiv (${activeOrders.length})`, value: "active" },
@@ -79,21 +81,19 @@ function PurchaseOrderRow(props: { isMutating: boolean; onArchive: () => void; o
   const detailLabel = order.status === "DRAFT" ? "Bearbeiten" : "Öffnen";
 
   return (
-    <div className="compact-list-row purchase-order-row">
-      <div className="purchase-order-row-main">
-        <strong>{order.orderNumber}</strong>
-        <small>{order.supplierName} · {order.location.name} · {formatMoney(order.totalGrossCents)}</small>
-      </div>
-      <div className="purchase-order-row-status">
-        <Badge tone={purchaseStatusTone(order.status)}>{formatPurchaseStatus(order.status)}</Badge>
-      </div>
-      <div className="row-action-buttons purchase-order-row-buttons">
+    <ListRow className="purchase-order-row" actions={(
+      <RowActions className="purchase-order-row-buttons">
         <Link className="button button-secondary" params={{ orderId: order.id }} to="/admin/purchase-orders/$orderId"><Pencil data-icon="inline-start" />{detailLabel}</Link>
         <AnchorButton href={rescueBaseApi.reportUrl(`/reports/purchase-orders/${order.id}.pdf`)} rel="noreferrer" target="_blank" variant="secondary"><Download data-icon="inline-start" />PDF</AnchorButton>
         {order.archivedAt
           ? <Button disabled={props.isMutating} onClick={props.onRestore} type="button" variant="secondary"><RotateCcw data-icon="inline-start" />Wiederherstellen</Button>
           : <Button disabled={props.isMutating} onClick={props.onArchive} type="button" variant="secondary"><Archive data-icon="inline-start" />Archivieren</Button>}
+      </RowActions>
+    )} status={<div className="purchase-order-row-status"><StatusBadge kind="purchaseOrder" status={order.status} /></div>}>
+      <div className="purchase-order-row-main">
+        <strong>{order.orderNumber}</strong>
+        <small>{order.supplierName} · {order.location.name} · {formatMoney(order.totalGrossCents)}</small>
       </div>
-    </div>
+    </ListRow>
   );
 }

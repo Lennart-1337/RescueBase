@@ -1,9 +1,11 @@
 import { Eye } from "lucide-react";
-import { formatDateTime, statusLabels } from "../../app/formatters";
+import { formatDateTime } from "../../app/formatters";
+import { RowActions } from "../../components/list-row";
+import { PanelHeader } from "../../components/panel-header";
 import { EmptyState } from "../../components/state-panels";
 import { Badge, Button, Panel } from "../../components/ui";
+import { StatusBadge } from "../../components/status-badge";
 import type { CheckProtocolSummary } from "../../lib/types";
-import { protocolStatusTone } from "./check-protocol-status";
 import "./check-protocol-list.css";
 
 export function CheckProtocolList(props: {
@@ -12,9 +14,7 @@ export function CheckProtocolList(props: {
 }) {
   return (
     <Panel>
-      <div className="panel-header">
-        <div><h2>Protokolle</h2></div>
-      </div>
+      <PanelHeader title="Protokolle" />
       {props.protocols.length === 0 ? (
         <EmptyState
           title="Keine Protokolle"
@@ -40,11 +40,9 @@ export function CheckProtocolList(props: {
                   ? `${protocol.deviationCount} Abweichungen`
                   : "Ohne Abweichung"}
               </Badge>
-              <Badge tone={protocolStatusTone(protocol.effectiveStatus)}>
-                {statusLabels[protocol.effectiveStatus]}
-              </Badge>
+              <StatusBadge kind="kit" status={protocol.effectiveStatus} />
             </div>
-            <div className="row-actions protocol-row-actions">
+            <RowActions className="protocol-row-actions">
               <Button
                 aria-label="Details anzeigen"
                 onClick={() => props.onOpen(protocol.id)}
@@ -54,7 +52,7 @@ export function CheckProtocolList(props: {
                 <Eye data-icon="inline-start" />
                 Details
               </Button>
-            </div>
+            </RowActions>
           </div>
         ))}
       </div>

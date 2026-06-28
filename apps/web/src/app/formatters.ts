@@ -1,9 +1,10 @@
 import type { KitOperationalStatus } from "../lib/types";
+import { statusLabel } from "../components/status-badge";
 
 export const statusLabels: Record<KitOperationalStatus, string> = {
-  READY: "Bereit",
-  CONDITIONAL: "Bedingt einsatzbereit",
-  NOT_READY: "Nicht einsatzbereit"
+  CONDITIONAL: statusLabel("kit", "CONDITIONAL"),
+  NOT_READY: statusLabel("kit", "NOT_READY"),
+  READY: statusLabel("kit", "READY")
 };
 
 export function toError(error: unknown): Error {
@@ -11,7 +12,10 @@ export function toError(error: unknown): Error {
 }
 
 export function formatStatus(status: string): string {
-  return { OPEN: "Offen", IN_PROGRESS: "In Arbeit", DONE: "Erledigt", CANCELLED: "Storniert" }[status] ?? status;
+  if (status === "OPEN" || status === "IN_PROGRESS" || status === "DONE" || status === "CANCELLED") {
+    return statusLabel("replenishment", status);
+  }
+  return status;
 }
 
 export function formatReason(reason: string): string {

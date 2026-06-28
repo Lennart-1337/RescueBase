@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Plus, Save, X } from "lucide-react";
 import { ListFilterBar } from "../../components/list-filter-bar";
+import { PanelHeader } from "../../components/panel-header";
 import { PageToolbar } from "../../components/page-layout";
 import { SearchableSelect } from "../../components/searchable-select";
 import { InlineError } from "../../components/state-panels";
@@ -95,10 +96,7 @@ export function DevicePanel(props: {
         <Field label="Status"><select onChange={(event) => props.onFilterChange({ active: event.target.value })} value={props.filters.active}><option value="">Alle Status</option><option value="active">Aktiv</option><option value="inactive">Inaktiv</option></select></Field>
       </ListFilterBar></PageToolbar>
       <Panel>
-      <div className="panel-header">
-        <div><h2>Geräte</h2></div>
-        <Button onClick={openForCreate} type="button"><Plus data-icon="inline-start" />Gerät hinzufügen</Button>
-      </div>
+      <PanelHeader title="Geräte" actions={<Button onClick={openForCreate} type="button"><Plus data-icon="inline-start" />Gerät hinzufügen</Button>} />
       {props.devices.length === 0 ? <div className="compact-list-empty">Noch keine Geräte angelegt.</div> : null}
       <div className="compact-list">
         {props.devices.map((device) => (
