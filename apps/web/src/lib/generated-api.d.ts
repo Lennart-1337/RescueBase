@@ -900,6 +900,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/purchase-orders/{id}/archive": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["PurchaseOrdersController_archive"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/purchase-orders/{id}/order": {
         parameters: {
             query?: never;
@@ -910,6 +926,22 @@ export interface paths {
         get?: never;
         put?: never;
         post: operations["PurchaseOrdersController_markOrdered"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/purchase-orders/{id}/restore": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["PurchaseOrdersController_restore"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1700,6 +1732,8 @@ export interface components {
             locationId: string;
             status: components["schemas"]["PurchaseOrderStatus"];
             notes?: string;
+            /** Format: date-time */
+            archivedAt?: string;
             /** Format: date-time */
             approvedAt?: string;
             approvedByName?: string;
@@ -3607,6 +3641,28 @@ export interface operations {
             };
         };
     };
+    PurchaseOrdersController_archive: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Purchase order archived */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PurchaseOrder"];
+                };
+            };
+        };
+    };
     PurchaseOrdersController_markOrdered: {
         parameters: {
             query?: never;
@@ -3619,6 +3675,28 @@ export interface operations {
         requestBody?: never;
         responses: {
             /** @description Purchase order marked ordered */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PurchaseOrder"];
+                };
+            };
+        };
+    };
+    PurchaseOrdersController_restore: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Purchase order restored */
             201: {
                 headers: {
                     [name: string]: unknown;

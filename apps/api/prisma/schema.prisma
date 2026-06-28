@@ -286,6 +286,7 @@ model PurchaseOrder {
   locationId       String
   status           PurchaseOrderStatus @default(DRAFT)
   notes            String?             @db.Text
+  archivedAt       DateTime?
   approvedAt       DateTime?
   approvedByUserId String?
   approvedByName   String?
@@ -300,6 +301,7 @@ model PurchaseOrder {
   updatedAt        DateTime            @updatedAt
 
   @@index([status, updatedAt])
+  @@index([archivedAt, updatedAt])
   @@index([locationId])
   @@index([approvedByUserId])
 }

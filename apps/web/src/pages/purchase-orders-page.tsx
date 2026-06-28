@@ -1,64 +1,98 @@
 import { Link, useNavigate, useSearch } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
-import { Download, Plus, ShoppingCart } from "lucide-react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { Archive, Download, Pencil, Plus, RotateCcw, ShoppingCart } from "lucide-react";
 import { matchesFilterText, toOptionalString, withPrunedSearch } from "../app/filter-utils";
 import { toError } from "../app/formatters";
 import { PageHeader, PageToolbar } from "../components/page-layout";
 import { ErrorPanel, LoadingPanel, Metric } from "../components/state-panels";
-import { AnchorButton, Badge, Panel } from "../components/ui";
+import { AnchorButton, Badge, Button, Panel, Tabs } from "../components/ui";
 import { rescueBaseApi } from "../lib/api";
 import type { PurchaseOrder } from "../lib/types";
 import { formatMoney, formatPurchaseStatus, purchaseStatusTone } from "./purchase-orders/format";
 import { PurchaseOrderFilterToolbar } from "./purchase-orders/purchase-order-filter-toolbar";
 import "./purchase-orders-page.css";
 
-type PurchaseOrderSearch = { q?: string; status?: string };
+type PurchaseOrderSearch = { q?: string; status?: string; view?: "active" | "archived" };
 
 export function PurchaseOrdersPage() {
   const navigate = useNavigate({ from: "/admin/purchase-orders/" });
   const search = useSearch({ from: "/admin/purchase-orders/" }) as PurchaseOrderSearch;
+  const queryClient = useQueryClient();
   const orders = useQuery({ queryKey: ["purchase-orders"], queryFn: rescueBaseApi.purchaseOrders });
+  const invalidateOrders = () => queryClient.invalidateQueries({ queryKey: ["purchase-orders"] });
+  const archive = useMutation({ mutationFn: (id: string) => rescueBaseApi.archivePurchaseOrder(id), onSuccess: invalidateOrders });
+  const restore = useMutation({ mutationFn: (id: string) => rescueBaseApi.restorePurchaseOrder(id), onSuccess: invalidateOrders });
 
   if (orders.isLoading) return <LoadingPanel label="Bestellungen werden geladen" />;
   if (orders.isError || !orders.data) return <ErrorPanel error={toError(orders.error)} onRetry={() => void orders.refetch()} />;
 
-  const filtered = orders.data.filter((order) =>
+  const activeOrders = orders.data.filter((order) => !order.archivedAt);
+  const archivedOrders = orders.data.filter((order) => order.archivedAt);
+  const currentView = search.view === "archived" ? "archived" : "active";
+  const visibleOrders = currentView === "archived" ? archivedOrders : activeOrders;
+  const filtered = visibleOrders.filter((order) =>
     (!search.status || order.status === search.status) &&
     matchesFilterText(search.q ?? "", order.orderNumber ?? "", order.supplierName ?? "", order.location.name ?? "")
   );
 
   function updateFilters(patch: PurchaseOrderSearch) {
-    void navigate({ replace: true, search: (current) => withPrunedSearch({ ...current, q: toOptionalString(patch.q ?? search.q ?? ""), status: toOptionalString(patch.status ?? search.status ?? "") }) });
+    void navigate({
+      replace: true,
+      search: (current) => withPrunedSearch({
+        ...current,
+        q: toOptionalString(patch.q ?? search.q ?? ""),
+        status: toOptionalString(patch.status ?? search.status ?? ""),
+        view: (patch.view ?? currentView) === "archived" ? "archived" : undefined
+      })
+    });
   }
 
   return (
     <>
       <PageHeader actions={<Link className="button button-primary" to="/admin/purchase-orders/new"><Plus data-icon="inline-start" />Bestellung anlegen</Link>} title="Bestellungen" />
       <section className="metric-grid metric-grid-compact" aria-label="Bestellkennzahlen">
-        <Metric icon={<ShoppingCart />} label="Bestellungen" tone="info" value={String(orders.data.length)} />
-        <Metric icon={<ShoppingCart />} label="Offen" tone="warning" value={String(orders.data.filter((order) => order.status !== "RECEIVED").length)} />
+        <Metric icon={<ShoppingCart />} label="Aktiv" tone="info" value={String(activeOrders.length)} />
+        <Metric icon={<ShoppingCart />} label="Archiviert" tone="warning" value={String(archivedOrders.length)} />
       </section>
-      <PageToolbar label="Bestellungen filtern"><PurchaseOrderFilterToolbar countLabel={`${filtered.length}/${orders.data.length} sichtbar`} filters={search} onChange={updateFilters} onReset={() => void navigate({ replace: true, search: {} })} /></PageToolbar>
+      <Tabs
+        items={[
+          { label: `Aktiv (${activeOrders.length})`, value: "active" },
+          { label: `Archiviert (${archivedOrders.length})`, value: "archived" }
+        ]}
+        label="Bestellansichten"
+        onChange={(view) => updateFilters({ view: view as PurchaseOrderSearch["view"] })}
+        value={currentView}
+      />
+      <PageToolbar label="Bestellungen filtern"><PurchaseOrderFilterToolbar countLabel={`${filtered.length}/${visibleOrders.length} sichtbar`} filters={search} onChange={updateFilters} onReset={() => void navigate({ replace: true, search: currentView === "archived" ? { view: "archived" } : {} })} /></PageToolbar>
       <Panel>
         <div className="purchase-order-list">
-          {filtered.map((order) => <PurchaseOrderRow key={order.id} order={order} />)}
-          {filtered.length === 0 ? <div className="compact-list-empty">Keine Bestellungen für die gesetzten Filter.</div> : null}
+          {filtered.map((order) => <PurchaseOrderRow isMutating={archive.isPending || restore.isPending} key={order.id} onArchive={() => archive.mutate(order.id)} onRestore={() => restore.mutate(order.id)} order={order} />)}
+          {filtered.length === 0 ? <div className="compact-list-empty">{currentView === "archived" ? "Keine archivierten Bestellungen für die gesetzten Filter." : "Keine aktiven Bestellungen für die gesetzten Filter."}</div> : null}
         </div>
       </Panel>
     </>
   );
 }
 
-function PurchaseOrderRow({ order }: { order: PurchaseOrder }) {
+function PurchaseOrderRow(props: { isMutating: boolean; onArchive: () => void; onRestore: () => void; order: PurchaseOrder }) {
+  const { order } = props;
+  const detailLabel = order.status === "DRAFT" ? "Bearbeiten" : "Öffnen";
+
   return (
     <div className="compact-list-row purchase-order-row">
-      <Link className="purchase-order-row-main" params={{ orderId: order.id }} to="/admin/purchase-orders/$orderId">
+      <div className="purchase-order-row-main">
         <strong>{order.orderNumber}</strong>
         <small>{order.supplierName} · {order.location.name} · {formatMoney(order.totalGrossCents)}</small>
-      </Link>
-      <div className="row-action-buttons">
+      </div>
+      <div className="purchase-order-row-status">
         <Badge tone={purchaseStatusTone(order.status)}>{formatPurchaseStatus(order.status)}</Badge>
+      </div>
+      <div className="row-action-buttons purchase-order-row-buttons">
+        <Link className="button button-secondary" params={{ orderId: order.id }} to="/admin/purchase-orders/$orderId"><Pencil data-icon="inline-start" />{detailLabel}</Link>
         <AnchorButton href={rescueBaseApi.reportUrl(`/reports/purchase-orders/${order.id}.pdf`)} rel="noreferrer" target="_blank" variant="secondary"><Download data-icon="inline-start" />PDF</AnchorButton>
+        {order.archivedAt
+          ? <Button disabled={props.isMutating} onClick={props.onRestore} type="button" variant="secondary"><RotateCcw data-icon="inline-start" />Wiederherstellen</Button>
+          : <Button disabled={props.isMutating} onClick={props.onArchive} type="button" variant="secondary"><Archive data-icon="inline-start" />Archivieren</Button>}
       </div>
     </div>
   );

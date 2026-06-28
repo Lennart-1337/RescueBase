@@ -8,11 +8,14 @@ export function PurchaseOrderDetailRail(props: {
   canApprove: boolean;
   includeLineNotes: boolean;
   isApproving: boolean;
+  isArchiving: boolean;
   isOrdering: boolean;
   onApprove: () => void;
+  onArchive: () => void;
   onEdit: () => void;
   onIncludeNotesChange: (checked: boolean) => void;
   onMarkOrdered: () => void;
+  onRestore: () => void;
   order: PurchaseOrder;
   pdfHref: string;
 }) {
@@ -30,8 +33,12 @@ export function PurchaseOrderDetailRail(props: {
           {props.canApprove ? <Button disabled={props.isApproving} onClick={props.onApprove} type="button"><Save data-icon="inline-start" />Freigeben</Button> : null}
           {props.order.status === "APPROVED" ? <Button disabled={props.isOrdering} onClick={props.onMarkOrdered} type="button"><Send data-icon="inline-start" />Als bestellt markieren</Button> : null}
           <Button onClick={props.onEdit} type="button" variant="secondary"><PencilLine data-icon="inline-start" />{props.order.status === "DRAFT" ? "Bestellung bearbeiten" : "Hinweise bearbeiten"}</Button>
+          {props.order.archivedAt
+            ? <Button disabled={props.isArchiving} onClick={props.onRestore} type="button" variant="secondary">Wiederherstellen</Button>
+            : <Button disabled={props.isArchiving} onClick={props.onArchive} type="button" variant="ghost">Archivieren</Button>}
         </div>
         <div className="purchase-order-timeline">
+          <TimelineRow label="Archiv" value={props.order.archivedAt ? formatDateTime(props.order.archivedAt) : "Aktiv"} />
           <TimelineRow label="Angelegt" value={formatDateTime(props.order.createdAt)} />
           <TimelineRow label="Freigegeben" value={props.order.approvedAt ? `${formatDateTime(props.order.approvedAt)} · ${props.order.approvedByName ?? "Unbekannt"}` : "Noch nicht freigegeben"} />
           <TimelineRow label="Bestellt" value={props.order.orderedAt ? formatDateTime(props.order.orderedAt) : "Noch nicht bestellt"} />

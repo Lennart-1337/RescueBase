@@ -491,6 +491,7 @@ const rescueBaseOpenApiDocumentDefinition = {
         locationId: { type: "string" },
         status: ref("PurchaseOrderStatus"),
         notes: { type: "string" },
+        archivedAt: { type: "string", format: "date-time" },
         approvedAt: { type: "string", format: "date-time" },
         approvedByName: { type: "string" },
         orderedAt: { type: "string", format: "date-time" },
@@ -889,6 +890,12 @@ const rescueBaseOpenApiDocumentDefinition = {
     "/purchase-orders/{id}": {
       get: operation("Bestellungen", "PurchaseOrdersController_get", pathParam("id"), response(200, "Purchase order", ref("PurchaseOrder"))),
       patch: operation("Bestellungen", "PurchaseOrdersController_update", { ...pathParam("id"), ...request("UpdatePurchaseOrderRequest") }, response(200, "Purchase order updated", ref("PurchaseOrder")))
+    },
+    "/purchase-orders/{id}/archive": {
+      post: operation("Bestellungen", "PurchaseOrdersController_archive", pathParam("id"), response(201, "Purchase order archived", ref("PurchaseOrder")))
+    },
+    "/purchase-orders/{id}/restore": {
+      post: operation("Bestellungen", "PurchaseOrdersController_restore", pathParam("id"), response(201, "Purchase order restored", ref("PurchaseOrder")))
     },
     "/purchase-orders/{id}/approve": {
       post: operation("Bestellungen", "PurchaseOrdersController_approve", pathParam("id"), response(201, "Purchase order approved", ref("PurchaseOrder")))

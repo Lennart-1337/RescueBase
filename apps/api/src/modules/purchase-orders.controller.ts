@@ -40,6 +40,16 @@ export class PurchaseOrdersController {
     return this.purchaseOrders.get(id);
   }
 
+  @Post(":id/archive")
+  archive(@Param("id") id: string) {
+    return this.purchaseOrders.archive(id);
+  }
+
+  @Post(":id/restore")
+  restore(@Param("id") id: string) {
+    return this.purchaseOrders.restore(id);
+  }
+
   @Patch(":id")
   update(@Param("id") id: string, @Body() body: {
     supplierName?: string;

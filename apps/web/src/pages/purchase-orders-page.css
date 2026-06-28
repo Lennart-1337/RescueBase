@@ -44,6 +44,26 @@
 
 .purchase-order-row {
   align-items: center;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+}
+
+.purchase-order-row-status {
+  align-items: center;
+  display: flex;
+  flex: 0 0 auto;
+  justify-content: flex-end;
+}
+
+.purchase-order-row-buttons {
+  align-items: center;
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+  min-width: max-content;
+}
+
+.purchase-order-row-buttons .button {
+  min-width: 0;
 }
 
 .purchase-order-row-main {
@@ -64,6 +84,18 @@
 .purchase-order-form {
   display: grid;
   gap: 16px;
+}
+
+@media (max-width: 980px) {
+  .purchase-order-row {
+    grid-template-columns: 1fr;
+  }
+
+  .purchase-order-row-status,
+  .purchase-order-row-buttons {
+    justify-content: flex-start;
+    min-width: 0;
+  }
 }
 
 .purchase-order-lines {

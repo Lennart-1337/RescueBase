@@ -60,6 +60,44 @@ export class PurchaseOrdersService {
     return mapPurchaseOrder(await this.findOrderRecord(id));
   }
 
+  async archive(id: string) {
+    const order = await this.findOrderRecord(id);
+    if (order.archivedAt) return mapPurchaseOrder(order);
+    const updated = await this.prisma.purchaseOrder.update({
+      where: { id },
+      data: { archivedAt: new Date() },
+      include: orderInclude
+    });
+    await this.audit.record({
+      actorType: "USER",
+      actorLabel: "Lagerteam",
+      action: "PURCHASE_ORDER_ARCHIVED",
+      entityType: "PurchaseOrder",
+      entityId: id,
+      payload: { orderNumber: updated.orderNumber }
+    });
+    return mapPurchaseOrder(updated);
+  }
+
+  async restore(id: string) {
+    const order = await this.findOrderRecord(id);
+    if (!order.archivedAt) return mapPurchaseOrder(order);
+    const updated = await this.prisma.purchaseOrder.update({
+      where: { id },
+      data: { archivedAt: null },
+      include: orderInclude
+    });
+    await this.audit.record({
+      actorType: "USER",
+      actorLabel: "Lagerteam",
+      action: "PURCHASE_ORDER_RESTORED",
+      entityType: "PurchaseOrder",
+      entityId: id,
+      payload: { orderNumber: updated.orderNumber }
+    });
+    return mapPurchaseOrder(updated);
+  }
+
   async createDraft(body: CreatePurchaseOrderBody) {
     const payload = await this.normalizeDraftPayload(body);
     const order = await this.prisma.purchaseOrder.create({
@@ -351,6 +389,7 @@ function mapPurchaseOrder(order: NonNullable<PurchaseOrderRecord>) {
     locationId: order.locationId,
     status: order.status,
     notes: order.notes ?? undefined,
+    archivedAt: order.archivedAt ? toIsoDateTime(order.archivedAt) : undefined,
     approvedAt: order.approvedAt ? toIsoDateTime(order.approvedAt) : undefined,
     approvedByName: order.approvedByName ?? undefined,
     orderedAt: order.orderedAt ? toIsoDateTime(order.orderedAt) : undefined,
