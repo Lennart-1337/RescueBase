@@ -1,5 +1,5 @@
 import type { Variants } from "motion/react";
-import { motionDistance, motionDurations, motionEase, type MotionMode } from "./tokens";
+import { motionDistance, motionDurations, motionEase, motionStagger, type MotionMode } from "./tokens";
 
 export function fadeVariants(_mode: MotionMode): Variants {
   return {
@@ -54,5 +54,16 @@ export function listItemVariants(mode: MotionMode): Variants {
     hidden: { opacity: 0, y: 4 },
     visible: { opacity: 1, y: 0, transition: { duration: motionDurations.fast, ease: motionEase.standard } },
     exit: { opacity: 0, y: 4, transition: { duration: motionDurations.fast, ease: motionEase.exit } }
+  };
+}
+
+export function listContainerVariants(mode: MotionMode): Variants {
+  if (mode === "reduced") {
+    return {};
+  }
+
+  return {
+    hidden: {},
+    visible: { transition: { staggerChildren: motionStagger.list } }
   };
 }

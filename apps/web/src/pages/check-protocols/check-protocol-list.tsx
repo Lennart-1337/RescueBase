@@ -5,6 +5,7 @@ import { PanelHeader } from "../../components/panel-header";
 import { EmptyState } from "../../components/state-panels";
 import { Badge, Button, Panel } from "../../components/ui";
 import { StatusBadge } from "../../components/status-badge";
+import { AnimatedList, AnimatedListItem } from "../../motion/animated-containers";
 import type { CheckProtocolSummary } from "../../lib/types";
 import "./check-protocol-list.css";
 
@@ -21,9 +22,9 @@ export function CheckProtocolList(props: {
           text="Für die gewählten Filter wurden keine Checks gefunden."
         />
       ) : null}
-      <div className="table">
+      <AnimatedList className="table">
         {props.protocols.map((protocol) => (
-          <div className="table-row protocol-row" key={protocol.id}>
+          <AnimatedListItem className="table-row protocol-row" key={protocol.id}>
             <span>
               <strong>{protocol.kit.name}</strong>
               <small>
@@ -53,9 +54,9 @@ export function CheckProtocolList(props: {
                 Details
               </Button>
             </RowActions>
-          </div>
+          </AnimatedListItem>
         ))}
-      </div>
+      </AnimatedList>
     </Panel>
   );
 }

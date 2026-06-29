@@ -14,4 +14,9 @@ export const motionEase = {
   exit: [0.4, 0, 1, 1]
 } as const;
 
+export const motionStagger = {
+  list: 0.04,
+  fast: 0.025
+} as const;
+
 export type MotionMode = "full" | "reduced";
