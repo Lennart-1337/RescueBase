@@ -4,6 +4,7 @@ import { matchesFilterText, toOptionalBoolean, toOptionalString, withPrunedSearc
 import { toError } from "../../app/formatters";
 import { ErrorPanel, LoadingPanel } from "../../components/state-panels";
 import { rescueBaseApi } from "../../lib/api";
+import { catalogKeys, catalogQueries } from "../../queries/catalog";
 import { ArticlePanel } from "./article-panel";
 import type { ReorderDirection } from "./reorder";
 import { reorderVisibleIds } from "./reorder";
@@ -12,11 +13,11 @@ import type { ArticleFilters } from "./types";
 export function MasterDataArticlePage({ filters }: { filters: ArticleFilters }) {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const articles = useQuery({ queryKey: ["articles"], queryFn: rescueBaseApi.articles });
-  const createArticle = useMutation({ mutationFn: rescueBaseApi.createArticle, onSuccess: async () => queryClient.invalidateQueries({ queryKey: ["articles"] }) });
-  const updateArticle = useMutation({ mutationFn: ({ body, id }: Parameters<typeof rescueBaseApi.updateArticle> extends [infer I, infer B] ? { id: I & string; body: B } : never) => rescueBaseApi.updateArticle(id, body), onSuccess: async () => queryClient.invalidateQueries({ queryKey: ["articles"] }) });
-  const reorderArticles = useMutation({ mutationFn: rescueBaseApi.reorderArticles, onSuccess: async () => queryClient.invalidateQueries({ queryKey: ["articles"] }) });
-  const deleteArticle = useMutation({ mutationFn: rescueBaseApi.deleteArticle, onSuccess: async () => Promise.all([queryClient.invalidateQueries({ queryKey: ["articles"] }), queryClient.invalidateQueries({ queryKey: ["templates"] })]) });
+  const articles = useQuery(catalogQueries.articles());
+  const createArticle = useMutation({ mutationFn: rescueBaseApi.createArticle, onSuccess: async () => queryClient.invalidateQueries({ queryKey: catalogKeys.articles() }) });
+  const updateArticle = useMutation({ mutationFn: ({ body, id }: Parameters<typeof rescueBaseApi.updateArticle> extends [infer I, infer B] ? { id: I & string; body: B } : never) => rescueBaseApi.updateArticle(id, body), onSuccess: async () => queryClient.invalidateQueries({ queryKey: catalogKeys.articles() }) });
+  const reorderArticles = useMutation({ mutationFn: rescueBaseApi.reorderArticles, onSuccess: async () => queryClient.invalidateQueries({ queryKey: catalogKeys.articles() }) });
+  const deleteArticle = useMutation({ mutationFn: rescueBaseApi.deleteArticle, onSuccess: async () => Promise.all([queryClient.invalidateQueries({ queryKey: catalogKeys.articles() }), queryClient.invalidateQueries({ queryKey: catalogKeys.templates() })]) });
 
   if (articles.isLoading) return <LoadingPanel label="Stammdaten werden geladen" />;
   if (articles.isError || !articles.data) return <ErrorPanel error={toError(articles.error)} onRetry={() => void articles.refetch()} />;

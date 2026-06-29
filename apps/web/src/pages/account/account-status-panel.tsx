@@ -4,13 +4,14 @@ import { InlineError } from "../../components/state-panels";
 import { Badge, Button, Panel } from "../../components/ui";
 import { rescueBaseApi } from "../../lib/api";
 import type { AuthenticatedUser } from "../../lib/types";
+import { authKeys } from "../../queries/auth";
 import "./account-status-panel.css";
 
 export function AccountStatusPanel({ user }: { user: AuthenticatedUser }) {
   const queryClient = useQueryClient();
   const disable = useMutation({
     mutationFn: rescueBaseApi.disableTwoFactor,
-    onSuccess: async () => queryClient.invalidateQueries({ queryKey: ["session"] })
+    onSuccess: async () => queryClient.invalidateQueries({ queryKey: authKeys.session() })
   });
 
   return (

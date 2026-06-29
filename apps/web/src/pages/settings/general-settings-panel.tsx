@@ -5,6 +5,8 @@ import { SearchableSelect } from "../../components/searchable-select";
 import { Field } from "../../components/ui";
 import { rescueBaseApi } from "../../lib/api";
 import type { GeneralSettings } from "../../lib/admin-settings-types";
+import { authKeys } from "../../queries/auth";
+import { settingsKeys } from "../../queries/settings";
 import { SettingsPanel } from "./settings-panel";
 import { getTimezoneOptions } from "./timezone-options";
 
@@ -15,13 +17,13 @@ export function GeneralSettingsPanel({ initial }: { initial: GeneralSettings }) 
     mutationFn: rescueBaseApi.updateGeneralSettings,
     onSuccess: async (settings) => {
       setDraft(settings);
-      queryClient.setQueryData(["setup-status"], (current: { initialized: boolean } & Partial<GeneralSettings> | undefined) =>
+      queryClient.setQueryData(authKeys.setupStatus(), (current: { initialized: boolean } & Partial<GeneralSettings> | undefined) =>
         current ? { ...current, ...settings } : current
       );
-      queryClient.setQueryData(["session"], (current: { user: unknown } & Partial<GeneralSettings> | undefined) =>
+      queryClient.setQueryData(authKeys.session(), (current: { user: unknown } & Partial<GeneralSettings> | undefined) =>
         current ? { ...current, ...settings } : current
       );
-      await queryClient.invalidateQueries({ queryKey: ["admin-settings"] });
+      await queryClient.invalidateQueries({ queryKey: settingsKeys.admin() });
     }
   });
   return (

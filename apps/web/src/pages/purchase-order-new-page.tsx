@@ -3,11 +3,15 @@ import { Link, useNavigate, useSearch } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ArrowLeft, Plus, Save, Trash2 } from "lucide-react";
 import { PageHeader } from "../components/page-layout";
+import { AnimatedContentSwap } from "../motion/animated-containers";
 import { toError } from "../app/formatters";
 import { SearchableSelect } from "../components/searchable-select";
 import { ErrorPanel, InlineError, LoadingPanel } from "../components/state-panels";
 import { Button, Field, Panel, Tabs } from "../components/ui";
 import { rescueBaseApi } from "../lib/api";
+import { catalogQueries } from "../queries/catalog";
+import { inventoryQueries } from "../queries/inventory";
+import { orderKeys } from "../queries/orders";
 import type { Article, InventoryTarget } from "../lib/types";
 import { centsInput, parseCents } from "./purchase-orders/format";
 import "./purchase-orders-page.css";
@@ -26,9 +30,9 @@ export function PurchaseOrderNewPage() {
   const [lines, setLines] = useState<DraftLine[]>([emptyLine()]);
   const [groupingMode, setGroupingMode] = useState<"single" | "supplier">("single");
   const [shortageArticleIds, setShortageArticleIds] = useState<string[]>([]);
-  const articles = useQuery({ queryKey: ["articles"], queryFn: rescueBaseApi.articles });
-  const locations = useQuery({ queryKey: ["locations"], queryFn: rescueBaseApi.locations });
-  const targets = useQuery({ queryKey: ["inventory-targets"], queryFn: rescueBaseApi.inventoryTargets });
+  const articles = useQuery(catalogQueries.articles());
+  const locations = useQuery(catalogQueries.locations());
+  const targets = useQuery(inventoryQueries.targets());
   const createManual = useMutation({ mutationFn: rescueBaseApi.createPurchaseOrder, onSuccess: onCreated });
   const createFromShortages = useMutation({ mutationFn: rescueBaseApi.createPurchaseOrdersFromShortages, onSuccess: (orders) => onCreated(orders[0]) });
 
@@ -43,7 +47,7 @@ export function PurchaseOrderNewPage() {
   const canSubmitShortages = selectedLocationId && shortageArticleIds.length > 0 && (groupingMode === "supplier" || supplierName.trim());
 
   async function onCreated(order: { id: string } | undefined) {
-    await queryClient.invalidateQueries({ queryKey: ["purchase-orders"] });
+    await queryClient.invalidateQueries({ queryKey: orderKeys.purchaseList() });
     if (order) void navigate({ params: { orderId: order.id }, to: "/admin/purchase-orders/$orderId" });
   }
 
@@ -85,44 +89,46 @@ export function PurchaseOrderNewPage() {
       </div>
       <Panel className="purchase-order-new-panel">
         <Tabs label="Erstellmodus" value={mode} onChange={setMode} items={[{ label: "Manuell", value: "manual" }, { label: "Aus Fehlmengen", value: "shortages" }]} />
-        {mode === "manual" ? (
-          <div className="purchase-order-form">
-            <OrderHeaderFields locations={locations.data} locationId={selectedLocationId} notes={notes} onLocationChange={setLocationId} onNotesChange={setNotes} onSupplierChange={setSupplierName} supplierName={supplierName} />
-            <section aria-label="Bestellpositionen" className="purchase-order-new-section">
-              <div className="purchase-order-new-section-header">
-                <div>
-                  <h2>Positionen</h2>
-                  <p>Artikel, Menge und Konditionen pro Position.</p>
+        <AnimatedContentSwap contentKey={mode}>
+          {mode === "manual" ? (
+            <div className="purchase-order-form">
+              <OrderHeaderFields locations={locations.data} locationId={selectedLocationId} notes={notes} onLocationChange={setLocationId} onNotesChange={setNotes} onSupplierChange={setSupplierName} supplierName={supplierName} />
+              <section aria-label="Bestellpositionen" className="purchase-order-new-section">
+                <div className="purchase-order-new-section-header">
+                  <div>
+                    <h2>Positionen</h2>
+                    <p>Artikel, Menge und Konditionen pro Position.</p>
+                  </div>
+                  <Button onClick={() => setLines((current) => [...current, emptyLine()])} type="button" variant="secondary"><Plus data-icon="inline-start" />Position hinzufügen</Button>
                 </div>
-                <Button onClick={() => setLines((current) => [...current, emptyLine()])} type="button" variant="secondary"><Plus data-icon="inline-start" />Position hinzufügen</Button>
-              </div>
-              <div className="purchase-order-lines">
-                {lines.map((line, index) => <ManualLine articles={articles.data} index={index} key={index} line={line} onRemove={() => setLines((current) => current.length === 1 ? current : current.filter((_, lineIndex) => lineIndex !== index))} onUpdate={(patch) => updateLine(index, patch)} />)}
-              </div>
-            </section>
-            <div className="purchase-order-new-actions"><Button disabled={!canSubmitManual || createManual.isPending} onClick={submitManual} type="button"><Save data-icon="inline-start" />Entwurf anlegen</Button></div>
-            {createManual.error ? <InlineError error={createManual.error} /> : null}
-          </div>
-        ) : (
-          <div className="purchase-order-form">
-            <OrderHeaderFields locations={locations.data} locationId={selectedLocationId} notes="" onLocationChange={(value) => { setLocationId(value); setShortageArticleIds([]); }} onNotesChange={() => undefined} onSupplierChange={setSupplierName} supplierName={supplierName} />
-            <section aria-label="Fehlmengen" className="purchase-order-new-section">
-              <div className="purchase-order-new-section-header">
-                <div>
-                  <h2>Fehlmengen</h2>
-                  <p>Bedarf gesammelt oder nach Lieferant gruppieren.</p>
+                <div className="purchase-order-lines">
+                  {lines.map((line, index) => <ManualLine articles={articles.data} index={index} key={index} line={line} onRemove={() => setLines((current) => current.length === 1 ? current : current.filter((_, lineIndex) => lineIndex !== index))} onUpdate={(patch) => updateLine(index, patch)} />)}
                 </div>
-              </div>
-              <Field label="Gruppierung"><select onChange={(event) => setGroupingMode(event.target.value as "single" | "supplier")} value={groupingMode}><option value="single">Eine Sammelbestellung</option><option value="supplier">Nach Lieferant gruppieren</option></select></Field>
-              <div className="purchase-order-lines">
-                {shortages.map((target) => <ShortageOption key={target.id} onToggle={(checked) => setShortageArticleIds((current) => checked ? [...current, target.articleId] : current.filter((id) => id !== target.articleId))} selected={shortageArticleIds.includes(target.articleId)} target={target} />)}
-                {shortages.length === 0 ? <div className="compact-list-empty">Keine Fehlmengen am ausgewählten Zielort.</div> : null}
-              </div>
-            </section>
-            <div className="purchase-order-new-actions"><Button disabled={!canSubmitShortages || createFromShortages.isPending} onClick={submitShortages} type="button"><Save data-icon="inline-start" />Entwurf anlegen</Button></div>
-            {createFromShortages.error ? <InlineError error={createFromShortages.error} /> : null}
-          </div>
-        )}
+              </section>
+              <div className="purchase-order-new-actions"><Button disabled={!canSubmitManual || createManual.isPending} onClick={submitManual} type="button"><Save data-icon="inline-start" />Entwurf anlegen</Button></div>
+              {createManual.error ? <InlineError error={createManual.error} /> : null}
+            </div>
+          ) : (
+            <div className="purchase-order-form">
+              <OrderHeaderFields locations={locations.data} locationId={selectedLocationId} notes="" onLocationChange={(value) => { setLocationId(value); setShortageArticleIds([]); }} onNotesChange={() => undefined} onSupplierChange={setSupplierName} supplierName={supplierName} />
+              <section aria-label="Fehlmengen" className="purchase-order-new-section">
+                <div className="purchase-order-new-section-header">
+                  <div>
+                    <h2>Fehlmengen</h2>
+                    <p>Bedarf gesammelt oder nach Lieferant gruppieren.</p>
+                  </div>
+                </div>
+                <Field label="Gruppierung"><select onChange={(event) => setGroupingMode(event.target.value as "single" | "supplier")} value={groupingMode}><option value="single">Eine Sammelbestellung</option><option value="supplier">Nach Lieferant gruppieren</option></select></Field>
+                <div className="purchase-order-lines">
+                  {shortages.map((target) => <ShortageOption key={target.id} onToggle={(checked) => setShortageArticleIds((current) => checked ? [...current, target.articleId] : current.filter((id) => id !== target.articleId))} selected={shortageArticleIds.includes(target.articleId)} target={target} />)}
+                  {shortages.length === 0 ? <div className="compact-list-empty">Keine Fehlmengen am ausgewählten Zielort.</div> : null}
+                </div>
+              </section>
+              <div className="purchase-order-new-actions"><Button disabled={!canSubmitShortages || createFromShortages.isPending} onClick={submitShortages} type="button"><Save data-icon="inline-start" />Entwurf anlegen</Button></div>
+              {createFromShortages.error ? <InlineError error={createFromShortages.error} /> : null}
+            </div>
+          )}
+        </AnimatedContentSwap>
       </Panel>
     </>
   );

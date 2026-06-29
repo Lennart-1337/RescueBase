@@ -4,7 +4,7 @@ import PDFDocument from "pdfkit";
 import QRCode from "qrcode";
 import { PrismaService } from "../persistence/prisma.service.js";
 import type { BatchRecord, OrderRecord } from "../persistence/mappers.js";
-import { createQrSheetLayout, needsPageBreak } from "./report-layout.js";
+import { createQrLabelLayout, createQrSheetLayout, needsPageBreak } from "./report-layout.js";
 import {
   drawContinuationHeader,
   drawDocumentHeader,
@@ -149,9 +149,9 @@ export class ReportService {
     const qrImage = Buffer.from(qrDataUrl.split(",")[1] ?? "", "base64");
 
     if (format === "label") {
-      return this.renderPdf((doc) => this.drawQrLabel(doc, kit, publicUrl, qrImage), {
-        margin: 14,
-        size: [mmToPt(90), mmToPt(62)]
+      return this.renderPdf((doc) => this.drawQrLabel(doc, kit, qrImage), {
+        margin: 0,
+        size: [mmToPt(62), mmToPt(60)]
       });
     }
 
@@ -324,21 +324,25 @@ export class ReportService {
     doc.moveTo(48, linkTop + 58 + urlHeight).lineTo(doc.page.width - 48, linkTop + 58 + urlHeight).strokeColor(palette.line).stroke();
   }
 
-  private drawQrLabel(doc: PDFKit.PDFDocument, kit: { name: string; code: string; location: { name: string } }, publicUrl: string, qrImage: Buffer) {
-    const margin = 14;
-    const qrSize = 60;
-    const qrX = doc.page.width - margin - qrSize - 6;
-    const textWidth = qrX - margin - 12;
-    const compactUrl = this.fitSingleLine(doc.font("Helvetica").fontSize(6), publicUrl.replace(/^https?:\/\//, ""), doc.page.width - margin * 2 - 16);
-    doc.rect(margin, margin, doc.page.width - margin * 2, doc.page.height - margin * 2).strokeColor(palette.lineStrong).stroke();
-    doc.fillColor(palette.muted).font("Helvetica-Bold").fontSize(7).text("RESCUEBASE CHECK", margin + 8, margin + 8);
-    doc.fillColor(palette.ink).font("Helvetica-Bold").fontSize(13).text(kit.code, margin + 8, 28, { width: textWidth });
-    doc.font("Helvetica").fontSize(8).fillColor(palette.ink).text(kit.name, margin + 8, 45, { width: textWidth, height: 24 });
-    doc.fontSize(7).fillColor(palette.muted).text(kit.location.name, margin + 8, 73, { width: textWidth });
-    doc.image(qrImage, qrX, 33, { width: qrSize, height: qrSize });
-    doc.fillColor(palette.muted).font("Helvetica-Bold").fontSize(6).text("Scan für Check", qrX - 2, 96, { width: qrSize + 4, align: "center" });
-    doc.moveTo(margin + 8, doc.page.height - 26).lineTo(doc.page.width - margin - 8, doc.page.height - 26).strokeColor(palette.line).stroke();
-    doc.font("Helvetica").fontSize(6).fillColor(palette.muted).text(compactUrl, margin + 8, doc.page.height - 18, { lineBreak: false });
+  private drawQrLabel(doc: PDFKit.PDFDocument, kit: { name: string; code: string; location: { name: string } }, qrImage: Buffer) {
+    const layout = createQrLabelLayout(doc.page.width, doc.page.height);
+    const code = fitSingleLine(doc.font("Helvetica-Bold").fontSize(12), kit.code, layout.textBox.width);
+    const name = fitSingleLine(doc.font("Helvetica-Bold").fontSize(7.5), kit.name, layout.textBox.width);
+    const location = fitSingleLine(doc.font("Helvetica").fontSize(8.5), kit.location.name, layout.textBox.width);
+
+    doc.fillColor("#ffffff").rect(0, 0, doc.page.width, doc.page.height).fill();
+    doc.fillColor(palette.muted).font("Helvetica-Bold").fontSize(6.5).text("DLRG / RESCUEBASE CHECK", layout.textBox.x, layout.headerTop, {
+      width: layout.textBox.width
+    });
+    doc.fillColor(palette.ink).font("Helvetica-Bold").fontSize(12).text(code, layout.textBox.x, layout.headerTop + 13, { width: layout.textBox.width });
+    doc.fillColor(palette.ink).font("Helvetica-Bold").fontSize(7.5).text(name, layout.textBox.x, layout.headerTop + 31, { width: layout.textBox.width });
+    doc.fillColor(palette.muted).font("Helvetica").fontSize(8.5).text(location, layout.textBox.x, layout.headerTop + 43, { width: layout.textBox.width });
+
+    doc.image(qrImage, layout.qrBox.x, layout.qrBox.y, { width: layout.qrBox.width, height: layout.qrBox.height });
+    doc.fillColor(palette.muted).font("Helvetica-Bold").fontSize(6.5).text("Scan für Check", layout.qrBox.x, layout.qrCaptionTop, {
+      width: layout.qrBox.width,
+      align: "center"
+    });
   }
 
   private drawDocumentHeader(doc: PDFKit.PDFDocument, eyebrow: string, title: string, subtitle: string) {
@@ -425,10 +429,6 @@ export class ReportService {
     doc.moveTo(48, y + 100).lineTo(240, y + 100).strokeColor(palette.line).stroke();
     doc.moveTo(320, y + 100).lineTo(doc.page.width - 48, y + 100).strokeColor(palette.line).stroke();
     doc.fillColor(palette.muted).fontSize(8).text("Bearbeitet von", 48, y + 104).text("Datum / Unterschrift", 320, y + 104);
-  }
-
-  private fitSingleLine(doc: PDFKit.PDFDocument, text: string, width: number) {
-    return fitSingleLine(doc, text, width);
   }
 
   private drawProcurementHeader(doc: PDFKit.PDFDocument, filterLabel: string, totalRemaining: number, orderCount: number) {

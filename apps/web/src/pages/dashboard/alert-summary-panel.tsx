@@ -1,12 +1,11 @@
 import { useQuery } from "@tanstack/react-query";
-import { AlertTriangle } from "lucide-react";
-import { getAlertOverview } from "../../lib/extra-api";
 import { Badge, Panel } from "../../components/ui";
 import { InlineError, LoadingPanel } from "../../components/state-panels";
+import { alertQueries } from "../../queries/alerts";
 import "./alert-summary-panel.css";
 
 export function AlertSummaryPanel() {
-  const query = useQuery({ queryKey: ["alert-overview"], queryFn: getAlertOverview });
+  const query = useQuery(alertQueries.overview());
 
   if (query.isLoading) {
     return <LoadingPanel label="Warnungen werden geladen" />;
@@ -19,7 +18,6 @@ export function AlertSummaryPanel() {
     <Panel>
       <div className="panel-header">
         <div><h2>Warnungen</h2></div>
-        <AlertTriangle />
       </div>
       <div className="metric-row">
         <Badge tone="danger">Ablauf {query.data.summary.expiry}</Badge>

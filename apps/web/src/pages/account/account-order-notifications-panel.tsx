@@ -3,6 +3,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Bell } from "lucide-react";
 import { rescueBaseApi } from "../../lib/api";
 import type { AuthenticatedUser } from "../../lib/types";
+import { authKeys } from "../../queries/auth";
 import { InlineError } from "../../components/state-panels";
 import { Button, Panel } from "../../components/ui";
 import "../../app/auth/auth-form-layout.css";
@@ -17,7 +18,7 @@ export function AccountOrderNotificationsPanel({ user }: { user: AuthenticatedUs
 
   const save = useMutation({
     mutationFn: rescueBaseApi.updateOrderNotifications,
-    onSuccess: async () => queryClient.invalidateQueries({ queryKey: ["session"] })
+    onSuccess: async () => queryClient.invalidateQueries({ queryKey: authKeys.session() })
   });
 
   return (

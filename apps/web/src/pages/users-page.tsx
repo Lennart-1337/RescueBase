@@ -7,6 +7,7 @@ import { ErrorPanel, LoadingPanel } from "../components/state-panels";
 import { PageHeader, PageSection } from "../components/page-layout";
 import { Badge, Button } from "../components/ui";
 import { Plus } from "lucide-react";
+import { userKeys, userQueries } from "../queries/users";
 import { AlertRecipientsPanel } from "./users/alert-recipients-panel";
 import { UserInvitationPanel } from "./users/user-invitation-panel";
 import { UserListPanel } from "./users/user-list-panel";
@@ -14,10 +15,10 @@ import { UserListPanel } from "./users/user-list-panel";
 export function UsersPage({ user }: { user: AuthenticatedUser }) {
   const [inviteOpen, setInviteOpen] = useState(false);
   const queryClient = useQueryClient();
-  const users = useQuery({ queryKey: ["users"], queryFn: rescueBaseApi.users, enabled: user.role === "ADMIN" });
-  const invite = useMutation({ mutationFn: rescueBaseApi.inviteUser, onSuccess: async () => queryClient.invalidateQueries({ queryKey: ["users"] }) });
-  const toggle = useMutation({ mutationFn: ({ active, id }: { active: boolean; id: string }) => rescueBaseApi.setUserActive(id, { active }), onSuccess: async () => queryClient.invalidateQueries({ queryKey: ["users"] }) });
-  const deleteUser = useMutation({ mutationFn: rescueBaseApi.deleteUser, onSuccess: async () => queryClient.invalidateQueries({ queryKey: ["users"] }) });
+  const users = useQuery(userQueries.list(user.role === "ADMIN"));
+  const invite = useMutation({ mutationFn: rescueBaseApi.inviteUser, onSuccess: async () => queryClient.invalidateQueries({ queryKey: userKeys.list() }) });
+  const toggle = useMutation({ mutationFn: ({ active, id }: { active: boolean; id: string }) => rescueBaseApi.setUserActive(id, { active }), onSuccess: async () => queryClient.invalidateQueries({ queryKey: userKeys.list() }) });
+  const deleteUser = useMutation({ mutationFn: rescueBaseApi.deleteUser, onSuccess: async () => queryClient.invalidateQueries({ queryKey: userKeys.list() }) });
 
   if (user.role !== "ADMIN") return <ErrorPanel error={new Error("Für Benutzerverwaltung ist eine Admin-Rolle erforderlich.")} onRetry={() => undefined} />;
   if (users.isLoading) return <LoadingPanel label="Benutzer werden geladen" />;

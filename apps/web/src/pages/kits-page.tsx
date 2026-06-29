@@ -9,6 +9,7 @@ import { Button } from "../components/ui";
 import { Plus } from "lucide-react";
 import { rescueBaseApi } from "../lib/api";
 import type { Kit } from "../lib/types";
+import { catalogKeys, catalogQueries } from "../queries/catalog";
 import { KitFormPanel } from "./kits/kit-form-panel";
 import { KitFilterToolbar } from "./kits/kit-filter-toolbar";
 import { KitListPanel } from "./kits/kit-list-panel";
@@ -23,13 +24,13 @@ export function KitsPage() {
   const queryClient = useQueryClient();
   const navigate = useNavigate({ from: "/admin/kits" });
   const search = useSearch({ from: "/admin/kits" });
-  const kits = useQuery({ queryKey: ["kits"], queryFn: rescueBaseApi.kits });
-  const locations = useQuery({ queryKey: ["locations"], queryFn: rescueBaseApi.locations });
-  const templates = useQuery({ queryKey: ["templates"], queryFn: rescueBaseApi.templates });
-  const createMutation = useMutation({ mutationFn: rescueBaseApi.createKit, onSuccess: async () => queryClient.invalidateQueries({ queryKey: ["kits"] }) });
-  const updateMutation = useMutation({ mutationFn: ({ body, id }: { body: { name: string; code: string; locationId: string; templateId: string }; id: string }) => rescueBaseApi.updateKit(id, body), onSuccess: async () => queryClient.invalidateQueries({ queryKey: ["kits"] }) });
-  const rotateMutation = useMutation({ mutationFn: rescueBaseApi.rotateKitToken, onSuccess: async (rotatedKit) => { queryClient.setQueryData<Kit[] | undefined>(["kits"], (current) => current?.map((kit) => (kit.id === rotatedKit.id ? rotatedKit : kit)) ?? current); await queryClient.invalidateQueries({ queryKey: ["kits"] }); } });
-  const deleteMutation = useMutation({ mutationFn: rescueBaseApi.deleteKit, onSuccess: async () => queryClient.invalidateQueries({ queryKey: ["kits"] }) });
+  const kits = useQuery(catalogQueries.kits());
+  const locations = useQuery(catalogQueries.locations());
+  const templates = useQuery(catalogQueries.templates());
+  const createMutation = useMutation({ mutationFn: rescueBaseApi.createKit, onSuccess: async () => queryClient.invalidateQueries({ queryKey: catalogKeys.kits() }) });
+  const updateMutation = useMutation({ mutationFn: ({ body, id }: { body: { name: string; code: string; locationId: string; templateId: string }; id: string }) => rescueBaseApi.updateKit(id, body), onSuccess: async () => queryClient.invalidateQueries({ queryKey: catalogKeys.kits() }) });
+  const rotateMutation = useMutation({ mutationFn: rescueBaseApi.rotateKitToken, onSuccess: async (rotatedKit) => { queryClient.setQueryData<Kit[] | undefined>(catalogKeys.kits(), (current) => current?.map((kit) => (kit.id === rotatedKit.id ? rotatedKit : kit)) ?? current); await queryClient.invalidateQueries({ queryKey: catalogKeys.kits() }); } });
+  const deleteMutation = useMutation({ mutationFn: rescueBaseApi.deleteKit, onSuccess: async () => queryClient.invalidateQueries({ queryKey: catalogKeys.kits() }) });
   const filters = {
     locationId: search.locationId ?? "",
     q: search.q ?? "",

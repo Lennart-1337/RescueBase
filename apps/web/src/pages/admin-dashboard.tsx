@@ -11,6 +11,9 @@ import { EmptyState, ErrorPanel, LoadingPanel, MetricGrid } from "../components/
 import { StatusBadge } from "../components/status-badge";
 import { AnchorButton, Panel } from "../components/ui";
 import { rescueBaseApi } from "../lib/api";
+import { catalogKeys } from "../queries/catalog";
+import { inventoryKeys } from "../queries/inventory";
+import { orderKeys } from "../queries/orders";
 import { AlertSummaryPanel } from "./dashboard/alert-summary-panel";
 import { OrderFilterToolbar } from "./dashboard/order-filter-toolbar";
 import { OrderDetailDialog } from "./dashboard/order-detail-dialog";
@@ -23,7 +26,10 @@ export function AdminDashboard() {
   const search = useSearch({ from: "/" });
   const queryClient = useQueryClient();
   const dashboard = useDashboardData();
-  const fulfillMutation = useMutation({ mutationFn: ({ items, orderId }: { items: Array<{ itemId: string; batchId: string; quantity: number }>; orderId: string }) => rescueBaseApi.fulfillOrder(orderId, { items }), onSuccess: async () => Promise.all([queryClient.invalidateQueries({ queryKey: ["orders"] }), queryClient.invalidateQueries({ queryKey: ["kits"] }), queryClient.invalidateQueries({ queryKey: ["batches"] })]) });
+  const invalidateOrderData = () => queryClient.invalidateQueries({ queryKey: orderKeys.replenishmentList() });
+  const startMutation = useMutation({ mutationFn: rescueBaseApi.startOrder, onSuccess: invalidateOrderData });
+  const cancelMutation = useMutation({ mutationFn: rescueBaseApi.cancelOrder, onSuccess: invalidateOrderData });
+  const fulfillMutation = useMutation({ mutationFn: ({ items, orderId }: { items: Array<{ itemId: string; batchId: string; quantity: number }>; orderId: string }) => rescueBaseApi.fulfillOrder(orderId, { items }), onSuccess: async () => Promise.all([queryClient.invalidateQueries({ queryKey: orderKeys.replenishmentList() }), queryClient.invalidateQueries({ queryKey: catalogKeys.kits() }), queryClient.invalidateQueries({ queryKey: inventoryKeys.batches() })]) });
   const filters = {
     orderLocationId: search.orderLocationId ?? "",
     orderQ: search.orderQ ?? "",
@@ -95,7 +101,7 @@ export function AdminDashboard() {
         <WorkspaceMain label="Nachfüllaufträge"><Panel className="orders-panel"><PanelHeader title="Auftragsliste" />{filteredOrders.length > 0 ? <div className="order-list">{filteredOrders.map((order) => <button className="order-row" key={order.id} onClick={() => { setActiveOrderId(order.id); setOrderOpen(true); }} type="button"><span><strong>{order.kit?.name ?? order.kitId}</strong><small>{order.items.length} Positionen · {formatStatus(order.status)}</small></span><StatusBadge kind="replenishment" status={order.status} /></button>)}</div> : <EmptyState text="Aktuell gibt es keine Nachfüllaufträge für die gesetzten Filter." title="Keine Nachfüllaufträge" />}</Panel></WorkspaceMain>
         <WorkspaceRail label="Warnungen"><AlertSummaryPanel /></WorkspaceRail>
       </Workspace>
-      <OrderDetailDialog batches={batches} error={fulfillMutation.error ? toError(fulfillMutation.error) : null} formatReason={formatReason} formatStatus={formatStatus} isOpen={orderOpen} isSubmitting={fulfillMutation.isPending} onClose={() => { setOrderOpen(false); setActiveOrderId(""); }} onFulfill={(items) => activeOrder && fulfillMutation.mutate({ items, orderId: activeOrder.id })} order={activeOrder} pdfHref={activeOrder ? rescueBaseApi.reportUrl(`/reports/replenishment/${activeOrder.id}.pdf`) : undefined} selectedBatchQuantity={selectedBatchQuantity} />
+      <OrderDetailDialog batches={batches} error={startMutation.error || cancelMutation.error || fulfillMutation.error ? toError(startMutation.error ?? cancelMutation.error ?? fulfillMutation.error) : null} formatReason={formatReason} formatStatus={formatStatus} isOpen={orderOpen} isSubmitting={startMutation.isPending || cancelMutation.isPending || fulfillMutation.isPending} onCancel={() => activeOrder && cancelMutation.mutate(activeOrder.id)} onClose={() => { setOrderOpen(false); setActiveOrderId(""); }} onFulfill={(items) => activeOrder && fulfillMutation.mutate({ items, orderId: activeOrder.id })} onStart={() => activeOrder && startMutation.mutate(activeOrder.id)} order={activeOrder} pdfHref={activeOrder ? rescueBaseApi.reportUrl(`/reports/replenishment/${activeOrder.id}.pdf`) : undefined} selectedBatchQuantity={selectedBatchQuantity} />
     </>
   );
 }

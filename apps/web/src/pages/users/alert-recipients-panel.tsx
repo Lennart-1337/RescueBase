@@ -1,11 +1,11 @@
 import { useQuery } from "@tanstack/react-query";
 import { Users } from "lucide-react";
-import { getAlertSubscriptions } from "../../lib/extra-api";
 import { InlineError, LoadingPanel } from "../../components/state-panels";
 import { Badge, Panel } from "../../components/ui";
+import { alertQueries } from "../../queries/alerts";
 
 export function AlertRecipientsPanel() {
-  const query = useQuery({ queryKey: ["alert-subscriptions"], queryFn: getAlertSubscriptions });
+  const query = useQuery(alertQueries.subscriptions());
 
   if (query.isLoading) {
     return <LoadingPanel label="Alarmempfänger werden geladen" />;

@@ -6,6 +6,7 @@ import { copyText } from "../../app/clipboard";
 import { InlineError } from "../../components/state-panels";
 import { Button, Field, Panel } from "../../components/ui";
 import { rescueBaseApi } from "../../lib/api";
+import { authKeys } from "../../queries/auth";
 import "../../app/auth/auth-form-layout.css";
 import "./account-totp-panel.css";
 
@@ -22,7 +23,7 @@ export function AccountTotpPanel() {
       setTotpSetup(null);
       setTotpQrUrl("");
       setTotpCode("");
-      await queryClient.invalidateQueries({ queryKey: ["session"] });
+      await queryClient.invalidateQueries({ queryKey: authKeys.session() });
     }
   });
 

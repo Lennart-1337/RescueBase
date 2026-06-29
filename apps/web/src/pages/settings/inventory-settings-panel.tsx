@@ -5,6 +5,7 @@ import { InlineError } from "../../components/state-panels";
 import { Field } from "../../components/ui";
 import { rescueBaseApi } from "../../lib/api";
 import type { InventorySettings } from "../../lib/admin-settings-types";
+import { settingsKeys } from "../../queries/settings";
 import { SettingsPanel } from "./settings-panel";
 
 export function InventorySettingsPanel({ initial }: { initial: InventorySettings }) {
@@ -14,7 +15,7 @@ export function InventorySettingsPanel({ initial }: { initial: InventorySettings
     mutationFn: rescueBaseApi.updateAdminInventorySettings,
     onSuccess: async (settings) => {
       setDraft(settings);
-      await queryClient.invalidateQueries({ queryKey: ["admin-settings"] });
+      await queryClient.invalidateQueries({ queryKey: settingsKeys.admin() });
     }
   });
   return (

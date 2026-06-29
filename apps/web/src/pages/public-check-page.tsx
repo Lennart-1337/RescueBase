@@ -6,11 +6,12 @@ import { StatusBadge } from "../components/status-badge";
 import { Panel } from "../components/ui";
 import { rescueBaseApi } from "../lib/api";
 import type { CompleteCheckResponse } from "../lib/types";
+import { publicQueries } from "../queries/public";
 import { PublicCheckForm } from "./public-check/public-check-form";
 import "./public-check/public-check-page.css";
 
 export function PublicCheck({ token }: { token: string }) {
-  const query = useQuery({ queryKey: ["public-kit", token], queryFn: () => rescueBaseApi.publicKit(token) });
+  const query = useQuery(publicQueries.publicKit(token));
   const mutation = useMutation({ mutationFn: (body: Parameters<typeof rescueBaseApi.completeCheck>[1]) => rescueBaseApi.completeCheck(token, body) });
 
   if (query.isError) {

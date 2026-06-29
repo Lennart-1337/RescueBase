@@ -2,8 +2,12 @@ import { useState, type ReactNode } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { Archive, ClipboardCheck, ClipboardList, Cog, LogOut, Menu, PackageCheck, Settings, ShieldCheck, ShoppingCart, Users, X } from "lucide-react";
+import { AnimatePresence, motion } from "motion/react";
 import { Button } from "../components/ui";
+import { fadeVariants, slideLeftVariants } from "../motion/presets";
+import { useMotionMode } from "../motion/use-motion-mode";
 import { rescueBaseApi } from "../lib/api";
+import { authKeys } from "../queries/auth";
 import type { AuthenticatedUser } from "../lib/types";
 import { type AppBranding } from "./branding";
 import { BrandMark } from "./brand-mark";
@@ -20,10 +24,11 @@ type NavigationItem = {
 export function AdminShell({ children, user, branding }: { children: ReactNode; user: AuthenticatedUser; branding: AppBranding }) {
   const queryClient = useQueryClient();
   const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
+  const motionMode = useMotionMode();
   const logout = useMutation({
     mutationFn: rescueBaseApi.logout,
     onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: ["session"] });
+      await queryClient.invalidateQueries({ queryKey: authKeys.session() });
     }
   });
   const navigationItems = [
@@ -63,31 +68,54 @@ export function AdminShell({ children, user, branding }: { children: ReactNode; 
           </Button>
         </div>
       </aside>
-      {isMobileNavOpen ? (
-        <div className="mobile-drawer-backdrop" onClick={() => setIsMobileNavOpen(false)}>
-          <div aria-label="Navigation" aria-modal="true" className="mobile-drawer" onClick={(event) => event.stopPropagation()} role="dialog">
-            <div className="mobile-drawer-header">
-              <div className="brand">
-                {branding.showLogo ? <div className="brand-mark"><BrandMark /></div> : null}
-                {branding.showAppName ? <strong>{branding.appName}</strong> : null}
-                {branding.showAppSubtitle ? <span>{branding.appSubtitle}</span> : null}
+      <AnimatePresence initial={false}>
+        {isMobileNavOpen ? (
+          <motion.div
+            animate="visible"
+            className="mobile-drawer-backdrop"
+            data-motion-mode={motionMode}
+            data-motion-preset="fade"
+            exit="exit"
+            initial="hidden"
+            onClick={() => setIsMobileNavOpen(false)}
+            variants={fadeVariants(motionMode)}
+          >
+            <motion.div
+              animate="visible"
+              aria-label="Navigation"
+              aria-modal="true"
+              className="mobile-drawer"
+              data-motion-mode={motionMode}
+              data-motion-preset="slide-left"
+              exit="exit"
+              initial="hidden"
+              onClick={(event) => event.stopPropagation()}
+              role="dialog"
+              variants={slideLeftVariants(motionMode)}
+            >
+              <div className="mobile-drawer-header">
+                <div className="brand">
+                  {branding.showLogo ? <div className="brand-mark"><BrandMark /></div> : null}
+                  {branding.showAppName ? <strong>{branding.appName}</strong> : null}
+                  {branding.showAppSubtitle ? <span>{branding.appSubtitle}</span> : null}
+                </div>
+                <Button aria-label="Menü schließen" onClick={() => setIsMobileNavOpen(false)} type="button" variant="ghost">
+                  <X />
+                </Button>
               </div>
-              <Button aria-label="Menü schließen" onClick={() => setIsMobileNavOpen(false)} type="button" variant="ghost">
-                <X />
-              </Button>
-            </div>
-            <NavigationList items={navigationItems} onNavigate={() => setIsMobileNavOpen(false)} />
-            <div className="mobile-drawer-user">
-              <span>{user.displayName}</span>
-              <small>{user.role === "ADMIN" ? "Admin" : "Lagerwart"}</small>
-              <Button onClick={() => logout.mutate()} type="button" variant="ghost">
-                <LogOut data-icon="inline-start" />
-                Abmelden
-              </Button>
-            </div>
-          </div>
-        </div>
-      ) : null}
+              <NavigationList items={navigationItems} onNavigate={() => setIsMobileNavOpen(false)} />
+              <div className="mobile-drawer-user">
+                <span>{user.displayName}</span>
+                <small>{user.role === "ADMIN" ? "Admin" : "Lagerwart"}</small>
+                <Button onClick={() => logout.mutate()} type="button" variant="ghost">
+                  <LogOut data-icon="inline-start" />
+                  Abmelden
+                </Button>
+              </div>
+            </motion.div>
+          </motion.div>
+        ) : null}
+      </AnimatePresence>
       <main className="dashboard">{children}</main>
     </div>
   );

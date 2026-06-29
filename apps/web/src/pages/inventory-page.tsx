@@ -9,6 +9,8 @@ import { PageHeader, PageToolbar, Workspace, WorkspaceMain, WorkspaceRail } from
 import { AnchorButton, Button } from "../components/ui";
 import { rescueBaseApi } from "../lib/api";
 import type { AuthenticatedUser, InventoryProcurementOrder, InventoryTarget } from "../lib/types";
+import { catalogQueries } from "../queries/catalog";
+import { invalidateInventoryPlanning, inventoryKeys, inventoryQueries } from "../queries/inventory";
 import { BatchCorrectionPanel } from "./inventory/batch-correction-panel";
 import { BatchCreatePanel } from "./inventory/batch-create-panel";
 import { BatchListPanel } from "./inventory/batch-list-panel";
@@ -43,20 +45,20 @@ export function InventoryPage({ user: _user }: { user: AuthenticatedUser }) {
   const queryClient = useQueryClient();
   const navigate = useNavigate({ from: "/admin/inventory" });
   const search = useSearch({ from: "/admin/inventory" });
-  const batches = useQuery({ queryKey: ["batches"], queryFn: rescueBaseApi.batches });
-  const articles = useQuery({ queryKey: ["articles"], queryFn: rescueBaseApi.articles });
-  const locations = useQuery({ queryKey: ["locations"], queryFn: rescueBaseApi.locations });
-  const targets = useQuery({ queryKey: ["inventory-targets"], queryFn: rescueBaseApi.inventoryTargets });
-  const procurementOrders = useQuery({ queryKey: ["inventory-procurement-orders"], queryFn: rescueBaseApi.procurementOrders });
-  const movements = useQuery({ queryKey: ["batch-movements", selectedBatchId], queryFn: () => rescueBaseApi.batchMovements(selectedBatchId ?? ""), enabled: Boolean(selectedBatchId && correctionOpen) });
-  const createMutation = useMutation({ mutationFn: rescueBaseApi.createBatch, onSuccess: async () => { setLotNumber(""); setExpiresAt(""); setQuantity(0); setCreateOpen(false); await invalidateInventoryPlanning(); } });
-  const correctionMutation = useMutation({ mutationFn: ({ body, id }: { body: { reason: string; quantity?: number; lotNumber?: string; expiresAt?: string; locationId?: string }; id: string }) => rescueBaseApi.correctBatch(id, body), onSuccess: async () => { await Promise.all([queryClient.invalidateQueries({ queryKey: ["batches"] }), queryClient.invalidateQueries({ queryKey: ["batch-movements", selectedBatchId] })]); setCorrectionReason(""); setCorrectionOpen(false); } });
-  const deleteMutation = useMutation({ mutationFn: rescueBaseApi.deleteBatch, onSuccess: async () => { setCorrectionOpen(false); setSelectedBatchId(null); await invalidateInventoryPlanning(); } });
-  const targetMutation = useMutation({ mutationFn: ({ draft }: { draft: TargetDraft }) => rescueBaseApi.upsertInventoryTarget(draft.articleId, draft.locationId, { targetQuantity: Number(draft.targetQuantity) }), onSuccess: async () => { setTargetOpen(false); await queryClient.invalidateQueries({ queryKey: ["inventory-targets"] }); } });
-  const clearTargetMutation = useMutation({ mutationFn: ({ articleId, locationId }: { articleId: string; locationId: string }) => rescueBaseApi.clearInventoryTarget(articleId, locationId), onSuccess: async () => { await Promise.all([queryClient.invalidateQueries({ queryKey: ["inventory-targets"] }), queryClient.invalidateQueries({ queryKey: ["inventory-procurement-orders"] })]); } });
-  const startOrderMutation = useMutation({ mutationFn: rescueBaseApi.startProcurementOrder, onSuccess: async () => { await Promise.all([queryClient.invalidateQueries({ queryKey: ["inventory-targets"] }), queryClient.invalidateQueries({ queryKey: ["inventory-procurement-orders"] })]); } });
-  const cancelOrderMutation = useMutation({ mutationFn: rescueBaseApi.cancelProcurementOrder, onSuccess: async () => { await Promise.all([queryClient.invalidateQueries({ queryKey: ["inventory-targets"] }), queryClient.invalidateQueries({ queryKey: ["inventory-procurement-orders"] })]); } });
-  const receiveOrderMutation = useMutation({ mutationFn: ({ id, items, verified }: { id: string; items: ReceiptDraftItem[]; verified: boolean }) => rescueBaseApi.receiveProcurementOrder(id, { items: items.map((item) => ({ expiresAt: item.expiresAt, lotNumber: item.lotNumber, quantity: Number(item.quantity) })), verified }), onSuccess: async () => { setReceiveOpen(false); setReceiptVerified(false); await invalidateInventoryPlanning(); } });
+  const batches = useQuery(inventoryQueries.batches());
+  const articles = useQuery(catalogQueries.articles());
+  const locations = useQuery(catalogQueries.locations());
+  const targets = useQuery(inventoryQueries.targets());
+  const procurementOrders = useQuery(inventoryQueries.procurementOrders());
+  const movements = useQuery(inventoryQueries.batchMovements(selectedBatchId, Boolean(selectedBatchId && correctionOpen)));
+  const createMutation = useMutation({ mutationFn: rescueBaseApi.createBatch, onSuccess: async () => { setLotNumber(""); setExpiresAt(""); setQuantity(0); setCreateOpen(false); await invalidateInventoryPlanning(queryClient); } });
+  const correctionMutation = useMutation({ mutationFn: ({ body, id }: { body: { reason: string; quantity?: number; lotNumber?: string; expiresAt?: string; locationId?: string }; id: string }) => rescueBaseApi.correctBatch(id, body), onSuccess: async () => { await Promise.all([queryClient.invalidateQueries({ queryKey: inventoryKeys.batches() }), queryClient.invalidateQueries({ queryKey: inventoryKeys.batchMovements(selectedBatchId) })]); setCorrectionReason(""); setCorrectionOpen(false); } });
+  const deleteMutation = useMutation({ mutationFn: rescueBaseApi.deleteBatch, onSuccess: async () => { setCorrectionOpen(false); setSelectedBatchId(null); await invalidateInventoryPlanning(queryClient); } });
+  const targetMutation = useMutation({ mutationFn: ({ draft }: { draft: TargetDraft }) => rescueBaseApi.upsertInventoryTarget(draft.articleId, draft.locationId, { targetQuantity: Number(draft.targetQuantity) }), onSuccess: async () => { setTargetOpen(false); await queryClient.invalidateQueries({ queryKey: inventoryKeys.targets() }); } });
+  const clearTargetMutation = useMutation({ mutationFn: ({ articleId, locationId }: { articleId: string; locationId: string }) => rescueBaseApi.clearInventoryTarget(articleId, locationId), onSuccess: async () => { await Promise.all([queryClient.invalidateQueries({ queryKey: inventoryKeys.targets() }), queryClient.invalidateQueries({ queryKey: inventoryKeys.procurementOrders() })]); } });
+  const startOrderMutation = useMutation({ mutationFn: rescueBaseApi.startProcurementOrder, onSuccess: async () => { await Promise.all([queryClient.invalidateQueries({ queryKey: inventoryKeys.targets() }), queryClient.invalidateQueries({ queryKey: inventoryKeys.procurementOrders() })]); } });
+  const cancelOrderMutation = useMutation({ mutationFn: rescueBaseApi.cancelProcurementOrder, onSuccess: async () => { await Promise.all([queryClient.invalidateQueries({ queryKey: inventoryKeys.targets() }), queryClient.invalidateQueries({ queryKey: inventoryKeys.procurementOrders() })]); } });
+  const receiveOrderMutation = useMutation({ mutationFn: ({ id, items, verified }: { id: string; items: ReceiptDraftItem[]; verified: boolean }) => rescueBaseApi.receiveProcurementOrder(id, { items: items.map((item) => ({ expiresAt: item.expiresAt, lotNumber: item.lotNumber, quantity: Number(item.quantity) })), verified }), onSuccess: async () => { setReceiveOpen(false); setReceiptVerified(false); await invalidateInventoryPlanning(queryClient); } });
   const selectedBatch = batches.data?.find((batch) => batch.id === selectedBatchId) ?? null;
   const selectedReceiveOrder = procurementOrders.data?.find((order) => order.id === receiveOrderId) ?? null;
   const expiring = batches.data?.filter((batch) => daysUntil(batch.expiresAt) <= 90) ?? [];
@@ -111,14 +113,6 @@ export function InventoryPage({ user: _user }: { user: AuthenticatedUser }) {
       replace: true,
       search: () => ({})
     });
-  }
-
-  async function invalidateInventoryPlanning() {
-    await Promise.all([
-      queryClient.invalidateQueries({ queryKey: ["batches"] }),
-      queryClient.invalidateQueries({ queryKey: ["inventory-targets"] }),
-      queryClient.invalidateQueries({ queryKey: ["inventory-procurement-orders"] })
-    ]);
   }
 
   function openCreateTarget() {

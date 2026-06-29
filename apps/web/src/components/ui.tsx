@@ -6,6 +6,9 @@ import {
   type PropsWithChildren,
   type ReactNode
 } from "react";
+import { AnimatePresence, motion } from "motion/react";
+import { fadeVariants, scaleFadeVariants } from "../motion/presets";
+import { useMotionMode } from "../motion/use-motion-mode";
 import "./ui.css";
 export { Badge } from "./badge";
 
@@ -93,39 +96,55 @@ export function Dialog({
 }>) {
   const titleId = useId();
   const descriptionId = useId();
-
-  if (!open) {
-    return null;
-  }
+  const motionMode = useMotionMode();
 
   return (
-    <div className="modal-backdrop" onClick={onClose}>
-      <div
-        aria-describedby={description ? descriptionId : undefined}
-        aria-labelledby={titleId}
-        aria-modal="true"
-        className={cn("modal-dialog", size === "wide" && "modal-dialog-wide", className)}
-        onClick={(event) => event.stopPropagation()}
-        role="dialog"
-      >
-        <div className="modal-header">
-          <div className="modal-heading">
-            <h2 id={titleId}>{title}</h2>
-            {description ? <p id={descriptionId}>{description}</p> : null}
-          </div>
-          <Button
-            aria-label="Dialog schließen"
-            className="modal-close-button"
-            onClick={onClose}
-            type="button"
-            variant="ghost"
+    <AnimatePresence initial={false}>
+      {open ? (
+        <motion.div
+          animate="visible"
+          className="modal-backdrop"
+          data-motion-mode={motionMode}
+          data-motion-preset="fade"
+          exit="exit"
+          initial="hidden"
+          onClick={onClose}
+          variants={fadeVariants(motionMode)}
+        >
+          <motion.div
+            animate="visible"
+            aria-describedby={description ? descriptionId : undefined}
+            aria-labelledby={titleId}
+            aria-modal="true"
+            className={cn("modal-dialog", size === "wide" && "modal-dialog-wide", className)}
+            data-motion-mode={motionMode}
+            data-motion-preset="panel-enter"
+            exit="exit"
+            initial="hidden"
+            onClick={(event) => event.stopPropagation()}
+            role="dialog"
+            variants={scaleFadeVariants(motionMode)}
           >
-            ×
-          </Button>
-        </div>
-        <div className={cn("modal-body", bodyClassName)}>{children}</div>
-        {actions ? <div className="modal-footer">{actions}</div> : null}
-      </div>
-    </div>
+            <div className="modal-header">
+              <div className="modal-heading">
+                <h2 id={titleId}>{title}</h2>
+                {description ? <p id={descriptionId}>{description}</p> : null}
+              </div>
+              <Button
+                aria-label="Dialog schließen"
+                className="modal-close-button"
+                onClick={onClose}
+                type="button"
+                variant="ghost"
+              >
+                ×
+              </Button>
+            </div>
+            <div className={cn("modal-body", bodyClassName)}>{children}</div>
+            {actions ? <div className="modal-footer">{actions}</div> : null}
+          </motion.div>
+        </motion.div>
+      ) : null}
+    </AnimatePresence>
   );
 }
