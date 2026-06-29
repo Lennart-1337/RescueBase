@@ -170,6 +170,7 @@ describe("purchase orders", () => {
     });
 
     const restored = await agent.post(`/purchase-orders/${created.body.id}/restore`).expect(201);
-    expect(restored.body).toMatchObject({ id: created.body.id, archivedAt: undefined });
+    expect(restored.body).toMatchObject({ id: created.body.id });
+    expect(restored.body).not.toHaveProperty("archivedAt");
   });
 });
