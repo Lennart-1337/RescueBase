@@ -56,6 +56,7 @@ describe("SettingsPage", () => {
       timezone: "Europe/Madrid",
       newUserOrderNotificationsDefaultEnabled: true
     }));
+    expect(screen.getByText("RescueBase Pro")).toBeInTheDocument();
 
     const alerts = screen.getByRole("region", { name: "Warnungen" });
     await changeValue(within(alerts).getByLabelText("Digest-Uhrzeit"), "07:30");

@@ -15,6 +15,12 @@ export function GeneralSettingsPanel({ initial }: { initial: GeneralSettings }) 
     mutationFn: rescueBaseApi.updateGeneralSettings,
     onSuccess: async (settings) => {
       setDraft(settings);
+      queryClient.setQueryData(["setup-status"], (current: { initialized: boolean } & Partial<GeneralSettings> | undefined) =>
+        current ? { ...current, ...settings } : current
+      );
+      queryClient.setQueryData(["session"], (current: { user: unknown } & Partial<GeneralSettings> | undefined) =>
+        current ? { ...current, ...settings } : current
+      );
       await queryClient.invalidateQueries({ queryKey: ["admin-settings"] });
     }
   });
