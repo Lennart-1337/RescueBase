@@ -1,5 +1,4 @@
 import { useQuery } from "@tanstack/react-query";
-import { AlertTriangle } from "lucide-react";
 import { getAlertOverview } from "../../lib/extra-api";
 import { Badge, Panel } from "../../components/ui";
 import { InlineError, LoadingPanel } from "../../components/state-panels";
@@ -19,7 +18,6 @@ export function AlertSummaryPanel() {
     <Panel>
       <div className="panel-header">
         <div><h2>Warnungen</h2></div>
-        <AlertTriangle />
       </div>
       <div className="metric-row">
         <Badge tone="danger">Ablauf {query.data.summary.expiry}</Badge>
