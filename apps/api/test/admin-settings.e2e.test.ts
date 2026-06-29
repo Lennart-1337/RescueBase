@@ -24,7 +24,15 @@ describe("admin settings", () => {
     const admin = await login("admin@rescuebase.local", "rescuebase-admin");
     const response = await admin.get("/admin/settings").expect(200);
     expect(response.body).toMatchObject({
-      general: { appName: "RescueBase", appSubtitle: "Sanitätslager", timezone: defaultTimezone(), newUserOrderNotificationsDefaultEnabled: false },
+      general: {
+        appName: "RescueBase",
+        appSubtitle: "Sanitätslager",
+        showLogo: true,
+        showAppName: false,
+        showAppSubtitle: true,
+        timezone: defaultTimezone(),
+        newUserOrderNotificationsDefaultEnabled: false
+      },
       alerts: { dailyDigestEnabled: true, dailyDigestTime: "06:00", warningWindowDays: 90, lastDigestSentAt: null },
       inventory: { enabled: true, dailyReconcileTime: "02:00", lastReconciledAt: null }
     });
@@ -37,8 +45,23 @@ describe("admin settings", () => {
 
   it("updates groups and validates timezone, time, and warning window", async () => {
     const admin = await login("admin@rescuebase.local", "rescuebase-admin");
-    await admin.post("/admin/settings/general").send({ appName: "RescueBase Pro", appSubtitle: "Bereitschaft Nord", timezone: "Europe/Berlin", newUserOrderNotificationsDefaultEnabled: true })
-      .expect(201).expect(({ body }) => expect(body).toEqual({ appName: "RescueBase Pro", appSubtitle: "Bereitschaft Nord", timezone: "Europe/Berlin", newUserOrderNotificationsDefaultEnabled: true }));
+    await admin.post("/admin/settings/general").send({
+      appName: "RescueBase Pro",
+      appSubtitle: "Bereitschaft Nord",
+      showLogo: false,
+      showAppName: true,
+      showAppSubtitle: true,
+      timezone: "Europe/Berlin",
+      newUserOrderNotificationsDefaultEnabled: true
+    }).expect(201).expect(({ body }) => expect(body).toEqual({
+      appName: "RescueBase Pro",
+      appSubtitle: "Bereitschaft Nord",
+      showLogo: false,
+      showAppName: true,
+      showAppSubtitle: true,
+      timezone: "Europe/Berlin",
+      newUserOrderNotificationsDefaultEnabled: true
+    }));
     await admin.post("/admin/settings/alerts").send({ dailyDigestEnabled: false, dailyDigestTime: "07:15", warningWindowDays: 30 })
       .expect(201).expect(({ body }) => expect(body).toMatchObject({ dailyDigestEnabled: false, dailyDigestTime: "07:15", warningWindowDays: 30 }));
     await admin.post("/admin/settings/inventory").send({ enabled: false, dailyReconcileTime: "03:45" })

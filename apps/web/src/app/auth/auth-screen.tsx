@@ -1,17 +1,24 @@
 import type { ReactNode } from "react";
-import { getBrandMark, type AppBranding } from "../branding";
+import { type AppBranding } from "../branding";
+import { BrandMark } from "../brand-mark";
 import "../brand-mark.css";
 import "./auth-screen.css";
 
-const defaultBranding: AppBranding = { appName: "RescueBase", appSubtitle: "Sanitätslager" };
+const defaultBranding: AppBranding = {
+  appName: "RescueBase",
+  appSubtitle: "Sanitätslager",
+  showLogo: true,
+  showAppName: false,
+  showAppSubtitle: true
+};
 
 export function AuthScreen({ children, branding = defaultBranding }: { children: ReactNode; branding?: AppBranding }) {
   return (
     <main className="auth-screen">
       <section className="auth-brand">
-        <div className="brand-mark">{getBrandMark(branding.appName)}</div>
-        <h1>{branding.appName}</h1>
-        <p>{branding.appSubtitle}</p>
+        {branding.showLogo ? <div className="brand-mark"><BrandMark /></div> : null}
+        {branding.showAppName ? <strong>{branding.appName}</strong> : null}
+        {branding.showAppSubtitle ? <p>{branding.appSubtitle}</p> : null}
       </section>
       {children}
     </main>

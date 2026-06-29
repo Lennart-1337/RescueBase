@@ -884,22 +884,6 @@ export interface paths {
         patch: operations["PurchaseOrdersController_update"];
         trace?: never;
     };
-    "/purchase-orders/{id}/approve": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post: operations["PurchaseOrdersController_approve"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/purchase-orders/{id}/archive": {
         parameters: {
             query?: never;
@@ -916,22 +900,6 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/purchase-orders/{id}/order": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post: operations["PurchaseOrdersController_markOrdered"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/purchase-orders/{id}/restore": {
         parameters: {
             query?: never;
@@ -942,6 +910,38 @@ export interface paths {
         get?: never;
         put?: never;
         post: operations["PurchaseOrdersController_restore"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/purchase-orders/{id}/approve": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["PurchaseOrdersController_approve"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/purchase-orders/{id}/order": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["PurchaseOrdersController_markOrdered"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1227,6 +1227,12 @@ export interface components {
             appName: string;
             /** @example Sanitätslager */
             appSubtitle: string;
+            /** @example true */
+            showLogo: boolean;
+            /** @example false */
+            showAppName: boolean;
+            /** @example true */
+            showAppSubtitle: boolean;
         };
         SetupStatus: {
             initialized: boolean;
@@ -1234,6 +1240,12 @@ export interface components {
             appName: string;
             /** @example Sanitätslager */
             appSubtitle: string;
+            /** @example true */
+            showLogo: boolean;
+            /** @example false */
+            showAppName: boolean;
+            /** @example true */
+            showAppSubtitle: boolean;
         };
         AuthenticatedUser: {
             id: string;
@@ -1251,6 +1263,12 @@ export interface components {
             appName: string;
             /** @example Sanitätslager */
             appSubtitle: string;
+            /** @example true */
+            showLogo: boolean;
+            /** @example false */
+            showAppName: boolean;
+            /** @example true */
+            showAppSubtitle: boolean;
         };
         FirstAdminRequest: {
             /** Format: email */
@@ -1808,6 +1826,12 @@ export interface components {
             appName: string;
             /** @example Sanitätslager */
             appSubtitle: string;
+            /** @example true */
+            showLogo: boolean;
+            /** @example false */
+            showAppName: boolean;
+            /** @example true */
+            showAppSubtitle: boolean;
             /** @example Europe/Berlin */
             timezone: string;
             newUserOrderNotificationsDefaultEnabled: boolean;
@@ -1843,6 +1867,9 @@ export interface components {
         UpdateGeneralSettingsRequest: {
             appName?: string;
             appSubtitle?: string;
+            showLogo?: boolean;
+            showAppName?: boolean;
+            showAppSubtitle?: boolean;
             timezone?: string;
             newUserOrderNotificationsDefaultEnabled?: boolean;
         };
@@ -3619,28 +3646,6 @@ export interface operations {
             };
         };
     };
-    PurchaseOrdersController_approve: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Purchase order approved */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["PurchaseOrder"];
-                };
-            };
-        };
-    };
     PurchaseOrdersController_archive: {
         parameters: {
             query?: never;
@@ -3663,28 +3668,6 @@ export interface operations {
             };
         };
     };
-    PurchaseOrdersController_markOrdered: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Purchase order marked ordered */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["PurchaseOrder"];
-                };
-            };
-        };
-    };
     PurchaseOrdersController_restore: {
         parameters: {
             query?: never;
@@ -3697,6 +3680,50 @@ export interface operations {
         requestBody?: never;
         responses: {
             /** @description Purchase order restored */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PurchaseOrder"];
+                };
+            };
+        };
+    };
+    PurchaseOrdersController_approve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Purchase order approved */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PurchaseOrder"];
+                };
+            };
+        };
+    };
+    PurchaseOrdersController_markOrdered: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Purchase order marked ordered */
             201: {
                 headers: {
                     [name: string]: unknown;

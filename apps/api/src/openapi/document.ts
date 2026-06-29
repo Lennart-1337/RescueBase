@@ -44,13 +44,19 @@ const rescueBaseOpenApiDocumentDefinition = {
       ReplenishmentReason: stringEnum(["SHORTAGE", "DISCARDED_EXPIRED", "SHORTAGE_AND_DISCARDED_EXPIRED"]),
       AppBranding: objectSchema({
         appName: { type: "string", example: "RescueBase" },
-        appSubtitle: { type: "string", example: "Sanitätslager" }
-      }, ["appName", "appSubtitle"]),
+        appSubtitle: { type: "string", example: "Sanitätslager" },
+        showLogo: { type: "boolean", example: true },
+        showAppName: { type: "boolean", example: false },
+        showAppSubtitle: { type: "boolean", example: true }
+      }, ["appName", "appSubtitle", "showLogo", "showAppName", "showAppSubtitle"]),
       SetupStatus: objectSchema({
         initialized: { type: "boolean" },
         appName: { type: "string", example: "RescueBase" },
-        appSubtitle: { type: "string", example: "Sanitätslager" }
-      }, ["initialized", "appName", "appSubtitle"]),
+        appSubtitle: { type: "string", example: "Sanitätslager" },
+        showLogo: { type: "boolean", example: true },
+        showAppName: { type: "boolean", example: false },
+        showAppSubtitle: { type: "boolean", example: true }
+      }, ["initialized", "appName", "appSubtitle", "showLogo", "showAppName", "showAppSubtitle"]),
       AuthenticatedUser: objectSchema({
         id: { type: "string" },
         email: { type: "string", format: "email" },
@@ -63,8 +69,11 @@ const rescueBaseOpenApiDocumentDefinition = {
       SessionResponse: objectSchema({
         user: ref("AuthenticatedUser"),
         appName: { type: "string", example: "RescueBase" },
-        appSubtitle: { type: "string", example: "Sanitätslager" }
-      }, ["user", "appName", "appSubtitle"]),
+        appSubtitle: { type: "string", example: "Sanitätslager" },
+        showLogo: { type: "boolean", example: true },
+        showAppName: { type: "boolean", example: false },
+        showAppSubtitle: { type: "boolean", example: true }
+      }, ["user", "appName", "appSubtitle", "showLogo", "showAppName", "showAppSubtitle"]),
       FirstAdminRequest: objectSchema({
         email: { type: "string", format: "email" },
         displayName: { type: "string" },
@@ -556,9 +565,12 @@ const rescueBaseOpenApiDocumentDefinition = {
       GeneralSettings: objectSchema({
         appName: { type: "string", example: "RescueBase" },
         appSubtitle: { type: "string", example: "Sanitätslager" },
+        showLogo: { type: "boolean", example: true },
+        showAppName: { type: "boolean", example: false },
+        showAppSubtitle: { type: "boolean", example: true },
         timezone: { type: "string", example: "Europe/Berlin" },
         newUserOrderNotificationsDefaultEnabled: { type: "boolean" }
-      }, ["appName", "appSubtitle", "timezone", "newUserOrderNotificationsDefaultEnabled"]),
+      }, ["appName", "appSubtitle", "showLogo", "showAppName", "showAppSubtitle", "timezone", "newUserOrderNotificationsDefaultEnabled"]),
       AlertSettings: objectSchema({
         dailyDigestEnabled: { type: "boolean" },
         dailyDigestTime: { type: "string", pattern: "^(?:[01]\\d|2[0-3]):[0-5]\\d$" },
@@ -582,7 +594,13 @@ const rescueBaseOpenApiDocumentDefinition = {
         general: ref("GeneralSettings"), alerts: ref("AlertSettings"), inventory: ref("AdminInventorySettings"), templates: arrayOf(ref("NotificationTemplate"))
       }, ["general", "alerts", "inventory", "templates"]),
       UpdateGeneralSettingsRequest: objectSchema({
-        appName: { type: "string" }, appSubtitle: { type: "string" }, timezone: { type: "string" }, newUserOrderNotificationsDefaultEnabled: { type: "boolean" }
+        appName: { type: "string" },
+        appSubtitle: { type: "string" },
+        showLogo: { type: "boolean" },
+        showAppName: { type: "boolean" },
+        showAppSubtitle: { type: "boolean" },
+        timezone: { type: "string" },
+        newUserOrderNotificationsDefaultEnabled: { type: "boolean" }
       }),
       UpdateAlertSettingsRequest: objectSchema({
         dailyDigestEnabled: { type: "boolean" }, dailyDigestTime: { type: "string" }, warningWindowDays: { type: "integer", minimum: 1, maximum: 3650 }
