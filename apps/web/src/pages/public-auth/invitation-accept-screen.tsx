@@ -6,11 +6,12 @@ import { toError } from "../../app/formatters";
 import { ErrorPanel, InlineError, LoadingPanel } from "../../components/state-panels";
 import { Button, Field, Panel } from "../../components/ui";
 import { rescueBaseApi } from "../../lib/api";
+import { publicQueries } from "../../queries/public";
 import "../../app/auth/auth-form-layout.css";
 
 export function InvitationAcceptScreen({ token }: { token: string }) {
   const navigate = useNavigate();
-  const invitation = useQuery({ queryKey: ["invitation", token], queryFn: () => rescueBaseApi.invitation(token) });
+  const invitation = useQuery(publicQueries.invitation(token));
   const [displayName, setDisplayName] = useState("");
   const [password, setPassword] = useState("");
   const [passwordRepeat, setPasswordRepeat] = useState("");

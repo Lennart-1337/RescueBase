@@ -9,6 +9,9 @@ import { SearchableSelect } from "../components/searchable-select";
 import { ErrorPanel, InlineError, LoadingPanel } from "../components/state-panels";
 import { Button, Field, Panel, Tabs } from "../components/ui";
 import { rescueBaseApi } from "../lib/api";
+import { catalogQueries } from "../queries/catalog";
+import { inventoryQueries } from "../queries/inventory";
+import { orderKeys } from "../queries/orders";
 import type { Article, InventoryTarget } from "../lib/types";
 import { centsInput, parseCents } from "./purchase-orders/format";
 import "./purchase-orders-page.css";
@@ -27,9 +30,9 @@ export function PurchaseOrderNewPage() {
   const [lines, setLines] = useState<DraftLine[]>([emptyLine()]);
   const [groupingMode, setGroupingMode] = useState<"single" | "supplier">("single");
   const [shortageArticleIds, setShortageArticleIds] = useState<string[]>([]);
-  const articles = useQuery({ queryKey: ["articles"], queryFn: rescueBaseApi.articles });
-  const locations = useQuery({ queryKey: ["locations"], queryFn: rescueBaseApi.locations });
-  const targets = useQuery({ queryKey: ["inventory-targets"], queryFn: rescueBaseApi.inventoryTargets });
+  const articles = useQuery(catalogQueries.articles());
+  const locations = useQuery(catalogQueries.locations());
+  const targets = useQuery(inventoryQueries.targets());
   const createManual = useMutation({ mutationFn: rescueBaseApi.createPurchaseOrder, onSuccess: onCreated });
   const createFromShortages = useMutation({ mutationFn: rescueBaseApi.createPurchaseOrdersFromShortages, onSuccess: (orders) => onCreated(orders[0]) });
 
@@ -44,7 +47,7 @@ export function PurchaseOrderNewPage() {
   const canSubmitShortages = selectedLocationId && shortageArticleIds.length > 0 && (groupingMode === "supplier" || supplierName.trim());
 
   async function onCreated(order: { id: string } | undefined) {
-    await queryClient.invalidateQueries({ queryKey: ["purchase-orders"] });
+    await queryClient.invalidateQueries({ queryKey: orderKeys.purchaseList() });
     if (order) void navigate({ params: { orderId: order.id }, to: "/admin/purchase-orders/$orderId" });
   }
 

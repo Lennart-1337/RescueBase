@@ -4,6 +4,7 @@ import { Mail } from "lucide-react";
 import { InlineError } from "../../components/state-panels";
 import { Button, Field, Panel } from "../../components/ui";
 import { rescueBaseApi } from "../../lib/api";
+import { authKeys } from "../../queries/auth";
 import "../../app/auth/auth-form-layout.css";
 
 export function AccountEmailPanel() {
@@ -21,7 +22,7 @@ export function AccountEmailPanel() {
       setEmailCode("");
       setEmailChallengeId("");
       setDebugCode("");
-      await queryClient.invalidateQueries({ queryKey: ["session"] });
+      await queryClient.invalidateQueries({ queryKey: authKeys.session() });
     }
   });
 

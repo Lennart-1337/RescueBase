@@ -2,9 +2,9 @@ import { useEffect, useState } from "react";
 import { SearchableSelect } from "../../components/searchable-select";
 import { Dialog, Button, Field } from "../../components/ui";
 import { InlineError, LoadingPanel } from "../../components/state-panels";
-import { rescueBaseApi } from "../../lib/api";
 import type { Article, PurchaseOrder, UpdatePurchaseOrderRequest } from "../../lib/types";
 import { useQuery } from "@tanstack/react-query";
+import { catalogQueries } from "../../queries/catalog";
 import { centsInput, parseCents } from "./format";
 import "../purchase-orders-page.css";
 
@@ -24,8 +24,8 @@ export function PurchaseOrderEditDialog(props: {
   const [notes, setNotes] = useState("");
   const [lineNotes, setLineNotes] = useState<Record<string, string>>({});
   const [lines, setLines] = useState<DraftLine[]>([emptyLine()]);
-  const articles = useQuery({ queryKey: ["articles"], queryFn: rescueBaseApi.articles, enabled: props.open && isDraft });
-  const locations = useQuery({ queryKey: ["locations"], queryFn: rescueBaseApi.locations, enabled: props.open && isDraft });
+  const articles = useQuery(catalogQueries.articles(props.open && isDraft));
+  const locations = useQuery(catalogQueries.locations(props.open && isDraft));
 
   useEffect(() => {
     if (!props.open) return;

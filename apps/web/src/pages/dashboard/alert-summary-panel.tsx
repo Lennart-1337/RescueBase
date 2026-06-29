@@ -1,11 +1,11 @@
 import { useQuery } from "@tanstack/react-query";
-import { getAlertOverview } from "../../lib/extra-api";
 import { Badge, Panel } from "../../components/ui";
 import { InlineError, LoadingPanel } from "../../components/state-panels";
+import { alertQueries } from "../../queries/alerts";
 import "./alert-summary-panel.css";
 
 export function AlertSummaryPanel() {
-  const query = useQuery({ queryKey: ["alert-overview"], queryFn: getAlertOverview });
+  const query = useQuery(alertQueries.overview());
 
   if (query.isLoading) {
     return <LoadingPanel label="Warnungen werden geladen" />;

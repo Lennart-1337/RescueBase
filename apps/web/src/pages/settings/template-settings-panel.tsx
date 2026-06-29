@@ -5,6 +5,7 @@ import { InlineError } from "../../components/state-panels";
 import { Button, Field, Panel } from "../../components/ui";
 import { rescueBaseApi } from "../../lib/api";
 import type { NotificationTemplate, NotificationTemplateKey } from "../../lib/admin-settings-types";
+import { settingsKeys } from "../../queries/settings";
 import "./template-settings-panel.css";
 
 const labels: Record<NotificationTemplateKey, string> = {
@@ -27,7 +28,7 @@ function TemplateEditor(props: { template: NotificationTemplate; templates: Noti
     mutationFn: () => rescueBaseApi.updateNotificationTemplate(draft.key, templateBody(draft)),
     onSuccess: async (template) => {
       setDraft(template);
-      await queryClient.invalidateQueries({ queryKey: ["admin-settings"] });
+      await queryClient.invalidateQueries({ queryKey: settingsKeys.admin() });
     }
   });
   return (

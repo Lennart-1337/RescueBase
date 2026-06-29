@@ -5,6 +5,7 @@ import { Field } from "../../components/ui";
 import { rescueBaseApi } from "../../lib/api";
 import { formatDateTime } from "../../app/formatters";
 import type { AlertSettings } from "../../lib/admin-settings-types";
+import { settingsKeys } from "../../queries/settings";
 import { SettingsPanel } from "./settings-panel";
 
 export function AlertSettingsPanel({ initial }: { initial: AlertSettings }) {
@@ -14,7 +15,7 @@ export function AlertSettingsPanel({ initial }: { initial: AlertSettings }) {
     mutationFn: rescueBaseApi.updateAlertSettings,
     onSuccess: async (settings) => {
       setDraft(settings);
-      await queryClient.invalidateQueries({ queryKey: ["admin-settings"] });
+      await queryClient.invalidateQueries({ queryKey: settingsKeys.admin() });
     }
   });
   return (

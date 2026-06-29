@@ -11,7 +11,8 @@ import {
   WorkspaceRail,
 } from "../components/page-layout";
 import { ErrorPanel, LoadingPanel } from "../components/state-panels";
-import { rescueBaseApi } from "../lib/api";
+import { catalogQueries } from "../queries/catalog";
+import { checkQueries } from "../queries/checks";
 import { CheckProtocolDialog } from "./check-protocols/check-protocol-dialog";
 import {
   CheckProtocolFilter,
@@ -31,20 +32,9 @@ export function CheckProtocolsPage() {
     q: search.q ?? "",
     status: search.status ?? "",
   };
-  const protocols = useQuery({
-    queryKey: ["check-protocols", filters, page],
-    queryFn: () =>
-      rescueBaseApi.checkProtocols({
-        ...withPrunedSearch(filters),
-        page: String(page),
-      }),
-  });
-  const kits = useQuery({ queryKey: ["kits"], queryFn: rescueBaseApi.kits });
-  const detail = useQuery({
-    queryKey: ["check-protocol", selectedId],
-    queryFn: () => rescueBaseApi.checkProtocol(selectedId),
-    enabled: Boolean(selectedId),
-  });
+  const protocols = useQuery(checkQueries.protocols({ ...withPrunedSearch(filters), page: String(page) }));
+  const kits = useQuery(catalogQueries.kits());
+  const detail = useQuery(checkQueries.detail(selectedId, Boolean(selectedId)));
 
   function updateFilters(patch: Partial<CheckProtocolFilters>) {
     void navigate({

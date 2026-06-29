@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { BellRing, Save } from "lucide-react";
-import { rescueBaseApi } from "../../lib/api";
-import { getMyAlertSubscriptions, saveMyAlertSubscriptions } from "../../lib/extra-api";
+import { saveMyAlertSubscriptions } from "../../lib/extra-api";
 import { InlineError, LoadingPanel } from "../../components/state-panels";
 import { Badge, Button, Panel } from "../../components/ui";
+import { alertKeys, alertQueries } from "../../queries/alerts";
+import { catalogQueries } from "../../queries/catalog";
 import { AlertPreferenceCard, type AlertCategoryOption } from "./alert-preference-card";
 import "./account-alerts-panel.css";
 
@@ -16,8 +17,8 @@ const categories: AlertCategoryOption[] = [
 
 export function AccountAlertsPanel() {
   const queryClient = useQueryClient();
-  const locations = useQuery({ queryKey: ["locations"], queryFn: rescueBaseApi.locations });
-  const subscriptions = useQuery({ queryKey: ["alert-subscriptions-me"], queryFn: getMyAlertSubscriptions });
+  const locations = useQuery(catalogQueries.locations());
+  const subscriptions = useQuery(alertQueries.subscriptionsMe());
   const [selected, setSelected] = useState<Set<string>>(new Set());
 
   useEffect(() => {
@@ -27,7 +28,7 @@ export function AccountAlertsPanel() {
 
   const save = useMutation({
     mutationFn: (body: Array<{ category: (typeof categories)[number]["key"]; locationId?: string | null }>) => saveMyAlertSubscriptions(body),
-    onSuccess: async () => Promise.all([queryClient.invalidateQueries({ queryKey: ["alert-subscriptions-me"] }), queryClient.invalidateQueries({ queryKey: ["alert-subscriptions"] })])
+    onSuccess: async () => Promise.all([queryClient.invalidateQueries({ queryKey: alertKeys.subscriptionsMe() }), queryClient.invalidateQueries({ queryKey: alertKeys.subscriptions() })])
   });
 
   const locationOptions = locations.data ?? [];

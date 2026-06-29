@@ -1,11 +1,13 @@
 import { useQuery } from "@tanstack/react-query";
-import { rescueBaseApi } from "../lib/api";
 import type { Batch } from "../lib/types";
+import { catalogQueries } from "../queries/catalog";
+import { inventoryQueries } from "../queries/inventory";
+import { orderQueries } from "../queries/orders";
 
 export function useDashboardData() {
-  const kits = useQuery({ queryKey: ["kits"], queryFn: rescueBaseApi.kits });
-  const batches = useQuery({ queryKey: ["batches"], queryFn: rescueBaseApi.batches });
-  const orders = useQuery({ queryKey: ["orders"], queryFn: rescueBaseApi.orders });
+  const kits = useQuery(catalogQueries.kits());
+  const batches = useQuery(inventoryQueries.batches());
+  const orders = useQuery(orderQueries.replenishmentList());
 
   return {
     data: kits.data && batches.data && orders.data ? { kits: kits.data, batches: batches.data, orders: orders.data } : undefined,

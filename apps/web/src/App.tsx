@@ -1,22 +1,15 @@
 import { useState } from "react";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { QueryClientProvider } from "@tanstack/react-query";
 import { RouterProvider } from "@tanstack/react-router";
 import { createAppMemoryRouter, createAppRouter } from "./app/router";
+import { createRescueBaseQueryClient } from "./app/query-client";
 import "./styles.css";
 
 export { createAppMemoryRouter, createAppRouter };
 
 export default function App(props: { router?: ReturnType<typeof createAppRouter> }) {
-  const [router] = useState(() => props.router ?? createAppRouter());
-  const [queryClient] = useState(
-    () =>
-      new QueryClient({
-        defaultOptions: {
-          queries: { retry: false, staleTime: 5_000 },
-          mutations: { retry: false }
-        }
-      })
-  );
+  const [queryClient] = useState(() => props.router?.options.context.queryClient ?? createRescueBaseQueryClient());
+  const [router] = useState(() => props.router ?? createAppRouter({ queryClient }));
 
   return (
     <QueryClientProvider client={queryClient}>

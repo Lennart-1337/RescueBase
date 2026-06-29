@@ -7,6 +7,9 @@ import { toError } from "../app/formatters";
 import { ErrorPanel, InlineError, LoadingPanel } from "../components/state-panels";
 import { Button, Dialog, Field } from "../components/ui";
 import { rescueBaseApi } from "../lib/api";
+import { authQueries } from "../queries/auth";
+import { inventoryKeys } from "../queries/inventory";
+import { invalidatePurchaseOrder, orderQueries } from "../queries/orders";
 import { PurchaseOrderEditDialog } from "./purchase-orders/purchase-order-edit-dialog";
 import { PurchaseOrderDetailMain } from "./purchase-orders/purchase-order-detail-main";
 import { PurchaseOrderDetailRail } from "./purchase-orders/purchase-order-detail-rail";
@@ -20,10 +23,10 @@ export function PurchaseOrderDetailPage() {
   const [includeLineNotes, setIncludeLineNotes] = useState(false);
   const [editingOrder, setEditingOrder] = useState(false);
   const [receiptDraft, setReceiptDraft] = useState<ReceiptDraft | null>(null);
-  const session = useQuery({ queryKey: ["session"], queryFn: rescueBaseApi.session });
-  const order = useQuery({ queryKey: ["purchase-order", orderId], queryFn: () => rescueBaseApi.purchaseOrder(orderId) });
+  const session = useQuery(authQueries.session());
+  const order = useQuery(orderQueries.purchaseDetail(orderId));
   const invalidate = async () => {
-    await Promise.all([queryClient.invalidateQueries({ queryKey: ["purchase-order", orderId] }), queryClient.invalidateQueries({ queryKey: ["purchase-orders"] }), queryClient.invalidateQueries({ queryKey: ["batches"] })]);
+    await Promise.all([invalidatePurchaseOrder(queryClient, orderId), queryClient.invalidateQueries({ queryKey: inventoryKeys.batches() })]);
   };
   const update = useMutation({ mutationFn: (body: Parameters<typeof rescueBaseApi.updatePurchaseOrder>[1]) => rescueBaseApi.updatePurchaseOrder(orderId, body), onSuccess: async () => { setEditingOrder(false); await invalidate(); } });
   const archive = useMutation({ mutationFn: () => rescueBaseApi.archivePurchaseOrder(orderId), onSuccess: invalidate });

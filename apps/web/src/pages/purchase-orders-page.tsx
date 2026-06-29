@@ -9,6 +9,7 @@ import { ErrorPanel, LoadingPanel, MetricGrid } from "../components/state-panels
 import { StatusBadge } from "../components/status-badge";
 import { AnchorButton, Button, Panel, Tabs } from "../components/ui";
 import { rescueBaseApi } from "../lib/api";
+import { orderKeys, orderQueries } from "../queries/orders";
 import type { PurchaseOrder } from "../lib/types";
 import { formatMoney } from "./purchase-orders/format";
 import { PurchaseOrderFilterToolbar } from "./purchase-orders/purchase-order-filter-toolbar";
@@ -20,8 +21,8 @@ export function PurchaseOrdersPage() {
   const navigate = useNavigate({ from: "/admin/purchase-orders/" });
   const search = useSearch({ from: "/admin/purchase-orders/" }) as PurchaseOrderSearch;
   const queryClient = useQueryClient();
-  const orders = useQuery({ queryKey: ["purchase-orders"], queryFn: rescueBaseApi.purchaseOrders });
-  const invalidateOrders = () => queryClient.invalidateQueries({ queryKey: ["purchase-orders"] });
+  const orders = useQuery(orderQueries.purchaseList());
+  const invalidateOrders = () => queryClient.invalidateQueries({ queryKey: orderKeys.purchaseList() });
   const archive = useMutation({ mutationFn: (id: string) => rescueBaseApi.archivePurchaseOrder(id), onSuccess: invalidateOrders });
   const restore = useMutation({ mutationFn: (id: string) => rescueBaseApi.restorePurchaseOrder(id), onSuccess: invalidateOrders });
 

@@ -66,7 +66,7 @@ describe("PurchaseOrderNewPage", () => {
     });
 
     await renderAppAt("/admin/purchase-orders/new");
-    await clickElement(screen.getByRole("tab", { name: "Aus Fehlmengen" }));
+    await clickElement(await screen.findByRole("tab", { name: "Aus Fehlmengen" }));
 
     const shortageHeading = await screen.findByRole("heading", { name: "Fehlmengen" });
     expect(shortageHeading.closest("[data-motion-preset]")).toHaveAttribute("data-motion-preset", "panel-enter");
