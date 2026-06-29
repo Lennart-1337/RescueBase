@@ -24,7 +24,7 @@
     "dev:stack": "node scripts/dev-stack.mjs",
     "admin:reset": "node scripts/reset-admin.mjs",
     "prisma:generate": "npm run prisma:generate -w @rescuebase/api",
-    "prisma:deploy": "npm run prisma:deploy -w @rescuebase/api",
+    "prisma:deploy": "prisma migrate deploy --schema apps/api/prisma/schema.prisma",
     "prisma:seed": "npm run prisma:seed -w @rescuebase/api"
   },
   "devDependencies": {

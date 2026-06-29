@@ -6,6 +6,7 @@ import {
   getActiveRouter,
   renderAppAt,
   resetTestBrowser,
+  wasRequested,
   stubFetch,
 } from "../test-support/app-test-helpers";
 
@@ -64,5 +65,87 @@ describe("PurchaseOrdersPage", () => {
     );
     expect(screen.getByText("PO-2026-000001")).toBeInTheDocument();
     expect(screen.getByText("PO-2026-000002")).toBeInTheDocument();
+  });
+
+  it("shows archived orders in a separate tab", async () => {
+    stubFetch({
+      "/api/auth/setup/status": { initialized: true },
+      "/api/auth/session": {
+        user: {
+          id: "user-admin",
+          email: "admin@rescuebase.local",
+          displayName: "Admin",
+          role: "ADMIN",
+          twoFactorEnabled: false,
+        },
+      },
+      "/api/purchase-orders": [
+        purchaseOrder,
+        {
+          ...purchaseOrder,
+          id: "purchase-order-archived",
+          orderNumber: "PO-2026-000099",
+          archivedAt: "2026-06-28T09:30:00.000Z",
+        },
+      ],
+    });
+
+    await renderAppAt("/admin/purchase-orders");
+    await screen.findByRole("heading", { name: "Bestellungen" });
+
+    expect(screen.getByText("PO-2026-000001")).toBeInTheDocument();
+    expect(screen.queryByText("PO-2026-000099")).toBeNull();
+
+    await clickElement(screen.getByRole("tab", { name: "Archiviert (1)" }));
+
+    expect(screen.getByText("PO-2026-000099")).toBeInTheDocument();
+    expect(screen.queryByText("PO-2026-000001")).toBeNull();
+  });
+
+  it("uses an explicit edit action instead of linking the full row", async () => {
+    stubFetch({
+      "/api/auth/setup/status": { initialized: true },
+      "/api/auth/session": {
+        user: {
+          id: "user-admin",
+          email: "admin@rescuebase.local",
+          displayName: "Admin",
+          role: "ADMIN",
+          twoFactorEnabled: false,
+        },
+      },
+      "/api/purchase-orders": [purchaseOrder],
+    });
+
+    await renderAppAt("/admin/purchase-orders");
+    await screen.findByRole("heading", { name: "Bestellungen" });
+
+    expect(screen.getByRole("link", { name: "Bearbeiten" })).toHaveAttribute(
+      "href",
+      "/admin/purchase-orders/purchase-order-1",
+    );
+    expect(screen.queryByRole("link", { name: /PO-2026-000001/ })).toBeNull();
+  });
+
+  it("archives an active order from the list row", async () => {
+    stubFetch({
+      "/api/auth/setup/status": { initialized: true },
+      "/api/auth/session": {
+        user: {
+          id: "user-admin",
+          email: "admin@rescuebase.local",
+          displayName: "Admin",
+          role: "ADMIN",
+          twoFactorEnabled: false,
+        },
+      },
+      "/api/purchase-orders": [purchaseOrder],
+      "/api/purchase-orders/purchase-order-1/archive": { ...purchaseOrder, archivedAt: "2026-06-28T10:00:00.000Z" },
+    });
+
+    await renderAppAt("/admin/purchase-orders");
+    await clickElement(await screen.findByRole("button", { name: "Archivieren" }));
+
+    expect(wasRequested("/api/purchase-orders/purchase-order-1/archive", "POST")).toBe(true);
   });
 });

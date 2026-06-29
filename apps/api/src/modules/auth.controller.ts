@@ -21,7 +21,13 @@ import { PublicRoute, RateLimit, Roles } from "../auth/auth.decorators.js";
 import { AuthService } from "../auth/auth.service.js";
 import type { AuthenticatedRequest } from "../auth/auth.guard.js";
 import { defaultTimezone } from "../settings/default-timezone.js";
-import { defaultAppName, defaultAppSubtitle } from "../settings/settings.service.js";
+import {
+  defaultAppName,
+  defaultAppSubtitle,
+  defaultShowAppName,
+  defaultShowAppSubtitle,
+  defaultShowLogo
+} from "../settings/settings.service.js";
 
 type AdminUserListItem = {
   id: string;
@@ -50,7 +56,14 @@ export class AuthController {
   @PublicRoute()
   @RateLimit({ limit: 20, windowMs: 10 * 60 * 1000 })
   @Get("setup/status")
-  async setupStatus(): Promise<{ initialized: boolean; appName: string; appSubtitle: string }> {
+  async setupStatus(): Promise<{
+    initialized: boolean;
+    appName: string;
+    appSubtitle: string;
+    showLogo: boolean;
+    showAppName: boolean;
+    showAppSubtitle: boolean;
+  }> {
     const firstAdmin = await this.prisma.user.findFirst({ where: { role: "ADMIN", deletedAt: null } });
     return { initialized: Boolean(firstAdmin), ...(await this.getBranding()) };
   }
@@ -294,7 +307,14 @@ export class AuthController {
   }
 
   @Get("session")
-  async session(@Req() request: AuthenticatedRequest): Promise<{ user: AuthenticatedRequest["user"]; appName: string; appSubtitle: string }> {
+  async session(@Req() request: AuthenticatedRequest): Promise<{
+    user: AuthenticatedRequest["user"];
+    appName: string;
+    appSubtitle: string;
+    showLogo: boolean;
+    showAppName: boolean;
+    showAppSubtitle: boolean;
+  }> {
     if (!request.user) {
       throw new UnauthorizedException("Bitte melden Sie sich an.");
     }
@@ -522,12 +542,32 @@ export class AuthController {
     }
   }
 
-  private async getBranding(): Promise<{ appName: string; appSubtitle: string }> {
+  private async getBranding(): Promise<{
+    appName: string;
+    appSubtitle: string;
+    showLogo: boolean;
+    showAppName: boolean;
+    showAppSubtitle: boolean;
+  }> {
     const settings = await this.prisma.appSettings.upsert({
       where: { id: "singleton" },
       update: {},
-      create: { id: "singleton", appName: defaultAppName, appSubtitle: defaultAppSubtitle, timezone: defaultTimezone() }
+      create: {
+        id: "singleton",
+        appName: defaultAppName,
+        appSubtitle: defaultAppSubtitle,
+        showLogo: defaultShowLogo,
+        showAppName: defaultShowAppName,
+        showAppSubtitle: defaultShowAppSubtitle,
+        timezone: defaultTimezone()
+      }
     });
-    return { appName: settings.appName, appSubtitle: settings.appSubtitle };
+    return {
+      appName: settings.appName,
+      appSubtitle: settings.appSubtitle,
+      showLogo: settings.showLogo,
+      showAppName: settings.showAppName,
+      showAppSubtitle: settings.showAppSubtitle
+    };
   }
 }

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Plus, Save, X } from "lucide-react";
 import { ListFilterBar } from "../../components/list-filter-bar";
+import { PanelHeader } from "../../components/panel-header";
 import { PageToolbar } from "../../components/page-layout";
 import { SearchableSelect } from "../../components/searchable-select";
 import type { Article, CreateArticleRequest, UpdateArticleRequest } from "../../lib/types";
@@ -136,13 +137,7 @@ export function ArticlePanel(props: {
         </div>
       </ListFilterBar></PageToolbar>
       <Panel>
-        <div className="panel-header article-panel-header">
-          <div className="article-panel-heading">
-            <h2>Artikel</h2>
-            <p>{props.articles.length}/{props.totalCount} sichtbar</p>
-          </div>
-          <Button onClick={openForCreate} type="button"><Plus data-icon="inline-start" />Artikel hinzufügen</Button>
-        </div>
+        <PanelHeader className="article-panel-header" description={`${props.articles.length}/${props.totalCount} sichtbar`} title="Artikel" actions={<Button onClick={openForCreate} type="button"><Plus data-icon="inline-start" />Artikel hinzufügen</Button>} />
         <div className="article-table-header" aria-hidden="true">
           <span></span>
           <span>Hinweise</span>

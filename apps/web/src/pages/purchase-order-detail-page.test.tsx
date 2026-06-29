@@ -1,6 +1,6 @@
 import { screen, within } from "@testing-library/react";
 import { purchaseOrder } from "../test-support/fixtures";
-import { changeValue, clickElement, renderAppAt, requestBody, stubFetch } from "../test-support/app-test-helpers";
+import { changeValue, clickElement, renderAppAt, requestBody, stubFetch, wasRequested } from "../test-support/app-test-helpers";
 
 describe("Purchase order detail", () => {
   it("submits a full draft update before approval", async () => {
@@ -42,5 +42,19 @@ describe("Purchase order detail", () => {
         supplierArticleNumber: "VB-1000"
       }]
     });
+  });
+
+  it("archives a purchase order from the detail rail", async () => {
+    stubFetch({
+      "/api/auth/setup/status": { initialized: true, appName: "RescueBase Pro", appSubtitle: "Bereitschaft Nord" },
+      "/api/auth/session": { user: { id: "user-admin", email: "admin@rescuebase.local", displayName: "Admin", role: "ADMIN", twoFactorEnabled: false }, appName: "RescueBase Pro", appSubtitle: "Bereitschaft Nord" },
+      "/api/purchase-orders/purchase-order-1": purchaseOrder,
+    });
+
+    await renderAppAt("/admin/purchase-orders/purchase-order-1");
+    await clickElement(await screen.findByRole("button", { name: "Archivieren" }));
+
+    expect(wasRequested("/api/purchase-orders/purchase-order-1/archive", "POST")).toBe(true);
+    expect(requestBody("/api/purchase-orders/purchase-order-1/archive", "POST")).toBeUndefined();
   });
 });

@@ -106,6 +106,7 @@ export const purchaseOrder = {
   locationId: "loc-main",
   status: "DRAFT",
   notes: "Bitte gesammelt liefern.",
+  archivedAt: undefined,
   totalGrossCents: 996,
   createdAt: "2026-06-26T09:00:00.000Z",
   updatedAt: "2026-06-26T09:00:00.000Z",

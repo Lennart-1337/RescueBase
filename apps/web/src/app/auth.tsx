@@ -22,6 +22,9 @@ export function AdminAuthGate({ children }: { children: (user: AuthenticatedUser
   if (session.isError || !session.data?.user) return <AuthScreen branding={setup.data}><LoginForm onDone={() => void queryClient.invalidateQueries({ queryKey: ["session"] })} /></AuthScreen>;
   return children(session.data.user, {
     appName: session.data.appName ?? setup.data?.appName ?? "RescueBase",
-    appSubtitle: session.data.appSubtitle ?? setup.data?.appSubtitle ?? "Sanitätslager"
+    appSubtitle: session.data.appSubtitle ?? setup.data?.appSubtitle ?? "Sanitätslager",
+    showLogo: session.data.showLogo ?? setup.data?.showLogo ?? true,
+    showAppName: session.data.showAppName ?? setup.data?.showAppName ?? false,
+    showAppSubtitle: session.data.showAppSubtitle ?? setup.data?.showAppSubtitle ?? true
   });
 }

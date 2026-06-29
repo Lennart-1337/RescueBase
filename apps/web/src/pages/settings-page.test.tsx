@@ -3,7 +3,15 @@ import { changeValue, clickElement, mouseDownElement, postedBody, renderAppAt, r
 
 const admin = { id: "user-admin", email: "admin@rescuebase.local", displayName: "Admin", role: "ADMIN", twoFactorEnabled: false };
 const settings = {
-  general: { appName: "RescueBase", appSubtitle: "Sanitätslager", timezone: "Europe/Berlin", newUserOrderNotificationsDefaultEnabled: true },
+  general: {
+    appName: "RescueBase",
+    appSubtitle: "Sanitätslager",
+    showLogo: true,
+    showAppName: false,
+    showAppSubtitle: true,
+    timezone: "Europe/Berlin",
+    newUserOrderNotificationsDefaultEnabled: true
+  },
   alerts: { dailyDigestEnabled: true, dailyDigestTime: "06:00", warningWindowDays: 90, lastDigestSentAt: null },
   inventory: { enabled: true, dailyReconcileTime: "02:00", lastReconciledAt: null },
   templates: [{
@@ -19,7 +27,7 @@ describe("SettingsPage", () => {
       "/api/auth/setup/status": { initialized: true },
       "/api/auth/session": { user: admin },
       "/api/admin/settings": settings,
-      "/api/admin/settings/general": { ...settings.general, appName: "RescueBase Pro", appSubtitle: "Bereitschaft Nord", timezone: "Europe/Madrid" },
+      "/api/admin/settings/general": { ...settings.general, appName: "RescueBase Pro", appSubtitle: "Bereitschaft Nord", showAppName: true, timezone: "Europe/Madrid" },
       "/api/admin/settings/alerts": { ...settings.alerts, dailyDigestTime: "07:30" },
       "/api/admin/settings/inventory": { ...settings.inventory, enabled: false }
     });
@@ -36,11 +44,19 @@ describe("SettingsPage", () => {
     await changeValue(timezone, "Madrid");
     expect(within(general).queryByRole("option", { name: "Europe/Berlin" })).not.toBeInTheDocument();
     await mouseDownElement(within(general).getByRole("option", { name: "Europe/Madrid" }));
+    await clickElement(within(general).getByRole("checkbox", { name: "RescueBase-Schriftzug anzeigen" }));
     expect(timezone).toHaveValue("Europe/Madrid");
     await clickElement(within(general).getByRole("button", { name: "Speichern" }));
     await waitFor(() => expect(postedBody("/api/admin/settings/general")).toEqual({
-      appName: "RescueBase Pro", appSubtitle: "Bereitschaft Nord", timezone: "Europe/Madrid", newUserOrderNotificationsDefaultEnabled: true
+      appName: "RescueBase Pro",
+      appSubtitle: "Bereitschaft Nord",
+      showLogo: true,
+      showAppName: true,
+      showAppSubtitle: true,
+      timezone: "Europe/Madrid",
+      newUserOrderNotificationsDefaultEnabled: true
     }));
+    expect(screen.getByText("RescueBase Pro")).toBeInTheDocument();
 
     const alerts = screen.getByRole("region", { name: "Warnungen" });
     await changeValue(within(alerts).getByLabelText("Digest-Uhrzeit"), "07:30");

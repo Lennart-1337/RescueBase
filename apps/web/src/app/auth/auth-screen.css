@@ -11,26 +11,30 @@
 
 .auth-brand {
   display: grid;
-  gap: 12px;
+  gap: 10px;
   align-content: center;
 }
 
 .auth-brand .brand-mark {
-  width: 54px;
-  height: 54px;
+  width: 180px;
 }
 
-.auth-brand h1 {
-  margin: 0;
-  font-size: 42px;
-  line-height: 1.05;
-}
-
+.auth-brand strong,
 .auth-brand p {
   margin: 0;
   max-width: 360px;
+}
+
+.auth-brand strong {
+  color: #1f2937;
+  font-size: 28px;
+  line-height: 1.1;
+}
+
+.auth-brand p {
   color: #657386;
   font-size: 18px;
+  font-weight: 700;
 }
 
 @media (max-width: 620px) {
@@ -39,10 +43,6 @@
     gap: 24px;
     padding: 18px;
     align-content: center;
-  }
-
-  .auth-brand h1 {
-    font-size: 32px;
   }
 
   .auth-brand p {

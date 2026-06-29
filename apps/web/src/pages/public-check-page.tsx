@@ -1,8 +1,9 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { CheckCircle2 } from "lucide-react";
-import { statusLabels, toError } from "../app/formatters";
+import { toError } from "../app/formatters";
 import { ErrorPanel } from "../components/state-panels";
-import { Badge, Panel } from "../components/ui";
+import { StatusBadge } from "../components/status-badge";
+import { Panel } from "../components/ui";
 import { rescueBaseApi } from "../lib/api";
 import type { CompleteCheckResponse } from "../lib/types";
 import { PublicCheckForm } from "./public-check/public-check-form";
@@ -32,7 +33,7 @@ function PublicCheckSuccess({ result }: { result: CompleteCheckResponse }) {
         <CheckCircle2 />
         <h1>Check abgeschlossen</h1>
         <p>Protokoll {result.check.id} wurde gespeichert.</p>
-        <Badge tone={result.check.effectiveStatus === "READY" ? "ready" : result.check.effectiveStatus === "CONDITIONAL" ? "warning" : "danger"}>{statusLabels[result.check.effectiveStatus]}</Badge>
+        <StatusBadge kind="kit" status={result.check.effectiveStatus} />
         <p>{result.replenishmentOrder ? `Nachfüllauftrag ${result.replenishmentOrder.id} wurde erzeugt.` : "Es wurde kein Nachfüllauftrag benötigt."}</p>
       </Panel>
     </main>

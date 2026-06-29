@@ -1,4 +1,5 @@
 import type { HTMLAttributes, PropsWithChildren } from "react";
+import "./badge.css";
 
 export type BadgeTone = "neutral" | "ready" | "warning" | "danger" | "info";
 export type BadgeSize = "sm" | "md";

@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Plus, Save, X } from "lucide-react";
+import { PanelHeader } from "../../components/panel-header";
 import { SearchableSelect } from "../../components/searchable-select";
 import { InlineError } from "../../components/state-panels";
 import { Button, Dialog, Field, Panel } from "../../components/ui";
@@ -117,12 +118,7 @@ export function TemplatePanel(props: {
 
   return (
     <Panel>
-      <div className="panel-header">
-        <div>
-          <h2>Rucksackvorlagen</h2>
-        </div>
-        <Button disabled={props.articles.length === 0} onClick={openForCreate} type="button"><Plus data-icon="inline-start" />Vorlage hinzufügen</Button>
-      </div>
+      <PanelHeader title="Rucksackvorlagen" actions={<Button disabled={props.articles.length === 0} onClick={openForCreate} type="button"><Plus data-icon="inline-start" />Vorlage hinzufügen</Button>} />
       {props.articles.length === 0 ? <div className="compact-list-empty">Vorlagen benötigen zuerst mindestens einen Artikel.</div> : null}
       {props.templates.length === 0 ? <div className="compact-list-empty">Noch keine Vorlagen angelegt.</div> : null}
       <div className="table">

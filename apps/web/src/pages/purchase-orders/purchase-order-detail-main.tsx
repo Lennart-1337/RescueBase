@@ -1,8 +1,9 @@
 import { ExternalLink, PackageCheck } from "lucide-react";
 import { formatDateTime } from "../../app/formatters";
-import { AnchorButton, Badge, Button, Panel } from "../../components/ui";
+import { StatusBadge } from "../../components/status-badge";
+import { AnchorButton, Button, Panel } from "../../components/ui";
 import type { PurchaseOrder } from "../../lib/types";
-import { formatMoney, formatPurchaseStatus, purchaseStatusTone } from "./format";
+import { formatMoney } from "./format";
 
 export function PurchaseOrderDetailMain(props: {
   onReceive: (lineId: string, quantity: number) => void;
@@ -22,7 +23,7 @@ export function PurchaseOrderDetailMain(props: {
             <p className="purchase-order-subtitle">{props.order.location.name} · aktualisiert {formatDateTime(props.order.updatedAt)}</p>
           </div>
           <div className="purchase-order-hero-side">
-            <Badge tone={purchaseStatusTone(props.order.status)}>{formatPurchaseStatus(props.order.status)}</Badge>
+            <StatusBadge kind="purchaseOrder" status={props.order.status} />
             <strong>{formatMoney(props.order.totalGrossCents)}</strong>
           </div>
         </div>

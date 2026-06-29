@@ -1,0 +1,32 @@
+.table {
+  display: flex;
+  flex-direction: column;
+}
+
+.table-row {
+  border: 0;
+  background: transparent;
+  min-height: 68px;
+  padding: 14px 18px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  gap: 12px;
+  align-items: center;
+  text-align: left;
+  border-bottom: 1px solid #edf0f4;
+}
+
+.table-row strong,
+.table-row small {
+  display: block;
+}
+
+.table-row small {
+  color: #657386;
+}
+
+@media (max-width: 620px) {
+  .table-row {
+    grid-template-columns: 1fr;
+  }
+}

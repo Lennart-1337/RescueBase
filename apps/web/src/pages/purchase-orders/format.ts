@@ -1,4 +1,5 @@
 import type { PurchaseOrderStatus } from "../../lib/types";
+import { statusLabel, statusTone } from "../../components/status-badge";
 
 export function formatMoney(cents: number) {
   return new Intl.NumberFormat("de-DE", { style: "currency", currency: "EUR" }).format(cents / 100);
@@ -15,15 +16,9 @@ export function centsInput(cents?: number) {
 }
 
 export function formatPurchaseStatus(status: PurchaseOrderStatus) {
-  if (status === "DRAFT") return "Entwurf";
-  if (status === "APPROVED") return "Freigegeben";
-  if (status === "ORDERED") return "Bestellt";
-  if (status === "PARTIALLY_RECEIVED") return "Teilweise erhalten";
-  return "Erhalten";
+  return statusLabel("purchaseOrder", status);
 }
 
 export function purchaseStatusTone(status: PurchaseOrderStatus) {
-  if (status === "DRAFT") return "neutral" as const;
-  if (status === "RECEIVED") return "ready" as const;
-  return "info" as const;
+  return statusTone("purchaseOrder", status);
 }

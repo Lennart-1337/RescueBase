@@ -44,13 +44,19 @@ const rescueBaseOpenApiDocumentDefinition = {
       ReplenishmentReason: stringEnum(["SHORTAGE", "DISCARDED_EXPIRED", "SHORTAGE_AND_DISCARDED_EXPIRED"]),
       AppBranding: objectSchema({
         appName: { type: "string", example: "RescueBase" },
-        appSubtitle: { type: "string", example: "Sanitätslager" }
-      }, ["appName", "appSubtitle"]),
+        appSubtitle: { type: "string", example: "Sanitätslager" },
+        showLogo: { type: "boolean", example: true },
+        showAppName: { type: "boolean", example: false },
+        showAppSubtitle: { type: "boolean", example: true }
+      }, ["appName", "appSubtitle", "showLogo", "showAppName", "showAppSubtitle"]),
       SetupStatus: objectSchema({
         initialized: { type: "boolean" },
         appName: { type: "string", example: "RescueBase" },
-        appSubtitle: { type: "string", example: "Sanitätslager" }
-      }, ["initialized", "appName", "appSubtitle"]),
+        appSubtitle: { type: "string", example: "Sanitätslager" },
+        showLogo: { type: "boolean", example: true },
+        showAppName: { type: "boolean", example: false },
+        showAppSubtitle: { type: "boolean", example: true }
+      }, ["initialized", "appName", "appSubtitle", "showLogo", "showAppName", "showAppSubtitle"]),
       AuthenticatedUser: objectSchema({
         id: { type: "string" },
         email: { type: "string", format: "email" },
@@ -63,8 +69,11 @@ const rescueBaseOpenApiDocumentDefinition = {
       SessionResponse: objectSchema({
         user: ref("AuthenticatedUser"),
         appName: { type: "string", example: "RescueBase" },
-        appSubtitle: { type: "string", example: "Sanitätslager" }
-      }, ["user", "appName", "appSubtitle"]),
+        appSubtitle: { type: "string", example: "Sanitätslager" },
+        showLogo: { type: "boolean", example: true },
+        showAppName: { type: "boolean", example: false },
+        showAppSubtitle: { type: "boolean", example: true }
+      }, ["user", "appName", "appSubtitle", "showLogo", "showAppName", "showAppSubtitle"]),
       FirstAdminRequest: objectSchema({
         email: { type: "string", format: "email" },
         displayName: { type: "string" },
@@ -491,6 +500,7 @@ const rescueBaseOpenApiDocumentDefinition = {
         locationId: { type: "string" },
         status: ref("PurchaseOrderStatus"),
         notes: { type: "string" },
+        archivedAt: { type: "string", format: "date-time" },
         approvedAt: { type: "string", format: "date-time" },
         approvedByName: { type: "string" },
         orderedAt: { type: "string", format: "date-time" },
@@ -555,9 +565,12 @@ const rescueBaseOpenApiDocumentDefinition = {
       GeneralSettings: objectSchema({
         appName: { type: "string", example: "RescueBase" },
         appSubtitle: { type: "string", example: "Sanitätslager" },
+        showLogo: { type: "boolean", example: true },
+        showAppName: { type: "boolean", example: false },
+        showAppSubtitle: { type: "boolean", example: true },
         timezone: { type: "string", example: "Europe/Berlin" },
         newUserOrderNotificationsDefaultEnabled: { type: "boolean" }
-      }, ["appName", "appSubtitle", "timezone", "newUserOrderNotificationsDefaultEnabled"]),
+      }, ["appName", "appSubtitle", "showLogo", "showAppName", "showAppSubtitle", "timezone", "newUserOrderNotificationsDefaultEnabled"]),
       AlertSettings: objectSchema({
         dailyDigestEnabled: { type: "boolean" },
         dailyDigestTime: { type: "string", pattern: "^(?:[01]\\d|2[0-3]):[0-5]\\d$" },
@@ -581,7 +594,13 @@ const rescueBaseOpenApiDocumentDefinition = {
         general: ref("GeneralSettings"), alerts: ref("AlertSettings"), inventory: ref("AdminInventorySettings"), templates: arrayOf(ref("NotificationTemplate"))
       }, ["general", "alerts", "inventory", "templates"]),
       UpdateGeneralSettingsRequest: objectSchema({
-        appName: { type: "string" }, appSubtitle: { type: "string" }, timezone: { type: "string" }, newUserOrderNotificationsDefaultEnabled: { type: "boolean" }
+        appName: { type: "string" },
+        appSubtitle: { type: "string" },
+        showLogo: { type: "boolean" },
+        showAppName: { type: "boolean" },
+        showAppSubtitle: { type: "boolean" },
+        timezone: { type: "string" },
+        newUserOrderNotificationsDefaultEnabled: { type: "boolean" }
       }),
       UpdateAlertSettingsRequest: objectSchema({
         dailyDigestEnabled: { type: "boolean" }, dailyDigestTime: { type: "string" }, warningWindowDays: { type: "integer", minimum: 1, maximum: 3650 }
@@ -889,6 +908,12 @@ const rescueBaseOpenApiDocumentDefinition = {
     "/purchase-orders/{id}": {
       get: operation("Bestellungen", "PurchaseOrdersController_get", pathParam("id"), response(200, "Purchase order", ref("PurchaseOrder"))),
       patch: operation("Bestellungen", "PurchaseOrdersController_update", { ...pathParam("id"), ...request("UpdatePurchaseOrderRequest") }, response(200, "Purchase order updated", ref("PurchaseOrder")))
+    },
+    "/purchase-orders/{id}/archive": {
+      post: operation("Bestellungen", "PurchaseOrdersController_archive", pathParam("id"), response(201, "Purchase order archived", ref("PurchaseOrder")))
+    },
+    "/purchase-orders/{id}/restore": {
+      post: operation("Bestellungen", "PurchaseOrdersController_restore", pathParam("id"), response(201, "Purchase order restored", ref("PurchaseOrder")))
     },
     "/purchase-orders/{id}/approve": {
       post: operation("Bestellungen", "PurchaseOrdersController_approve", pathParam("id"), response(201, "Purchase order approved", ref("PurchaseOrder")))

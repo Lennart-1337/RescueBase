@@ -120,11 +120,26 @@
           "appSubtitle": {
             "type": "string",
             "example": "Sanitätslager"
+          },
+          "showLogo": {
+            "type": "boolean",
+            "example": true
+          },
+          "showAppName": {
+            "type": "boolean",
+            "example": false
+          },
+          "showAppSubtitle": {
+            "type": "boolean",
+            "example": true
           }
         },
         "required": [
           "appName",
-          "appSubtitle"
+          "appSubtitle",
+          "showLogo",
+          "showAppName",
+          "showAppSubtitle"
         ],
         "additionalProperties": false
       },
@@ -141,12 +156,27 @@
           "appSubtitle": {
             "type": "string",
             "example": "Sanitätslager"
+          },
+          "showLogo": {
+            "type": "boolean",
+            "example": true
+          },
+          "showAppName": {
+            "type": "boolean",
+            "example": false
+          },
+          "showAppSubtitle": {
+            "type": "boolean",
+            "example": true
           }
         },
         "required": [
           "initialized",
           "appName",
-          "appSubtitle"
+          "appSubtitle",
+          "showLogo",
+          "showAppName",
+          "showAppSubtitle"
         ],
         "additionalProperties": false
       },
@@ -199,12 +229,27 @@
           "appSubtitle": {
             "type": "string",
             "example": "Sanitätslager"
+          },
+          "showLogo": {
+            "type": "boolean",
+            "example": true
+          },
+          "showAppName": {
+            "type": "boolean",
+            "example": false
+          },
+          "showAppSubtitle": {
+            "type": "boolean",
+            "example": true
           }
         },
         "required": [
           "user",
           "appName",
-          "appSubtitle"
+          "appSubtitle",
+          "showLogo",
+          "showAppName",
+          "showAppSubtitle"
         ],
         "additionalProperties": false
       },
@@ -1945,6 +1990,10 @@
           "notes": {
             "type": "string"
           },
+          "archivedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
           "approvedAt": {
             "type": "string",
             "format": "date-time"
@@ -2228,6 +2277,18 @@
             "type": "string",
             "example": "Sanitätslager"
           },
+          "showLogo": {
+            "type": "boolean",
+            "example": true
+          },
+          "showAppName": {
+            "type": "boolean",
+            "example": false
+          },
+          "showAppSubtitle": {
+            "type": "boolean",
+            "example": true
+          },
           "timezone": {
             "type": "string",
             "example": "Europe/Berlin"
@@ -2239,6 +2300,9 @@
         "required": [
           "appName",
           "appSubtitle",
+          "showLogo",
+          "showAppName",
+          "showAppSubtitle",
           "timezone",
           "newUserOrderNotificationsDefaultEnabled"
         ],
@@ -2370,6 +2434,15 @@
           },
           "appSubtitle": {
             "type": "string"
+          },
+          "showLogo": {
+            "type": "boolean"
+          },
+          "showAppName": {
+            "type": "boolean"
+          },
+          "showAppSubtitle": {
+            "type": "boolean"
           },
           "timezone": {
             "type": "string"
@@ -5172,6 +5245,66 @@
         "responses": {
           "200": {
             "description": "Purchase order updated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PurchaseOrder"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/purchase-orders/{id}/archive": {
+      "post": {
+        "tags": [
+          "Bestellungen"
+        ],
+        "operationId": "PurchaseOrdersController_archive",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Purchase order archived",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PurchaseOrder"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/purchase-orders/{id}/restore": {
+      "post": {
+        "tags": [
+          "Bestellungen"
+        ],
+        "operationId": "PurchaseOrdersController_restore",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Purchase order restored",
             "content": {
               "application/json": {
                 "schema": {

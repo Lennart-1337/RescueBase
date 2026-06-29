@@ -1,4 +1,5 @@
 import { Pencil, Trash2 } from "lucide-react";
+import { ListRow, RowActions } from "../../components/list-row";
 import { Badge, Button } from "../../components/ui";
 import type { MedicalDevice } from "../../lib/extra-api";
 import { deviceStorageLabel } from "./device-storage";
@@ -12,12 +13,8 @@ export function DeviceListRow(props: {
   const { device } = props;
 
   return (
-    <div className="compact-list-row compact-list-row-actions">
-      <span>
-        <strong>{device.name}</strong>
-        <small>{deviceStorageLabel(device)} · {device.article.name}</small>
-      </span>
-      <div className="row-actions">
+    <ListRow title={device.name} meta={`${deviceStorageLabel(device)} · ${device.article.name}`} actions={(
+      <RowActions>
         {device.article.stkRequired ? <Badge tone="info">STK</Badge> : null}
         {device.article.mtkRequired ? <Badge tone="info">MTK</Badge> : null}
         {device.active ? <Badge tone="ready">aktiv</Badge> : <Badge tone="warning">inaktiv</Badge>}
@@ -36,7 +33,7 @@ export function DeviceListRow(props: {
           <Trash2 data-icon="inline-start" />
           <span className="button-label">Löschen</span>
         </Button>
-      </div>
-    </div>
+      </RowActions>
+    )} />
   );
 }

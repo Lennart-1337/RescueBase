@@ -4,7 +4,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { matchesFilterText, toOptionalBoolean, toOptionalString, withPrunedSearch } from "../app/filter-utils";
 import { AlertTriangle, Archive, Download, Plus, ShoppingCart } from "lucide-react";
 import { daysUntil, toError } from "../app/formatters";
-import { ErrorPanel, LoadingPanel, Metric } from "../components/state-panels";
+import { ErrorPanel, LoadingPanel, MetricGrid } from "../components/state-panels";
 import { PageHeader, PageToolbar, Workspace, WorkspaceMain, WorkspaceRail } from "../components/page-layout";
 import { AnchorButton, Button } from "../components/ui";
 import { rescueBaseApi } from "../lib/api";
@@ -156,7 +156,10 @@ export function InventoryPage({ user: _user }: { user: AuthenticatedUser }) {
   return (
     <>
       <PageHeader actions={<><Link className="button button-secondary" search={{ mode: "shortages" }} to="/admin/purchase-orders/new"><ShoppingCart data-icon="inline-start" />Bestellung aus Fehlmengen</Link><AnchorButton href={rescueBaseApi.reportUrl("/reports/csv/inventory")} variant="secondary"><Download data-icon="inline-start" />CSV Bestand</AnchorButton><Button onClick={() => setCreateOpen(true)} type="button"><Plus data-icon="inline-start" />Charge hinzufügen</Button></>} title="Lager" />
-      <section className="metric-grid metric-grid-compact" aria-label="Lagerkennzahlen"><Metric icon={<Archive />} label="Chargen" tone="info" value={String(batches.data.length)} /><Metric icon={<AlertTriangle />} label="Ablaufwarnungen" tone="danger" value={String(expiring.length)} /></section>
+      <MetricGrid compact items={[
+        { icon: <Archive />, label: "Chargen", tone: "info", value: String(batches.data.length) },
+        { icon: <AlertTriangle />, label: "Ablaufwarnungen", tone: "danger", value: String(expiring.length) }
+      ]} label="Lagerkennzahlen" />
       <PageToolbar label="Bestand filtern"><InventoryFilterToolbar articles={articles.data} countLabel={`${filteredBatches.length}/${batches.data.length} Chargen sichtbar`} filters={filters} locations={locations.data} onChange={updateFilters} onReset={resetFilters} /></PageToolbar>
       <Workspace className="inventory-workspace">
         <WorkspaceMain label="Bestandschargen"><BatchListPanel batches={filteredBatches} error={deleteMutation.error ? toError(deleteMutation.error) : null} isSubmitting={deleteMutation.isPending} onDelete={(id) => deleteMutation.mutate(id)} onSelect={(id) => { setSelectedBatchId(id); setCorrectionOpen(true); }} selectedBatchId={selectedBatchId} totalCount={batches.data.length} /></WorkspaceMain>

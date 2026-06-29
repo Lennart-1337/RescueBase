@@ -5,7 +5,8 @@ import { Archive, ClipboardCheck, ClipboardList, Cog, LogOut, Menu, PackageCheck
 import { Button } from "../components/ui";
 import { rescueBaseApi } from "../lib/api";
 import type { AuthenticatedUser } from "../lib/types";
-import { getBrandMark, type AppBranding } from "./branding";
+import { type AppBranding } from "./branding";
+import { BrandMark } from "./brand-mark";
 import "./admin-shell.css";
 import "./brand-mark.css";
 
@@ -19,7 +20,6 @@ type NavigationItem = {
 export function AdminShell({ children, user, branding }: { children: ReactNode; user: AuthenticatedUser; branding: AppBranding }) {
   const queryClient = useQueryClient();
   const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
-  const brandMark = getBrandMark(branding.appName);
   const logout = useMutation({
     mutationFn: rescueBaseApi.logout,
     onSuccess: async () => {
@@ -44,11 +44,9 @@ export function AdminShell({ children, user, branding }: { children: ReactNode; 
         <div className="sidebar-main">
           <div className="sidebar-topbar">
             <div className="brand">
-              <div className="brand-mark">{brandMark}</div>
-              <div>
-                <strong>{branding.appName}</strong>
-                <span>{branding.appSubtitle}</span>
-              </div>
+              {branding.showLogo ? <div className="brand-mark"><BrandMark /></div> : null}
+              {branding.showAppName ? <strong>{branding.appName}</strong> : null}
+              {branding.showAppSubtitle ? <span>{branding.appSubtitle}</span> : null}
             </div>
             <Button aria-expanded={isMobileNavOpen} aria-haspopup="dialog" aria-label="Menü öffnen" className="mobile-menu-button" onClick={() => setIsMobileNavOpen(true)} type="button" variant="ghost">
               <Menu />
@@ -70,11 +68,9 @@ export function AdminShell({ children, user, branding }: { children: ReactNode; 
           <div aria-label="Navigation" aria-modal="true" className="mobile-drawer" onClick={(event) => event.stopPropagation()} role="dialog">
             <div className="mobile-drawer-header">
               <div className="brand">
-                <div className="brand-mark">{brandMark}</div>
-                <div>
-                  <strong>{branding.appName}</strong>
-                  <span>{branding.appSubtitle}</span>
-                </div>
+                {branding.showLogo ? <div className="brand-mark"><BrandMark /></div> : null}
+                {branding.showAppName ? <strong>{branding.appName}</strong> : null}
+                {branding.showAppSubtitle ? <span>{branding.appSubtitle}</span> : null}
               </div>
               <Button aria-label="Menü schließen" onClick={() => setIsMobileNavOpen(false)} type="button" variant="ghost">
                 <X />

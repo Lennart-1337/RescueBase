@@ -1,5 +1,6 @@
 import { ExternalLink, Pencil, Trash2 } from "lucide-react";
 import type { Article } from "../../lib/types";
+import { RowActions } from "../../components/list-row";
 import { AnchorButton, Badge, Button } from "../../components/ui";
 import { formatMoney } from "../purchase-orders/format";
 import type { ReorderDirection } from "./reorder";
@@ -38,7 +39,7 @@ export function ArticleListRow(props: {
         {article.mtkRequired ? <Badge>MTK</Badge> : null}
         {typeof article.defaultGrossPriceCents === "number" ? <Badge>{formatMoney(article.defaultGrossPriceCents)}</Badge> : null}
       </div>
-      <div className="article-row-actions row-action-buttons">
+      <RowActions className="article-row-actions">
         <ReorderControls disabled={props.isSubmitting} isFirst={!props.canMoveUp} isLast={!props.canMoveDown} label={article.name} onMove={props.onMove} />
         {article.articleUrl ? <AnchorButton className="mobile-icon-button" href={article.articleUrl} rel="noreferrer" target="_blank" variant="secondary"><ExternalLink data-icon="inline-start" /><span className="button-label">Link</span></AnchorButton> : null}
         <Button className="mobile-icon-button" onClick={props.onEdit} type="button" variant="ghost">
@@ -56,7 +57,7 @@ export function ArticleListRow(props: {
           <Trash2 data-icon="inline-start" />
           <span className="button-label">Löschen</span>
         </Button>
-      </div>
+      </RowActions>
     </div>
   );
 }

@@ -10,6 +10,9 @@ import { NotificationTemplatesService } from "./notification-templates.service.j
 const singletonId = "singleton";
 export const defaultAppName = "RescueBase";
 export const defaultAppSubtitle = "Sanitätslager";
+export const defaultShowLogo = true;
+export const defaultShowAppName = false;
+export const defaultShowAppSubtitle = true;
 
 @Injectable()
 export class SettingsService {
@@ -31,6 +34,9 @@ export class SettingsService {
     const data: Prisma.AppSettingsUpdateInput = {};
     if (input.appName !== undefined) data.appName = validateDisplayText(input.appName, "App-Name");
     if (input.appSubtitle !== undefined) data.appSubtitle = validateDisplayText(input.appSubtitle, "Untertitel");
+    if (input.showLogo !== undefined) data.showLogo = validateBoolean(input.showLogo, "Logo anzeigen");
+    if (input.showAppName !== undefined) data.showAppName = validateBoolean(input.showAppName, "App-Name anzeigen");
+    if (input.showAppSubtitle !== undefined) data.showAppSubtitle = validateBoolean(input.showAppSubtitle, "Untertitel anzeigen");
     if (input.timezone !== undefined) data.timezone = validateTimezone(input.timezone);
     if (input.newUserOrderNotificationsDefaultEnabled !== undefined) {
       data.newUserOrderNotificationsDefaultEnabled = validateBoolean(input.newUserOrderNotificationsDefaultEnabled, "Standard für Bestellbenachrichtigungen");
@@ -42,6 +48,9 @@ export class SettingsService {
         id: singletonId,
         appName: defaultAppName,
         appSubtitle: defaultAppSubtitle,
+        showLogo: defaultShowLogo,
+        showAppName: defaultShowAppName,
+        showAppSubtitle: defaultShowAppSubtitle,
         timezone: defaultTimezone(),
         ...data as Prisma.AppSettingsCreateInput
       }
@@ -73,7 +82,15 @@ export class SettingsService {
     return this.prisma.appSettings.upsert({
       where: { id: singletonId },
       update: {},
-      create: { id: singletonId, appName: defaultAppName, appSubtitle: defaultAppSubtitle, timezone: defaultTimezone() }
+      create: {
+        id: singletonId,
+        appName: defaultAppName,
+        appSubtitle: defaultAppSubtitle,
+        showLogo: defaultShowLogo,
+        showAppName: defaultShowAppName,
+        showAppSubtitle: defaultShowAppSubtitle,
+        timezone: defaultTimezone()
+      }
     });
   }
 
@@ -85,10 +102,21 @@ export class SettingsService {
     return this.prisma.inventoryAutomationConfig.upsert({ where: { id: singletonId }, update: {}, create: { id: singletonId } });
   }
 
-  private generalView(row: { appName: string; appSubtitle: string; timezone: string; newUserOrderNotificationsDefaultEnabled: boolean }) {
+  private generalView(row: {
+    appName: string;
+    appSubtitle: string;
+    showLogo: boolean;
+    showAppName: boolean;
+    showAppSubtitle: boolean;
+    timezone: string;
+    newUserOrderNotificationsDefaultEnabled: boolean;
+  }) {
     return {
       appName: row.appName,
       appSubtitle: row.appSubtitle,
+      showLogo: row.showLogo,
+      showAppName: row.showAppName,
+      showAppSubtitle: row.showAppSubtitle,
       timezone: row.timezone,
       newUserOrderNotificationsDefaultEnabled: row.newUserOrderNotificationsDefaultEnabled
     };

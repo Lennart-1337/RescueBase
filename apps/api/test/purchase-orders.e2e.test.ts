@@ -147,4 +147,30 @@ describe("purchase orders", () => {
       .expect("content-type", /application\/pdf/)
       .expect(200);
   });
+
+  it("archives purchase orders without removing access and restores them again", async () => {
+    const agent = request.agent(app.getHttpServer());
+    await agent.post("/auth/login").send({ email: "admin@rescuebase.local", password: "rescuebase-admin" }).expect(201);
+    const created = await agent.post("/purchase-orders").send({
+      supplierName: "Archiv Test",
+      locationId: "loc-main",
+      lines: [{ articleId: "article-bandage", orderedQuantity: 1 }]
+    }).expect(201);
+
+    const archived = await agent.post(`/purchase-orders/${created.body.id}/archive`).expect(201);
+    expect(archived.body).toMatchObject({ id: created.body.id, archivedAt: expect.any(String) });
+
+    await agent.get(`/purchase-orders/${created.body.id}`).expect(200).expect(({ body }) => {
+      expect(body.archivedAt).toEqual(expect.any(String));
+    });
+
+    await agent.get("/purchase-orders").expect(200).expect(({ body }) => {
+      const order = body.find((entry: { id: string }) => entry.id === created.body.id);
+      expect(order).toMatchObject({ archivedAt: expect.any(String) });
+    });
+
+    const restored = await agent.post(`/purchase-orders/${created.body.id}/restore`).expect(201);
+    expect(restored.body).toMatchObject({ id: created.body.id });
+    expect(restored.body).not.toHaveProperty("archivedAt");
+  });
 });

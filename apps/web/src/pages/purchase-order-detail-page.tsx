@@ -26,6 +26,8 @@ export function PurchaseOrderDetailPage() {
     await Promise.all([queryClient.invalidateQueries({ queryKey: ["purchase-order", orderId] }), queryClient.invalidateQueries({ queryKey: ["purchase-orders"] }), queryClient.invalidateQueries({ queryKey: ["batches"] })]);
   };
   const update = useMutation({ mutationFn: (body: Parameters<typeof rescueBaseApi.updatePurchaseOrder>[1]) => rescueBaseApi.updatePurchaseOrder(orderId, body), onSuccess: async () => { setEditingOrder(false); await invalidate(); } });
+  const archive = useMutation({ mutationFn: () => rescueBaseApi.archivePurchaseOrder(orderId), onSuccess: invalidate });
+  const restore = useMutation({ mutationFn: () => rescueBaseApi.restorePurchaseOrder(orderId), onSuccess: invalidate });
   const approve = useMutation({ mutationFn: () => rescueBaseApi.approvePurchaseOrder(orderId), onSuccess: invalidate });
   const markOrdered = useMutation({ mutationFn: () => rescueBaseApi.markPurchaseOrderOrdered(orderId), onSuccess: invalidate });
   const receive = useMutation({ mutationFn: (draft: ReceiptDraft) => rescueBaseApi.receivePurchaseOrder(orderId, { lines: [{ lineId: draft.lineId, batches: [{ lotNumber: draft.lotNumber, expiresAt: draft.expiresAt, quantity: Number(draft.quantity) }] }] }), onSuccess: async () => { setReceiptDraft(null); await invalidate(); } });
@@ -48,8 +50,8 @@ export function PurchaseOrderDetailPage() {
           <PurchaseOrderDetailMain onReceive={(lineId, quantity) => setReceiptDraft({ lineId, lotNumber: "", expiresAt: "", quantity: String(quantity) })} order={current} />
         </WorkspaceMain>
         <WorkspaceRail className="purchase-order-rail" label="Bestellkontext">
-          <PurchaseOrderDetailRail canApprove={canApprove} includeLineNotes={includeLineNotes} isApproving={approve.isPending} isOrdering={markOrdered.isPending} onApprove={() => approve.mutate()} onEdit={() => setEditingOrder(true)} onIncludeNotesChange={setIncludeLineNotes} onMarkOrdered={() => markOrdered.mutate()} order={current} pdfHref={pdfHref} />
-          {approve.error || markOrdered.error ? <InlineError error={toError(approve.error ?? markOrdered.error)} /> : null}
+          <PurchaseOrderDetailRail canApprove={canApprove} includeLineNotes={includeLineNotes} isApproving={approve.isPending} isArchiving={archive.isPending || restore.isPending} isOrdering={markOrdered.isPending} onApprove={() => approve.mutate()} onArchive={() => archive.mutate()} onEdit={() => setEditingOrder(true)} onIncludeNotesChange={setIncludeLineNotes} onMarkOrdered={() => markOrdered.mutate()} onRestore={() => restore.mutate()} order={current} pdfHref={pdfHref} />
+          {approve.error || archive.error || restore.error || markOrdered.error ? <InlineError error={toError(approve.error ?? archive.error ?? restore.error ?? markOrdered.error)} /> : null}
         </WorkspaceRail>
       </Workspace>
       <PurchaseOrderEditDialog error={update.error ? toError(update.error) : null} isSaving={update.isPending} onClose={() => setEditingOrder(false)} onSave={(body) => update.mutate(body)} open={editingOrder} order={current} />

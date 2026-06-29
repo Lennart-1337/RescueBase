@@ -286,6 +286,7 @@ model PurchaseOrder {
   locationId       String
   status           PurchaseOrderStatus @default(DRAFT)
   notes            String?             @db.Text
+  archivedAt       DateTime?
   approvedAt       DateTime?
   approvedByUserId String?
   approvedByName   String?
@@ -300,6 +301,7 @@ model PurchaseOrder {
   updatedAt        DateTime            @updatedAt
 
   @@index([status, updatedAt])
+  @@index([archivedAt, updatedAt])
   @@index([locationId])
   @@index([approvedByUserId])
 }
@@ -494,6 +496,9 @@ model AppSettings {
   id                                      String   @id @default("singleton")
   appName                                 String   @default("RescueBase")
   appSubtitle                             String   @default("Sanitätslager")
+  showLogo                                Boolean  @default(true)
+  showAppName                             Boolean  @default(false)
+  showAppSubtitle                         Boolean  @default(true)
   timezone                                String   @default("UTC")
   newUserOrderNotificationsDefaultEnabled Boolean @default(false)
   createdAt                               DateTime @default(now())

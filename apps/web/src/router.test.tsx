@@ -7,15 +7,15 @@ describe("RescueBase routes", () => {
 
   it("renders the admin dashboard from routed API data", async () => {
     stubFetch({
-      "/api/auth/setup/status": { initialized: true, appName: "RescueBase Pro", appSubtitle: "Bereitschaft Nord" },
-      "/api/auth/session": { user: { id: "user-admin", email: "admin@rescuebase.local", displayName: "Admin", role: "ADMIN", twoFactorEnabled: false }, appName: "RescueBase Pro", appSubtitle: "Bereitschaft Nord" },
+      "/api/auth/setup/status": { initialized: true, appName: "RescueBase Pro", appSubtitle: "Bereitschaft Nord", showLogo: true, showAppName: false, showAppSubtitle: true },
+      "/api/auth/session": { user: { id: "user-admin", email: "admin@rescuebase.local", displayName: "Admin", role: "ADMIN", twoFactorEnabled: false }, appName: "RescueBase Pro", appSubtitle: "Bereitschaft Nord", showLogo: true, showAppName: false, showAppSubtitle: true },
       "/api/catalog/kits": [kit],
       "/api/inventory/batches": [batch],
       "/api/replenishment-orders": [order]
     });
     await renderAppAt("/");
-    expect(await screen.findByText("RescueBase Pro")).toBeInTheDocument();
-    expect(screen.getByText("Bereitschaft Nord")).toBeInTheDocument();
+    expect(await screen.findByText("Bereitschaft Nord")).toBeInTheDocument();
+    expect(screen.getByAltText("DLRG Logo")).toBeInTheDocument();
     expect(document.querySelector(".sidebar-main")).not.toBeNull();
     expect(document.querySelector(".sidebar-user")).not.toBeNull();
     expect(await screen.findByRole("heading", { name: "Nachfüllaufträge" })).toBeInTheDocument();
@@ -26,8 +26,8 @@ describe("RescueBase routes", () => {
 
   it("opens the mobile navigation in a drawer", async () => {
     stubFetch({
-      "/api/auth/setup/status": { initialized: true, appName: "RescueBase Pro", appSubtitle: "Bereitschaft Nord" },
-      "/api/auth/session": { user: { id: "user-admin", email: "admin@rescuebase.local", displayName: "Admin", role: "ADMIN", twoFactorEnabled: false }, appName: "RescueBase Pro", appSubtitle: "Bereitschaft Nord" },
+      "/api/auth/setup/status": { initialized: true, appName: "RescueBase Pro", appSubtitle: "Bereitschaft Nord", showLogo: true, showAppName: false, showAppSubtitle: true },
+      "/api/auth/session": { user: { id: "user-admin", email: "admin@rescuebase.local", displayName: "Admin", role: "ADMIN", twoFactorEnabled: false }, appName: "RescueBase Pro", appSubtitle: "Bereitschaft Nord", showLogo: true, showAppName: false, showAppSubtitle: true },
       "/api/catalog/kits": [kit],
       "/api/inventory/batches": [batch],
       "/api/replenishment-orders": [order]
@@ -49,8 +49,8 @@ describe("RescueBase routes", () => {
 
   it("renders the purchase-order list from the Bestellungen route", async () => {
     stubFetch({
-      "/api/auth/setup/status": { initialized: true, appName: "RescueBase Pro", appSubtitle: "Bereitschaft Nord" },
-      "/api/auth/session": { user: { id: "user-admin", email: "admin@rescuebase.local", displayName: "Admin", role: "ADMIN", twoFactorEnabled: false }, appName: "RescueBase Pro", appSubtitle: "Bereitschaft Nord" },
+      "/api/auth/setup/status": { initialized: true, appName: "RescueBase Pro", appSubtitle: "Bereitschaft Nord", showLogo: true, showAppName: false, showAppSubtitle: true },
+      "/api/auth/session": { user: { id: "user-admin", email: "admin@rescuebase.local", displayName: "Admin", role: "ADMIN", twoFactorEnabled: false }, appName: "RescueBase Pro", appSubtitle: "Bereitschaft Nord", showLogo: true, showAppName: false, showAppSubtitle: true },
       "/api/purchase-orders": [purchaseOrder]
     });
 
@@ -65,8 +65,8 @@ describe("RescueBase routes", () => {
 
   it("renders the purchase-order detail without duplicating the admin sidebar", async () => {
     stubFetch({
-      "/api/auth/setup/status": { initialized: true, appName: "RescueBase Pro", appSubtitle: "Bereitschaft Nord" },
-      "/api/auth/session": { user: { id: "user-admin", email: "admin@rescuebase.local", displayName: "Admin", role: "ADMIN", twoFactorEnabled: false }, appName: "RescueBase Pro", appSubtitle: "Bereitschaft Nord" },
+      "/api/auth/setup/status": { initialized: true, appName: "RescueBase Pro", appSubtitle: "Bereitschaft Nord", showLogo: true, showAppName: false, showAppSubtitle: true },
+      "/api/auth/session": { user: { id: "user-admin", email: "admin@rescuebase.local", displayName: "Admin", role: "ADMIN", twoFactorEnabled: false }, appName: "RescueBase Pro", appSubtitle: "Bereitschaft Nord", showLogo: true, showAppName: false, showAppSubtitle: true },
       "/api/purchase-orders/purchase-order-1": purchaseOrder,
       "/api/purchase-orders": [purchaseOrder]
     });

@@ -50,13 +50,13 @@ describe("Public auth pages", () => {
 
   it("restores a pending 2FA login after the browser state is recreated", async () => {
     stubFetch({
-      "/api/auth/setup/status": { initialized: true, appName: "RescueBase Pro", appSubtitle: "Bereitschaft Nord" },
+      "/api/auth/setup/status": { initialized: true, appName: "RescueBase Pro", appSubtitle: "Bereitschaft Nord", showLogo: true, showAppName: false, showAppSubtitle: true },
       "/api/auth/session": {},
       "/api/auth/login": { requiresTwoFactor: true, twoFactorMethod: "EMAIL", loginChallengeId: "challenge-1", debugCode: "123456" }
     });
     await renderAppAt("/");
-    expect(await screen.findByText("RescueBase Pro")).toBeInTheDocument();
-    expect(screen.getByText("Bereitschaft Nord")).toBeInTheDocument();
+    expect(await screen.findByText("Bereitschaft Nord")).toBeInTheDocument();
+    expect(screen.getByAltText("DLRG Logo")).toBeInTheDocument();
     await screen.findByRole("heading", { name: "Anmelden" });
     await changeValue(screen.getByLabelText("E-Mail"), "lager-neu@rescuebase.local");
     await changeValue(screen.getByLabelText("Passwort"), "rescuebase-neu-2");
@@ -66,7 +66,7 @@ describe("Public auth pages", () => {
     vi.restoreAllMocks();
     history.pushState({}, "", "/");
     stubFetch({
-      "/api/auth/setup/status": { initialized: true, appName: "RescueBase Pro", appSubtitle: "Bereitschaft Nord" },
+      "/api/auth/setup/status": { initialized: true, appName: "RescueBase Pro", appSubtitle: "Bereitschaft Nord", showLogo: true, showAppName: false, showAppSubtitle: true },
       "/api/auth/session": {}
     });
     await renderAppAt("/");

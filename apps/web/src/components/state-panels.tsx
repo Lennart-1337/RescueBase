@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import { AlertTriangle, ClipboardList } from "lucide-react";
 import { Button, Panel } from "./ui";
+import "./metric-grid.css";
 import "./state-panels.css";
 
 export function Metric(props: { icon: ReactNode; label: string; tone: "ready" | "warning" | "danger" | "info"; value: string }) {
@@ -10,6 +11,18 @@ export function Metric(props: { icon: ReactNode; label: string; tone: "ready" | 
       <span>{props.label}</span>
       <strong>{props.value}</strong>
     </Panel>
+  );
+}
+
+export function MetricGrid(props: {
+  compact?: boolean;
+  items: Array<Parameters<typeof Metric>[0]>;
+  label: string;
+}) {
+  return (
+    <section className={`metric-grid${props.compact ? " metric-grid-compact" : ""}`} aria-label={props.label}>
+      {props.items.map((item) => <Metric key={item.label} {...item} />)}
+    </section>
   );
 }
 

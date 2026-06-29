@@ -1,6 +1,9 @@
 export type AppBranding = {
   appName: string;
   appSubtitle: string;
+  showLogo: boolean;
+  showAppName: boolean;
+  showAppSubtitle: boolean;
 };
 
 export function getBrandMark(appName?: string | null): string {
