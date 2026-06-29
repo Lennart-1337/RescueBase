@@ -69,7 +69,7 @@ export function createQrLabelLayout(pageWidth: number, pageHeight: number): QrLa
   const marginX = 10;
   const top = 10;
   const gap = 8;
-  const qrSize = Math.min(84, Math.max(72, Math.round(pageHeight - 32)));
+  const qrSize = 64;
   const qrBox = {
     x: pageWidth - marginX - qrSize,
     y: 12,

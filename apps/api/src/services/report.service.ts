@@ -326,17 +326,17 @@ export class ReportService {
 
   private drawQrLabel(doc: PDFKit.PDFDocument, kit: { name: string; code: string; location: { name: string } }, qrImage: Buffer) {
     const layout = createQrLabelLayout(doc.page.width, doc.page.height);
-    const code = fitSingleLine(doc.font("Helvetica-Bold").fontSize(18), kit.code, layout.textBox.width);
-    const name = fitSingleLine(doc.font("Helvetica-Bold").fontSize(10), kit.name, layout.textBox.width);
+    const code = fitSingleLine(doc.font("Helvetica-Bold").fontSize(12), kit.code, layout.textBox.width);
+    const name = fitSingleLine(doc.font("Helvetica-Bold").fontSize(7.5), kit.name, layout.textBox.width);
     const location = fitSingleLine(doc.font("Helvetica").fontSize(8.5), kit.location.name, layout.textBox.width);
 
     doc.fillColor("#ffffff").rect(0, 0, doc.page.width, doc.page.height).fill();
     doc.fillColor(palette.muted).font("Helvetica-Bold").fontSize(6.5).text("DLRG / RESCUEBASE CHECK", layout.textBox.x, layout.headerTop, {
       width: layout.textBox.width
     });
-    doc.fillColor(palette.ink).font("Helvetica-Bold").fontSize(18).text(code, layout.textBox.x, layout.headerTop + 13, { width: layout.textBox.width });
-    doc.fillColor(palette.ink).font("Helvetica-Bold").fontSize(10).text(name, layout.textBox.x, layout.headerTop + 37, { width: layout.textBox.width });
-    doc.fillColor(palette.muted).font("Helvetica").fontSize(8.5).text(location, layout.textBox.x, layout.headerTop + 51, { width: layout.textBox.width });
+    doc.fillColor(palette.ink).font("Helvetica-Bold").fontSize(12).text(code, layout.textBox.x, layout.headerTop + 13, { width: layout.textBox.width });
+    doc.fillColor(palette.ink).font("Helvetica-Bold").fontSize(7.5).text(name, layout.textBox.x, layout.headerTop + 31, { width: layout.textBox.width });
+    doc.fillColor(palette.muted).font("Helvetica").fontSize(8.5).text(location, layout.textBox.x, layout.headerTop + 43, { width: layout.textBox.width });
 
     doc.image(qrImage, layout.qrBox.x, layout.qrBox.y, { width: layout.qrBox.width, height: layout.qrBox.height });
     doc.fillColor(palette.muted).font("Helvetica-Bold").fontSize(6.5).text("Scan für Check", layout.qrBox.x, layout.qrCaptionTop, {
