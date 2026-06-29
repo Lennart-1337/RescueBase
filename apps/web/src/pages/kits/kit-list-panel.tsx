@@ -5,7 +5,6 @@ import { PanelHeader } from "../../components/panel-header";
 import { InlineError } from "../../components/state-panels";
 import { StatusBadge } from "../../components/status-badge";
 import { AnchorButton, Button, Panel } from "../../components/ui";
-import { AnimatedList, AnimatedListItem } from "../../motion/animated-containers";
 import { rescueBaseApi } from "../../lib/api";
 import type { Kit } from "../../lib/types";
 import "./kit-list-panel.css";
@@ -27,9 +26,9 @@ export function KitListPanel(props: {
   return (
     <Panel>
       <PanelHeader title="Rucksäcke" />
-      <AnimatedList className="table">
+      <div className="table">
         {props.kits.map((kit) => (
-          <AnimatedListItem className="table-row kit-row" key={kit.id}>
+          <div className="table-row kit-row" key={kit.id}>
             <span><strong>{kit.name}</strong><small>{kit.code} · {kit.location?.name}</small></span>
             <StatusBadge kind="kit" status={kit.status} />
             <RowActions>
@@ -40,9 +39,9 @@ export function KitListPanel(props: {
               <Button disabled={props.actionPending} onClick={() => props.onRotate(kit.id)} type="button" variant="ghost"><RotateCw data-icon="inline-start" />Rotieren</Button>
               <Button aria-label={`${kit.name} löschen`} disabled={props.actionPending} onClick={() => confirmDelete(kit)} type="button" variant="danger"><Trash2 data-icon="inline-start" />Löschen</Button>
             </RowActions>
-          </AnimatedListItem>
+          </div>
         ))}
-      </AnimatedList>
+      </div>
       {props.actionError ? <InlineError error={props.actionError} /> : null}
     </Panel>
   );
