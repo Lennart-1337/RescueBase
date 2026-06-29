@@ -26,7 +26,7 @@
 }
 
 .article-row-badges,
-.row-action-buttons {
+.article-row-actions {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
@@ -38,13 +38,10 @@
   align-self: start;
 }
 
-.row-action-buttons {
+.article-row-actions {
   justify-content: flex-end;
   align-self: start;
   min-width: 0;
-}
-
-.article-row-actions {
   width: 100%;
   row-gap: 8px;
 }
@@ -74,7 +71,7 @@
     grid-template-columns: 1fr;
   }
 
-  .row-action-buttons {
+  .article-row-actions {
     min-width: 0;
     justify-content: flex-start;
   }
