@@ -1,11 +1,48 @@
 import type { INestApplication } from "@nestjs/common";
 import { jest } from "@jest/globals";
+import { inflateSync } from "node:zlib";
 // @ts-expect-error supertest ships export= typings; default import is correct with ts-jest runtime.
 import request from "supertest";
 import { bootstrapTestApp } from "./bootstrap-test-app.js";
 import { MailService } from "../src/services/mail.service.js";
 
 jest.setTimeout(30_000);
+
+function extractPdfMediaBox(pdf: Buffer) {
+  const match = pdf.toString("latin1").match(/\/MediaBox\s*\[\s*0\s+0\s+([0-9.]+)\s+([0-9.]+)\s*\]/);
+  if (!match) {
+    throw new Error("MediaBox not found in PDF output.");
+  }
+  return { width: Number(match[1]), height: Number(match[2]) };
+}
+
+function inflatePdfStreams(pdf: Buffer) {
+  const content = pdf.toString("latin1");
+  const decoded: string[] = [];
+  let cursor = 0;
+  while (cursor < content.length) {
+    const filterIndex = content.indexOf("/Filter /FlateDecode", cursor);
+    if (filterIndex === -1) {
+      break;
+    }
+    const streamIndex = content.indexOf("stream", filterIndex);
+    const endStreamIndex = content.indexOf("endstream", streamIndex);
+    if (streamIndex === -1 || endStreamIndex === -1) {
+      break;
+    }
+    let dataStart = streamIndex + 6;
+    if (pdf[dataStart] === 0x0d && pdf[dataStart + 1] === 0x0a) dataStart += 2;
+    else if (pdf[dataStart] === 0x0a) dataStart += 1;
+    const dataEnd = pdf[endStreamIndex - 1] === 0x0d && pdf[endStreamIndex - 2] !== 0x0a ? endStreamIndex - 1 : endStreamIndex;
+    try {
+      decoded.push(inflateSync(pdf.subarray(dataStart, dataEnd)).toString("utf8"));
+    } catch {
+      // Ignore non-content streams.
+    }
+    cursor = endStreamIndex + 9;
+  }
+  return decoded.join("\n");
+}
 
 describe("public check flow", () => {
   let app: INestApplication;
@@ -227,10 +264,28 @@ describe("public check flow", () => {
       .expect("content-type", /application\/pdf/)
       .expect(200);
 
-    await agent
+    const labelPdf = await agent
       .get("/reports/qr-label/kit-rucksack-1.pdf?format=label")
+      .buffer()
+      .parse((res, callback) => {
+        const chunks: Buffer[] = [];
+        res.on("data", (chunk) => chunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk)));
+        res.on("end", () => callback(null, Buffer.concat(chunks)));
+      })
       .expect("content-type", /application\/pdf/)
       .expect(200);
+
+    const mediaBox = extractPdfMediaBox(labelPdf.body);
+    expect(mediaBox.width).toBeCloseTo(175.75, 1);
+    expect(mediaBox.height).toBeCloseTo(170.08, 1);
+
+    const visibleText = inflatePdfStreams(labelPdf.body);
+    expect(visibleText).toContain("SAN-RS-001A");
+    expect(visibleText).toContain("Rucksack Fahrzeug 1A");
+    expect(visibleText).toContain("Zentrallager");
+    expect(visibleText).toContain("Scan für Check");
+    expect(visibleText).not.toContain("http://localhost:5173/check/");
+    expect(visibleText).not.toContain("/check/SAN-RS-001-ZUGANG-2026");
   });
 
   it("rejects medical device articles without required STK or MTK intervals", async () => {

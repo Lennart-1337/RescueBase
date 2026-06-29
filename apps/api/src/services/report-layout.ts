@@ -11,6 +11,13 @@ export interface QrSheetLayout {
   linkTop: number;
 }
 
+export interface QrLabelLayout {
+  headerTop: number;
+  textBox: PdfBox;
+  qrBox: PdfBox;
+  qrCaptionTop: number;
+}
+
 export type InfoGridCell = PdfBox;
 
 export function createQrSheetLayout(pageWidth: number, pageHeight: number): QrSheetLayout {
@@ -56,6 +63,31 @@ export function createInfoGridLayout(input: {
   }
 
   return result;
+}
+
+export function createQrLabelLayout(pageWidth: number, pageHeight: number): QrLabelLayout {
+  const marginX = 10;
+  const top = 10;
+  const gap = 8;
+  const qrSize = Math.min(84, Math.max(72, Math.round(pageHeight - 32)));
+  const qrBox = {
+    x: pageWidth - marginX - qrSize,
+    y: 12,
+    width: qrSize,
+    height: qrSize
+  };
+  const textBox = {
+    x: marginX,
+    y: top,
+    width: Math.max(54, qrBox.x - marginX - gap),
+    height: pageHeight - top - 12
+  };
+  return {
+    headerTop: top,
+    textBox,
+    qrBox,
+    qrCaptionTop: qrBox.y + qrBox.height + 4
+  };
 }
 
 export function needsPageBreak(input: {

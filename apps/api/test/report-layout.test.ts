@@ -1,5 +1,5 @@
 import { describe, expect, it } from "@jest/globals";
-import { createInfoGridLayout, createQrSheetLayout, needsPageBreak } from "../src/services/report-layout.js";
+import { createInfoGridLayout, createQrLabelLayout, createQrSheetLayout, needsPageBreak } from "../src/services/report-layout.js";
 
 describe("report layout helpers", () => {
   it("keeps QR sheet content columns separated from the QR code", () => {
@@ -22,5 +22,13 @@ describe("report layout helpers", () => {
     expect(cards[1]?.x).toBeGreaterThan(cards[0]!.x + cards[0]!.width);
     expect(cards[2]?.y).toBeGreaterThan(cards[0]!.y);
     expect(cards[0]!.width).toBe(cards[1]!.width);
+  });
+
+  it("keeps QR label text and code areas separated on the 62 x 60 mm format", () => {
+    const layout = createQrLabelLayout(175.75, 170.08);
+
+    expect(layout.textBox.x + layout.textBox.width).toBeLessThan(layout.qrBox.x);
+    expect(layout.qrCaptionTop).toBeGreaterThanOrEqual(layout.qrBox.y + layout.qrBox.height + 4);
+    expect(layout.qrCaptionTop).toBeLessThan(170.08);
   });
 });
