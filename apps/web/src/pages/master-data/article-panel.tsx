@@ -63,6 +63,7 @@ export function ArticlePanel(props: {
   totalCount: number;
 }) {
   const [draft, setDraft] = useState(emptyDraft());
+  const [expandedReorderId, setExpandedReorderId] = useState<string | null>(null);
   const canSubmit = Boolean(draft.name.trim() && draft.unit.trim() && intervalsValid(draft));
   const categories = [...new Set(props.articles.map((entry) => entry.category).filter((entry): entry is string => Boolean(entry)))].sort((left, right) => left.localeCompare(right, "de-DE"));
 
@@ -124,6 +125,10 @@ export function ArticlePanel(props: {
     }
   }
 
+  async function moveArticle(articleId: string, direction: ReorderDirection) {
+    await props.onMoveArticle(articleId, direction);
+  }
+
   return (
     <>
       <PageToolbar label="Artikel filtern"><ListFilterBar countLabel={`${props.articles.length}/${props.totalCount} sichtbar`} fieldsClassName="article-filter-grid" onReset={props.onResetFilters}>
@@ -152,11 +157,13 @@ export function ArticlePanel(props: {
               article={article}
               canMoveDown={index < props.articles.length - 1}
               canMoveUp={index > 0}
+              isReorderExpanded={expandedReorderId === article.id}
               isSubmitting={props.isSubmitting}
               key={article.id}
               onDelete={() => confirmDelete(article)}
               onEdit={() => openForEdit(article)}
-              onMove={(direction) => void props.onMoveArticle(article.id, direction)}
+              onMove={(direction) => void moveArticle(article.id, direction)}
+              onToggleReorder={() => setExpandedReorderId((current) => current === article.id ? null : article.id)}
             />
           ))}
         </div>

@@ -4,7 +4,7 @@
     minmax(180px, 0.95fr)
     minmax(180px, 0.9fr)
     minmax(160px, 0.8fr)
-    420px;
+    minmax(240px, 0.95fr);
   align-items: start;
 }
 
@@ -41,7 +41,12 @@
 .row-action-buttons {
   justify-content: flex-end;
   align-self: start;
-  min-width: max-content;
+  min-width: 0;
+}
+
+.article-row-actions {
+  width: 100%;
+  row-gap: 8px;
 }
 
 @media (max-width: 1320px) {
@@ -51,7 +56,7 @@
       minmax(180px, 0.95fr)
       minmax(180px, 0.9fr)
       minmax(160px, 0.8fr)
-      320px;
+      minmax(200px, 0.85fr);
   }
 
   .article-row-actions .button-label {

@@ -35,7 +35,7 @@
     minmax(180px, 0.95fr)
     minmax(180px, 0.9fr)
     minmax(160px, 0.8fr)
-    420px;
+    minmax(240px, 0.95fr);
   gap: 12px;
   padding: 10px 18px;
   border-bottom: 1px solid #edf0f4;
@@ -58,7 +58,7 @@
       minmax(180px, 0.95fr)
       minmax(180px, 0.9fr)
       minmax(160px, 0.8fr)
-      320px;
+      minmax(200px, 0.85fr);
   }
 }
 

@@ -271,11 +271,58 @@ describe("MasterDataPage", () => {
 
     const row = (await screen.findByText("Einmalhandschuhe Größe M")).closest(".article-list-row");
     expect(row).not.toBeNull();
+    await clickElement(within(row as HTMLElement).getByRole("button", { name: "Sortieren" }));
     await clickElement(within(row as HTMLElement).getByRole("button", { name: "Einmalhandschuhe Größe M nach oben verschieben" }));
 
     await waitFor(() => expect(requestBody("/api/catalog/articles/reorder", "POST")).toEqual({
       articleIds: [secondArticle.id, article.id]
     }));
+  });
+
+  it("keeps article reorder controls collapsed until Sortieren is opened", async () => {
+    const secondArticle = {
+      ...article,
+      id: "article-gloves",
+      name: "Einmalhandschuhe Größe M",
+      barcode: "040000000003"
+    };
+    stubFetch({
+      ...baseAdminRoutes(),
+      "/api/catalog/articles": [article, secondArticle]
+    });
+    await renderAppAt("/admin/master-data/articles");
+
+    const sortButtons = await screen.findAllByRole("button", { name: "Sortieren" });
+    expect(sortButtons).toHaveLength(2);
+    expect(screen.queryByRole("button", { name: `${article.name} an den Anfang verschieben` })).toBeNull();
+
+    await clickElement(sortButtons[0] as HTMLElement);
+
+    expect(screen.getByRole("button", { name: `${article.name} an den Anfang verschieben` })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: `${article.name} an das Ende verschieben` })).toBeInTheDocument();
+  });
+
+  it("only keeps one article reorder group open at a time", async () => {
+    const secondArticle = {
+      ...article,
+      id: "article-gloves",
+      name: "Einmalhandschuhe Größe M",
+      barcode: "040000000003"
+    };
+    stubFetch({
+      ...baseAdminRoutes(),
+      "/api/catalog/articles": [article, secondArticle]
+    });
+    await renderAppAt("/admin/master-data/articles");
+
+    const sortButtons = await screen.findAllByRole("button", { name: "Sortieren" });
+    await clickElement(sortButtons[0] as HTMLElement);
+    expect(screen.getByRole("button", { name: `${article.name} an den Anfang verschieben` })).toBeInTheDocument();
+
+    await clickElement(sortButtons[1] as HTMLElement);
+
+    expect(screen.queryByRole("button", { name: `${article.name} an den Anfang verschieben` })).toBeNull();
+    expect(screen.getByRole("button", { name: `${secondArticle.name} an den Anfang verschieben` })).toBeInTheDocument();
   });
 
   it("restores the active master-data tab and device filters from the URL", async () => {
@@ -392,7 +439,8 @@ describe("MasterDataPage", () => {
     expect(within(row as HTMLElement).getByRole("link", { name: "Link" })).toHaveAttribute("href", "https://shop.example.org/articles/verbandpaeckchen-mittel");
     expect(within(row as HTMLElement).getByRole("button", { name: "Bearbeiten" })).toBeInTheDocument();
     expect(within(row as HTMLElement).getByRole("button", { name: /Verbandpäckchen mittel löschen/ })).toBeInTheDocument();
-    expect(row?.querySelectorAll(".row-action-buttons .button-label")).toHaveLength(3);
+    expect(within(row as HTMLElement).getByRole("button", { name: "Sortieren" })).toBeInTheDocument();
+    expect(row?.querySelectorAll(".row-action-buttons .button-label")).toHaveLength(4);
   });
 
   it("renders article filters in a compact checkbox group", async () => {
