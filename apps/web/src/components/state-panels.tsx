@@ -1,5 +1,9 @@
 import type { ReactNode } from "react";
+import { motion } from "motion/react";
 import { AlertTriangle, ClipboardList } from "lucide-react";
+import { fadeVariants, listItemVariants } from "../motion/presets";
+import { AnimatedStateSection } from "../motion/animated-containers";
+import { useMotionMode } from "../motion/use-motion-mode";
 import { Button, Panel } from "./ui";
 import "./metric-grid.css";
 import "./state-panels.css";
@@ -28,40 +32,59 @@ export function MetricGrid(props: {
 
 export function LoadingPanel({ label }: { label: string }) {
   return (
-    <Panel className="state-panel">
+    <AnimatedStateSection className="panel state-panel">
       <h1>{label}</h1>
-    </Panel>
+    </AnimatedStateSection>
   );
 }
 
 export function ErrorPanel({ error, onRetry }: { error: Error; onRetry: () => void }) {
   return (
-    <Panel className="state-panel error-state">
+    <AnimatedStateSection className="panel state-panel error-state">
       <AlertTriangle />
       <h1>API nicht verfügbar</h1>
       <p>{error.message}</p>
       <Button onClick={onRetry} type="button">
         Erneut versuchen
       </Button>
-    </Panel>
+    </AnimatedStateSection>
   );
 }
 
 export function InlineError({ error }: { error: Error }) {
+  const motionMode = useMotionMode();
+
   return (
-    <div className="inline-error" role="alert">
+    <motion.div
+      animate="visible"
+      className="inline-error"
+      data-motion-mode={motionMode}
+      data-motion-preset="fade"
+      initial="hidden"
+      role="alert"
+      variants={fadeVariants(motionMode)}
+    >
       <AlertTriangle />
       <span>{error.message}</span>
-    </div>
+    </motion.div>
   );
 }
 
 export function EmptyState({ text, title }: { text: string; title: string }) {
+  const motionMode = useMotionMode();
+
   return (
-    <div className="empty-state">
+    <motion.div
+      animate="visible"
+      className="empty-state"
+      data-motion-mode={motionMode}
+      data-motion-preset="list-item-update"
+      initial="hidden"
+      variants={listItemVariants(motionMode)}
+    >
       <ClipboardList />
       <h2>{title}</h2>
       <p>{text}</p>
-    </div>
+    </motion.div>
   );
 }

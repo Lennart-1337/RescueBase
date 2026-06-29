@@ -54,4 +54,22 @@ describe("PurchaseOrderNewPage", () => {
       }]
     }));
   });
+
+  it("animates the mode switch content without losing the shortage controls", async () => {
+    stubFetch({
+      "/api/auth/setup/status": { initialized: true },
+      "/api/auth/session": { user: { id: "user-admin", email: "admin@rescuebase.local", displayName: "Admin", role: "ADMIN", twoFactorEnabled: false } },
+      "/api/catalog/articles": [article],
+      "/api/catalog/locations": [location],
+      "/api/inventory/targets": [inventoryTarget],
+      "/api/purchase-orders": []
+    });
+
+    await renderAppAt("/admin/purchase-orders/new");
+    await clickElement(screen.getByRole("tab", { name: "Aus Fehlmengen" }));
+
+    const shortageHeading = await screen.findByRole("heading", { name: "Fehlmengen" });
+    expect(shortageHeading.closest("[data-motion-preset]")).toHaveAttribute("data-motion-preset", "panel-enter");
+    expect(screen.getByLabelText("Gruppierung")).toBeInTheDocument();
+  });
 });

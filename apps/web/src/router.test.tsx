@@ -40,6 +40,7 @@ describe("RescueBase routes", () => {
 
     const drawer = await screen.findByRole("dialog", { name: "Navigation" });
     expect(drawer).toHaveClass("mobile-drawer");
+    expect(drawer).toHaveAttribute("data-motion-preset", "slide-left");
     expect(screen.getByRole("button", { name: "Menü schließen" })).toBeInTheDocument();
     expect(within(drawer).getByRole("link", { name: "Rucksäcke" })).toBeInTheDocument();
 

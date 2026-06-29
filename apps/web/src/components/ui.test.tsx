@@ -13,6 +13,7 @@ describe("Dialog", () => {
 
     const dialog = screen.getByRole("dialog", { name: "Nachfüllauftrag" });
     expect(dialog.querySelector(".modal-heading")).not.toBeNull();
+    expect(dialog).toHaveAttribute("data-motion-preset", "panel-enter");
     const closeButton = screen.getByRole("button", { name: "Dialog schließen" });
     expect(closeButton).toHaveClass("modal-close-button");
 
@@ -30,6 +31,7 @@ describe("Dialog", () => {
     const dialog = screen.getByRole("dialog", { name: "Bestätigung" });
     expect(dialog).toHaveClass("modal-dialog-wide");
     expect(dialog).toHaveClass("custom-modal");
+    expect(dialog).toHaveAttribute("data-motion-mode", "full");
     expect(dialog.querySelector(".confirm-dialog-body")).not.toBeNull();
   });
 });
