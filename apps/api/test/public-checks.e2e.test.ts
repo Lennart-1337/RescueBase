@@ -44,6 +44,21 @@ function inflatePdfStreams(pdf: Buffer) {
   return decoded.join("\n");
 }
 
+function extractVisiblePdfText(pdf: Buffer) {
+  return inflatePdfStreams(pdf)
+    .split(/\r?\n/)
+    .flatMap((line) => {
+      const hexMatches = [...line.matchAll(/<([0-9A-Fa-f]+)>/g)].map((match) =>
+        Buffer.from(match[1] ?? "", "hex").toString("latin1")
+      );
+      const literalMatches = [...line.matchAll(/\(([^()]*)\)/g)].map((match) => match[1] ?? "");
+      return [...hexMatches, ...literalMatches];
+    })
+    .join("")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
 describe("public check flow", () => {
   let app: INestApplication;
   let closeApp: (() => Promise<void>) | undefined;
@@ -279,7 +294,7 @@ describe("public check flow", () => {
     expect(mediaBox.width).toBeCloseTo(175.75, 1);
     expect(mediaBox.height).toBeCloseTo(170.08, 1);
 
-    const visibleText = inflatePdfStreams(labelPdf.body);
+    const visibleText = extractVisiblePdfText(labelPdf.body);
     expect(visibleText).toContain("SAN-RS-001A");
     expect(visibleText).toContain("Rucksack Fahrzeug 1A");
     expect(visibleText).toContain("Zentrallager");
