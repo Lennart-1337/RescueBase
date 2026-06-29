@@ -49,8 +49,8 @@ export function ProcurementOrderPanel(props: {
       {props.error ? <InlineError error={props.error} /> : null}
       <div className="compact-list">
         {props.orders.map((order) => (
-          <ListRow key={order.id} title={order.article.name} meta={`${order.location.name} · ${order.receivedQuantity}/${order.requestedQuantity} ${order.article.unit} erhalten`} actions={(
-            <RowActions>
+          <ListRow className="inventory-planning-row" key={order.id} title={order.article.name} meta={`${order.location.name} · ${order.receivedQuantity}/${order.requestedQuantity} ${order.article.unit} erhalten`} actions={(
+            <RowActions className="inventory-planning-actions">
               <StatusBadge kind="procurementOrder" status={order.status} />
               {(order.article.articleUrl ?? order.articleUrlSnapshot) ? <AnchorButton href={order.article.articleUrl ?? order.articleUrlSnapshot} rel="noreferrer" target="_blank" variant="secondary"><ExternalLink data-icon="inline-start" />Link</AnchorButton> : null}
               {order.status === "OPEN" ? <Button disabled={props.isSubmitting} onClick={() => props.onStart(order)} type="button" variant="secondary"><Play data-icon="inline-start" />In Bearbeitung</Button> : null}

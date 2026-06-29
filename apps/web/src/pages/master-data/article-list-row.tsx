@@ -41,7 +41,7 @@ export function ArticleListRow(props: {
         {article.mtkRequired ? <Badge>MTK</Badge> : null}
         {typeof article.defaultGrossPriceCents === "number" ? <Badge>{formatMoney(article.defaultGrossPriceCents)}</Badge> : null}
       </div>
-      <RowActions className="article-row-actions">
+      <RowActions className={`article-row-actions${props.isReorderExpanded ? " article-row-actions-expanded" : ""}`}>
         <Button
           aria-expanded={props.isReorderExpanded}
           className="mobile-icon-button"

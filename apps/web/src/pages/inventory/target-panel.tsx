@@ -23,10 +23,10 @@ export function TargetPanel(props: {
         </div>
       )} />
       {props.error ? <InlineError error={props.error} /> : null}
-      <div className="compact-list">
+        <div className="compact-list">
         {props.targets.map((target) => (
-          <ListRow key={target.id} title={target.article.name} meta={`${target.location.name} · Ist ${target.currentQuantity}/${target.targetQuantity} ${target.article.unit}`} actions={(
-            <RowActions>
+          <ListRow className="inventory-planning-row" key={target.id} title={target.article.name} meta={`${target.location.name} · Ist ${target.currentQuantity}/${target.targetQuantity} ${target.article.unit}`} actions={(
+            <RowActions className="inventory-planning-actions">
               <Badge tone={target.shortageQuantity > 0 ? "warning" : "ready"}>
                 {target.shortageQuantity > 0 ? `${target.shortageQuantity} fehlt` : "gedeckt"}
               </Badge>

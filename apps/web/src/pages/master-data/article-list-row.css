@@ -4,7 +4,7 @@
     minmax(180px, 0.95fr)
     minmax(180px, 0.9fr)
     minmax(160px, 0.8fr)
-    minmax(240px, 0.95fr);
+    minmax(280px, 1fr);
   align-items: start;
 }
 
@@ -28,7 +28,6 @@
 .article-row-badges,
 .article-row-actions {
   display: flex;
-  flex-wrap: wrap;
   gap: 8px;
   align-items: center;
 }
@@ -39,23 +38,22 @@
 }
 
 .article-row-actions {
+  flex-wrap: nowrap;
   justify-content: flex-end;
   align-self: start;
+  justify-self: end;
   min-width: 0;
+  width: max-content;
+  max-width: 100%;
+}
+
+.article-row-actions-expanded {
+  flex-wrap: wrap;
   width: 100%;
   row-gap: 8px;
 }
 
-@media (max-width: 1320px) {
-  .article-list-row {
-    grid-template-columns:
-      minmax(220px, 1.2fr)
-      minmax(180px, 0.95fr)
-      minmax(180px, 0.9fr)
-      minmax(160px, 0.8fr)
-      minmax(200px, 0.85fr);
-  }
-
+@media (max-width: 1480px) {
   .article-row-actions .button-label {
     display: none;
   }
@@ -66,6 +64,17 @@
   }
 }
 
+@media (max-width: 1320px) {
+  .article-list-row {
+    grid-template-columns:
+      minmax(220px, 1.2fr)
+      minmax(180px, 0.95fr)
+      minmax(180px, 0.9fr)
+      minmax(160px, 0.8fr)
+      minmax(180px, 0.72fr);
+  }
+}
+
 @media (max-width: 980px) {
   .article-list-row {
     grid-template-columns: 1fr;
@@ -73,6 +82,8 @@
 
   .article-row-actions {
     min-width: 0;
+    width: 100%;
+    flex-wrap: wrap;
     justify-content: flex-start;
   }
 }
