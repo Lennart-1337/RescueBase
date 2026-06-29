@@ -1,6 +1,6 @@
 import type { PropsWithChildren } from "react";
 import { AnimatePresence, motion } from "motion/react";
-import { fadeVariants, scaleFadeVariants, slideUpVariants } from "./presets";
+import { fadeVariants, listContainerVariants, listItemVariants, scaleFadeVariants, slideUpVariants } from "./presets";
 import { useMotionMode } from "./use-motion-mode";
 
 export function AnimatedContentSwap({
@@ -63,5 +63,35 @@ export function AnimatedStateSection(props: PropsWithChildren<{ className: strin
     >
       {props.children}
     </motion.section>
+  );
+}
+
+export function AnimatedList({ children, className }: PropsWithChildren<{ className?: string }>) {
+  const mode = useMotionMode();
+
+  return (
+    <motion.div
+      animate="visible"
+      className={className}
+      data-motion-mode={mode}
+      data-motion-preset="list"
+      initial="hidden"
+      variants={listContainerVariants(mode)}
+    >
+      {children}
+    </motion.div>
+  );
+}
+
+export function AnimatedListItem({ children, className }: PropsWithChildren<{ className?: string }>) {
+  const mode = useMotionMode();
+
+  return (
+    <motion.div
+      className={className}
+      variants={listItemVariants(mode)}
+    >
+      {children}
+    </motion.div>
   );
 }
