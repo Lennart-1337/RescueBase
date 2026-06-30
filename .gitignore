@@ -13,3 +13,4 @@ coverage
 apps/api/prisma/generated
 backups/*.sql.gz
 backups/*.age
+e2e/.auth
