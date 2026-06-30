@@ -466,7 +466,7 @@ export class CatalogController {
     }
     const medicalDeviceCount = await this.prisma.medicalDevice.count({ where: { kitId: id } });
     const openOrderCount = await this.prisma.replenishmentOrder.count({
-      where: { kitId: id, status: { in: ["OPEN", "IN_PROGRESS"] } }
+      where: { kitId: id, status: "OPEN" }
     });
     if (medicalDeviceCount > 0) {
       throw new BadRequestException("Rucksack kann erst gelöscht werden, wenn keine Geräte mehr darauf verweisen.");

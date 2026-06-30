@@ -44,7 +44,7 @@ export function ArticleListRow(props: {
       <RowActions className={`article-row-actions${props.isReorderExpanded ? " article-row-actions-expanded" : ""}`}>
         <Button
           aria-expanded={props.isReorderExpanded}
-          className="mobile-icon-button"
+          className="mobile-icon-button article-sort-button"
           onClick={props.onToggleReorder}
           type="button"
           variant={props.isReorderExpanded ? "secondary" : "ghost"}

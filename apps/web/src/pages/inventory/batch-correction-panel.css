@@ -1,0 +1,35 @@
+.batch-correction-reason-section {
+  width: calc(100% - 36px);
+  margin: 0 auto 18px;
+}
+
+.batch-correction-history-card {
+  margin-top: 18px;
+  border: 1px solid #edf0f4;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #fff;
+}
+
+.batch-correction-history-row {
+  min-height: 58px;
+  padding: 12px 18px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: center;
+}
+
+.batch-correction-history-row + .batch-correction-history-row {
+  border-top: 1px solid #edf0f4;
+}
+
+.batch-correction-history-copy,
+.batch-correction-history-copy strong,
+.batch-correction-history-copy small {
+  display: block;
+}
+
+.batch-correction-history-copy small {
+  color: #657386;
+}

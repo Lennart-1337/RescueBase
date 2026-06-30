@@ -68,6 +68,23 @@ describe("InventoryPage", () => {
     expect(within(dialog).queryByText("Bewegungen und Korrekturen dieser Charge.")).toBeNull();
   });
 
+  it("renders correction history rows with compact modal spacing hooks", async () => {
+    stubFetch({
+      ...baseInventoryRoutes(),
+      "/api/inventory/batches/batch-bandage-1/movements": [
+        { id: "movement-1", type: "REPLENISHMENT_FULFILLMENT", quantity: -1, createdAt: "2026-06-14T09:39:00.000Z", actorLabel: "Lagerteam", reason: "SHORTAGE" }
+      ]
+    });
+    await renderAppAt("/admin/inventory");
+    await screen.findByRole("heading", { name: "Lager" });
+
+    await clickElement(await screen.findByRole("button", { name: /Korrigieren/ }));
+    const dialog = await screen.findByRole("dialog", { name: "Chargenkorrektur" });
+    const historyRow = within(dialog).getByText("Nachfüllung").closest(".compact-list-row");
+
+    expect(historyRow).toHaveClass("batch-correction-history-row");
+  });
+
   it("hides empty batches by default and can show them with a filter", async () => {
     stubFetch({ ...baseInventoryRoutes(), "/api/inventory/batches": [batch, { ...batch, id: "batch-empty-1", lotNumber: "VB-ALT-0", quantity: 0 }] });
     await renderAppAt("/admin/inventory");

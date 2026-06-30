@@ -11,7 +11,7 @@ export function OrderFilterToolbar(props: { countLabel: string; filters: OrderFi
     <ListFilterBar countLabel={props.countLabel} fieldsClassName="form-grid-three" onReset={props.onReset}>
       <Field label="Suche"><input onChange={(event) => props.onChange({ orderQ: event.target.value })} placeholder="Rucksackname oder Kennung" value={props.filters.orderQ} /></Field>
       <Field label="Standort"><SearchableSelect emptyLabel="Alle Standorte" onChange={(value) => props.onChange({ orderLocationId: value })} options={[{ label: "Alle Standorte", value: "" }, ...locations]} value={props.filters.orderLocationId} /></Field>
-      <Field label="Status"><select onChange={(event) => props.onChange({ orderStatus: event.target.value })} value={props.filters.orderStatus}><option value="">Alle Status</option><option value="OPEN">Offen</option><option value="IN_PROGRESS">In Arbeit</option><option value="DONE">Erledigt</option><option value="CANCELLED">Storniert</option></select></Field>
+      <Field label="Status"><select onChange={(event) => props.onChange({ orderStatus: event.target.value })} value={props.filters.orderStatus}><option value="">Alle Status</option><option value="OPEN">Offen</option><option value="DONE">Erledigt</option><option value="CANCELLED">Storniert</option></select></Field>
     </ListFilterBar>
   );
 }

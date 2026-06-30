@@ -3,6 +3,7 @@ import { Download } from "lucide-react";
 import { formatDate } from "../../app/formatters";
 import { SearchableSelect } from "../../components/searchable-select";
 import { InlineError } from "../../components/state-panels";
+import { statusTone } from "../../components/status-badge";
 import { AnchorButton, Badge, Field } from "../../components/ui";
 import { Stepper } from "../../components/stepper";
 import type { Batch, ReplenishmentOrder } from "../../lib/types";
@@ -33,7 +34,7 @@ export function OrderDetail(props: {
         <div><h2>{props.order.kit?.name ?? props.order.kitId}</h2><p>{props.order.id} · Restmenge {remaining}</p></div>
         <div className="topbar-actions">
           <AnchorButton href={props.pdfHref} variant="secondary"><Download data-icon="inline-start" />PDF</AnchorButton>
-          <Badge tone={props.order.status === "OPEN" ? "warning" : props.order.status === "DONE" ? "ready" : "info"}>{props.formatStatus(props.order.status)}</Badge>
+          <Badge tone={statusTone("replenishment", props.order.status)}>{props.formatStatus(props.order.status)}</Badge>
         </div>
       </div>
       <div className="fulfillment-list">

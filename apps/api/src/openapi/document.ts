@@ -38,7 +38,7 @@ const rescueBaseOpenApiDocumentDefinition = {
       UserRole: stringEnum(["ADMIN", "WAREHOUSE"]),
       TwoFactorMethod: stringEnum(["TOTP", "EMAIL"]),
       KitOperationalStatus: stringEnum(["READY", "CONDITIONAL", "NOT_READY"]),
-      ReplenishmentStatus: stringEnum(["OPEN", "IN_PROGRESS", "DONE", "CANCELLED"]),
+      ReplenishmentStatus: stringEnum(["OPEN", "DONE", "CANCELLED"]),
       InventoryProcurementStatus: stringEnum(["OPEN", "IN_PROGRESS", "DONE", "CANCELLED"]),
       PurchaseOrderStatus: stringEnum(["DRAFT", "APPROVED", "ORDERED", "PARTIALLY_RECEIVED", "RECEIVED"]),
       ReplenishmentReason: stringEnum(["SHORTAGE", "DISCARDED_EXPIRED", "SHORTAGE_AND_DISCARDED_EXPIRED"]),
@@ -940,9 +940,6 @@ const rescueBaseOpenApiDocumentDefinition = {
     },
     "/replenishment-orders": {
       get: operation("Nachfüllaufträge", "ReplenishmentController_list", {}, response(200, "Replenishment orders", arrayOf(ref("ReplenishmentOrder"))))
-    },
-    "/replenishment-orders/{id}/start": {
-      post: operation("Nachfüllaufträge", "ReplenishmentController_start", pathParam("id"), response(201, "Order started", ref("ReplenishmentOrder")))
     },
     "/replenishment-orders/{id}/fulfill": {
       post: operation("Nachfüllaufträge", "ReplenishmentController_fulfill", { ...pathParam("id"), ...request("FulfillOrderRequest") }, response(201, "Fulfillment booked", ref("FulfillOrderResponse")))

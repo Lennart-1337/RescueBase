@@ -326,21 +326,30 @@ export class ReportService {
 
   private drawQrLabel(doc: PDFKit.PDFDocument, kit: { name: string; code: string; location: { name: string } }, qrImage: Buffer) {
     const layout = createQrLabelLayout(doc.page.width, doc.page.height);
-    const code = fitSingleLine(doc.font("Helvetica-Bold").fontSize(12), kit.code, layout.textBox.width);
-    const name = fitSingleLine(doc.font("Helvetica-Bold").fontSize(7.5), kit.name, layout.textBox.width);
-    const location = fitSingleLine(doc.font("Helvetica").fontSize(8.5), kit.location.name, layout.textBox.width);
+    const code = fitSingleLine(doc.font("Helvetica-Bold").fontSize(8.8), kit.code, layout.codeBox.width);
+    const name = fitSingleLine(doc.font("Helvetica-Bold").fontSize(5.6), kit.name, layout.textBox.width);
+    const location = fitSingleLine(doc.font("Helvetica").fontSize(5.8), kit.location.name, layout.metaBox.width);
 
-    doc.fillColor("#ffffff").rect(0, 0, doc.page.width, doc.page.height).fill();
-    doc.fillColor(palette.muted).font("Helvetica-Bold").fontSize(6.5).text("DLRG / RESCUEBASE CHECK", layout.textBox.x, layout.headerTop, {
+    doc.fillColor(palette.paper).rect(0, 0, doc.page.width, doc.page.height).fill();
+    doc.roundedRect(layout.outer.x, layout.outer.y, layout.outer.width, layout.outer.height, 4).fillAndStroke(palette.paper, palette.lineStrong);
+
+    doc.fillColor(palette.muted).font("Helvetica-Bold").fontSize(5.2).text("CHECK", layout.textBox.x, layout.textBox.y, {
       width: layout.textBox.width
     });
-    doc.fillColor(palette.ink).font("Helvetica-Bold").fontSize(12).text(code, layout.textBox.x, layout.headerTop + 13, { width: layout.textBox.width });
-    doc.fillColor(palette.ink).font("Helvetica-Bold").fontSize(7.5).text(name, layout.textBox.x, layout.headerTop + 31, { width: layout.textBox.width });
-    doc.fillColor(palette.muted).font("Helvetica").fontSize(8.5).text(location, layout.textBox.x, layout.headerTop + 43, { width: layout.textBox.width });
+    doc.fillColor(palette.ink).font("Helvetica-Bold").fontSize(8.8).text(code, layout.codeBox.x, layout.codeBox.y, {
+      width: layout.codeBox.width
+    });
+    doc.fillColor(palette.ink).font("Helvetica-Bold").fontSize(5.6).text(name, layout.textBox.x, layout.textBox.y + 24, {
+      width: layout.textBox.width
+    });
+    doc.fillColor(palette.muted).font("Helvetica").fontSize(5.8).text(location, layout.metaBox.x, layout.metaBox.y + 1, {
+      width: layout.metaBox.width
+    });
 
+    doc.roundedRect(layout.qrBox.x - 3, layout.qrBox.y - 3, layout.qrBox.width + 6, layout.qrBox.height + 6, 4).fillAndStroke(palette.paper, palette.lineStrong);
     doc.image(qrImage, layout.qrBox.x, layout.qrBox.y, { width: layout.qrBox.width, height: layout.qrBox.height });
-    doc.fillColor(palette.muted).font("Helvetica-Bold").fontSize(6.5).text("Scan für Check", layout.qrBox.x, layout.qrCaptionTop, {
-      width: layout.qrBox.width,
+    doc.fillColor(palette.muted).font("Helvetica-Bold").fontSize(5.2).text("Scan für Check", layout.qrCaptionBox.x, layout.qrCaptionBox.y, {
+      width: layout.qrCaptionBox.width,
       align: "center"
     });
   }
@@ -582,9 +591,6 @@ function formatReason(reason: string) {
 function formatOrderStatus(status: string) {
   if (status === "OPEN") {
     return "Offen";
-  }
-  if (status === "IN_PROGRESS") {
-    return "In Arbeit";
   }
   if (status === "DONE") {
     return "Erledigt";
