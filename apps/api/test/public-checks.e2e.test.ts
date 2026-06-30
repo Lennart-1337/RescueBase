@@ -183,6 +183,29 @@ describe("public check flow", () => {
       .expect(400);
   });
 
+  it("rejects cancelling completed replenishment orders", async () => {
+    const server = app.getHttpServer();
+    const agent = request.agent(server);
+    await agent
+      .post("/auth/login")
+      .send({ email: "admin@rescuebase.local", password: "rescuebase-admin" })
+      .expect(201);
+
+    await agent
+      .post("/replenishment-orders/order-1001/fulfill")
+      .send({
+        items: [
+          { itemId: "pos-bandage", batchId: "batch-bandage-1", quantity: 3 },
+          { itemId: "pos-tourniquet", batchId: "batch-tourniquet-1", quantity: 1 }
+        ]
+      })
+      .expect(201);
+
+    await agent
+      .post("/replenishment-orders/order-1001/cancel")
+      .expect(400);
+  });
+
   it("updates master data, revises templates, corrects batches, and renders both QR PDF formats", async () => {
     const server = app.getHttpServer();
     const agent = request.agent(server);

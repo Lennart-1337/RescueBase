@@ -152,14 +152,21 @@ export class ReplenishmentController {
 
   @Post(":id/cancel")
   async cancel(@Param("id") id: string) {
+    const existingOrder = await this.prisma.replenishmentOrder.findUnique({
+      where: { id },
+      include: { items: true, kit: true }
+    });
+    if (!existingOrder) {
+      throw new NotFoundException("Nachfüllauftrag nicht gefunden.");
+    }
+    if (existingOrder.status !== "OPEN") {
+      throw new BadRequestException("Nur offene Nachfüllaufträge können storniert werden.");
+    }
     const order = await this.prisma.replenishmentOrder.update({
       where: { id },
       data: { status: "CANCELLED" },
       include: { items: true, kit: true }
-    }).catch(() => undefined);
-    if (!order) {
-      throw new NotFoundException("Nachfüllauftrag nicht gefunden.");
-    }
+    });
     await this.audit.record({
       actorType: "USER",
       actorLabel: "Admin",

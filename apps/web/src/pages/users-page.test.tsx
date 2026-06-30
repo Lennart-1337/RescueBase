@@ -69,4 +69,66 @@ describe("UsersPage", () => {
 
     await waitFor(() => expect(postedBody("/api/auth/users/user-lager/role")).toEqual({ role: "ADMIN" }));
   });
+
+  it("uses the same width class for activate and deactivate actions", async () => {
+    stubFetch({
+      "/api/auth/setup/status": { initialized: true },
+      "/api/auth/session": { user: { id: "user-admin", email: "admin@rescuebase.local", displayName: "Admin", role: "ADMIN", twoFactorEnabled: false } },
+      "/api/auth/users": [
+        { id: "user-admin", email: "admin@rescuebase.local", displayName: "Admin", role: "ADMIN", active: true, twoFactorEnabled: false },
+        { id: "user-lager", email: "lager@rescuebase.local", displayName: "Lagerteam", role: "WAREHOUSE", active: true, twoFactorEnabled: false },
+        { id: "user-pending", email: "pending@rescuebase.local", displayName: "Mobile Test", role: "WAREHOUSE", active: false, twoFactorEnabled: false }
+      ],
+      "/api/alerts/subscriptions": []
+    });
+
+    await renderAppAt("/admin/users");
+    await screen.findByRole("heading", { name: "Benutzer" });
+
+    for (const button of screen.getAllByRole("button", { name: "Deaktivieren" })) {
+      expect(button).toHaveClass("user-toggle-button");
+    }
+    expect(screen.getByRole("button", { name: "Aktivieren" })).toHaveClass("user-toggle-button");
+  });
+
+  it("renders role and alert recipient badges with neutral styling", async () => {
+    stubFetch({
+      "/api/auth/setup/status": { initialized: true },
+      "/api/auth/session": { user: { id: "user-admin", email: "admin@rescuebase.local", displayName: "Admin", role: "ADMIN", twoFactorEnabled: false } },
+      "/api/auth/users": [
+        { id: "user-admin", email: "admin@rescuebase.local", displayName: "Admin", role: "ADMIN", active: true, twoFactorEnabled: false },
+        { id: "user-lager", email: "lager@rescuebase.local", displayName: "Lagerteam", role: "WAREHOUSE", active: true, twoFactorEnabled: false }
+      ],
+      "/api/alerts/subscriptions": [
+        {
+          id: "subscription-expiry",
+          category: "EXPIRY",
+          locationName: null,
+          user: { id: "user-admin", displayName: "Admin", email: "admin@rescuebase.local" }
+        }
+      ]
+    });
+
+    await renderAppAt("/admin/users");
+    await screen.findByRole("heading", { name: "Benutzer" });
+
+    const adminRow = screen.getByText("admin@rescuebase.local").closest(".user-row");
+    expect(adminRow).not.toBeNull();
+    const adminRoleBadge = (adminRow as HTMLElement).querySelector(".badge");
+    expect(adminRoleBadge).not.toBeNull();
+    expect(adminRoleBadge).toHaveClass("badge-neutral");
+
+    const warehouseRow = screen.getByText("Lagerteam").closest(".user-row");
+    expect(warehouseRow).not.toBeNull();
+    const warehouseRoleBadge = within(warehouseRow as HTMLElement).getByText("Lagerwart").closest(".badge");
+    expect(warehouseRoleBadge).not.toBeNull();
+    expect(warehouseRoleBadge).toHaveClass("badge-neutral");
+
+    await screen.findByText("EXPIRY");
+    const alertRow = document.querySelector(".compact-list-row");
+    expect(alertRow).not.toBeNull();
+    const alertBadge = within(alertRow as HTMLElement).getByText("EXPIRY").closest(".badge");
+    expect(alertBadge).not.toBeNull();
+    expect(alertBadge).toHaveClass("badge-neutral");
+  });
 });

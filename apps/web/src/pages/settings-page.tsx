@@ -19,10 +19,12 @@ export function SettingsPage({ user }: { user: AuthenticatedUser }) {
     <div className="settings-page">
       <PageHeader title="App-Einstellungen" />
       <PageSection title="Allgemein">
-        <div className="settings-stack">
+        <div className="settings-overview-grid">
           <GeneralSettingsPanel initial={settings.data.general} />
-          <AlertSettingsPanel initial={settings.data.alerts} />
-          <InventorySettingsPanel initial={settings.data.inventory} />
+          <div className="settings-secondary-grid">
+            <AlertSettingsPanel initial={settings.data.alerts} />
+            <InventorySettingsPanel initial={settings.data.inventory} />
+          </div>
         </div>
       </PageSection>
       <PageSection title="Kommunikation">

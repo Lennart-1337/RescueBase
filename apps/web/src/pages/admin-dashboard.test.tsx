@@ -61,22 +61,20 @@ describe("AdminDashboard", () => {
     await waitFor(() => expect(wasRequested("/api/replenishment-orders/order-1001/cancel", "POST")).toBe(true));
   });
 
-  it("shows cancel for completed replenishment orders", async () => {
+  it("hides cancel for completed replenishment orders", async () => {
     stubFetch({
       "/api/auth/setup/status": { initialized: true },
       "/api/auth/session": { user: { id: "user-admin", email: "admin@rescuebase.local", displayName: "Admin", role: "ADMIN", twoFactorEnabled: false } },
       "/api/catalog/kits": [kit],
       "/api/inventory/batches": [batch],
       "/api/replenishment-orders": [{ ...order, status: "DONE" }],
-      "/api/replenishment-orders/order-1001/cancel": { ...order, status: "CANCELLED" },
       "/api/alerts/warnings": { generatedAt: "2026-06-17T00:00:00.000Z", warnings: [], summary: { expiry: 0, stkDue: 0, mtkDue: 0 } }
     });
     await renderAppAt("/");
     await screen.findByRole("heading", { name: "Nachfüllaufträge" });
     await clickElement(screen.getByRole("button", { name: /Rucksack Fahrzeug 1/ }));
     const dialog = await screen.findByRole("dialog", { name: "Nachfüllauftrag" });
-    await clickElement(within(dialog).getByRole("button", { name: "Stornieren" }));
-    await waitFor(() => expect(wasRequested("/api/replenishment-orders/order-1001/cancel", "POST")).toBe(true));
+    expect(within(dialog).queryByRole("button", { name: "Stornieren" })).toBeNull();
   });
 
   it("filters replenishment orders by location from the URL", async () => {

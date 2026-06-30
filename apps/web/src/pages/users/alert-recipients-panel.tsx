@@ -28,7 +28,7 @@ export function AlertRecipientsPanel() {
               <strong>{subscription.user.displayName}</strong>
               <small>{subscription.user.email} · {subscription.category} · {subscription.locationName ?? "global"}</small>
             </span>
-            <Badge tone="info">{subscription.category}</Badge>
+            <Badge tone="neutral">{subscription.category}</Badge>
           </div>
         ))}
       </div>

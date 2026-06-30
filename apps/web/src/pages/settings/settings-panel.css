@@ -5,13 +5,25 @@
   font-weight: 600;
 }
 
+.settings-split-grid {
+  grid-template-columns: minmax(0, 1.35fr) minmax(280px, 0.95fr);
+}
+
+.settings-field-stack,
+.settings-option-stack {
+  display: grid;
+  gap: 10px;
+  min-width: 0;
+}
+
 .settings-subsection {
   display: grid;
-  gap: 6px;
-  align-self: stretch;
-  border-left: 3px solid #b42318;
+  gap: 4px;
+  align-self: start;
+  border: 1px solid #f0d5d2;
+  border-radius: 10px;
   padding: 10px 12px;
-  background: #fff8f7;
+  background: linear-gradient(180deg, #fff9f8 0%, #fffdfc 100%);
 }
 
 .settings-subsection > span {
@@ -20,15 +32,15 @@
 }
 
 .settings-subsection .check-field {
-  margin-top: 4px;
+  margin-top: 0;
 }
 
 .settings-panel-compact .panel-header {
-  padding: 14px 16px;
+  padding: 12px 14px;
 }
 
 .settings-panel-compact .panel-header h2 {
-  font-size: 17px;
+  font-size: 16px;
 }
 
 .settings-panel-compact .panel-header,
@@ -37,13 +49,13 @@
 }
 
 .settings-panel-compact .form-grid {
-  padding: 14px 16px;
-  gap: 12px;
+  padding: 12px 14px;
+  gap: 10px;
   align-items: start;
 }
 
 .settings-panel-compact .settings-toggle-row {
-  padding-bottom: 8px;
+  padding-bottom: 6px;
 }
 
 .settings-panel-compact .settings-fields-row {
@@ -61,8 +73,8 @@
 }
 
 .settings-panel-compact .settings-subsection {
-  gap: 4px;
-  padding: 8px 10px;
+  gap: 3px;
+  padding: 9px 10px;
 }
 
 .settings-panel-compact .settings-subsection .check-field {
@@ -74,5 +86,11 @@
 }
 
 .settings-panel-compact .settings-meta {
-  margin: 0 16px 12px;
+  margin: 0 14px 10px;
+}
+
+@media (max-width: 900px) {
+  .settings-split-grid {
+    grid-template-columns: 1fr;
+  }
 }

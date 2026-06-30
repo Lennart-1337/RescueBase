@@ -21,8 +21,8 @@ export function AlertSummaryPanel() {
       </div>
       <div className="metric-row">
         <Badge tone="danger">Ablauf {query.data.summary.expiry}</Badge>
-        <Badge tone="warning">STK {query.data.summary.stkDue}</Badge>
-        <Badge tone="warning">MTK {query.data.summary.mtkDue}</Badge>
+        <Badge tone="neutral">STK {query.data.summary.stkDue}</Badge>
+        <Badge tone="neutral">MTK {query.data.summary.mtkDue}</Badge>
       </div>
       {query.data.warnings.length === 0 ? <div className="compact-list-empty">Keine aktiven Warnungen.</div> : null}
       <div className="compact-list">

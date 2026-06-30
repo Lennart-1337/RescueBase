@@ -28,7 +28,7 @@ export function AlertPreferenceCard({ category, locations, onToggle, selected, s
     <section aria-labelledby={titleId} className="alert-category-card" role="group">
       <div className="alert-category-card-header">
         <h3 id={titleId}>{category.label}</h3>
-        <Badge tone={selectedCount > 0 ? "info" : "neutral"}>{selectedCount} aktiv</Badge>
+        <Badge tone="neutral">{selectedCount} aktiv</Badge>
       </div>
       <AlertOption
         checked={selected.has(subscriptionKey(category.key, null))}

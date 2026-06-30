@@ -1,5 +1,9 @@
 .protocol-row {
-  grid-template-columns: minmax(220px, 1fr) minmax(200px, 0.85fr) minmax(220px, auto) auto;
+  grid-template-columns: minmax(220px, 1.15fr) minmax(180px, 0.95fr) minmax(220px, 1.1fr) 88px;
+}
+
+.protocol-row-timestamp {
+  min-width: 0;
 }
 
 .protocol-row-metrics,
@@ -9,7 +13,14 @@
   gap: 8px;
 }
 
+.protocol-row-metrics {
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  min-width: 0;
+}
+
 .protocol-row-actions {
+  flex: 0 0 88px;
   justify-content: flex-end;
 }
 

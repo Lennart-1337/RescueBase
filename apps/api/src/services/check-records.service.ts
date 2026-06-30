@@ -41,11 +41,12 @@ export class CheckRecordsService {
         { kit: { code: { contains: q } } }
       ] : undefined
     };
-    const [records, total] = await Promise.all([
+    const [records, total, totalCount] = await Promise.all([
       this.prisma.check.findMany({ where, include: listInclude, orderBy: { createdAt: "desc" }, skip: (page - 1) * pageSize, take: pageSize }),
-      this.prisma.check.count({ where })
+      this.prisma.check.count({ where }),
+      this.prisma.check.count()
     ]);
-    return { items: records.map(mapSummary), page, pageSize, total };
+    return { items: records.map(mapSummary), page, pageSize, total, totalCount };
   }
 
   async detail(id: string) {

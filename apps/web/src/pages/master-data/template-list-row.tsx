@@ -21,7 +21,7 @@ export function TemplateListRow(props: {
         <small>Version {template.version}</small>
       </span>
       <RowActions className="template-row-actions">
-        {criticalPositions > 0 ? <Badge tone="info">kritisch</Badge> : null}
+        {criticalPositions > 0 ? <Badge tone="neutral">kritisch</Badge> : null}
         <Button aria-label={`${template.name} v${template.version} duplizieren`} className="mobile-icon-button" onClick={props.onDuplicate} type="button" variant="ghost"><Copy data-icon="inline-start" /><span className="button-label">Duplizieren</span></Button>
         <Button className="mobile-icon-button" onClick={props.onEdit} type="button" variant="ghost"><Pencil data-icon="inline-start" /><span className="button-label">Bearbeiten</span></Button>
         <Button aria-label={`${template.name} v${template.version} löschen`} className="mobile-icon-button" disabled={props.isSubmitting} onClick={props.onDelete} type="button" variant="danger"><Trash2 data-icon="inline-start" /><span className="button-label">Löschen</span></Button>

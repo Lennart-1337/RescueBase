@@ -34,7 +34,7 @@ export function ProcurementOrderPanel(props: {
     <Panel>
       <PanelHeader title="Beschaffungsaufträge" actions={(
         <div className="topbar-actions">
-          <Badge tone="warning">{props.orders.length}/{props.totalCount} sichtbar</Badge>
+          <Badge tone="info">{props.orders.length}/{props.totalCount} sichtbar</Badge>
           <AnchorButton
             href={pdfHref}
             onClick={(event) => {

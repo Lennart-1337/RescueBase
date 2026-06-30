@@ -30,7 +30,7 @@ export function CheckProtocolList(props: {
                 {protocol.kit.code} · {protocol.checkerName}
               </small>
             </span>
-            <span>
+            <span className="protocol-row-timestamp">
               <strong>{formatDateTime(protocol.createdAt)}</strong>
               <small>{protocol.positionCount} Positionen dokumentiert</small>
             </span>

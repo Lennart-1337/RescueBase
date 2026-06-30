@@ -2,6 +2,10 @@
   grid-template-columns: minmax(0, 1.1fr) auto auto auto auto;
 }
 
+.user-toggle-button {
+  min-width: 118px;
+}
+
 @media (max-width: 980px) {
   .user-row {
     grid-template-columns: 1fr;

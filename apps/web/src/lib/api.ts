@@ -2,6 +2,7 @@ import { ApiError, openApiClient, reportUrl } from "./openapi-client";
 import { adminSettingsApi } from "./admin-settings-api";
 import type {
   BatchCorrectionRequest,
+  CheckProtocolListResponse,
   CompleteCheckRequest,
   CreateArticleRequest,
   CreateBatchRequest,
@@ -101,7 +102,8 @@ export const rescueBaseApi = {
   rotateKitToken: (id: string) => openApiClient.post("/catalog/kits/{id}/rotate-token", { params: { id } }),
   completeCheck: (token: string, body: CompleteCheckRequest) =>
     openApiClient.post("/public/kits/{token}/checks", body, { params: { token } }),
-  checkProtocols: (query: { q?: string; kitId?: string; status?: string; page?: string }) => openApiClient.get("/checks", { query }),
+  checkProtocols: (query: { q?: string; kitId?: string; status?: string; page?: string }) =>
+    openApiClient.get("/checks", { query }) as Promise<CheckProtocolListResponse>,
   checkProtocol: (id: string) => openApiClient.get("/checks/{id}", { params: { id } }),
   fulfillOrder: (id: string, body: FulfillOrderRequest) =>
     openApiClient.post("/replenishment-orders/{id}/fulfill", body, { params: { id } }),

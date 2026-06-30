@@ -1,7 +1,6 @@
 import { Download, PencilLine, Save, Send } from "lucide-react";
 import { formatDateTime } from "../../app/formatters";
 import { PanelHeader } from "../../components/panel-header";
-import { StatusBadge } from "../../components/status-badge";
 import { AnchorButton, Button, Panel } from "../../components/ui";
 import type { PurchaseOrder } from "../../lib/types";
 
@@ -23,14 +22,14 @@ export function PurchaseOrderDetailRail(props: {
   return (
     <div className="purchase-order-rail-stack">
       <Panel className="purchase-order-control-panel">
-        <PanelHeader actions={<StatusBadge kind="purchaseOrder" status={props.order.status} />} description="Status, Aktionen und Export an einem Ort." title="Bestellsteuerung" />
+        <PanelHeader title="Bestellsteuerung" />
         <div className="purchase-order-form">
           {props.canApprove ? <Button disabled={props.isApproving} onClick={props.onApprove} type="button"><Save data-icon="inline-start" />Freigeben</Button> : null}
           {props.order.status === "APPROVED" ? <Button disabled={props.isOrdering} onClick={props.onMarkOrdered} type="button"><Send data-icon="inline-start" />Als bestellt markieren</Button> : null}
           <Button onClick={props.onEdit} type="button" variant="secondary"><PencilLine data-icon="inline-start" />{props.order.status === "DRAFT" ? "Bestellung bearbeiten" : "Hinweise bearbeiten"}</Button>
           {props.order.archivedAt
             ? <Button disabled={props.isArchiving} onClick={props.onRestore} type="button" variant="secondary">Wiederherstellen</Button>
-            : <Button disabled={props.isArchiving} onClick={props.onArchive} type="button" variant="ghost">Archivieren</Button>}
+            : <Button disabled={props.isArchiving} onClick={props.onArchive} type="button" variant="secondary">Archivieren</Button>}
         </div>
         <div className="purchase-order-timeline">
           <TimelineRow label="Archiv" value={props.order.archivedAt ? formatDateTime(props.order.archivedAt) : "Aktiv"} />

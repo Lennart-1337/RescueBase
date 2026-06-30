@@ -10,7 +10,7 @@ export function OrderDetailDialog(props: { batches: Batch[]; error: Error | null
   useEffect(() => setFulfillmentItems([]), [props.order?.id, props.isOpen]);
 
   const submitDisabled = fulfillmentItems.length === 0 || props.isSubmitting || props.order?.status === "DONE" || props.order?.status === "CANCELLED";
-  const showCancel = props.order?.status !== "CANCELLED";
+  const showCancel = props.order?.status === "OPEN";
 
   return (
     <Dialog actions={<>

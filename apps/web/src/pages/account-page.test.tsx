@@ -32,6 +32,7 @@ describe("AccountPage", () => {
     const button = await screen.findByRole("button", { name: "2FA deaktivieren" });
     expect(button.closest(".account-status-actions")).not.toBeNull();
     expect(button.closest(".account-status-body")).not.toBeNull();
+    expect(screen.getByText("2FA EMAIL").closest(".badge")).toHaveClass("badge-ready");
   });
 
   it("saves alert preferences from the account page", async () => {
@@ -45,6 +46,7 @@ describe("AccountPage", () => {
     const globalCheckbox = (await screen.findAllByRole("checkbox", { name: /Alle Standorte/ }))[0]!;
     await clickElement(globalCheckbox);
     expect(await screen.findByText("1 Regel aktiv")).toBeInTheDocument();
+    expect(screen.getByText("1 Regel aktiv").closest(".badge")).toHaveClass("badge-neutral");
   });
 
   it("groups alarm preferences by category with clear global and location choices", async () => {
@@ -65,6 +67,7 @@ describe("AccountPage", () => {
     expect(header).not.toBeNull();
     expect(within(header as HTMLElement).getByRole("heading", { name: "Ablauf" })).toBeInTheDocument();
     expect(within(header as HTMLElement).getByText("0 aktiv")).toBeInTheDocument();
+    expect(within(header as HTMLElement).getByText("0 aktiv").closest(".badge")).toHaveClass("badge-neutral");
     expect(within(expiryGroup).getByRole("checkbox", { name: /Alle Standorte/ })).toBeInTheDocument();
     expect(within(expiryGroup).getByRole("checkbox", { name: /Hauptlager/ })).toBeInTheDocument();
     expect(within(expiryGroup).getByRole("checkbox", { name: /zu Hause/ })).toBeInTheDocument();

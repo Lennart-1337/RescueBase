@@ -56,6 +56,14 @@ describe("InventoryPage", () => {
     await waitFor(() => expect(postedBody("/api/inventory/batches/batch-bandage-1/corrections")).toEqual({ reason: "Inventur", quantity: 120, lotNumber: "VB-2026-04A", expiresAt: "2027-04-30", locationId: "loc-main" }));
   });
 
+  it("renders batch correction buttons with the secondary outline variant before selection", async () => {
+    stubFetch(baseInventoryRoutes());
+    await renderAppAt("/admin/inventory");
+    await screen.findByRole("heading", { name: "Lager" });
+
+    expect(await screen.findByRole("button", { name: /Korrigieren/ })).toHaveClass("button-secondary");
+  });
+
   it("opens the correction dialog without filler helper copy", async () => {
     stubFetch({ ...baseInventoryRoutes(), "/api/inventory/batches/batch-bandage-1/movements": [] });
     await renderAppAt("/admin/inventory");
@@ -80,7 +88,7 @@ describe("InventoryPage", () => {
 
     await clickElement(await screen.findByRole("button", { name: /Korrigieren/ }));
     const dialog = await screen.findByRole("dialog", { name: "Chargenkorrektur" });
-    const historyRow = within(dialog).getByText("Nachfüllung").closest(".compact-list-row");
+    const historyRow = within(dialog).getByText("Nachfüllung").closest(".batch-correction-history-row");
 
     expect(historyRow).toHaveClass("batch-correction-history-row");
   });

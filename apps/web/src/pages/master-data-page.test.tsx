@@ -49,6 +49,9 @@ describe("MasterDataPage", () => {
     await clickElement(await screen.findByRole("button", { name: /Bearbeiten/ }));
     const dialog = await screen.findByRole("dialog", { name: "Artikel bearbeiten" });
     expect(within(dialog).queryByText("Pflegen Sie Materialstammdaten für Medizinprodukte und Verbrauchsmaterial.")).toBeNull();
+    expect(within(dialog).getByLabelText("Lagerhinweise").closest(".article-editor-fields")).not.toBeNull();
+    expect(within(dialog).getByLabelText("Hinweise").closest(".article-editor-field-notes")).not.toBeNull();
+    expect(within(dialog).getByLabelText("Kritisch als Standard").closest(".article-editor-flags")).not.toBeNull();
     await changeValue(within(dialog).getByLabelText("Name"), "Verbandpäckchen groß");
     await changeValue(within(dialog).getByLabelText("Hersteller"), "MediSafe");
     await changeValue(within(dialog).getByLabelText("Hersteller-Art.-Nr."), "VB-2000");
@@ -146,6 +149,9 @@ describe("MasterDataPage", () => {
     const row = (await screen.findByText("Sanitätsrucksack A")).closest(".template-row");
     expect(row).not.toBeNull();
     expect(within(row as HTMLElement).getByText("Version 1")).toBeInTheDocument();
+    const criticalBadge = within(row as HTMLElement).getByText("kritisch").closest(".badge");
+    expect(criticalBadge).not.toBeNull();
+    expect(criticalBadge).toHaveClass("badge-neutral");
     expect(within(row as HTMLElement).queryByText("Module")).not.toBeInTheDocument();
     expect(within(row as HTMLElement).queryByText("Positionen", { exact: false })).not.toBeInTheDocument();
     expect(within(row as HTMLElement).queryByText("Soll gesamt", { exact: false })).not.toBeInTheDocument();

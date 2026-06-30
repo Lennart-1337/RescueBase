@@ -30,7 +30,7 @@ export function BatchListPanel(props: {
           <div className="table-row" key={batch.id}>
             <span><strong>{batch.article.name}</strong><small>{batch.lotNumber} · {batch.location.name}</small></span>
             <span>{batch.quantity} {batch.article.unit}</span>
-            <RowActions><Badge tone={daysUntil(batch.expiresAt) <= 90 ? "danger" : "neutral"}>{formatDate(batch.expiresAt)}</Badge><Button onClick={() => props.onSelect(batch.id)} type="button" variant={props.selectedBatchId === batch.id ? "secondary" : "ghost"}><History data-icon="inline-start" />Korrigieren</Button><Button aria-label={`Charge ${batch.lotNumber} löschen`} disabled={props.isSubmitting} onClick={() => confirmDelete(batch)} type="button" variant="danger"><Trash2 data-icon="inline-start" />Löschen</Button></RowActions>
+            <RowActions><Badge tone={daysUntil(batch.expiresAt) <= 90 ? "danger" : "neutral"}>{formatDate(batch.expiresAt)}</Badge><Button onClick={() => props.onSelect(batch.id)} type="button" variant="secondary"><History data-icon="inline-start" />Korrigieren</Button><Button aria-label={`Charge ${batch.lotNumber} löschen`} disabled={props.isSubmitting} onClick={() => confirmDelete(batch)} type="button" variant="danger"><Trash2 data-icon="inline-start" />Löschen</Button></RowActions>
           </div>
         ))}
       </div>
