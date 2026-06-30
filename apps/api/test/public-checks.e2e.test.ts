@@ -146,7 +146,7 @@ describe("public check flow", () => {
 
     expect(partial.body.completed).toBe(false);
     expect(partial.body.remainingQuantity).toBe(1);
-    expect(partial.body.order.status).toBe("IN_PROGRESS");
+    expect(partial.body.order.status).toBe("OPEN");
 
     const afterInventory = await agent.get("/inventory/batches").expect(200);
     const bandageAfter = afterInventory.body.find((batch: { id: string }) => batch.id === "batch-bandage-1");

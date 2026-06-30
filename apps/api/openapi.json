@@ -78,7 +78,6 @@
         "type": "string",
         "enum": [
           "OPEN",
-          "IN_PROGRESS",
           "DONE",
           "CANCELLED"
         ]

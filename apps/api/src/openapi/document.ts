@@ -38,7 +38,7 @@ const rescueBaseOpenApiDocumentDefinition = {
       UserRole: stringEnum(["ADMIN", "WAREHOUSE"]),
       TwoFactorMethod: stringEnum(["TOTP", "EMAIL"]),
       KitOperationalStatus: stringEnum(["READY", "CONDITIONAL", "NOT_READY"]),
-      ReplenishmentStatus: stringEnum(["OPEN", "IN_PROGRESS", "DONE", "CANCELLED"]),
+      ReplenishmentStatus: stringEnum(["OPEN", "DONE", "CANCELLED"]),
       InventoryProcurementStatus: stringEnum(["OPEN", "IN_PROGRESS", "DONE", "CANCELLED"]),
       PurchaseOrderStatus: stringEnum(["DRAFT", "APPROVED", "ORDERED", "PARTIALLY_RECEIVED", "RECEIVED"]),
       ReplenishmentReason: stringEnum(["SHORTAGE", "DISCARDED_EXPIRED", "SHORTAGE_AND_DISCARDED_EXPIRED"]),

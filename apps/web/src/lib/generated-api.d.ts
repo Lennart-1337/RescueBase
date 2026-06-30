@@ -1215,7 +1215,7 @@ export interface components {
         /** @enum {string} */
         KitOperationalStatus: "READY" | "CONDITIONAL" | "NOT_READY";
         /** @enum {string} */
-        ReplenishmentStatus: "OPEN" | "IN_PROGRESS" | "DONE" | "CANCELLED";
+        ReplenishmentStatus: "OPEN" | "DONE" | "CANCELLED";
         /** @enum {string} */
         InventoryProcurementStatus: "OPEN" | "IN_PROGRESS" | "DONE" | "CANCELLED";
         /** @enum {string} */

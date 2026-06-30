@@ -592,9 +592,6 @@ function formatOrderStatus(status: string) {
   if (status === "OPEN") {
     return "Offen";
   }
-  if (status === "IN_PROGRESS") {
-    return "In Arbeit";
-  }
   if (status === "DONE") {
     return "Erledigt";
   }
