@@ -76,6 +76,18 @@ describe("InventoryPage", () => {
     expect(within(dialog).queryByText("Bewegungen und Korrekturen dieser Charge.")).toBeNull();
   });
 
+  it("marks the correction form with a dedicated tablet layout hook", async () => {
+    stubFetch({ ...baseInventoryRoutes(), "/api/inventory/batches/batch-bandage-1/movements": [] });
+    await renderAppAt("/admin/inventory");
+    await screen.findByRole("heading", { name: "Lager" });
+
+    await clickElement(await screen.findByRole("button", { name: /Korrigieren/ }));
+    const dialog = await screen.findByRole("dialog", { name: "Chargenkorrektur" });
+    const formGrid = within(dialog).getByLabelText("Chargennummer").closest(".batch-correction-grid");
+
+    expect(formGrid).toHaveClass("batch-correction-grid", "form-grid", "form-grid-two");
+  });
+
   it("renders correction history rows with compact modal spacing hooks", async () => {
     stubFetch({
       ...baseInventoryRoutes(),
