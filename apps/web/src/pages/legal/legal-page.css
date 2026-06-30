@@ -1,0 +1,26 @@
+.legal-page {
+  display: grid;
+  gap: 24px;
+}
+
+.legal-page section {
+  display: grid;
+  gap: 10px;
+  padding-top: 18px;
+  border-top: 1px solid #dde4ee;
+}
+
+.legal-page h2,
+.legal-page p {
+  margin: 0;
+}
+
+.legal-page h2 {
+  color: #17202c;
+  font-size: 18px;
+}
+
+.legal-page p {
+  color: #526172;
+  line-height: 1.6;
+}

@@ -11,6 +11,7 @@ import { authKeys } from "../queries/auth";
 import type { AuthenticatedUser } from "../lib/types";
 import { type AppBranding } from "./branding";
 import { BrandMark } from "./brand-mark";
+import { LegalLinks } from "./legal-links";
 import "./admin-shell.css";
 import "./brand-mark.css";
 
@@ -116,7 +117,10 @@ export function AdminShell({ children, user, branding }: { children: ReactNode; 
           </motion.div>
         ) : null}
       </AnimatePresence>
-      <main className="dashboard">{children}</main>
+      <main className="dashboard">
+        <div className="dashboard-content">{children}</div>
+        <LegalLinks className="dashboard-legal" />
+      </main>
     </div>
   );
 }

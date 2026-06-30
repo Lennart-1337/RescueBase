@@ -15,6 +15,11 @@
   align-content: center;
 }
 
+.auth-content {
+  display: grid;
+  gap: 18px;
+}
+
 .auth-brand .brand-mark {
   width: 180px;
 }

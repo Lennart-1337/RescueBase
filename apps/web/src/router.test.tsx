@@ -96,6 +96,20 @@ describe("RescueBase routes", () => {
     expect(screen.getByText("Soll: 1 Stück · kritisch")).toBeInTheDocument();
   });
 
+  it("renders the imprint page without authentication", async () => {
+    await renderAppAt("/legal/imprint");
+
+    expect(await screen.findByRole("heading", { name: "Impressum" })).toBeInTheDocument();
+    expect(screen.getByText("Platzhalter für Anbieterkennzeichnung")).toBeInTheDocument();
+  });
+
+  it("renders the privacy page without authentication", async () => {
+    await renderAppAt("/legal/privacy");
+
+    expect(await screen.findByRole("heading", { name: "Datenschutzerklärung" })).toBeInTheDocument();
+    expect(screen.getByText("Platzhalter für Angaben zur Datenverarbeitung")).toBeInTheDocument();
+  });
+
   it("does not render seeded fallback data when the API is unavailable", async () => {
     vi.stubGlobal("fetch", vi.fn().mockRejectedValue(new Error("network down")));
     await renderAppAt("/");
