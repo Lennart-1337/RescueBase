@@ -90,7 +90,7 @@ describe("RescueBase domain rules", () => {
     expect(evaluation.warnings).toContain("Mindestens eine kritische Position ist unvollständig.");
   });
 
-  it("allows partial replenishment and keeps the order open", () => {
+  it("allows partial replenishment and marks the order in progress", () => {
     const order: ReplenishmentOrderState = {
       id: "order-1",
       status: "OPEN",
@@ -113,7 +113,7 @@ describe("RescueBase domain rules", () => {
 
     expect(result.completed).toBe(false);
     expect(result.remainingQuantity).toBe(1);
-    expect(result.order.status).toBe("OPEN");
+    expect(result.order.status).toBe("IN_PROGRESS");
     expect(result.order.items[0]?.fulfilledQuantity).toBe(2);
   });
 });

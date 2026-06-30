@@ -1215,7 +1215,7 @@ export interface components {
         /** @enum {string} */
         KitOperationalStatus: "READY" | "CONDITIONAL" | "NOT_READY";
         /** @enum {string} */
-        ReplenishmentStatus: "OPEN" | "DONE" | "CANCELLED";
+        ReplenishmentStatus: "OPEN" | "IN_PROGRESS" | "DONE" | "CANCELLED";
         /** @enum {string} */
         InventoryProcurementStatus: "OPEN" | "IN_PROGRESS" | "DONE" | "CANCELLED";
         /** @enum {string} */
@@ -3900,28 +3900,6 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ReplenishmentOrder"][];
-                };
-            };
-        };
-    };
-    ReplenishmentController_start: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Order started */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ReplenishmentOrder"];
                 };
             };
         };

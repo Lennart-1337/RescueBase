@@ -292,7 +292,11 @@ describe("public check flow", () => {
         expect.objectContaining({
           type: "BATCH_CORRECTION",
           reason: "Inventur und Umzug",
-          quantity: -1
+          quantity: 2,
+          metadata: expect.objectContaining({
+            previous: expect.objectContaining({ quantity: 116, lotNumber: "VB-2026-04", expiresAt: "2027-04-30" }),
+            next: expect.objectContaining({ quantity: 118, lotNumber: "VB-2026-04A", expiresAt: "2027-05-15" })
+          })
         })
       ])
     );

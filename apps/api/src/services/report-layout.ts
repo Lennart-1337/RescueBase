@@ -18,6 +18,7 @@ export interface QrLabelLayout {
   codeBox: PdfBox;
   metaBox: PdfBox;
   qrBox: PdfBox;
+  qrCaptionTop: number;
   qrCaptionBox: PdfBox;
 }
 
@@ -106,6 +107,7 @@ export function createQrLabelLayout(pageWidth: number, pageHeight: number): QrLa
     codeBox,
     metaBox,
     qrBox,
+    qrCaptionTop: qrBox.y + qrBox.height + 7,
     qrCaptionBox: {
       x: qrBox.x - 2,
       y: qrBox.y + qrBox.height + 7,
