@@ -12,7 +12,7 @@ export function toError(error: unknown): Error {
 }
 
 export function formatStatus(status: string): string {
-  if (status === "OPEN" || status === "IN_PROGRESS" || status === "DONE" || status === "CANCELLED") {
+  if (status === "OPEN" || status === "DONE" || status === "CANCELLED") {
     return statusLabel("replenishment", status);
   }
   return status;

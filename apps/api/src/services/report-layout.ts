@@ -12,10 +12,14 @@ export interface QrSheetLayout {
 }
 
 export interface QrLabelLayout {
-  headerTop: number;
+  outer: PdfBox;
+  headerBox: PdfBox;
   textBox: PdfBox;
+  codeBox: PdfBox;
+  metaBox: PdfBox;
   qrBox: PdfBox;
   qrCaptionTop: number;
+  qrCaptionBox: PdfBox;
 }
 
 export type InfoGridCell = PdfBox;
@@ -66,27 +70,50 @@ export function createInfoGridLayout(input: {
 }
 
 export function createQrLabelLayout(pageWidth: number, pageHeight: number): QrLabelLayout {
-  const marginX = 10;
-  const top = 10;
+  const marginX = 8;
+  const marginY = 8;
   const gap = 8;
-  const qrSize = 64;
+  const outer = {
+    x: marginX,
+    y: marginY,
+    width: pageWidth - marginX * 2,
+    height: pageHeight - marginY * 2
+  };
+  const headerHeight = 2;
+  const qrSize = 62;
   const qrBox = {
-    x: pageWidth - marginX - qrSize,
-    y: 12,
+    x: outer.x + outer.width - qrSize - 8,
+    y: outer.y + headerHeight + 10,
     width: qrSize,
     height: qrSize
   };
   const textBox = {
-    x: marginX,
-    y: top,
-    width: Math.max(54, qrBox.x - marginX - gap),
-    height: pageHeight - top - 12
+    x: outer.x + 8,
+    y: outer.y + headerHeight + 10,
+    width: Math.max(54, qrBox.x - outer.x - gap - 16),
+    height: outer.height - headerHeight - 20
   };
+  const codeBox = { x: textBox.x, y: textBox.y + 12, width: textBox.width, height: 14 };
+  const metaBox = { x: textBox.x, y: textBox.y + 30, width: textBox.width, height: 20 };
   return {
-    headerTop: top,
+    outer,
+    headerBox: {
+      x: outer.x,
+      y: outer.y,
+      width: outer.width,
+      height: headerHeight
+    },
     textBox,
+    codeBox,
+    metaBox,
     qrBox,
-    qrCaptionTop: qrBox.y + qrBox.height + 4
+    qrCaptionTop: qrBox.y + qrBox.height + 7,
+    qrCaptionBox: {
+      x: qrBox.x - 2,
+      y: qrBox.y + qrBox.height + 7,
+      width: qrBox.width + 4,
+      height: 10
+    }
   };
 }
 

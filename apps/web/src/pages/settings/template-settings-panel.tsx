@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Eye } from "lucide-react";
+import { SearchableSelect } from "../../components/searchable-select";
 import { InlineError } from "../../components/state-panels";
 import { Button, Field, Panel } from "../../components/ui";
 import { rescueBaseApi } from "../../lib/api";
@@ -42,7 +43,7 @@ function TemplateEditor(props: { template: NotificationTemplate; templates: Noti
       </div>
       <div className="form-grid form-grid-two template-settings-grid">
         <div className="template-settings-fields">
-          <Field label="Vorlage"><select onChange={(event) => props.onSelect(event.target.value as NotificationTemplateKey)} value={draft.key}>{props.templates.map((template) => <option key={template.key} value={template.key}>{labels[template.key]}</option>)}</select></Field>
+          <Field label="Vorlage"><SearchableSelect onChange={(value) => props.onSelect(value as NotificationTemplateKey)} options={props.templates.map((template) => ({ label: labels[template.key], value: template.key }))} value={draft.key} /></Field>
           <Field label="Betreff"><input onChange={(event) => setDraft({ ...draft, subjectTemplate: event.target.value })} value={draft.subjectTemplate} /></Field>
           <Field label="Einleitung"><textarea onChange={(event) => setDraft({ ...draft, introTemplate: event.target.value })} rows={3} value={draft.introTemplate} /></Field>
           <Field label="Inhalt"><textarea onChange={(event) => setDraft({ ...draft, bodyTemplate: event.target.value })} rows={5} value={draft.bodyTemplate} /></Field>

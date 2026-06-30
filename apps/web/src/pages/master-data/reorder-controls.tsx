@@ -11,7 +11,7 @@ export function ReorderControls(props: {
   onMove: (direction: ReorderDirection) => void;
 }) {
   return (
-    <div className="reorder-controls">
+    <div className="reorder-controls" role="group" aria-label={`${props.label} sortieren`}>
       <Button aria-label={`${props.label} an den Anfang verschieben`} disabled={props.disabled || props.isFirst} onClick={() => props.onMove("start")} type="button" variant="ghost"><ChevronsUp /></Button>
       <Button aria-label={`${props.label} nach oben verschieben`} disabled={props.disabled || props.isFirst} onClick={() => props.onMove("up")} type="button" variant="ghost"><ArrowUp /></Button>
       <Button aria-label={`${props.label} nach unten verschieben`} disabled={props.disabled || props.isLast} onClick={() => props.onMove("down")} type="button" variant="ghost"><ArrowDown /></Button>

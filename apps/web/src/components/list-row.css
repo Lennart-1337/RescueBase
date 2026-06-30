@@ -1,9 +1,14 @@
 .row-actions {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   gap: 8px;
   justify-content: flex-end;
   align-items: center;
+  min-width: 0;
+}
+
+.row-actions > * {
+  flex: 0 0 auto;
 }
 
 .compact-list {

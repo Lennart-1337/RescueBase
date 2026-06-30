@@ -49,6 +49,9 @@ describe("MasterDataPage", () => {
     await clickElement(await screen.findByRole("button", { name: /Bearbeiten/ }));
     const dialog = await screen.findByRole("dialog", { name: "Artikel bearbeiten" });
     expect(within(dialog).queryByText("Pflegen Sie Materialstammdaten für Medizinprodukte und Verbrauchsmaterial.")).toBeNull();
+    expect(within(dialog).getByLabelText("Lagerhinweise").closest(".article-editor-fields")).not.toBeNull();
+    expect(within(dialog).getByLabelText("Hinweise").closest(".article-editor-field-notes")).not.toBeNull();
+    expect(within(dialog).getByLabelText("Kritisch als Standard").closest(".article-editor-flags")).not.toBeNull();
     await changeValue(within(dialog).getByLabelText("Name"), "Verbandpäckchen groß");
     await changeValue(within(dialog).getByLabelText("Hersteller"), "MediSafe");
     await changeValue(within(dialog).getByLabelText("Hersteller-Art.-Nr."), "VB-2000");
@@ -85,7 +88,8 @@ describe("MasterDataPage", () => {
     await clickElement(await screen.findByRole("button", { name: /Lagerort hinzufügen/ }));
     const dialog = await screen.findByRole("dialog", { name: "Lagerort anlegen" });
     await changeValue(within(dialog).getByLabelText("Name"), "Raum 3");
-    await changeValue(within(dialog).getByLabelText("Typ"), "ROOM");
+    await changeValue(within(dialog).getByLabelText("Typ"), "Raum");
+    await mouseDownElement(await screen.findByRole("option", { name: "Raum" }));
     await clickElement(within(dialog).getByRole("button", { name: /Lagerort anlegen/ }));
     await waitFor(() => expect(postedBody("/api/catalog/locations")).toEqual({ name: "Raum 3", kind: "ROOM" }));
   });
@@ -145,6 +149,9 @@ describe("MasterDataPage", () => {
     const row = (await screen.findByText("Sanitätsrucksack A")).closest(".template-row");
     expect(row).not.toBeNull();
     expect(within(row as HTMLElement).getByText("Version 1")).toBeInTheDocument();
+    const criticalBadge = within(row as HTMLElement).getByText("kritisch").closest(".badge");
+    expect(criticalBadge).not.toBeNull();
+    expect(criticalBadge).toHaveClass("badge-neutral");
     expect(within(row as HTMLElement).queryByText("Module")).not.toBeInTheDocument();
     expect(within(row as HTMLElement).queryByText("Positionen", { exact: false })).not.toBeInTheDocument();
     expect(within(row as HTMLElement).queryByText("Soll gesamt", { exact: false })).not.toBeInTheDocument();
@@ -271,11 +278,58 @@ describe("MasterDataPage", () => {
 
     const row = (await screen.findByText("Einmalhandschuhe Größe M")).closest(".article-list-row");
     expect(row).not.toBeNull();
+    await clickElement(within(row as HTMLElement).getByRole("button", { name: "Sortieren" }));
     await clickElement(within(row as HTMLElement).getByRole("button", { name: "Einmalhandschuhe Größe M nach oben verschieben" }));
 
     await waitFor(() => expect(requestBody("/api/catalog/articles/reorder", "POST")).toEqual({
       articleIds: [secondArticle.id, article.id]
     }));
+  });
+
+  it("keeps article reorder controls collapsed until Sortieren is opened", async () => {
+    const secondArticle = {
+      ...article,
+      id: "article-gloves",
+      name: "Einmalhandschuhe Größe M",
+      barcode: "040000000003"
+    };
+    stubFetch({
+      ...baseAdminRoutes(),
+      "/api/catalog/articles": [article, secondArticle]
+    });
+    await renderAppAt("/admin/master-data/articles");
+
+    const sortButtons = await screen.findAllByRole("button", { name: "Sortieren" });
+    expect(sortButtons).toHaveLength(2);
+    expect(screen.queryByRole("button", { name: `${article.name} an den Anfang verschieben` })).toBeNull();
+
+    await clickElement(sortButtons[0] as HTMLElement);
+
+    expect(screen.getByRole("button", { name: `${article.name} an den Anfang verschieben` })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: `${article.name} an das Ende verschieben` })).toBeInTheDocument();
+  });
+
+  it("only keeps one article reorder group open at a time", async () => {
+    const secondArticle = {
+      ...article,
+      id: "article-gloves",
+      name: "Einmalhandschuhe Größe M",
+      barcode: "040000000003"
+    };
+    stubFetch({
+      ...baseAdminRoutes(),
+      "/api/catalog/articles": [article, secondArticle]
+    });
+    await renderAppAt("/admin/master-data/articles");
+
+    const sortButtons = await screen.findAllByRole("button", { name: "Sortieren" });
+    await clickElement(sortButtons[0] as HTMLElement);
+    expect(screen.getByRole("button", { name: `${article.name} an den Anfang verschieben` })).toBeInTheDocument();
+
+    await clickElement(sortButtons[1] as HTMLElement);
+
+    expect(screen.queryByRole("button", { name: `${article.name} an den Anfang verschieben` })).toBeNull();
+    expect(screen.getByRole("button", { name: `${secondArticle.name} an den Anfang verschieben` })).toBeInTheDocument();
   });
 
   it("restores the active master-data tab and device filters from the URL", async () => {
@@ -286,7 +340,7 @@ describe("MasterDataPage", () => {
     await renderAppAt("/admin/master-data/devices?active=inactive");
     await screen.findByLabelText("Status");
     expect(screen.getByRole("tab", { name: "Geräte" })).toHaveAttribute("aria-selected", "true");
-    expect(screen.getByLabelText("Status")).toHaveValue("inactive");
+    expect(screen.getByLabelText("Status")).toHaveValue("Inaktiv");
     expect(screen.getByText("Corpuls C3")).toBeInTheDocument();
 
     await clickElement(screen.getByRole("button", { name: "Filter zurücksetzen" }));
@@ -313,6 +367,31 @@ describe("MasterDataPage", () => {
     const row = (await screen.findByText("Corpuls C3")).closest(".compact-list-row");
     expect(row).not.toBeNull();
     expect(within(row as HTMLElement).getByText("Rucksack Fahrzeug 1 · Verbandpäckchen mittel")).toBeInTheDocument();
+  });
+
+  it("includes kits in the device location filter and restores them from the URL", async () => {
+    stubFetch({
+      ...baseAdminRoutes(),
+      "/api/catalog/devices": [{
+        ...medicalDevice,
+        kitId: kit.id,
+        kit: {
+          id: kit.id,
+          name: kit.name,
+          code: kit.code,
+          locationId: kit.locationId,
+          locationName: kit.location.name
+        }
+      }]
+    });
+    await renderAppAt(`/admin/master-data/devices?locationId=${kit.id}`);
+
+    const locationFilter = await screen.findByLabelText("Standort");
+    expect(locationFilter).toHaveValue(kit.name);
+    await changeValue(locationFilter, "Rucksack");
+
+    expect(await screen.findByRole("option", { name: kit.name })).toBeInTheDocument();
+    expect(screen.getByText("Corpuls C3")).toBeInTheDocument();
   });
 
   it("soft-deletes master data entries after confirmation", async () => {
@@ -392,7 +471,8 @@ describe("MasterDataPage", () => {
     expect(within(row as HTMLElement).getByRole("link", { name: "Link" })).toHaveAttribute("href", "https://shop.example.org/articles/verbandpaeckchen-mittel");
     expect(within(row as HTMLElement).getByRole("button", { name: "Bearbeiten" })).toBeInTheDocument();
     expect(within(row as HTMLElement).getByRole("button", { name: /Verbandpäckchen mittel löschen/ })).toBeInTheDocument();
-    expect(row?.querySelectorAll(".row-action-buttons .button-label")).toHaveLength(3);
+    expect(within(row as HTMLElement).getByRole("button", { name: "Sortieren" })).toBeInTheDocument();
+    expect(row?.querySelectorAll(".row-action-buttons .button-label")).toHaveLength(4);
   });
 
   it("renders article filters in a compact checkbox group", async () => {

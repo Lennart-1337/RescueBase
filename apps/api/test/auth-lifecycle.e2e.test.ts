@@ -253,7 +253,7 @@ async function loginAs(
     return agent
       .post("/auth/login")
       .send({
-        ...credentials,
+        loginChallengeId: response.body.loginChallengeId,
         twoFactorCode: authenticator.generate(secret)
       })
       .expect(201);

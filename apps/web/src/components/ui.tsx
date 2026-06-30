@@ -36,9 +36,9 @@ export function Panel({ className, ...props }: HTMLAttributes<HTMLElement>) {
   return <section className={cn("panel", className)} {...props} />;
 }
 
-export function Field({ label, children }: PropsWithChildren<{ label: string }>) {
+export function Field({ label, children, className }: PropsWithChildren<{ className?: string; label: string }>) {
   return (
-    <label className="field">
+    <label className={cn("field", className)}>
       <span>{label}</span>
       {children}
     </label>

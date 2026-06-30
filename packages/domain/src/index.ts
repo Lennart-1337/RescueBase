@@ -1,7 +1,7 @@
 export type UserRole = "ADMIN" | "WAREHOUSE";
 export type TwoFactorMethod = "TOTP" | "EMAIL";
 export type KitOperationalStatus = "READY" | "CONDITIONAL" | "NOT_READY";
-export type ReplenishmentStatus = "OPEN" | "IN_PROGRESS" | "DONE" | "CANCELLED";
+export type ReplenishmentStatus = "OPEN" | "DONE" | "CANCELLED";
 export type AuditActorType = "SYSTEM" | "USER" | "PUBLIC_CHECKER";
 
 export interface TemplatePosition {
@@ -159,7 +159,7 @@ export function applyFulfillment(
   return {
     order: {
       ...order,
-      status: completed ? "DONE" : "IN_PROGRESS",
+      status: completed ? "DONE" : "OPEN",
       items
     },
     completed,

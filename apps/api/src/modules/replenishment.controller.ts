@@ -34,26 +34,6 @@ export class ReplenishmentController {
     return orders.map(mapOrder);
   }
 
-  @Post(":id/start")
-  async start(@Param("id") id: string) {
-    const order = await this.prisma.replenishmentOrder.update({
-      where: { id },
-      data: { status: "IN_PROGRESS" },
-      include: { items: true, kit: true }
-    }).catch(() => undefined);
-    if (!order) {
-      throw new NotFoundException("Nachfüllauftrag nicht gefunden.");
-    }
-    await this.audit.record({
-      actorType: "USER",
-      actorLabel: "Lagerteam",
-      action: "REPLENISHMENT_STARTED",
-      entityType: "ReplenishmentOrder",
-      entityId: order.id
-    });
-    return mapOrder(order);
-  }
-
   @Post(":id/fulfill")
   async fulfill(@Param("id") id: string, @Body() body: { items: Array<{ itemId: string; batchId: string; quantity: number }> }) {
     const order: ReplenishmentOrderRecord | null = await this.prisma.replenishmentOrder.findUnique({
@@ -143,7 +123,7 @@ export class ReplenishmentController {
           where: {
             kitId: order.kitId,
             id: { not: order.id },
-            status: { in: ["OPEN", "IN_PROGRESS"] }
+            status: "OPEN"
           }
         });
         if (!hasOtherOpenOrder) {
@@ -172,14 +152,21 @@ export class ReplenishmentController {
 
   @Post(":id/cancel")
   async cancel(@Param("id") id: string) {
+    const existingOrder = await this.prisma.replenishmentOrder.findUnique({
+      where: { id },
+      include: { items: true, kit: true }
+    });
+    if (!existingOrder) {
+      throw new NotFoundException("Nachfüllauftrag nicht gefunden.");
+    }
+    if (existingOrder.status !== "OPEN") {
+      throw new BadRequestException("Nur offene Nachfüllaufträge können storniert werden.");
+    }
     const order = await this.prisma.replenishmentOrder.update({
       where: { id },
       data: { status: "CANCELLED" },
       include: { items: true, kit: true }
-    }).catch(() => undefined);
-    if (!order) {
-      throw new NotFoundException("Nachfüllauftrag nicht gefunden.");
-    }
+    });
     await this.audit.record({
       actorType: "USER",
       actorLabel: "Admin",

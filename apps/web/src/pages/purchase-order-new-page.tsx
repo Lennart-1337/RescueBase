@@ -7,13 +7,15 @@ import { AnimatedContentSwap } from "../motion/animated-containers";
 import { toError } from "../app/formatters";
 import { SearchableSelect } from "../components/searchable-select";
 import { ErrorPanel, InlineError, LoadingPanel } from "../components/state-panels";
-import { Button, Field, Panel, Tabs } from "../components/ui";
+import { Button, Field, Panel } from "../components/ui";
 import { rescueBaseApi } from "../lib/api";
 import { catalogQueries } from "../queries/catalog";
 import { inventoryQueries } from "../queries/inventory";
 import { orderKeys } from "../queries/orders";
 import type { Article, InventoryTarget } from "../lib/types";
+import type { PurchaseOrderMode } from "./purchase-order-mode-selector";
 import { centsInput, parseCents } from "./purchase-orders/format";
+import { PurchaseOrderModeSelector } from "./purchase-order-mode-selector";
 import "./purchase-orders-page.css";
 import "./purchase-order-new-page.css";
 
@@ -23,7 +25,7 @@ export function PurchaseOrderNewPage() {
   const navigate = useNavigate();
   const search = useSearch({ from: "/admin/purchase-orders/new" }) as { mode?: string };
   const queryClient = useQueryClient();
-  const [mode, setMode] = useState(search.mode === "shortages" ? "shortages" : "manual");
+  const [mode, setMode] = useState<PurchaseOrderMode>(search.mode === "shortages" ? "shortages" : "manual");
   const [supplierName, setSupplierName] = useState("");
   const [locationId, setLocationId] = useState("");
   const [notes, setNotes] = useState("");
@@ -87,8 +89,8 @@ export function PurchaseOrderNewPage() {
         <Link className="purchase-order-back-link" to="/admin/purchase-orders"><ArrowLeft data-icon="inline-start" />Zurück</Link>
         <PageHeader title="Bestellung anlegen" />
       </div>
+      <PurchaseOrderModeSelector onChange={setMode} value={mode} />
       <Panel className="purchase-order-new-panel">
-        <Tabs label="Erstellmodus" value={mode} onChange={setMode} items={[{ label: "Manuell", value: "manual" }, { label: "Aus Fehlmengen", value: "shortages" }]} />
         <AnimatedContentSwap contentKey={mode}>
           {mode === "manual" ? (
             <div className="purchase-order-form">
@@ -118,7 +120,7 @@ export function PurchaseOrderNewPage() {
                     <p>Bedarf gesammelt oder nach Lieferant gruppieren.</p>
                   </div>
                 </div>
-                <Field label="Gruppierung"><select onChange={(event) => setGroupingMode(event.target.value as "single" | "supplier")} value={groupingMode}><option value="single">Eine Sammelbestellung</option><option value="supplier">Nach Lieferant gruppieren</option></select></Field>
+                <Field label="Gruppierung"><SearchableSelect onChange={(value) => setGroupingMode(value as "single" | "supplier")} options={[{ label: "Eine Sammelbestellung", value: "single" }, { label: "Nach Lieferant gruppieren", value: "supplier" }]} value={groupingMode} /></Field>
                 <div className="purchase-order-lines">
                   {shortages.map((target) => <ShortageOption key={target.id} onToggle={(checked) => setShortageArticleIds((current) => checked ? [...current, target.articleId] : current.filter((id) => id !== target.articleId))} selected={shortageArticleIds.includes(target.articleId)} target={target} />)}
                   {shortages.length === 0 ? <div className="compact-list-empty">Keine Fehlmengen am ausgewählten Zielort.</div> : null}
@@ -135,7 +137,7 @@ export function PurchaseOrderNewPage() {
 }
 
 function OrderHeaderFields(props: { locations: Array<{ id: string; name: string }>; locationId: string; notes: string; onLocationChange: (value: string) => void; onNotesChange: (value: string) => void; onSupplierChange: (value: string) => void; supplierName: string }) {
-  return <section aria-label="Bestellkopf" className="purchase-order-new-section"><div className="purchase-order-new-section-header"><div><h2>Rahmendaten</h2><p>Lieferant, Zielort und Hinweise für den Entwurf.</p></div></div><div className="form-grid form-grid-three"><Field label="Lieferant"><input onChange={(event) => props.onSupplierChange(event.target.value)} value={props.supplierName} /></Field><Field label="Zielort"><SearchableSelect onChange={props.onLocationChange} options={props.locations.map((location) => ({ label: location.name, value: location.id }))} value={props.locationId} /></Field><Field label="Hinweise"><input onChange={(event) => props.onNotesChange(event.target.value)} value={props.notes} /></Field></div></section>;
+  return <section aria-label="Bestellkopf" className="purchase-order-new-section"><div className="purchase-order-new-section-header"><div><h2>Rahmendaten</h2><p>Lieferant, Zielort und Hinweise für den Entwurf.</p></div></div><div className="form-grid form-grid-three purchase-order-header-grid"><Field label="Lieferant"><input onChange={(event) => props.onSupplierChange(event.target.value)} value={props.supplierName} /></Field><Field label="Zielort"><SearchableSelect onChange={props.onLocationChange} options={props.locations.map((location) => ({ label: location.name, value: location.id }))} value={props.locationId} /></Field><Field label="Hinweise"><input onChange={(event) => props.onNotesChange(event.target.value)} value={props.notes} /></Field></div></section>;
 }
 
 function ManualLine(props: { articles: Article[]; index: number; line: DraftLine; onRemove: () => void; onUpdate: (patch: Partial<DraftLine>) => void }) {

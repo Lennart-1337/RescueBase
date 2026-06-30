@@ -27,6 +27,13 @@ export type CompleteCheckRequest = components["schemas"]["CompleteCheckRequest"]
 export type CompleteCheckResponse = components["schemas"]["CompleteCheckResponse"];
 export type CheckProtocolSummary = components["schemas"]["CheckProtocolSummary"];
 export type CheckProtocolDetail = components["schemas"]["CheckProtocolDetail"];
+export type CheckProtocolListResponse = {
+  items: CheckProtocolSummary[];
+  page: number;
+  pageSize: number;
+  total: number;
+  totalCount: number;
+};
 export type FulfillOrderRequest = components["schemas"]["FulfillOrderRequest"];
 export type FulfillOrderResponse = components["schemas"]["FulfillOrderResponse"];
 export type CreateArticleRequest = components["schemas"]["CreateArticleRequest"];

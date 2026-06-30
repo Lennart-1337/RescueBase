@@ -65,11 +65,12 @@ export function CheckProtocolsPage() {
       <PageHeader title="Check-Protokolle" />
       <PageToolbar label="Check-Protokolle filtern">
         <CheckProtocolFilter
-          count={protocols.data.total}
+          count={protocols.data.items.length}
           filters={filters}
           kits={kits.data}
           onChange={updateFilters}
           onReset={() => void navigate({ replace: true, search: {} })}
+          totalCount={protocols.data.totalCount}
         />
       </PageToolbar>
       <Workspace>

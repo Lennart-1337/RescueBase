@@ -15,9 +15,27 @@
   flex-direction: row;
 }
 
+.inventory-planning-grid .inventory-planning-row {
+  grid-template-columns: minmax(0, 1fr) auto;
+}
+
+.inventory-planning-grid .inventory-planning-actions {
+  flex-wrap: nowrap;
+  justify-content: flex-end;
+}
+
 @media (max-width: 980px) {
   .inventory-workspace,
   .inventory-workspace .inventory-planning-grid {
     grid-template-columns: 1fr;
+  }
+
+  .inventory-planning-grid .inventory-planning-row {
+    grid-template-columns: 1fr;
+  }
+
+  .inventory-planning-grid .inventory-planning-actions {
+    flex-wrap: wrap;
+    justify-content: flex-start;
   }
 }

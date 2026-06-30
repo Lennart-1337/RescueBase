@@ -26,7 +26,6 @@ const labels = {
   replenishment: {
     CANCELLED: "Storniert",
     DONE: "Erledigt",
-    IN_PROGRESS: "In Arbeit",
     OPEN: "Offen"
   }
 } satisfies Record<StatusKind, Record<string, string>>;
@@ -35,7 +34,7 @@ const tones = {
   kit: { CONDITIONAL: "warning", NOT_READY: "danger", READY: "ready" },
   procurementOrder: { CANCELLED: "neutral", DONE: "ready", IN_PROGRESS: "info", OPEN: "warning" },
   purchaseOrder: { APPROVED: "info", DRAFT: "neutral", ORDERED: "info", PARTIALLY_RECEIVED: "info", RECEIVED: "ready" },
-  replenishment: { CANCELLED: "neutral", DONE: "ready", IN_PROGRESS: "info", OPEN: "warning" }
+  replenishment: { CANCELLED: "neutral", DONE: "ready", OPEN: "warning" }
 } satisfies Record<StatusKind, Record<string, BadgeTone>>;
 
 type StatusByKind = {

@@ -57,12 +57,14 @@ describe("CheckProtocolsPage", () => {
         items: [protocol],
         page: 1,
         pageSize: 25,
+        totalCount: 2,
         total: 1,
       },
       "/api/checks?status=CONDITIONAL&page=1": {
         items: [protocol],
         page: 1,
         pageSize: 25,
+        totalCount: 2,
         total: 1,
       },
       "/api/checks/check-1": {
@@ -89,11 +91,19 @@ describe("CheckProtocolsPage", () => {
 
     await renderAppAt("/admin/check-protocols?q=Mara&status=CONDITIONAL");
     await screen.findByRole("heading", { name: "Check-Protokolle" });
+    const protocolRow = screen.getByText("Rucksack 1").closest(".protocol-row");
+    expect(protocolRow).not.toBeNull();
+    expect(within(protocolRow as HTMLElement).getByText("18.06.2026, 12:30").closest(".protocol-row-timestamp")).not.toBeNull();
+    const metrics = within(protocolRow as HTMLElement).getByText("1 Abweichungen").closest(".protocol-row-metrics");
+    const actions = within(protocolRow as HTMLElement).getByRole("button", { name: "Details anzeigen" }).closest(".protocol-row-actions");
+    expect(metrics).not.toBeNull();
+    expect(actions).not.toBeNull();
     expect(
       screen.getByRole("heading", { name: "Statusbild" }),
     ).toBeInTheDocument();
+    expect(screen.getByText("1/2 sichtbar")).toBeInTheDocument();
     expect(screen.getByLabelText("Suche")).toHaveValue("Mara");
-    expect(screen.getByLabelText("Status")).toHaveValue("CONDITIONAL");
+    expect(screen.getByLabelText("Status")).toHaveValue("Bedingt einsatzbereit");
     await clickElement(
       screen.getByRole("button", { name: "Details anzeigen" }),
     );

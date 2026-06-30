@@ -1,6 +1,6 @@
 import { screen, waitFor, within } from "@testing-library/react";
 import { kit } from "../test-support/fixtures";
-import { changeValue, clickElement, getActiveRouter, renderAppAt, resetTestBrowser, wasRequested } from "../test-support/app-test-helpers";
+import { changeValue, clickElement, getActiveRouter, mouseDownElement, renderAppAt, resetTestBrowser, wasRequested } from "../test-support/app-test-helpers";
 
 describe("KitsPage", () => {
   afterEach(resetTestBrowser);
@@ -171,9 +171,12 @@ describe("KitsPage", () => {
     await renderAppAt("/admin/kits?q=Reserve&status=NOT_READY");
     await screen.findByRole("heading", { level: 1, name: "Rucksäcke" });
     expect(screen.getByLabelText("Suche")).toHaveValue("Reserve");
-    expect(screen.getByLabelText("Status")).toHaveValue("NOT_READY");
+    expect(screen.getByLabelText("Status")).toHaveValue("Nicht einsatzbereit");
     expect(screen.getByText("Reserve Rucksack")).toBeInTheDocument();
     expect(screen.queryByText("Rucksack Fahrzeug 1")).toBeNull();
+
+    await changeValue(screen.getByLabelText("Status"), "Bereit");
+    await mouseDownElement(screen.getByRole("option", { name: "Bereit" }));
 
     await changeValue(screen.getByLabelText("Suche"), "");
     await clickElement(screen.getByRole("button", { name: "Filter zurücksetzen" }));

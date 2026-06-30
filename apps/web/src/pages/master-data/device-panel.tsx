@@ -9,7 +9,7 @@ import { Button, Dialog, Field, Panel } from "../../components/ui";
 import type { Article, Kit, Location } from "../../lib/types";
 import type { MedicalDevice, MedicalDeviceWriteBody } from "../../lib/extra-api";
 import { DeviceListRow } from "./device-list-row";
-import { buildDeviceStorageOptions, decodeDeviceStorage, selectedDeviceStorageValue } from "./device-storage";
+import { buildDeviceLocationFilterOptions, buildDeviceStorageOptions, decodeDeviceStorage, selectedDeviceStorageValue } from "./device-storage";
 
 type Draft = MedicalDeviceWriteBody & { isOpen: boolean; editingId: string | null; active: boolean };
 
@@ -35,6 +35,8 @@ export function DevicePanel(props: {
 }) {
   const [draft, setDraft] = useState(emptyDraft(props.articles[0]?.id ?? "", props.locations[0]?.id ?? ""));
   const canSubmit = Boolean(draft.name.trim() && draft.articleId && (draft.kitId || draft.locationId));
+  const locationFilterOptions = buildDeviceLocationFilterOptions(props.locations, props.kits);
+  const statusOptions = [{ label: "Alle Status", value: "" }, { label: "Aktiv", value: "active" }, { label: "Inaktiv", value: "inactive" }];
   const storageOptions = buildDeviceStorageOptions(props.locations, props.kits);
 
   function openForCreate() {
@@ -91,9 +93,9 @@ export function DevicePanel(props: {
     <>
       <PageToolbar label="Geräte filtern"><ListFilterBar countLabel={`${props.devices.length}/${props.totalCount} sichtbar`} onReset={props.onResetFilters}>
         <Field label="Suche"><input onChange={(event) => props.onFilterChange({ q: event.target.value })} placeholder="Name, Serien- oder Inventarnummer" value={props.filters.q} /></Field>
-        <Field label="Standort"><SearchableSelect emptyLabel="Alle Standorte" onChange={(value) => props.onFilterChange({ locationId: value })} options={[{ label: "Alle Standorte", value: "" }, ...props.locations.map((location) => ({ label: location.name, value: location.id }))]} value={props.filters.locationId} /></Field>
+        <Field label="Standort"><SearchableSelect emptyLabel="Alle Standorte" onChange={(value) => props.onFilterChange({ locationId: value })} options={[{ label: "Alle Standorte", value: "" }, ...locationFilterOptions]} value={props.filters.locationId} /></Field>
         <Field label="Artikel"><SearchableSelect emptyLabel="Alle Artikel" onChange={(value) => props.onFilterChange({ articleId: value })} options={[{ label: "Alle Artikel", value: "" }, ...props.articles.map((article) => ({ label: article.name, value: article.id }))]} value={props.filters.articleId} /></Field>
-        <Field label="Status"><select onChange={(event) => props.onFilterChange({ active: event.target.value })} value={props.filters.active}><option value="">Alle Status</option><option value="active">Aktiv</option><option value="inactive">Inaktiv</option></select></Field>
+        <Field label="Status"><SearchableSelect emptyLabel="Alle Status" onChange={(value) => props.onFilterChange({ active: value })} options={statusOptions} value={props.filters.active} /></Field>
       </ListFilterBar></PageToolbar>
       <Panel>
       <PanelHeader title="Geräte" actions={<Button onClick={openForCreate} type="button"><Plus data-icon="inline-start" />Gerät hinzufügen</Button>} />

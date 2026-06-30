@@ -82,6 +82,13 @@
 }
 
 .purchase-order-form {
+  --purchase-order-editor-columns:
+    minmax(220px, 1.5fr)
+    90px
+    110px
+    minmax(140px, 1fr)
+    minmax(180px, 1.1fr)
+    minmax(180px, 1.1fr);
   display: grid;
   gap: 16px;
 }
@@ -103,11 +110,28 @@
   gap: 10px;
 }
 
+.purchase-order-draft-grid,
 .purchase-order-line-grid {
   align-items: end;
   display: grid;
   gap: 10px;
-  grid-template-columns: minmax(220px, 1.6fr) 90px 110px minmax(140px, 1fr) auto;
+  grid-template-columns: var(--purchase-order-editor-columns);
+}
+
+.purchase-order-draft-grid {
+  margin-bottom: 10px;
+}
+
+.purchase-order-draft-supplier {
+  grid-column: 1 / span 2;
+}
+
+.purchase-order-draft-location {
+  grid-column: 3 / span 2;
+}
+
+.purchase-order-draft-notes {
+  grid-column: 5 / -1;
 }
 
 .purchase-order-main-stack,
@@ -334,7 +358,18 @@
   align-items: end;
   display: grid;
   gap: 10px;
-  grid-template-columns: minmax(220px, 1.5fr) 90px 110px minmax(140px, 1fr) minmax(180px, 1.2fr) auto;
+  grid-template-columns: var(--purchase-order-editor-columns);
+}
+
+.purchase-order-line-remove {
+  align-self: stretch;
+  display: flex;
+  align-items: flex-end;
+}
+
+.purchase-order-line-remove-button {
+  min-height: 46px;
+  width: 100%;
 }
 
 .purchase-order-dialog-actions {
@@ -366,17 +401,9 @@
   line-height: 1.35;
 }
 
-.purchase-order-doc-hint {
-  align-items: start;
-  color: #657386;
-  display: flex;
-  gap: 8px;
-  font-size: 13px;
-  line-height: 1.5;
-}
-
 @media (max-width: 840px) {
   .purchase-order-workspace,
+  .purchase-order-draft-grid,
   .purchase-order-line-grid,
   .purchase-order-line-editor,
   .purchase-order-line-card {

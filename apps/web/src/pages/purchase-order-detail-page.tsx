@@ -46,7 +46,7 @@ export function PurchaseOrderDetailPage() {
     <>
       <div className="purchase-order-page-header">
         <Link className="purchase-order-back-link" to="/admin/purchase-orders"><ArrowLeft data-icon="inline-start" />Zurück</Link>
-        <PageHeader description={`${current.supplierName} · ${current.location.name}`} title={current.orderNumber} />
+        <PageHeader title={current.orderNumber} />
       </div>
       <Workspace className="purchase-order-workspace">
         <WorkspaceMain label="Bestellung">

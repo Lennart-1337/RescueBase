@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Plus, X } from "lucide-react";
+import { SearchableSelect } from "../../components/searchable-select";
 import { InlineError } from "../../components/state-panels";
 import { Button, Dialog, Field } from "../../components/ui";
 import type { InviteUserRequest } from "../../lib/types";
@@ -23,7 +24,7 @@ export function UserInvitationPanel(props: { error: Error | null; isOpen: boolea
       <div className="form-grid form-grid-three">
         <Field label="Name"><input autoFocus value={displayName} onChange={(event) => setDisplayName(event.target.value)} /></Field>
         <Field label="E-Mail"><input type="email" value={email} onChange={(event) => setEmail(event.target.value)} /></Field>
-        <Field label="Rolle"><select value={role} onChange={(event) => setRole(event.target.value as "ADMIN" | "WAREHOUSE")}><option value="WAREHOUSE">Lagerwart</option><option value="ADMIN">Admin</option></select></Field>
+        <Field label="Rolle"><SearchableSelect onChange={(value) => setRole(value as "ADMIN" | "WAREHOUSE")} options={[{ label: "Lagerwart", value: "WAREHOUSE" }, { label: "Admin", value: "ADMIN" }]} value={role} /></Field>
       </div>
       {props.error ? <InlineError error={props.error} /> : null}
       {debugInvitationUrl ? <p className="debug-hint">Lokaler Einladungslink: {debugInvitationUrl}</p> : null}

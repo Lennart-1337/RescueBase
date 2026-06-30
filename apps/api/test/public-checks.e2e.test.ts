@@ -146,7 +146,7 @@ describe("public check flow", () => {
 
     expect(partial.body.completed).toBe(false);
     expect(partial.body.remainingQuantity).toBe(1);
-    expect(partial.body.order.status).toBe("IN_PROGRESS");
+    expect(partial.body.order.status).toBe("OPEN");
 
     const afterInventory = await agent.get("/inventory/batches").expect(200);
     const bandageAfter = afterInventory.body.find((batch: { id: string }) => batch.id === "batch-bandage-1");
@@ -180,6 +180,29 @@ describe("public check flow", () => {
       .send({
         items: [{ itemId: "pos-tourniquet", batchId: "batch-tourniquet-1", quantity: 2 }]
       })
+      .expect(400);
+  });
+
+  it("rejects cancelling completed replenishment orders", async () => {
+    const server = app.getHttpServer();
+    const agent = request.agent(server);
+    await agent
+      .post("/auth/login")
+      .send({ email: "admin@rescuebase.local", password: "rescuebase-admin" })
+      .expect(201);
+
+    await agent
+      .post("/replenishment-orders/order-1001/fulfill")
+      .send({
+        items: [
+          { itemId: "pos-bandage", batchId: "batch-bandage-1", quantity: 3 },
+          { itemId: "pos-tourniquet", batchId: "batch-tourniquet-1", quantity: 1 }
+        ]
+      })
+      .expect(201);
+
+    await agent
+      .post("/replenishment-orders/order-1001/cancel")
       .expect(400);
   });
 
@@ -269,7 +292,11 @@ describe("public check flow", () => {
         expect.objectContaining({
           type: "BATCH_CORRECTION",
           reason: "Inventur und Umzug",
-          quantity: -1
+          quantity: 2,
+          metadata: expect.objectContaining({
+            previous: expect.objectContaining({ quantity: 116, lotNumber: "VB-2026-04", expiresAt: "2027-04-30" }),
+            next: expect.objectContaining({ quantity: 118, lotNumber: "VB-2026-04A", expiresAt: "2027-05-15" })
+          })
         })
       ])
     );

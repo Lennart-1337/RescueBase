@@ -78,7 +78,6 @@
         "type": "string",
         "enum": [
           "OPEN",
-          "IN_PROGRESS",
           "DONE",
           "CANCELLED"
         ]
@@ -651,6 +650,18 @@
         },
         "required": [
           "active"
+        ],
+        "additionalProperties": false
+      },
+      "SetUserRoleRequest": {
+        "type": "object",
+        "properties": {
+          "role": {
+            "$ref": "#/components/schemas/UserRole"
+          }
+        },
+        "required": [
+          "role"
         ],
         "additionalProperties": false
       },
@@ -3942,6 +3953,46 @@
         }
       }
     },
+    "/auth/users/{id}/role": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "operationId": "AuthController_setUserRole",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SetUserRoleRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "User role updated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OkResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/auth/users/{id}": {
       "delete": {
         "tags": [
@@ -5588,36 +5639,6 @@
                   "items": {
                     "$ref": "#/components/schemas/ReplenishmentOrder"
                   }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/replenishment-orders/{id}/start": {
-      "post": {
-        "tags": [
-          "Nachfüllaufträge"
-        ],
-        "operationId": "ReplenishmentController_start",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "201": {
-            "description": "Order started",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ReplenishmentOrder"
                 }
               }
             }

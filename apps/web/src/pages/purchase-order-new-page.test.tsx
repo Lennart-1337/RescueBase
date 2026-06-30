@@ -72,4 +72,37 @@ describe("PurchaseOrderNewPage", () => {
     expect(shortageHeading.closest("[data-motion-preset]")).toHaveAttribute("data-motion-preset", "panel-enter");
     expect(screen.getByLabelText("Gruppierung")).toBeInTheDocument();
   });
+
+  it("renders the creation modes above the form using the shared tab style", async () => {
+    stubFetch({
+      "/api/auth/setup/status": { initialized: true },
+      "/api/auth/session": { user: { id: "user-admin", email: "admin@rescuebase.local", displayName: "Admin", role: "ADMIN", twoFactorEnabled: false } },
+      "/api/catalog/articles": [article],
+      "/api/catalog/locations": [location],
+      "/api/inventory/targets": [inventoryTarget],
+      "/api/purchase-orders": []
+    });
+
+    await renderAppAt("/admin/purchase-orders/new");
+
+    expect(await screen.findByRole("tab", { name: "Manuell" })).toBeInTheDocument();
+    expect(screen.getByRole("tab", { name: "Aus Fehlmengen" })).toBeInTheDocument();
+    expect(screen.getByRole("tablist", { name: "Erstellmodus" })).toBeInTheDocument();
+  });
+
+  it("renders the header fields without extra horizontal inset", async () => {
+    stubFetch({
+      "/api/auth/setup/status": { initialized: true },
+      "/api/auth/session": { user: { id: "user-admin", email: "admin@rescuebase.local", displayName: "Admin", role: "ADMIN", twoFactorEnabled: false } },
+      "/api/catalog/articles": [article],
+      "/api/catalog/locations": [location],
+      "/api/inventory/targets": [inventoryTarget],
+      "/api/purchase-orders": []
+    });
+
+    await renderAppAt("/admin/purchase-orders/new");
+    await screen.findByRole("heading", { name: "Rahmendaten" });
+
+    expect(document.querySelector(".purchase-order-header-grid")).toBeInTheDocument();
+  });
 });

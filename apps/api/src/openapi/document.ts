@@ -38,7 +38,7 @@ const rescueBaseOpenApiDocumentDefinition = {
       UserRole: stringEnum(["ADMIN", "WAREHOUSE"]),
       TwoFactorMethod: stringEnum(["TOTP", "EMAIL"]),
       KitOperationalStatus: stringEnum(["READY", "CONDITIONAL", "NOT_READY"]),
-      ReplenishmentStatus: stringEnum(["OPEN", "IN_PROGRESS", "DONE", "CANCELLED"]),
+      ReplenishmentStatus: stringEnum(["OPEN", "DONE", "CANCELLED"]),
       InventoryProcurementStatus: stringEnum(["OPEN", "IN_PROGRESS", "DONE", "CANCELLED"]),
       PurchaseOrderStatus: stringEnum(["DRAFT", "APPROVED", "ORDERED", "PARTIALLY_RECEIVED", "RECEIVED"]),
       ReplenishmentReason: stringEnum(["SHORTAGE", "DISCARDED_EXPIRED", "SHORTAGE_AND_DISCARDED_EXPIRED"]),
@@ -172,6 +172,9 @@ const rescueBaseOpenApiDocumentDefinition = {
       SetUserActiveRequest: objectSchema({
         active: { type: "boolean" }
       }, ["active"]),
+      SetUserRoleRequest: objectSchema({
+        role: ref("UserRole")
+      }, ["role"]),
       Article: objectSchema({
         id: { type: "string" },
         name: { type: "string" },
@@ -807,6 +810,7 @@ const rescueBaseOpenApiDocumentDefinition = {
     "/auth/invite": { post: operation("Auth", "AuthController_invite", request("InviteUserRequest"), response(201, "Invitation", ref("InviteUserResponse"))) },
     "/auth/users": { get: operation("Auth", "AuthController_users", {}, response(200, "Users", arrayOf(ref("UserSummary")))) },
     "/auth/users/{id}/active": { post: operation("Auth", "AuthController_setUserActive", { ...pathParam("id"), ...request("SetUserActiveRequest") }, response(201, "User activation updated", ref("OkResponse"))) },
+    "/auth/users/{id}/role": { post: operation("Auth", "AuthController_setUserRole", { ...pathParam("id"), ...request("SetUserRoleRequest") }, response(201, "User role updated", ref("OkResponse"))) },
     "/auth/users/{id}": { delete: operation("Auth", "AuthController_deleteUser", pathParam("id"), response(200, "User deleted", ref("OkResponse"))) },
     "/catalog/articles": {
       get: operation("Stammdaten", "CatalogController_articles", {}, response(200, "Articles", arrayOf(ref("Article")))),
@@ -940,9 +944,6 @@ const rescueBaseOpenApiDocumentDefinition = {
     },
     "/replenishment-orders": {
       get: operation("Nachfüllaufträge", "ReplenishmentController_list", {}, response(200, "Replenishment orders", arrayOf(ref("ReplenishmentOrder"))))
-    },
-    "/replenishment-orders/{id}/start": {
-      post: operation("Nachfüllaufträge", "ReplenishmentController_start", pathParam("id"), response(201, "Order started", ref("ReplenishmentOrder")))
     },
     "/replenishment-orders/{id}/fulfill": {
       post: operation("Nachfüllaufträge", "ReplenishmentController_fulfill", { ...pathParam("id"), ...request("FulfillOrderRequest") }, response(201, "Fulfillment booked", ref("FulfillOrderResponse")))

@@ -456,6 +456,41 @@ export class AuthController {
   }
 
   @Roles("ADMIN")
+  @Post("users/:id/role")
+  async setUserRole(@Param("id") id: string, @Body() body: { role: UserRole }, @Req() request: AuthenticatedRequest): Promise<{ ok: true }> {
+    if (!body.role || !["ADMIN", "WAREHOUSE"].includes(body.role)) {
+      throw new BadRequestException("Rolle muss ADMIN oder WAREHOUSE sein.");
+    }
+    const existing = await this.prisma.user.findFirst({ where: { id, deletedAt: null } });
+    if (!existing) {
+      throw new NotFoundException("Benutzerkonto nicht gefunden.");
+    }
+    if (existing.id === request.user?.id && existing.role !== body.role) {
+      throw new BadRequestException("Die eigene Rolle kann nicht geändert werden.");
+    }
+    if (existing.role === "ADMIN" && body.role !== "ADMIN" && existing.active) {
+      const activeAdminCount = await this.prisma.user.count({ where: { role: "ADMIN", active: true, deletedAt: null } });
+      if (activeAdminCount <= 1) {
+        throw new BadRequestException("Der letzte aktive Admin kann nicht zur Lagerrolle geändert werden.");
+      }
+    }
+
+    await this.prisma.user.update({
+      where: { id: existing.id },
+      data: { role: body.role }
+    });
+    await this.audit.record({
+      actorType: "USER",
+      actorLabel: request.user?.email ?? "Admin",
+      action: "USER_ROLE_UPDATED",
+      entityType: "User",
+      entityId: existing.id,
+      payload: { from: existing.role, to: body.role }
+    });
+    return { ok: true };
+  }
+
+  @Roles("ADMIN")
   @Delete("users/:id")
   async deleteUser(@Param("id") id: string, @Req() request: AuthenticatedRequest): Promise<{ ok: true }> {
     if (id === request.user?.id) {

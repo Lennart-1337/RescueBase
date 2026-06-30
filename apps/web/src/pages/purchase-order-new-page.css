@@ -1,5 +1,13 @@
+.purchase-order-mode-selector {
+  margin-top: 0;
+}
+
 .purchase-order-new-panel {
   padding: 18px;
+}
+
+.purchase-order-header-grid {
+  padding: 0;
 }
 
 .purchase-order-new-section {

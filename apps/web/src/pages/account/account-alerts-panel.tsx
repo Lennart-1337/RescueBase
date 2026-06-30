@@ -64,7 +64,7 @@ export function AccountAlertsPanel() {
         <BellRing />
       </div>
       <div className="alert-subscription-summary">
-        <Badge tone={selected.size > 0 ? "info" : "neutral"}>{formatRuleCount(selected.size)}</Badge>
+        <Badge tone="neutral">{formatRuleCount(selected.size)}</Badge>
       </div>
       <div className="alert-category-grid">
         {categories.map((category) => (

@@ -36,6 +36,9 @@ describe("SettingsPage", () => {
     expect(screen.getByRole("heading", { name: "Allgemein" })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Kommunikation" })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: /Einstellungen/ })).toHaveClass("active");
+    expect(document.querySelector(".settings-overview-grid")).not.toBeNull();
+    expect(document.querySelector(".settings-secondary-grid")).not.toBeNull();
+    expect(document.querySelector(".settings-split-grid")).not.toBeNull();
 
     const general = screen.getByRole("region", { name: "Organisation und Zeit" });
     await changeValue(within(general).getByLabelText("App-Name"), "RescueBase Pro");

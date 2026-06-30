@@ -4,7 +4,7 @@ test("public QR/NFC check can be completed", async ({ page }) => {
   await page.goto("/check/SAN-RS-001-ZUGANG-2026");
   await expect(page.getByRole("heading", { name: "Rucksack Fahrzeug 1" })).toBeVisible();
   await page.getByLabel("Ist verringern").first().click();
-  await page.getByRole("button", { name: "Bedingt einsatzbereit" }).click();
+  await expect(page.getByText("Bedingt einsatzbereit").first()).toBeVisible();
   await page.getByLabel("Prüfername").fill("Mara Müller");
   const canvas = page.getByLabel("Unterschriftenfeld");
   await canvas.scrollIntoViewIfNeeded();
@@ -18,5 +18,5 @@ test("public QR/NFC check can be completed", async ({ page }) => {
   await page.mouse.up();
   await page.getByRole("button", { name: "Check abschließen" }).click();
   await expect(page.getByRole("heading", { name: "Check abgeschlossen" })).toBeVisible();
-  await expect(page.getByText(/Nachfüllauftrag order-/)).toBeVisible();
+  await expect(page.getByText(/Nachfüllauftrag .+ wurde erzeugt\./)).toBeVisible();
 });

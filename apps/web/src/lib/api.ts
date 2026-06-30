@@ -2,6 +2,7 @@ import { ApiError, openApiClient, reportUrl } from "./openapi-client";
 import { adminSettingsApi } from "./admin-settings-api";
 import type {
   BatchCorrectionRequest,
+  CheckProtocolListResponse,
   CompleteCheckRequest,
   CreateArticleRequest,
   CreateBatchRequest,
@@ -48,6 +49,7 @@ export const rescueBaseApi = {
   inviteUser: (body: InviteUserRequest) => openApiClient.post("/auth/invite", body),
   users: () => openApiClient.get("/auth/users"),
   setUserActive: (id: string, body: { active: boolean }) => openApiClient.post("/auth/users/{id}/active", body, { params: { id } }),
+  setUserRole: (id: string, body: { role: "ADMIN" | "WAREHOUSE" }) => openApiClient.post("/auth/users/{id}/role", body, { params: { id } }),
   deleteUser: (id: string) => openApiClient.delete("/auth/users/{id}", { params: { id } }),
   articles: () => openApiClient.get("/catalog/articles"),
   locations: () => openApiClient.get("/catalog/locations"),
@@ -95,13 +97,13 @@ export const rescueBaseApi = {
   updateKit: (id: string, body: UpdateKitRequest) => openApiClient.patch("/catalog/kits/{id}", body, { params: { id } }),
   deleteKit: (id: string) => openApiClient.delete("/catalog/kits/{id}", { params: { id } }),
   orders: () => openApiClient.get("/replenishment-orders"),
-  startOrder: (id: string) => openApiClient.post("/replenishment-orders/{id}/start", { params: { id } }),
   cancelOrder: (id: string) => openApiClient.post("/replenishment-orders/{id}/cancel", { params: { id } }),
   publicKit: (token: string) => openApiClient.get("/public/kits/{token}", { params: { token } }),
   rotateKitToken: (id: string) => openApiClient.post("/catalog/kits/{id}/rotate-token", { params: { id } }),
   completeCheck: (token: string, body: CompleteCheckRequest) =>
     openApiClient.post("/public/kits/{token}/checks", body, { params: { token } }),
-  checkProtocols: (query: { q?: string; kitId?: string; status?: string; page?: string }) => openApiClient.get("/checks", { query }),
+  checkProtocols: (query: { q?: string; kitId?: string; status?: string; page?: string }) =>
+    openApiClient.get("/checks", { query }) as Promise<CheckProtocolListResponse>,
   checkProtocol: (id: string) => openApiClient.get("/checks/{id}", { params: { id } }),
   fulfillOrder: (id: string, body: FulfillOrderRequest) =>
     openApiClient.post("/replenishment-orders/{id}/fulfill", body, { params: { id } }),

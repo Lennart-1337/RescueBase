@@ -1,4 +1,4 @@
-import { ExternalLink, Pencil, Trash2 } from "lucide-react";
+import { ArrowDownUp, ExternalLink, Pencil, Trash2 } from "lucide-react";
 import type { Article } from "../../lib/types";
 import { RowActions } from "../../components/list-row";
 import { AnchorButton, Badge, Button } from "../../components/ui";
@@ -11,10 +11,12 @@ export function ArticleListRow(props: {
   article: Article;
   canMoveDown: boolean;
   canMoveUp: boolean;
+  isReorderExpanded: boolean;
   isSubmitting: boolean;
   onDelete: () => void;
   onEdit: () => void;
   onMove: (direction: ReorderDirection) => void;
+  onToggleReorder: () => void;
 }) {
   const { article } = props;
 
@@ -39,8 +41,18 @@ export function ArticleListRow(props: {
         {article.mtkRequired ? <Badge>MTK</Badge> : null}
         {typeof article.defaultGrossPriceCents === "number" ? <Badge>{formatMoney(article.defaultGrossPriceCents)}</Badge> : null}
       </div>
-      <RowActions className="article-row-actions">
-        <ReorderControls disabled={props.isSubmitting} isFirst={!props.canMoveUp} isLast={!props.canMoveDown} label={article.name} onMove={props.onMove} />
+      <RowActions className={`article-row-actions${props.isReorderExpanded ? " article-row-actions-expanded" : ""}`}>
+        <Button
+          aria-expanded={props.isReorderExpanded}
+          className="mobile-icon-button article-sort-button"
+          onClick={props.onToggleReorder}
+          type="button"
+          variant={props.isReorderExpanded ? "secondary" : "ghost"}
+        >
+          <ArrowDownUp data-icon="inline-start" />
+          <span className="button-label">Sortieren</span>
+        </Button>
+        {props.isReorderExpanded ? <ReorderControls disabled={props.isSubmitting} isFirst={!props.canMoveUp} isLast={!props.canMoveDown} label={article.name} onMove={props.onMove} /> : null}
         {article.articleUrl ? <AnchorButton className="mobile-icon-button" href={article.articleUrl} rel="noreferrer" target="_blank" variant="secondary"><ExternalLink data-icon="inline-start" /><span className="button-label">Link</span></AnchorButton> : null}
         <Button className="mobile-icon-button" onClick={props.onEdit} type="button" variant="ghost">
           <Pencil data-icon="inline-start" />

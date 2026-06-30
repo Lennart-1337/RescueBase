@@ -1,7 +1,7 @@
 import { fireEvent, screen, waitFor, within } from "@testing-library/react";
 import { formatDate } from "../app/formatters";
 import { batch, kit, order } from "../test-support/fixtures";
-import { clickElement, getActiveRouter, postedBody, renderAppAt, resetTestBrowser, stubFetch, wasRequested } from "../test-support/app-test-helpers";
+import { changeValue, clickElement, getActiveRouter, postedBody, renderAppAt, resetTestBrowser, stubFetch, wasRequested } from "../test-support/app-test-helpers";
 
 describe("AdminDashboard", () => {
   afterEach(resetTestBrowser);
@@ -36,29 +36,11 @@ describe("AdminDashboard", () => {
     expect(screen.getByRole("option", { name: firstBatchLabel })).toBeInTheDocument();
     expect(screen.getByRole("option", { name: secondBatchLabel })).toBeInTheDocument();
     expect(dialog.querySelector(".modal-footer")).not.toBeNull();
-    expect(within(dialog).getByRole("button", { name: "In Bearbeitung" })).toBeInTheDocument();
+    expect(within(dialog).queryByRole("button", { name: "In Bearbeitung" })).toBeNull();
     expect(within(dialog).getByRole("button", { name: "Stornieren" })).toBeInTheDocument();
     await clickElement(within(dialog).getByLabelText("Auffüllen erhöhen"));
     await clickElement(within(dialog).getByRole("button", { name: /Teilfüllung buchen/ }));
     await waitFor(() => expect(postedBody("/api/replenishment-orders/order-1001/fulfill")).toEqual({ items: [{ itemId: "pos-bandage", batchId: "batch-bandage-2", quantity: 1 }] }));
-  });
-
-  it("starts open replenishment orders from the detail dialog", async () => {
-    stubFetch({
-      "/api/auth/setup/status": { initialized: true },
-      "/api/auth/session": { user: { id: "user-admin", email: "admin@rescuebase.local", displayName: "Admin", role: "ADMIN", twoFactorEnabled: false } },
-      "/api/catalog/kits": [kit],
-      "/api/inventory/batches": [batch],
-      "/api/replenishment-orders": [order],
-      "/api/replenishment-orders/order-1001/start": { ...order, status: "IN_PROGRESS" },
-      "/api/alerts/warnings": { generatedAt: "2026-06-17T00:00:00.000Z", warnings: [], summary: { expiry: 0, stkDue: 0, mtkDue: 0 } }
-    });
-    await renderAppAt("/");
-    await screen.findByRole("heading", { name: "Nachfüllaufträge" });
-    await clickElement(screen.getByRole("button", { name: /Rucksack Fahrzeug 1/ }));
-    const dialog = await screen.findByRole("dialog", { name: "Nachfüllauftrag" });
-    await clickElement(within(dialog).getByRole("button", { name: "In Bearbeitung" }));
-    await waitFor(() => expect(wasRequested("/api/replenishment-orders/order-1001/start", "POST")).toBe(true));
   });
 
   it("cancels replenishment orders from the detail dialog", async () => {
@@ -67,7 +49,7 @@ describe("AdminDashboard", () => {
       "/api/auth/session": { user: { id: "user-admin", email: "admin@rescuebase.local", displayName: "Admin", role: "ADMIN", twoFactorEnabled: false } },
       "/api/catalog/kits": [kit],
       "/api/inventory/batches": [batch],
-      "/api/replenishment-orders": [{ ...order, status: "IN_PROGRESS" }],
+      "/api/replenishment-orders": [order],
       "/api/replenishment-orders/order-1001/cancel": { ...order, status: "CANCELLED" },
       "/api/alerts/warnings": { generatedAt: "2026-06-17T00:00:00.000Z", warnings: [], summary: { expiry: 0, stkDue: 0, mtkDue: 0 } }
     });
@@ -77,6 +59,22 @@ describe("AdminDashboard", () => {
     const dialog = await screen.findByRole("dialog", { name: "Nachfüllauftrag" });
     await clickElement(within(dialog).getByRole("button", { name: "Stornieren" }));
     await waitFor(() => expect(wasRequested("/api/replenishment-orders/order-1001/cancel", "POST")).toBe(true));
+  });
+
+  it("hides cancel for completed replenishment orders", async () => {
+    stubFetch({
+      "/api/auth/setup/status": { initialized: true },
+      "/api/auth/session": { user: { id: "user-admin", email: "admin@rescuebase.local", displayName: "Admin", role: "ADMIN", twoFactorEnabled: false } },
+      "/api/catalog/kits": [kit],
+      "/api/inventory/batches": [batch],
+      "/api/replenishment-orders": [{ ...order, status: "DONE" }],
+      "/api/alerts/warnings": { generatedAt: "2026-06-17T00:00:00.000Z", warnings: [], summary: { expiry: 0, stkDue: 0, mtkDue: 0 } }
+    });
+    await renderAppAt("/");
+    await screen.findByRole("heading", { name: "Nachfüllaufträge" });
+    await clickElement(screen.getByRole("button", { name: /Rucksack Fahrzeug 1/ }));
+    const dialog = await screen.findByRole("dialog", { name: "Nachfüllauftrag" });
+    expect(within(dialog).queryByRole("button", { name: "Stornieren" })).toBeNull();
   });
 
   it("filters replenishment orders by location from the URL", async () => {
@@ -96,6 +94,26 @@ describe("AdminDashboard", () => {
 
     await clickElement(screen.getByRole("button", { name: "Filter zurücksetzen" }));
     await waitFor(() => expect(getActiveRouter()?.state.location.search).toEqual({}));
+  });
+
+  it("restores the status filter with the searchable select", async () => {
+    stubFetch({
+      "/api/auth/setup/status": { initialized: true },
+      "/api/auth/session": { user: { id: "user-admin", email: "admin@rescuebase.local", displayName: "Admin", role: "ADMIN", twoFactorEnabled: false } },
+      "/api/catalog/kits": [kit],
+      "/api/inventory/batches": [batch],
+      "/api/replenishment-orders": [{ ...order, status: "DONE" }, { ...order, id: "order-1002", status: "CANCELLED" }],
+      "/api/alerts/warnings": { generatedAt: "2026-06-17T00:00:00.000Z", warnings: [], summary: { expiry: 0, stkDue: 0, mtkDue: 0 } }
+    });
+    await renderAppAt("/?orderStatus=DONE");
+    await screen.findByRole("heading", { name: "Nachfüllaufträge" });
+
+    const statusFilter = screen.getByLabelText("Status");
+    expect(statusFilter).toHaveValue("Erledigt");
+
+    await changeValue(statusFilter, "Stor");
+
+    expect(await screen.findByRole("option", { name: "Storniert" })).toBeInTheDocument();
   });
 
   it("keeps the dashboard header and panels compact", async () => {

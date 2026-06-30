@@ -21,8 +21,14 @@ describe("Purchase order detail", () => {
     });
 
     await renderAppAt("/admin/purchase-orders/purchase-order-1");
+    expect(screen.queryByText("MediSafe Einkauf · Hauptlager")).toBeNull();
     await clickElement(await screen.findByRole("button", { name: "Bestellung bearbeiten" }));
     const dialog = await screen.findByRole("dialog", { name: "Bestellung bearbeiten" });
+    expect(within(dialog).getByText("Lieferant").closest(".purchase-order-draft-supplier")).not.toBeNull();
+    expect(within(dialog).getByText("Zielort").closest(".purchase-order-draft-location")).not.toBeNull();
+    expect(within(dialog).getByText("Hinweise").closest(".purchase-order-draft-notes")).not.toBeNull();
+    expect(within(dialog).getByRole("button", { name: "Position 1 entfernen" })).toHaveClass("purchase-order-line-remove-button");
+    expect(within(dialog).getByRole("button", { name: "Abbrechen" })).toHaveClass("button-secondary");
     const [supplierInput] = within(dialog).getAllByRole("textbox");
     if (!supplierInput) throw new Error("Supplier input not found");
     await changeValue(supplierInput, "Neue MediSafe GmbH");
@@ -52,7 +58,13 @@ describe("Purchase order detail", () => {
     });
 
     await renderAppAt("/admin/purchase-orders/purchase-order-1");
-    await clickElement(await screen.findByRole("button", { name: "Archivieren" }));
+    const archiveButton = await screen.findByRole("button", { name: "Archivieren" });
+    const controlPanel = screen.getByText("Bestellsteuerung").closest(".purchase-order-control-panel");
+    expect(controlPanel).not.toBeNull();
+    expect(within(controlPanel as HTMLElement).queryByText("Entwurf")).toBeNull();
+    expect(screen.queryByText("Status, Aktionen und Export an einem Ort.")).toBeNull();
+    expect(archiveButton).toHaveClass("button-secondary");
+    await clickElement(archiveButton);
 
     expect(wasRequested("/api/purchase-orders/purchase-order-1/archive", "POST")).toBe(true);
     expect(requestBody("/api/purchase-orders/purchase-order-1/archive", "POST")).toBeUndefined();
