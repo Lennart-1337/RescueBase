@@ -85,7 +85,8 @@ describe("MasterDataPage", () => {
     await clickElement(await screen.findByRole("button", { name: /Lagerort hinzufügen/ }));
     const dialog = await screen.findByRole("dialog", { name: "Lagerort anlegen" });
     await changeValue(within(dialog).getByLabelText("Name"), "Raum 3");
-    await changeValue(within(dialog).getByLabelText("Typ"), "ROOM");
+    await changeValue(within(dialog).getByLabelText("Typ"), "Raum");
+    await mouseDownElement(await screen.findByRole("option", { name: "Raum" }));
     await clickElement(within(dialog).getByRole("button", { name: /Lagerort anlegen/ }));
     await waitFor(() => expect(postedBody("/api/catalog/locations")).toEqual({ name: "Raum 3", kind: "ROOM" }));
   });
@@ -333,7 +334,7 @@ describe("MasterDataPage", () => {
     await renderAppAt("/admin/master-data/devices?active=inactive");
     await screen.findByLabelText("Status");
     expect(screen.getByRole("tab", { name: "Geräte" })).toHaveAttribute("aria-selected", "true");
-    expect(screen.getByLabelText("Status")).toHaveValue("inactive");
+    expect(screen.getByLabelText("Status")).toHaveValue("Inaktiv");
     expect(screen.getByText("Corpuls C3")).toBeInTheDocument();
 
     await clickElement(screen.getByRole("button", { name: "Filter zurücksetzen" }));
@@ -360,6 +361,31 @@ describe("MasterDataPage", () => {
     const row = (await screen.findByText("Corpuls C3")).closest(".compact-list-row");
     expect(row).not.toBeNull();
     expect(within(row as HTMLElement).getByText("Rucksack Fahrzeug 1 · Verbandpäckchen mittel")).toBeInTheDocument();
+  });
+
+  it("includes kits in the device location filter and restores them from the URL", async () => {
+    stubFetch({
+      ...baseAdminRoutes(),
+      "/api/catalog/devices": [{
+        ...medicalDevice,
+        kitId: kit.id,
+        kit: {
+          id: kit.id,
+          name: kit.name,
+          code: kit.code,
+          locationId: kit.locationId,
+          locationName: kit.location.name
+        }
+      }]
+    });
+    await renderAppAt(`/admin/master-data/devices?locationId=${kit.id}`);
+
+    const locationFilter = await screen.findByLabelText("Standort");
+    expect(locationFilter).toHaveValue(kit.name);
+    await changeValue(locationFilter, "Rucksack");
+
+    expect(await screen.findByRole("option", { name: kit.name })).toBeInTheDocument();
+    expect(screen.getByText("Corpuls C3")).toBeInTheDocument();
   });
 
   it("soft-deletes master data entries after confirmation", async () => {

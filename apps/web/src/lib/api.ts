@@ -48,6 +48,7 @@ export const rescueBaseApi = {
   inviteUser: (body: InviteUserRequest) => openApiClient.post("/auth/invite", body),
   users: () => openApiClient.get("/auth/users"),
   setUserActive: (id: string, body: { active: boolean }) => openApiClient.post("/auth/users/{id}/active", body, { params: { id } }),
+  setUserRole: (id: string, body: { role: "ADMIN" | "WAREHOUSE" }) => openApiClient.post("/auth/users/{id}/role", body, { params: { id } }),
   deleteUser: (id: string) => openApiClient.delete("/auth/users/{id}", { params: { id } }),
   articles: () => openApiClient.get("/catalog/articles"),
   locations: () => openApiClient.get("/catalog/locations"),

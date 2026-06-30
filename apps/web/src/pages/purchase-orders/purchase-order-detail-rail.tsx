@@ -1,4 +1,4 @@
-import { Download, FileText, PencilLine, Save, Send } from "lucide-react";
+import { Download, PencilLine, Save, Send } from "lucide-react";
 import { formatDateTime } from "../../app/formatters";
 import { PanelHeader } from "../../components/panel-header";
 import { StatusBadge } from "../../components/status-badge";
@@ -45,7 +45,6 @@ export function PurchaseOrderDetailRail(props: {
             <span>Positionsnotizen im PDF anzeigen</span>
           </label>
           <AnchorButton href={props.pdfHref} rel="noreferrer" target="_blank" variant="secondary"><Download data-icon="inline-start" />PDF exportieren</AnchorButton>
-          <div className="purchase-order-doc-hint"><FileText data-icon="inline-start" /><span>PDF enthält Artikel, Preise, Link je Artikel und Gesamtsumme.</span></div>
         </div>
       </Panel>
     </div>

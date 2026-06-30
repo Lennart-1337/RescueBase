@@ -93,7 +93,7 @@ describe("CheckProtocolsPage", () => {
       screen.getByRole("heading", { name: "Statusbild" }),
     ).toBeInTheDocument();
     expect(screen.getByLabelText("Suche")).toHaveValue("Mara");
-    expect(screen.getByLabelText("Status")).toHaveValue("CONDITIONAL");
+    expect(screen.getByLabelText("Status")).toHaveValue("Bedingt einsatzbereit");
     await clickElement(
       screen.getByRole("button", { name: "Details anzeigen" }),
     );

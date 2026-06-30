@@ -172,6 +172,9 @@ const rescueBaseOpenApiDocumentDefinition = {
       SetUserActiveRequest: objectSchema({
         active: { type: "boolean" }
       }, ["active"]),
+      SetUserRoleRequest: objectSchema({
+        role: ref("UserRole")
+      }, ["role"]),
       Article: objectSchema({
         id: { type: "string" },
         name: { type: "string" },
@@ -807,6 +810,7 @@ const rescueBaseOpenApiDocumentDefinition = {
     "/auth/invite": { post: operation("Auth", "AuthController_invite", request("InviteUserRequest"), response(201, "Invitation", ref("InviteUserResponse"))) },
     "/auth/users": { get: operation("Auth", "AuthController_users", {}, response(200, "Users", arrayOf(ref("UserSummary")))) },
     "/auth/users/{id}/active": { post: operation("Auth", "AuthController_setUserActive", { ...pathParam("id"), ...request("SetUserActiveRequest") }, response(201, "User activation updated", ref("OkResponse"))) },
+    "/auth/users/{id}/role": { post: operation("Auth", "AuthController_setUserRole", { ...pathParam("id"), ...request("SetUserRoleRequest") }, response(201, "User role updated", ref("OkResponse"))) },
     "/auth/users/{id}": { delete: operation("Auth", "AuthController_deleteUser", pathParam("id"), response(200, "User deleted", ref("OkResponse"))) },
     "/catalog/articles": {
       get: operation("Stammdaten", "CatalogController_articles", {}, response(200, "Articles", arrayOf(ref("Article")))),

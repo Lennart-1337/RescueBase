@@ -1,5 +1,5 @@
 import { screen, waitFor, within } from "@testing-library/react";
-import { changeValue, clickElement, postedBody, renderAppAt, resetTestBrowser, stubFetch, wasRequested } from "../test-support/app-test-helpers";
+import { changeValue, clickElement, mouseDownElement, postedBody, renderAppAt, resetTestBrowser, stubFetch, wasRequested } from "../test-support/app-test-helpers";
 
 describe("UsersPage", () => {
   afterEach(resetTestBrowser);
@@ -42,5 +42,31 @@ describe("UsersPage", () => {
     await screen.findByRole("heading", { name: "Benutzer" });
     await clickElement(screen.getByRole("button", { name: /Lagerteam löschen/ }));
     await waitFor(() => expect(wasRequested("/api/auth/users/user-lager", "DELETE")).toBe(true));
+  });
+
+  it("changes another user's role as admin", async () => {
+    stubFetch({
+      "/api/auth/setup/status": { initialized: true },
+      "/api/auth/session": { user: { id: "user-admin", email: "admin@rescuebase.local", displayName: "Admin", role: "ADMIN", twoFactorEnabled: false } },
+      "/api/auth/users": [
+        { id: "user-admin", email: "admin@rescuebase.local", displayName: "Admin", role: "ADMIN", active: true, twoFactorEnabled: false },
+        { id: "user-lager", email: "lager@rescuebase.local", displayName: "Lagerteam", role: "WAREHOUSE", active: true, twoFactorEnabled: false }
+      ],
+      "/api/auth/users/user-lager/role": { ok: true },
+      "/api/alerts/subscriptions": []
+    });
+    await renderAppAt("/admin/users");
+    await screen.findByRole("heading", { name: "Benutzer" });
+
+    await clickElement(screen.getByRole("button", { name: /Lagerteam Rolle ändern/ }));
+    const dialog = await screen.findByRole("dialog", { name: "Rolle ändern" });
+    expect(within(dialog).getByLabelText("Benutzer")).toHaveValue("Lagerteam");
+    expect(within(dialog).getByLabelText("Rolle")).toHaveValue("Lagerwart");
+
+    await changeValue(within(dialog).getByLabelText("Rolle"), "Admin");
+    await mouseDownElement(screen.getByRole("option", { name: "Admin" }));
+    await clickElement(within(dialog).getByRole("button", { name: "Rolle speichern" }));
+
+    await waitFor(() => expect(postedBody("/api/auth/users/user-lager/role")).toEqual({ role: "ADMIN" }));
   });
 });

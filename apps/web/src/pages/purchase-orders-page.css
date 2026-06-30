@@ -366,15 +366,6 @@
   line-height: 1.35;
 }
 
-.purchase-order-doc-hint {
-  align-items: start;
-  color: #657386;
-  display: flex;
-  gap: 8px;
-  font-size: 13px;
-  line-height: 1.5;
-}
-
 @media (max-width: 840px) {
   .purchase-order-workspace,
   .purchase-order-line-grid,

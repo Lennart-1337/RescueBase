@@ -13,6 +13,13 @@ export function buildDeviceStorageOptions(locations: Location[], kits: Kit[]): D
   ];
 }
 
+export function buildDeviceLocationFilterOptions(locations: Location[], kits: Kit[]) {
+  return [
+    ...locations.map((location) => ({ label: location.name, value: location.id })),
+    ...kits.map((kit) => ({ keywords: ["Rucksack", kit.code, kit.location?.name ?? ""], label: kit.name, value: kit.id }))
+  ];
+}
+
 export function decodeDeviceStorage(value: string) {
   if (value.startsWith(kitPrefix)) return { kitId: value.slice(kitPrefix.length), locationId: undefined };
   if (value.startsWith(locationPrefix)) return { kitId: undefined, locationId: value.slice(locationPrefix.length) };
