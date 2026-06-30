@@ -48,6 +48,17 @@ describe("Public auth pages", () => {
     }));
   });
 
+  it("shows legal links on the public auth screen", async () => {
+    stubFetch({
+      "/api/auth/setup/status": { initialized: true },
+      "/api/auth/session": {}
+    });
+    await renderAppAt("/");
+
+    expect(await screen.findByRole("link", { name: "Impressum" })).toHaveAttribute("href", "/legal/imprint");
+    expect(screen.getByRole("link", { name: "Datenschutzerklärung" })).toHaveAttribute("href", "/legal/privacy");
+  });
+
   it("restores a pending 2FA login after the browser state is recreated", async () => {
     stubFetch({
       "/api/auth/setup/status": { initialized: true, appName: "RescueBase Pro", appSubtitle: "Bereitschaft Nord", showLogo: true, showAppName: false, showAppSubtitle: true },
@@ -73,5 +84,22 @@ describe("Public auth pages", () => {
     expect(await screen.findByLabelText("2FA-Code")).toHaveFocus();
     expect(screen.queryByLabelText("Passwort")).not.toBeInTheDocument();
     expect(screen.getByLabelText("E-Mail")).toHaveValue("lager-neu@rescuebase.local");
+  });
+
+  it("shows legal links in the admin content footer", async () => {
+    stubFetch({
+      "/api/auth/setup/status": { initialized: true, appName: "RescueBase Pro", appSubtitle: "Bereitschaft Nord", showLogo: true, showAppName: false, showAppSubtitle: true },
+      "/api/auth/session": { user: { id: "user-admin", email: "admin@rescuebase.local", displayName: "Admin", role: "ADMIN", twoFactorEnabled: false }, appName: "RescueBase Pro", appSubtitle: "Bereitschaft Nord", showLogo: true, showAppName: false, showAppSubtitle: true },
+      "/api/catalog/kits": [],
+      "/api/inventory/batches": [],
+      "/api/replenishment-orders": []
+    });
+    await renderAppAt("/");
+
+    const imprintLinks = await screen.findAllByRole("link", { name: "Impressum" });
+    const privacyLinks = screen.getAllByRole("link", { name: "Datenschutzerklärung" });
+
+    expect(imprintLinks.at(-1)).toHaveAttribute("href", "/legal/imprint");
+    expect(privacyLinks.at(-1)).toHaveAttribute("href", "/legal/privacy");
   });
 });

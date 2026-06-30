@@ -12,6 +12,8 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as PasswordResetIndexRouteImport } from './routes/password-reset/index'
 import { Route as PasswordResetTokenRouteImport } from './routes/password-reset/$token'
+import { Route as LegalPrivacyRouteImport } from './routes/legal/privacy'
+import { Route as LegalImprintRouteImport } from './routes/legal/imprint'
 import { Route as InvitationTokenRouteImport } from './routes/invitation/$token'
 import { Route as CheckTokenRouteImport } from './routes/check/$token'
 import { Route as AdminUsersRouteImport } from './routes/admin/users'
@@ -44,6 +46,16 @@ const PasswordResetIndexRoute = PasswordResetIndexRouteImport.update({
 const PasswordResetTokenRoute = PasswordResetTokenRouteImport.update({
   id: '/password-reset/$token',
   path: '/password-reset/$token',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LegalPrivacyRoute = LegalPrivacyRouteImport.update({
+  id: '/legal/privacy',
+  path: '/legal/privacy',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LegalImprintRoute = LegalImprintRouteImport.update({
+  id: '/legal/imprint',
+  path: '/legal/imprint',
   getParentRoute: () => rootRouteImport,
 } as any)
 const InvitationTokenRoute = InvitationTokenRouteImport.update({
@@ -153,6 +165,8 @@ export interface FileRoutesByFullPath {
   '/admin/users': typeof AdminUsersRoute
   '/check/$token': typeof CheckTokenRoute
   '/invitation/$token': typeof InvitationTokenRoute
+  '/legal/imprint': typeof LegalImprintRoute
+  '/legal/privacy': typeof LegalPrivacyRoute
   '/password-reset/$token': typeof PasswordResetTokenRoute
   '/password-reset/': typeof PasswordResetIndexRoute
   '/admin/master-data/articles': typeof AdminMasterDataArticlesRoute
@@ -174,6 +188,8 @@ export interface FileRoutesByTo {
   '/admin/users': typeof AdminUsersRoute
   '/check/$token': typeof CheckTokenRoute
   '/invitation/$token': typeof InvitationTokenRoute
+  '/legal/imprint': typeof LegalImprintRoute
+  '/legal/privacy': typeof LegalPrivacyRoute
   '/password-reset/$token': typeof PasswordResetTokenRoute
   '/password-reset': typeof PasswordResetIndexRoute
   '/admin/master-data/articles': typeof AdminMasterDataArticlesRoute
@@ -198,6 +214,8 @@ export interface FileRoutesById {
   '/admin/users': typeof AdminUsersRoute
   '/check/$token': typeof CheckTokenRoute
   '/invitation/$token': typeof InvitationTokenRoute
+  '/legal/imprint': typeof LegalImprintRoute
+  '/legal/privacy': typeof LegalPrivacyRoute
   '/password-reset/$token': typeof PasswordResetTokenRoute
   '/password-reset/': typeof PasswordResetIndexRoute
   '/admin/master-data/articles': typeof AdminMasterDataArticlesRoute
@@ -223,6 +241,8 @@ export interface FileRouteTypes {
     | '/admin/users'
     | '/check/$token'
     | '/invitation/$token'
+    | '/legal/imprint'
+    | '/legal/privacy'
     | '/password-reset/$token'
     | '/password-reset/'
     | '/admin/master-data/articles'
@@ -244,6 +264,8 @@ export interface FileRouteTypes {
     | '/admin/users'
     | '/check/$token'
     | '/invitation/$token'
+    | '/legal/imprint'
+    | '/legal/privacy'
     | '/password-reset/$token'
     | '/password-reset'
     | '/admin/master-data/articles'
@@ -267,6 +289,8 @@ export interface FileRouteTypes {
     | '/admin/users'
     | '/check/$token'
     | '/invitation/$token'
+    | '/legal/imprint'
+    | '/legal/privacy'
     | '/password-reset/$token'
     | '/password-reset/'
     | '/admin/master-data/articles'
@@ -291,6 +315,8 @@ export interface RootRouteChildren {
   AdminUsersRoute: typeof AdminUsersRoute
   CheckTokenRoute: typeof CheckTokenRoute
   InvitationTokenRoute: typeof InvitationTokenRoute
+  LegalImprintRoute: typeof LegalImprintRoute
+  LegalPrivacyRoute: typeof LegalPrivacyRoute
   PasswordResetTokenRoute: typeof PasswordResetTokenRoute
   PasswordResetIndexRoute: typeof PasswordResetIndexRoute
 }
@@ -316,6 +342,20 @@ declare module '@tanstack/react-router' {
       path: '/password-reset/$token'
       fullPath: '/password-reset/$token'
       preLoaderRoute: typeof PasswordResetTokenRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/legal/privacy': {
+      id: '/legal/privacy'
+      path: '/legal/privacy'
+      fullPath: '/legal/privacy'
+      preLoaderRoute: typeof LegalPrivacyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/legal/imprint': {
+      id: '/legal/imprint'
+      path: '/legal/imprint'
+      fullPath: '/legal/imprint'
+      preLoaderRoute: typeof LegalImprintRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/invitation/$token': {
@@ -494,6 +534,8 @@ const rootRouteChildren: RootRouteChildren = {
   AdminUsersRoute: AdminUsersRoute,
   CheckTokenRoute: CheckTokenRoute,
   InvitationTokenRoute: InvitationTokenRoute,
+  LegalImprintRoute: LegalImprintRoute,
+  LegalPrivacyRoute: LegalPrivacyRoute,
   PasswordResetTokenRoute: PasswordResetTokenRoute,
   PasswordResetIndexRoute: PasswordResetIndexRoute,
 }

@@ -128,6 +128,17 @@
   gap: 22px;
 }
 
+.dashboard-content {
+  flex: 1;
+  display: grid;
+  gap: 22px;
+}
+
+.dashboard-legal {
+  padding-top: 10px;
+  border-top: 1px solid #e3e7ee;
+}
+
 .mobile-menu-button,
 .mobile-drawer-backdrop {
   display: none;

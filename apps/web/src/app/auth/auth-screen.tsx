@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import { type AppBranding } from "../branding";
 import { BrandMark } from "../brand-mark";
+import { LegalLinks } from "../legal-links";
 import "../brand-mark.css";
 import "./auth-screen.css";
 
@@ -20,7 +21,10 @@ export function AuthScreen({ children, branding = defaultBranding }: { children:
         {branding.showAppName ? <strong>{branding.appName}</strong> : null}
         {branding.showAppSubtitle ? <p>{branding.appSubtitle}</p> : null}
       </section>
-      {children}
+      <div className="auth-content">
+        {children}
+        <LegalLinks />
+      </div>
     </main>
   );
 }
