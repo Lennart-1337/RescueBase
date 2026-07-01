@@ -27,6 +27,17 @@ export default defineConfig({
       }
     },
     {
+      name: "tablet-landscape",
+      dependencies: ["setup"],
+      use: {
+        ...devices["Desktop Chrome"],
+        hasTouch: true,
+        isMobile: true,
+        storageState: "e2e/.auth/admin.json",
+        viewport: { width: 1180, height: 820 }
+      }
+    },
+    {
       name: "phone-small",
       dependencies: ["setup"],
       use: {

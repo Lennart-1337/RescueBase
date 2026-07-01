@@ -45,7 +45,12 @@
   padding: 18px;
 }
 
-@media (max-width: 980px) {
+@media (max-width: 1200px) {
+  .compact-list-row,
+  .compact-list-row-actions {
+    grid-template-columns: 1fr;
+  }
+
   .row-actions {
     flex-wrap: wrap;
     justify-content: flex-start;

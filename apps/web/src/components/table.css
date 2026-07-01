@@ -25,7 +25,7 @@
   color: #657386;
 }
 
-@media (max-width: 620px) {
+@media (max-width: 1200px) {
   .table-row {
     grid-template-columns: 1fr;
   }

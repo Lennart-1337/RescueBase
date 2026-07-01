@@ -401,7 +401,25 @@
   line-height: 1.35;
 }
 
-@media (max-width: 840px) {
+@media (max-width: 1320px) {
+  .purchase-order-draft-grid,
+  .purchase-order-line-editor {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .purchase-order-draft-supplier,
+  .purchase-order-draft-location,
+  .purchase-order-draft-notes {
+    grid-column: auto;
+  }
+
+  .purchase-order-line-remove {
+    grid-column: 1 / -1;
+    justify-content: flex-start;
+  }
+}
+
+@media (max-width: 1200px) {
   .purchase-order-workspace,
   .purchase-order-draft-grid,
   .purchase-order-line-grid,
@@ -441,11 +459,5 @@
     letter-spacing: 0.03em;
     margin-bottom: 4px;
     text-transform: uppercase;
-  }
-}
-
-@media (max-width: 980px) {
-  .purchase-order-workspace {
-    grid-template-columns: 1fr;
   }
 }

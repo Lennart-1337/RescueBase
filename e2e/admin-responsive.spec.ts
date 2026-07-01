@@ -67,14 +67,14 @@ test.describe("admin responsive smoke", () => {
   });
 
   test("tablet keeps the sidebar visible on master-data routes", async ({ page }, testInfo) => {
-    test.skip(testInfo.project.name !== "tablet");
+    test.skip(!["tablet", "tablet-landscape"].includes(testInfo.project.name));
     await page.goto("/admin/master-data/locations");
     await expect(page.getByRole("link", { name: "Stammdaten" })).toBeVisible();
     await expect(page.getByRole("button", { name: "Menü öffnen" })).toBeHidden();
   });
 
   test("tablet does not stretch the master-data header gap", async ({ page }, testInfo) => {
-    test.skip(testInfo.project.name !== "tablet");
+    test.skip(!["tablet", "tablet-landscape"].includes(testInfo.project.name));
     await page.goto("/admin/master-data/locations");
     await expect(page.getByRole("heading", { level: 1, name: "Stammdaten", exact: true })).toBeVisible();
     await expect(page.locator(".tab-list")).toBeVisible();
@@ -88,6 +88,53 @@ test.describe("admin responsive smoke", () => {
     });
     expect(spacing).not.toBeNull();
     expect(spacing as number).toBeLessThanOrEqual(24);
+  });
+
+  test("tablet landscape keeps inventory dialogs within the modal bounds", async ({ page }, testInfo) => {
+    test.skip(testInfo.project.name !== "tablet-landscape");
+    await page.goto("/admin/inventory");
+
+    await page.getByRole("button", { name: "Charge hinzufügen" }).click();
+    const createDialog = page.getByRole("dialog", { name: "Charge erfassen" });
+    await expect(createDialog).toBeVisible();
+    const createOverflow = await createDialog.evaluate((dialog) => dialog.scrollWidth - dialog.clientWidth);
+    expect(createOverflow).toBeLessThanOrEqual(1);
+    await page.getByRole("button", { name: "Dialog schließen" }).click();
+
+    await page.getByRole("button", { name: "Korrigieren" }).first().click();
+    const correctionDialog = page.getByRole("dialog", { name: "Chargenkorrektur" });
+    await expect(correctionDialog).toBeVisible();
+    const correctionOverflow = await correctionDialog.evaluate((dialog) => dialog.scrollWidth - dialog.clientWidth);
+    expect(correctionOverflow).toBeLessThanOrEqual(1);
+  });
+
+  test("tablet landscape keeps dashboard order text in the default body color", async ({ page }, testInfo) => {
+    test.skip(testInfo.project.name !== "tablet-landscape");
+    await page.goto("/");
+    const rowColor = await page.locator(".order-row").first().evaluate((element) => getComputedStyle(element).color);
+    expect(rowColor).toBe("rgb(23, 32, 44)");
+  });
+
+  test("tablet landscape keeps purchase order line cards readable", async ({ page }, testInfo) => {
+    test.skip(testInfo.project.name !== "tablet-landscape");
+    await page.goto("/admin/purchase-orders");
+    await page.getByRole("link", { name: "Bearbeiten" }).first().click();
+    const overflow = await page.evaluate(() => {
+      const doc = document.documentElement;
+      return doc.scrollWidth - doc.clientWidth;
+    });
+    expect(overflow).toBeLessThanOrEqual(1);
+    await expect(page.locator(".purchase-order-line-price").first()).toBeVisible();
+  });
+
+  test("tablet landscape keeps the device dialog date fields inside the modal", async ({ page }, testInfo) => {
+    test.skip(testInfo.project.name !== "tablet-landscape");
+    await page.goto("/admin/master-data/devices");
+    await page.getByRole("button", { name: "Gerät hinzufügen" }).click();
+    const dialog = page.getByRole("dialog", { name: "Gerät anlegen" });
+    await expect(dialog).toBeVisible();
+    const overflow = await dialog.evaluate((element) => element.scrollWidth - element.clientWidth);
+    expect(overflow).toBeLessThanOrEqual(1);
   });
 
   test("purchase order detail rail actions stay reachable on narrow viewports", async ({ page }) => {
