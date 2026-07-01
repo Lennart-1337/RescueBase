@@ -184,6 +184,7 @@ model Article {
   barcode               String?
   articleUrl            String?
   defaultSupplierName   String?
+  unitsPerPackage       Int?
   defaultGrossPriceCents Int?
   sterile               Boolean            @default(false)
   medicalDevice         Boolean            @default(false)

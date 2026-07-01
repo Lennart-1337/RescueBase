@@ -1,9 +1,17 @@
 import type { PrismaClient } from "@prisma/client";
 import { hash } from "bcryptjs";
 
-export async function seedRescueBaseDevelopmentData(prisma: PrismaClient): Promise<void> {
-  const adminPasswordHash = await hash(process.env.RESCUEBASE_DEV_ADMIN_PASSWORD ?? "rescuebase-admin", 12);
-  const warehousePasswordHash = await hash(process.env.RESCUEBASE_DEV_WAREHOUSE_PASSWORD ?? "rescuebase-lager", 12);
+export async function seedRescueBaseDevelopmentData(
+  prisma: PrismaClient,
+): Promise<void> {
+  const adminPasswordHash = await hash(
+    process.env.RESCUEBASE_DEV_ADMIN_PASSWORD ?? "rescuebase-admin",
+    12,
+  );
+  const warehousePasswordHash = await hash(
+    process.env.RESCUEBASE_DEV_WAREHOUSE_PASSWORD ?? "rescuebase-lager",
+    12,
+  );
 
   await prisma.user.upsert({
     where: { email: "admin@rescuebase.local" },
@@ -15,8 +23,8 @@ export async function seedRescueBaseDevelopmentData(prisma: PrismaClient): Promi
       passwordHash: adminPasswordHash,
       role: "ADMIN",
       twoFactorEnabled: false,
-      active: true
-    }
+      active: true,
+    },
   });
   await prisma.user.upsert({
     where: { email: "lager@rescuebase.local" },
@@ -28,19 +36,19 @@ export async function seedRescueBaseDevelopmentData(prisma: PrismaClient): Promi
       passwordHash: warehousePasswordHash,
       role: "WAREHOUSE",
       twoFactorEnabled: false,
-      active: true
-    }
+      active: true,
+    },
   });
 
   await prisma.location.upsert({
     where: { id: "loc-main" },
     update: {},
-    create: { id: "loc-main", name: "Hauptlager", kind: "STORAGE" }
+    create: { id: "loc-main", name: "Hauptlager", kind: "STORAGE" },
   });
   await prisma.location.upsert({
     where: { id: "loc-rtw-1" },
     update: {},
-    create: { id: "loc-rtw-1", name: "Fahrzeug 1", kind: "VEHICLE" }
+    create: { id: "loc-rtw-1", name: "Fahrzeug 1", kind: "VEHICLE" },
   });
 
   await prisma.article.upsert({
@@ -57,11 +65,12 @@ export async function seedRescueBaseDevelopmentData(prisma: PrismaClient): Promi
       barcode: "040000000001",
       articleUrl: "https://shop.example.org/articles/verbandpaeckchen-mittel",
       defaultSupplierName: "MediSafe Einkauf",
+      unitsPerPackage: 10,
       defaultGrossPriceCents: 249,
       sterile: true,
       storageNotes: "Trocken lagern",
-      criticalDefault: false
-    }
+      criticalDefault: false,
+    },
   });
   await prisma.article.upsert({
     where: { id: "article-tourniquet" },
@@ -83,8 +92,8 @@ export async function seedRescueBaseDevelopmentData(prisma: PrismaClient): Promi
       stkRequired: true,
       stkIntervalMonths: 12,
       notes: "Nur durch eingewiesenes Personal verwenden",
-      criticalDefault: true
-    }
+      criticalDefault: true,
+    },
   });
   await prisma.article.upsert({
     where: { id: "article-gloves" },
@@ -100,11 +109,12 @@ export async function seedRescueBaseDevelopmentData(prisma: PrismaClient): Promi
       barcode: "040000000003",
       articleUrl: "https://shop.example.org/articles/einmalhandschuhe-m",
       defaultSupplierName: "SafeHands",
+      unitsPerPackage: 5,
       defaultGrossPriceCents: 799,
       sterile: false,
       storageNotes: "Vor Hitze schützen",
-      criticalDefault: false
-    }
+      criticalDefault: false,
+    },
   });
 
   await prisma.batch.upsert({
@@ -116,8 +126,8 @@ export async function seedRescueBaseDevelopmentData(prisma: PrismaClient): Promi
       locationId: "loc-main",
       lotNumber: "VB-2026-04",
       expiresAt: new Date("2027-04-30T00:00:00.000Z"),
-      quantity: 120
-    }
+      quantity: 120,
+    },
   });
   await prisma.batch.upsert({
     where: { id: "batch-tourniquet-1" },
@@ -128,8 +138,8 @@ export async function seedRescueBaseDevelopmentData(prisma: PrismaClient): Promi
       locationId: "loc-main",
       lotNumber: "TQ-2028-01",
       expiresAt: new Date("2028-01-31T00:00:00.000Z"),
-      quantity: 18
-    }
+      quantity: 18,
+    },
   });
   await prisma.batch.upsert({
     where: { id: "batch-gloves-1" },
@@ -140,8 +150,8 @@ export async function seedRescueBaseDevelopmentData(prisma: PrismaClient): Promi
       locationId: "loc-main",
       lotNumber: "GL-2026-08",
       expiresAt: new Date("2026-08-31T00:00:00.000Z"),
-      quantity: 42
-    }
+      quantity: 42,
+    },
   });
 
   await prisma.kitTemplate.upsert({
@@ -159,7 +169,7 @@ export async function seedRescueBaseDevelopmentData(prisma: PrismaClient): Promi
             sortOrder: 1,
             moduleName: "Verband",
             requiredQuantity: 6,
-            critical: false
+            critical: false,
           },
           {
             id: "pos-tourniquet",
@@ -167,18 +177,18 @@ export async function seedRescueBaseDevelopmentData(prisma: PrismaClient): Promi
             sortOrder: 2,
             moduleName: "Blutung",
             requiredQuantity: 2,
-            critical: true
+            critical: true,
           },
           {
             id: "pos-gloves",
             articleId: "article-gloves",
             sortOrder: 3,
             requiredQuantity: 8,
-            critical: false
-          }
-        ]
-      }
-    }
+            critical: false,
+          },
+        ],
+      },
+    },
   });
 
   await prisma.kit.upsert({
@@ -192,8 +202,8 @@ export async function seedRescueBaseDevelopmentData(prisma: PrismaClient): Promi
       templateId: "template-san-a-v1",
       status: "READY",
       publicToken: "SAN-RS-001-ZUGANG-2026",
-      tokenRotatedAt: new Date("2026-06-11T00:00:00.000Z")
-    }
+      tokenRotatedAt: new Date("2026-06-11T00:00:00.000Z"),
+    },
   });
 
   await prisma.check.upsert({
@@ -207,8 +217,8 @@ export async function seedRescueBaseDevelopmentData(prisma: PrismaClient): Promi
       effectiveStatus: "CONDITIONAL",
       warningsJson: ["Initialer offener Nachfüllauftrag"],
       signaturePngDataUrl: "data:image/png;base64,initial",
-      signatureHash: "initial"
-    }
+      signatureHash: "initial",
+    },
   });
 
   await prisma.replenishmentOrder.upsert({
@@ -231,7 +241,7 @@ export async function seedRescueBaseDevelopmentData(prisma: PrismaClient): Promi
             fulfilledQuantity: 0,
             reason: "SHORTAGE_AND_DISCARDED_EXPIRED",
             unit: "Stück",
-            critical: false
+            critical: false,
           },
           {
             articleId: "article-tourniquet",
@@ -241,10 +251,10 @@ export async function seedRescueBaseDevelopmentData(prisma: PrismaClient): Promi
             fulfilledQuantity: 0,
             reason: "SHORTAGE",
             unit: "Stück",
-            critical: true
-          }
-        ]
-      }
-    }
+            critical: true,
+          },
+        ],
+      },
+    },
   });
 }
