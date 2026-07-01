@@ -11,7 +11,8 @@
 }
 
 .legal-page h2,
-.legal-page p {
+.legal-page p,
+.legal-page ul {
   margin: 0;
 }
 
@@ -20,7 +21,18 @@
   font-size: 18px;
 }
 
-.legal-page p {
+.legal-page p,
+.legal-page li,
+.legal-page a {
   color: #526172;
   line-height: 1.6;
+}
+
+.legal-page div {
+  color: #526172;
+  line-height: 1.6;
+}
+
+.legal-page ul {
+  padding-left: 20px;
 }
