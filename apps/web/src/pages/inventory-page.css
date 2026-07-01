@@ -24,7 +24,7 @@
   justify-content: flex-end;
 }
 
-@media (max-width: 980px) {
+@media (max-width: 1200px) {
   .inventory-workspace,
   .inventory-workspace .inventory-planning-grid {
     grid-template-columns: 1fr;

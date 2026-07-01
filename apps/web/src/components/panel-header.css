@@ -4,7 +4,12 @@
   justify-content: space-between;
   gap: 12px;
   align-items: flex-start;
+  flex-wrap: wrap;
   border-bottom: 1px solid #edf0f4;
+}
+
+.panel-header > div {
+  min-width: 0;
 }
 
 .panel-header h2 {
@@ -16,4 +21,10 @@
 .panel-header p {
   margin: 6px 0 0;
   color: #657386;
+}
+
+@media (max-width: 1200px) {
+  .panel-header .topbar-actions {
+    justify-content: flex-start;
+  }
 }

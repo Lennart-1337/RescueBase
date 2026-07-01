@@ -89,7 +89,7 @@
   margin: 0 14px 10px;
 }
 
-@media (max-width: 900px) {
+@media (max-width: 1200px) {
   .settings-split-grid {
     grid-template-columns: 1fr;
   }

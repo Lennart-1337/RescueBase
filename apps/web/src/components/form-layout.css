@@ -75,16 +75,10 @@
 }
 
 @media (max-width: 980px) {
+  .form-grid-two,
   .form-grid-three,
   .form-grid-four,
   .form-grid-five {
-    grid-template-columns: 1fr;
-  }
-}
-
-@media (max-width: 620px) {
-  .form-grid-two,
-  .form-grid-three {
     grid-template-columns: 1fr;
   }
 }
