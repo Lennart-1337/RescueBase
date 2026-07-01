@@ -88,6 +88,18 @@ describe("InventoryPage", () => {
     expect(formGrid).toHaveClass("batch-correction-grid", "form-grid", "form-grid-two");
   });
 
+  it("marks the correction expiry field with the mobile width hook", async () => {
+    stubFetch({ ...baseInventoryRoutes(), "/api/inventory/batches/batch-bandage-1/movements": [] });
+    await renderAppAt("/admin/inventory");
+    await screen.findByRole("heading", { name: "Lager" });
+
+    await clickElement(await screen.findByRole("button", { name: /Korrigieren/ }));
+    const dialog = await screen.findByRole("dialog", { name: "Chargenkorrektur" });
+    const expiryField = within(dialog).getByLabelText("Ablaufdatum").closest(".field");
+
+    expect(expiryField).toHaveClass("batch-correction-expiry-field");
+  });
+
   it("renders correction history rows with compact modal spacing hooks", async () => {
     stubFetch({
       ...baseInventoryRoutes(),

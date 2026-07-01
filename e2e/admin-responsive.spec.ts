@@ -66,6 +66,30 @@ test.describe("admin responsive smoke", () => {
     await expect(page.getByRole("button", { name: "Menü schließen" })).toBeVisible();
   });
 
+  test("tablet keeps the sidebar visible on master-data routes", async ({ page }, testInfo) => {
+    test.skip(testInfo.project.name !== "tablet");
+    await page.goto("/admin/master-data/locations");
+    await expect(page.getByRole("link", { name: "Stammdaten" })).toBeVisible();
+    await expect(page.getByRole("button", { name: "Menü öffnen" })).toBeHidden();
+  });
+
+  test("tablet does not stretch the master-data header gap", async ({ page }, testInfo) => {
+    test.skip(testInfo.project.name !== "tablet");
+    await page.goto("/admin/master-data/locations");
+    await expect(page.getByRole("heading", { level: 1, name: "Stammdaten", exact: true })).toBeVisible();
+    await expect(page.locator(".tab-list")).toBeVisible();
+    const spacing = await page.evaluate(() => {
+      const heading = document.querySelector("h1");
+      const tabs = document.querySelector(".tab-list");
+      if (!heading || !tabs) return null;
+      const headingBox = heading.getBoundingClientRect();
+      const tabsBox = tabs.getBoundingClientRect();
+      return Math.round(tabsBox.top - headingBox.bottom);
+    });
+    expect(spacing).not.toBeNull();
+    expect(spacing as number).toBeLessThanOrEqual(24);
+  });
+
   test("purchase order detail rail actions stay reachable on narrow viewports", async ({ page }) => {
     await page.goto("/admin/purchase-orders");
     await page.getByRole("link", { name: "Bearbeiten" }).first().click();
@@ -84,5 +108,14 @@ test.describe("admin responsive smoke", () => {
     await page.getByRole("button", { name: "Artikel hinzufügen" }).click();
     await expect(page.getByRole("dialog", { name: "Artikel anlegen" })).toBeVisible();
     await page.getByRole("button", { name: "Dialog schließen" }).click();
+  });
+
+  test("article dialog removes the feature divider on narrow layouts", async ({ page }, testInfo) => {
+    test.skip(testInfo.project.name === "desktop");
+    await page.goto("/admin/master-data/articles");
+    await page.getByRole("button", { name: "Artikel hinzufügen" }).click();
+    const flagsSection = page.getByRole("region", { name: "Artikelmerkmale" });
+    await expect(flagsSection).toBeVisible();
+    await expect(flagsSection).toHaveCSS("border-left-width", "0px");
   });
 });

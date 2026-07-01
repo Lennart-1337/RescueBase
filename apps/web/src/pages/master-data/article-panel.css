@@ -147,6 +147,12 @@
     grid-template-columns: 1fr;
   }
 
+  .article-editor-flags {
+    margin: 0;
+    padding: 0;
+    border-left: 0;
+  }
+
   .article-filter-grid {
     grid-template-columns: 1fr;
   }
