@@ -149,7 +149,7 @@ export function InventoryPage({ user: _user }: { user: AuthenticatedUser }) {
 
   return (
     <>
-      <PageHeader actions={<><Link className="button button-secondary" search={{ mode: "shortages" }} to="/admin/purchase-orders/new"><ShoppingCart data-icon="inline-start" />Bestellung aus Fehlmengen</Link><AnchorButton href={rescueBaseApi.reportUrl("/reports/csv/inventory")} variant="secondary"><Download data-icon="inline-start" />CSV Bestand</AnchorButton><Button onClick={() => setCreateOpen(true)} type="button"><Plus data-icon="inline-start" />Charge hinzufügen</Button></>} title="Lager" />
+      <PageHeader actions={<><Link className="button button-secondary" search={{ mode: "shortages" }} to="/admin/purchase-orders/new"><ShoppingCart data-icon="inline-start" />Bestellung aus Fehlmengen</Link><AnchorButton href={rescueBaseApi.reportUrl("/reports/csv/inventory")} variant="secondary"><Download data-icon="inline-start" />CSV Bestand</AnchorButton><Button onClick={() => setCreateOpen(true)} type="button"><Plus data-icon="inline-start" />Charge hinzufügen</Button></>} className="inventory-page-header" title="Lager" />
       <MetricGrid compact items={[
         { icon: <Archive />, label: "Chargen", tone: "info", value: String(batches.data.length) },
         { icon: <AlertTriangle />, label: "Ablaufwarnungen", tone: "danger", value: String(expiring.length) }

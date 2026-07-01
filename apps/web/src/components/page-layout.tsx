@@ -2,9 +2,9 @@ import type { PropsWithChildren, ReactNode } from "react";
 import { cn } from "./ui";
 import "./page-layout.css";
 
-export function PageHeader(props: { actions?: ReactNode; description?: string; title: string }) {
+export function PageHeader(props: { actions?: ReactNode; className?: string; description?: string; title: string }) {
   return (
-    <header className="topbar page-header">
+    <header className={cn("topbar page-header", props.className)}>
       <div><h1>{props.title}</h1>{props.description ? <p>{props.description}</p> : null}</div>
       {props.actions ? <div className="topbar-actions">{props.actions}</div> : null}
     </header>

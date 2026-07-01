@@ -24,6 +24,17 @@
   justify-content: flex-end;
 }
 
+@media (max-width: 900px) {
+  .inventory-page-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .inventory-page-header .topbar-actions {
+    justify-content: flex-start;
+  }
+}
+
 @media (max-width: 1200px) {
   .inventory-workspace,
   .inventory-workspace .inventory-planning-grid {

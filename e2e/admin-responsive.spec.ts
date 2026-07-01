@@ -90,6 +90,15 @@ test.describe("admin responsive smoke", () => {
     expect(spacing as number).toBeLessThanOrEqual(24);
   });
 
+  test("tablet stacks the inventory header actions below the title", async ({ page }, testInfo) => {
+    test.skip(testInfo.project.name !== "tablet");
+    await page.goto("/admin/inventory");
+    await expect(page.getByRole("heading", { level: 1, name: "Lager", exact: true })).toBeVisible();
+    const header = page.locator(".inventory-page-header");
+    await expect(header).toBeVisible();
+    await expect(header).toHaveCSS("flex-direction", "column");
+  });
+
   test("tablet landscape keeps inventory dialogs within the modal bounds", async ({ page }, testInfo) => {
     test.skip(testInfo.project.name !== "tablet-landscape");
     await page.goto("/admin/inventory");
