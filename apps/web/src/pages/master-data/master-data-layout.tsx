@@ -14,7 +14,7 @@ export function MasterDataLayout() {
   const pathname = useRouterState({ select: (state) => state.location.pathname });
 
   return (
-    <>
+    <div className="master-data-layout">
       <PageHeader title="Stammdaten" />
       <div aria-label="Stammdatenbereiche" className="tab-list" role="tablist">
         {tabs.map((tab) => (
@@ -31,6 +31,6 @@ export function MasterDataLayout() {
         ))}
       </div>
       <div className="master-data-content"><Outlet /></div>
-    </>
+    </div>
   );
 }

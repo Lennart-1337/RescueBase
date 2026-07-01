@@ -1,3 +1,12 @@
+.master-data-layout {
+  display: grid;
+  gap: 16px;
+}
+
+.master-data-layout > .tab-list {
+  margin: 0;
+}
+
 .master-data-content {
   display: grid;
   gap: 16px;
