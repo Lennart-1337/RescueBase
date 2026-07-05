@@ -9,6 +9,7 @@ import { SignaturePad } from "./signature-pad";
 import "./public-check-form.css";
 
 export function PublicCheckForm(props: {
+  isSubmitting: boolean;
   onSubmit: (body: { checkerName: string; positions: CheckLineState[]; signaturePngDataUrl: string }) => void;
   publicKit: PublicKitResponse;
   submitError: Error | null;
@@ -43,7 +44,7 @@ export function PublicCheckForm(props: {
       {props.submitError ? <InlineError error={props.submitError} /> : null}
       <footer className="check-footer">
         <div><strong>{statusLabel("kit", summary.effectiveStatus)}</strong></div>
-        <Button disabled={!canSubmit} onClick={() => signature ? props.onSubmit({ checkerName, positions: lines, signaturePngDataUrl: signature }) : setSignatureError("Bitte unterschreiben Sie den Check.")} type="button">Check abschließen</Button>
+        <Button disabled={!canSubmit} loading={props.isSubmitting} onClick={() => signature ? props.onSubmit({ checkerName, positions: lines, signaturePngDataUrl: signature }) : setSignatureError("Bitte unterschreiben Sie den Check.")} type="button">Check abschließen</Button>
       </footer>
     </main>
   );

@@ -13,6 +13,10 @@
   cursor: pointer;
 }
 
+.button-loading-icon {
+  animation: button-spin 900ms linear infinite;
+}
+
 .button:disabled {
   opacity: 0.55;
   cursor: not-allowed;
@@ -42,6 +46,20 @@
 .button svg {
   width: 18px;
   height: 18px;
+}
+
+.button[data-loading] > svg:not(.button-loading-icon) {
+  display: none;
+}
+
+@keyframes button-spin {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .tab-list {

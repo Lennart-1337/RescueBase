@@ -112,7 +112,7 @@ export function DevicePanel(props: {
         ))}
       </div>
       <Dialog
-        actions={<><Button disabled={props.isSubmitting} onClick={() => setDraft(emptyDraft(props.articles[0]?.id ?? "", props.locations[0]?.id ?? ""))} type="button" variant="ghost"><X data-icon="inline-start" />Abbrechen</Button><Button disabled={!canSubmit || props.isSubmitting} onClick={() => void submit()} type="button"><Save data-icon="inline-start" />{draft.editingId ? "Gerät speichern" : "Gerät anlegen"}</Button></>}
+        actions={<><Button disabled={props.isSubmitting} onClick={() => setDraft(emptyDraft(props.articles[0]?.id ?? "", props.locations[0]?.id ?? ""))} type="button" variant="ghost"><X data-icon="inline-start" />Abbrechen</Button><Button disabled={!canSubmit} loading={props.isSubmitting} onClick={() => void submit()} type="button"><Save data-icon="inline-start" />{draft.editingId ? "Gerät speichern" : "Gerät anlegen"}</Button></>}
         onClose={() => setDraft(emptyDraft(props.articles[0]?.id ?? "", props.locations[0]?.id ?? ""))}
         open={draft.isOpen}
         title={draft.editingId ? "Gerät bearbeiten" : "Gerät anlegen"}

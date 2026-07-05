@@ -20,7 +20,7 @@ export function UserInvitationPanel(props: { error: Error | null; isOpen: boolea
   }
 
   return (
-    <Dialog actions={<><Button onClick={props.onClose} type="button" variant="ghost"><X data-icon="inline-start" />Schließen</Button><Button disabled={!displayName.trim() || !email.trim() || props.isSubmitting} onClick={() => void invite()} type="button"><Plus data-icon="inline-start" />Einladung senden</Button></>} onClose={props.onClose} open={props.isOpen} title="Benutzer einladen">
+    <Dialog actions={<><Button onClick={props.onClose} type="button" variant="ghost"><X data-icon="inline-start" />Schließen</Button><Button disabled={!displayName.trim() || !email.trim()} loading={props.isSubmitting} onClick={() => void invite()} type="button"><Plus data-icon="inline-start" />Einladung senden</Button></>} onClose={props.onClose} open={props.isOpen} title="Benutzer einladen">
       <div className="form-grid form-grid-three">
         <Field label="Name"><input autoFocus value={displayName} onChange={(event) => setDisplayName(event.target.value)} /></Field>
         <Field label="E-Mail"><input type="email" value={email} onChange={(event) => setEmail(event.target.value)} /></Field>

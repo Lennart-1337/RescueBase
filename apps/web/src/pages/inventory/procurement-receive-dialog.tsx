@@ -20,7 +20,7 @@ export function ProcurementReceiveDialog(props: {
 }) {
   return (
     <Dialog
-      actions={<><Button disabled={props.isSubmitting || !props.order || !props.verified} onClick={props.onSubmit} type="button">Wareneingang buchen</Button><Button onClick={props.onClose} type="button" variant="secondary">Abbrechen</Button></>}
+      actions={<><Button disabled={!props.order || !props.verified} loading={props.isSubmitting} onClick={props.onSubmit} type="button">Wareneingang buchen</Button><Button onClick={props.onClose} type="button" variant="secondary">Abbrechen</Button></>}
       onClose={props.onClose}
       open={props.isOpen}
       title="Wareneingang"

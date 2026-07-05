@@ -24,7 +24,7 @@ export function PublicCheck({ token }: { token: string }) {
     return <PublicCheckSuccess result={mutation.data} />;
   }
 
-  return <PublicCheckForm onSubmit={mutation.mutate} publicKit={query.data} submitError={mutation.error ? toError(mutation.error) : null} />;
+  return <PublicCheckForm isSubmitting={mutation.isPending} onSubmit={mutation.mutate} publicKit={query.data} submitError={mutation.error ? toError(mutation.error) : null} />;
 }
 
 function PublicCheckSuccess({ result }: { result: CompleteCheckResponse }) {

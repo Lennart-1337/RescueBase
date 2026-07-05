@@ -6,6 +6,7 @@ import {
   type PropsWithChildren,
   type ReactNode
 } from "react";
+import { LoaderCircle } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { fadeVariants, scaleFadeVariants } from "../motion/presets";
 import { useMotionMode } from "../motion/use-motion-mode";
@@ -17,11 +18,28 @@ export function cn(...values: Array<string | false | null | undefined>): string 
 }
 
 export function Button({
+  children,
   className,
+  disabled,
+  loading = false,
   variant = "primary",
   ...props
-}: ButtonHTMLAttributes<HTMLButtonElement> & { variant?: "primary" | "secondary" | "ghost" | "danger" }) {
-  return <button className={cn("button", `button-${variant}`, className)} {...props} />;
+}: ButtonHTMLAttributes<HTMLButtonElement> & {
+  loading?: boolean;
+  variant?: "primary" | "secondary" | "ghost" | "danger";
+}) {
+  return (
+    <button
+      aria-busy={loading}
+      className={cn("button", `button-${variant}`, loading && "button-loading", className)}
+      data-loading={loading || undefined}
+      disabled={disabled || loading}
+      {...props}
+    >
+      {loading ? <LoaderCircle aria-hidden="true" className="button-loading-icon" /> : null}
+      {children}
+    </button>
+  );
 }
 
 export function AnchorButton({

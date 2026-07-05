@@ -210,7 +210,8 @@ export function PurchaseOrderNewPage() {
               </section>
               <div className="purchase-order-new-actions">
                 <Button
-                  disabled={!canSubmitManual || createManual.isPending}
+                  disabled={!canSubmitManual}
+                  loading={createManual.isPending}
                   onClick={submitManual}
                   type="button"
                 >
@@ -283,8 +284,9 @@ export function PurchaseOrderNewPage() {
               <div className="purchase-order-new-actions">
                 <Button
                   disabled={
-                    !canSubmitShortages || createFromShortages.isPending
+                    !canSubmitShortages
                   }
+                  loading={createFromShortages.isPending}
                   onClick={submitShortages}
                   type="button"
                 >

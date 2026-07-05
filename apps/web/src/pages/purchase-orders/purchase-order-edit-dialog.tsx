@@ -73,7 +73,7 @@ export function PurchaseOrderEditDialog(props: {
 
   return (
     <Dialog
-      actions={<><Button onClick={props.onClose} type="button" variant="secondary">Abbrechen</Button><Button disabled={(isDraft && !canSaveDraft) || props.isSaving} onClick={save} type="button">{isDraft ? "Bestellung speichern" : "Hinweise speichern"}</Button></>}
+      actions={<><Button onClick={props.onClose} type="button" variant="secondary">Abbrechen</Button><Button disabled={isDraft && !canSaveDraft} loading={props.isSaving} onClick={save} type="button">{isDraft ? "Bestellung speichern" : "Hinweise speichern"}</Button></>}
       bodyClassName="purchase-order-edit-body"
       onClose={props.onClose}
       open={props.open}

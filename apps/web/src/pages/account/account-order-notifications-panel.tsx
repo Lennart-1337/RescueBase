@@ -29,8 +29,8 @@ export function AccountOrderNotificationsPanel({ user }: { user: AuthenticatedUs
           <input checked={enabled} onChange={(event) => setEnabled(event.target.checked)} type="checkbox" />
           <span>Neue Nachfüllaufträge per E-Mail senden</span>
         </label>
-        <Button disabled={save.isPending || enabled === Boolean(user.newOrderNotificationsEnabled)} onClick={() => save.mutate({ enabled })} type="button">
-          {save.isPending ? "Speichert..." : "Speichern"}
+        <Button disabled={enabled === Boolean(user.newOrderNotificationsEnabled)} loading={save.isPending} onClick={() => save.mutate({ enabled })} type="button">
+          Speichern
         </Button>
         {save.error ? <InlineError error={save.error} /> : null}
       </div>

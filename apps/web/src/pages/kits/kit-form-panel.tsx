@@ -28,7 +28,7 @@ export function KitFormPanel(props: {
 
   return (
     <Dialog
-      actions={<><Button disabled={props.isSubmitting} onClick={props.onClose} type="button" variant="ghost"><X data-icon="inline-start" />Abbrechen</Button><Button disabled={!canSubmit || props.isSubmitting} onClick={props.onSubmit} type="button">{props.editingId ? <Save data-icon="inline-start" /> : <Plus data-icon="inline-start" />}{props.editingId ? "Rucksack speichern" : "Rucksack anlegen"}</Button></>}
+      actions={<><Button disabled={props.isSubmitting} onClick={props.onClose} type="button" variant="ghost"><X data-icon="inline-start" />Abbrechen</Button><Button disabled={!canSubmit} loading={props.isSubmitting} onClick={props.onSubmit} type="button">{props.editingId ? <Save data-icon="inline-start" /> : <Plus data-icon="inline-start" />}{props.editingId ? "Rucksack speichern" : "Rucksack anlegen"}</Button></>}
       onClose={props.onClose}
       open={props.isOpen}
       title={props.editingId ? "Rucksack bearbeiten" : "Rucksack anlegen"}
