@@ -10,6 +10,7 @@ export type RouterContext = {
 export function createAppRouter(options?: { history?: Parameters<typeof createRouter>[0]["history"]; queryClient?: QueryClient }) {
   return createRouter({
     context: { queryClient: options?.queryClient ?? createRescueBaseQueryClient() },
+    defaultPreload: "intent",
     history: options?.history,
     routeTree
   });

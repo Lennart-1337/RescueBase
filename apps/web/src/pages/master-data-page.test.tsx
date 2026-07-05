@@ -1,6 +1,22 @@
 import { screen, waitFor, within } from "@testing-library/react";
-import { article, kit, location, medicalDevice } from "../test-support/fixtures";
-import { changeValue, clickElement, getActiveRouter, mouseDownElement, postedBody, renderAppAt, requestBody, resetTestBrowser, stubFetch, wasRequested } from "../test-support/app-test-helpers";
+import {
+  article,
+  kit,
+  location,
+  medicalDevice,
+} from "../test-support/fixtures";
+import {
+  changeValue,
+  clickElement,
+  getActiveRouter,
+  mouseDownElement,
+  postedBody,
+  renderAppAt,
+  requestBody,
+  resetTestBrowser,
+  stubFetch,
+  wasRequested,
+} from "../test-support/app-test-helpers";
 
 describe("MasterDataPage", () => {
   afterEach(resetTestBrowser);
@@ -9,154 +25,383 @@ describe("MasterDataPage", () => {
     stubFetch(baseAdminRoutes());
     await renderAppAt("/admin/master-data/articles");
     await screen.findByRole("heading", { name: "Stammdaten" });
-    expect(await screen.findByRole("search", { name: "Artikel filtern" })).toBeInTheDocument();
-    await clickElement(await screen.findByRole("button", { name: /Artikel hinzufügen/ }));
-    const dialog = await screen.findByRole("dialog", { name: "Artikel anlegen" });
+    expect(
+      await screen.findByRole("search", { name: "Artikel filtern" }),
+    ).toBeInTheDocument();
+    await clickElement(
+      await screen.findByRole("button", { name: /Artikel hinzufügen/ }),
+    );
+    const dialog = await screen.findByRole("dialog", {
+      name: "Artikel anlegen",
+    });
     await changeValue(within(dialog).getByLabelText("Name"), "Rettungsdecke");
     await changeValue(within(dialog).getByLabelText("Einheit"), "Stück");
-    await changeValue(within(dialog).getByLabelText("Hersteller"), "Acme Medical");
-    await changeValue(within(dialog).getByLabelText("Kategorie"), "Verbrauchsmaterial");
-    await changeValue(within(dialog).getByLabelText("Barcode/DataMatrix"), "040000000099");
-    await changeValue(within(dialog).getByLabelText("Artikel-Link"), "https://shop.example.org/articles/rettungsdecke");
+    await changeValue(
+      within(dialog).getByLabelText("Hersteller"),
+      "Acme Medical",
+    );
+    await changeValue(
+      within(dialog).getByLabelText("Kategorie"),
+      "Verbrauchsmaterial",
+    );
+    await changeValue(
+      within(dialog).getByLabelText("Barcode/DataMatrix"),
+      "040000000099",
+    );
+    await changeValue(
+      within(dialog).getByLabelText("Artikel-Link"),
+      "https://shop.example.org/articles/rettungsdecke",
+    );
+    await changeValue(
+      within(dialog).getByLabelText("VE (Einheiten pro Packung)"),
+      "10",
+    );
     await clickElement(within(dialog).getByLabelText("Steril"));
     await clickElement(within(dialog).getByLabelText("Medizinprodukt (MPDG)"));
     await clickElement(within(dialog).getByLabelText("STK erforderlich"));
-    await changeValue(within(dialog).getByLabelText("STK-Intervall (Monate)"), "12");
+    await changeValue(
+      within(dialog).getByLabelText("STK-Intervall (Monate)"),
+      "12",
+    );
     await clickElement(within(dialog).getByLabelText("MTK erforderlich"));
-    await changeValue(within(dialog).getByLabelText("MTK-Intervall (Monate)"), "24");
-    await clickElement(within(dialog).getByRole("button", { name: /Artikel anlegen/ }));
-    await waitFor(() => expect(postedBody("/api/catalog/articles")).toEqual({
-      name: "Rettungsdecke",
-      unit: "Stück",
-      manufacturer: "Acme Medical",
-      category: "Verbrauchsmaterial",
-      barcode: "040000000099",
-      articleUrl: "https://shop.example.org/articles/rettungsdecke",
-      sterile: true,
-      medicalDevice: true,
-      stkRequired: true,
-      stkIntervalMonths: 12,
-      mtkRequired: true,
-      mtkIntervalMonths: 24,
-      criticalDefault: false
-    }));
+    await changeValue(
+      within(dialog).getByLabelText("MTK-Intervall (Monate)"),
+      "24",
+    );
+    await clickElement(
+      within(dialog).getByRole("button", { name: /Artikel anlegen/ }),
+    );
+    await waitFor(() =>
+      expect(postedBody("/api/catalog/articles")).toEqual({
+        name: "Rettungsdecke",
+        unit: "Stück",
+        manufacturer: "Acme Medical",
+        category: "Verbrauchsmaterial",
+        barcode: "040000000099",
+        articleUrl: "https://shop.example.org/articles/rettungsdecke",
+        unitsPerPackage: 10,
+        sterile: true,
+        medicalDevice: true,
+        stkRequired: true,
+        stkIntervalMonths: 12,
+        mtkRequired: true,
+        mtkIntervalMonths: 24,
+        criticalDefault: false,
+      }),
+    );
   });
 
   it("edits existing articles from the admin master data screen", async () => {
-    stubFetch({ ...baseAdminRoutes(), "/api/catalog/articles/article-bandage": { ...article, name: "Verbandpäckchen groß", barcode: "040000000099" } });
+    stubFetch({
+      ...baseAdminRoutes(),
+      "/api/catalog/articles/article-bandage": {
+        ...article,
+        name: "Verbandpäckchen groß",
+        barcode: "040000000099",
+      },
+    });
     await renderAppAt("/admin/master-data/articles");
     await screen.findByRole("heading", { name: "Stammdaten" });
-    await clickElement(await screen.findByRole("button", { name: /Bearbeiten/ }));
-    const dialog = await screen.findByRole("dialog", { name: "Artikel bearbeiten" });
-    expect(within(dialog).queryByText("Pflegen Sie Materialstammdaten für Medizinprodukte und Verbrauchsmaterial.")).toBeNull();
-    expect(within(dialog).getByLabelText("Lagerhinweise").closest(".article-editor-fields")).not.toBeNull();
-    expect(within(dialog).getByLabelText("Hinweise").closest(".article-editor-field-notes")).not.toBeNull();
-    expect(within(dialog).getByLabelText("Kritisch als Standard").closest(".article-editor-flags")).not.toBeNull();
-    await changeValue(within(dialog).getByLabelText("Name"), "Verbandpäckchen groß");
+    await clickElement(
+      await screen.findByRole("button", { name: /Bearbeiten/ }),
+    );
+    const dialog = await screen.findByRole("dialog", {
+      name: "Artikel bearbeiten",
+    });
+    expect(
+      within(dialog).queryByText(
+        "Pflegen Sie Materialstammdaten für Medizinprodukte und Verbrauchsmaterial.",
+      ),
+    ).toBeNull();
+    expect(
+      within(dialog)
+        .getByLabelText("Lagerhinweise")
+        .closest(".article-editor-fields"),
+    ).not.toBeNull();
+    expect(
+      within(dialog)
+        .getByLabelText("Hinweise")
+        .closest(".article-editor-field-notes"),
+    ).not.toBeNull();
+    expect(
+      within(dialog)
+        .getByLabelText("Kritisch als Standard")
+        .closest(".article-editor-flags"),
+    ).not.toBeNull();
+    await changeValue(
+      within(dialog).getByLabelText("Name"),
+      "Verbandpäckchen groß",
+    );
     await changeValue(within(dialog).getByLabelText("Hersteller"), "MediSafe");
-    await changeValue(within(dialog).getByLabelText("Hersteller-Art.-Nr."), "VB-2000");
-    await changeValue(within(dialog).getByLabelText("Barcode/DataMatrix"), "040000000099");
-    await changeValue(within(dialog).getByLabelText("Artikel-Link"), "https://shop.example.org/articles/verbandpaeckchen-gross");
-    await changeValue(within(dialog).getByLabelText("Lagerhinweise"), "Trocken lagern");
+    await changeValue(
+      within(dialog).getByLabelText("Hersteller-Art.-Nr."),
+      "VB-2000",
+    );
+    await changeValue(
+      within(dialog).getByLabelText("Barcode/DataMatrix"),
+      "040000000099",
+    );
+    await changeValue(
+      within(dialog).getByLabelText("Artikel-Link"),
+      "https://shop.example.org/articles/verbandpaeckchen-gross",
+    );
+    await changeValue(
+      within(dialog).getByLabelText("VE (Einheiten pro Packung)"),
+      "20",
+    );
+    await changeValue(
+      within(dialog).getByLabelText("Lagerhinweise"),
+      "Trocken lagern",
+    );
     await clickElement(within(dialog).getByLabelText("Medizinprodukt (MPDG)"));
     await clickElement(within(dialog).getByLabelText("STK erforderlich"));
-    await changeValue(within(dialog).getByLabelText("STK-Intervall (Monate)"), "12");
-    await clickElement(within(dialog).getByRole("button", { name: /Artikel speichern/ }));
-    await waitFor(() => expect(requestBody("/api/catalog/articles/article-bandage", "PATCH")).toEqual({
-      name: "Verbandpäckchen groß",
-      unit: "Stück",
-      manufacturer: "MediSafe",
-      manufacturerPartNumber: "VB-2000",
-      category: "Verbandmaterial",
-      barcode: "040000000099",
-      articleUrl: "https://shop.example.org/articles/verbandpaeckchen-gross",
-      sterile: true,
-      medicalDevice: true,
-      stkRequired: true,
-      stkIntervalMonths: 12,
-      mtkRequired: false,
-      storageNotes: "Trocken lagern",
-      notes: "Einzeln steril verpackt",
-      criticalDefault: false
-    }));
+    await changeValue(
+      within(dialog).getByLabelText("STK-Intervall (Monate)"),
+      "12",
+    );
+    await clickElement(
+      within(dialog).getByRole("button", { name: /Artikel speichern/ }),
+    );
+    await waitFor(() =>
+      expect(
+        requestBody("/api/catalog/articles/article-bandage", "PATCH"),
+      ).toEqual({
+        name: "Verbandpäckchen groß",
+        unit: "Stück",
+        manufacturer: "MediSafe",
+        manufacturerPartNumber: "VB-2000",
+        category: "Verbandmaterial",
+        barcode: "040000000099",
+        articleUrl: "https://shop.example.org/articles/verbandpaeckchen-gross",
+        unitsPerPackage: 20,
+        sterile: true,
+        medicalDevice: true,
+        stkRequired: true,
+        stkIntervalMonths: 12,
+        mtkRequired: false,
+        storageNotes: "Trocken lagern",
+        notes: "Einzeln steril verpackt",
+        criticalDefault: false,
+      }),
+    );
   });
 
   it("submits new locations from the dedicated lagerorte tab modal", async () => {
     stubFetch(baseAdminRoutes());
     await renderAppAt("/admin/master-data/locations");
     await screen.findByRole("heading", { name: "Stammdaten" });
-    await clickElement(await screen.findByRole("button", { name: /Lagerort hinzufügen/ }));
-    const dialog = await screen.findByRole("dialog", { name: "Lagerort anlegen" });
+    await clickElement(
+      await screen.findByRole("button", { name: /Lagerort hinzufügen/ }),
+    );
+    const dialog = await screen.findByRole("dialog", {
+      name: "Lagerort anlegen",
+    });
     await changeValue(within(dialog).getByLabelText("Name"), "Raum 3");
     await changeValue(within(dialog).getByLabelText("Typ"), "Raum");
     await mouseDownElement(await screen.findByRole("option", { name: "Raum" }));
-    await clickElement(within(dialog).getByRole("button", { name: /Lagerort anlegen/ }));
-    await waitFor(() => expect(postedBody("/api/catalog/locations")).toEqual({ name: "Raum 3", kind: "ROOM" }));
+    await clickElement(
+      within(dialog).getByRole("button", { name: /Lagerort anlegen/ }),
+    );
+    await waitFor(() =>
+      expect(postedBody("/api/catalog/locations")).toEqual({
+        name: "Raum 3",
+        kind: "ROOM",
+      }),
+    );
   });
 
   it("revises templates from the dedicated vorlagen tab modal", async () => {
-    stubFetch({ ...baseAdminRoutes(), "/api/catalog/templates": [{ ...kit.template, positions: [{ id: "pos-bandage", articleId: "article-bandage", articleName: "Verbandpäckchen mittel", moduleName: "Verband", requiredQuantity: 1, unit: "Stück", critical: false }] }] });
+    stubFetch({
+      ...baseAdminRoutes(),
+      "/api/catalog/templates": [
+        {
+          ...kit.template,
+          positions: [
+            {
+              id: "pos-bandage",
+              articleId: "article-bandage",
+              articleName: "Verbandpäckchen mittel",
+              moduleName: "Verband",
+              requiredQuantity: 1,
+              unit: "Stück",
+              critical: false,
+            },
+          ],
+        },
+      ],
+    });
     await renderAppAt("/admin/master-data/templates");
     await screen.findByRole("heading", { name: "Stammdaten" });
-    await clickElement(await screen.findByRole("button", { name: /Bearbeiten/ }));
-    const dialog = await screen.findByRole("dialog", { name: "Rucksackvorlage bearbeiten" });
+    await clickElement(
+      await screen.findByRole("button", { name: /Bearbeiten/ }),
+    );
+    const dialog = await screen.findByRole("dialog", {
+      name: "Rucksackvorlage bearbeiten",
+    });
     await changeValue(within(dialog).getByLabelText("Sollmenge"), "2");
-    await clickElement(within(dialog).getByRole("button", { name: /Neue Version speichern/ }));
-    await waitFor(() => expect(postedBody("/api/catalog/templates/template-san-a-v1/revise")).toEqual({ positions: [{ articleId: "article-bandage", moduleName: "Verband", requiredQuantity: 2, critical: false }] }));
+    await clickElement(
+      within(dialog).getByRole("button", { name: /Neue Version speichern/ }),
+    );
+    await waitFor(() =>
+      expect(
+        postedBody("/api/catalog/templates/template-san-a-v1/revise"),
+      ).toEqual({
+        positions: [
+          {
+            articleId: "article-bandage",
+            moduleName: "Verband",
+            requiredQuantity: 2,
+            critical: false,
+          },
+        ],
+      }),
+    );
   });
 
   it("duplicates templates into a prefilled create flow that allows renaming and changing positions", async () => {
     stubFetch({
       ...baseAdminRoutes(),
-      "/api/catalog/templates": [{ ...kit.template, positions: [{ id: "pos-bandage", articleId: "article-bandage", articleName: "Verbandpäckchen mittel", moduleName: "Verband", requiredQuantity: 1, unit: "Stück", critical: false }] }],
-      "/api/catalog/templates?refresh=1": [{ ...kit.template, positions: [{ id: "pos-bandage", articleId: "article-bandage", articleName: "Verbandpäckchen mittel", moduleName: "Verband", requiredQuantity: 1, unit: "Stück", critical: false }] }]
+      "/api/catalog/templates": [
+        {
+          ...kit.template,
+          positions: [
+            {
+              id: "pos-bandage",
+              articleId: "article-bandage",
+              articleName: "Verbandpäckchen mittel",
+              moduleName: "Verband",
+              requiredQuantity: 1,
+              unit: "Stück",
+              critical: false,
+            },
+          ],
+        },
+      ],
+      "/api/catalog/templates?refresh=1": [
+        {
+          ...kit.template,
+          positions: [
+            {
+              id: "pos-bandage",
+              articleId: "article-bandage",
+              articleName: "Verbandpäckchen mittel",
+              moduleName: "Verband",
+              requiredQuantity: 1,
+              unit: "Stück",
+              critical: false,
+            },
+          ],
+        },
+      ],
     });
     await renderAppAt("/admin/master-data/templates");
     await screen.findByRole("heading", { name: "Stammdaten" });
 
-    await clickElement(await screen.findByRole("button", { name: "Sanitätsrucksack A v1 duplizieren" }));
+    await clickElement(
+      await screen.findByRole("button", {
+        name: "Sanitätsrucksack A v1 duplizieren",
+      }),
+    );
 
-    const dialog = await screen.findByRole("dialog", { name: "Rucksackvorlage anlegen" });
-    expect(within(dialog).getByLabelText("Vorlagenname")).toHaveValue("Sanitätsrucksack A Kopie");
+    const dialog = await screen.findByRole("dialog", {
+      name: "Rucksackvorlage anlegen",
+    });
+    expect(within(dialog).getByLabelText("Vorlagenname")).toHaveValue(
+      "Sanitätsrucksack A Kopie",
+    );
     expect(within(dialog).getByLabelText("Modul")).toHaveValue("Verband");
     expect(within(dialog).getByLabelText("Sollmenge")).toHaveValue(1);
 
-    await changeValue(within(dialog).getByLabelText("Vorlagenname"), "Sanitätsrucksack B");
+    await changeValue(
+      within(dialog).getByLabelText("Vorlagenname"),
+      "Sanitätsrucksack B",
+    );
     await changeValue(within(dialog).getByLabelText("Modul"), "Atmung");
     await changeValue(within(dialog).getByLabelText("Sollmenge"), "4");
-    await clickElement(within(dialog).getByRole("button", { name: "Vorlage speichern" }));
+    await clickElement(
+      within(dialog).getByRole("button", { name: "Vorlage speichern" }),
+    );
 
-    await waitFor(() => expect(postedBody("/api/catalog/templates")).toEqual({
-      name: "Sanitätsrucksack B",
-      positions: [{ articleId: "article-bandage", moduleName: "Atmung", requiredQuantity: 4, critical: false }]
-    }));
+    await waitFor(() =>
+      expect(postedBody("/api/catalog/templates")).toEqual({
+        name: "Sanitätsrucksack B",
+        positions: [
+          {
+            articleId: "article-bandage",
+            moduleName: "Atmung",
+            requiredQuantity: 4,
+            critical: false,
+          },
+        ],
+      }),
+    );
   });
 
   it("renders templates in a denser table-style row with only version details and mobile-ready action labels", async () => {
     stubFetch({
       ...baseAdminRoutes(),
-      "/api/catalog/templates": [{
-        ...kit.template,
-        positions: [
-          { id: "pos-bandage", articleId: "article-bandage", articleName: "Verbandpäckchen mittel", moduleName: "Verband", requiredQuantity: 2, unit: "Stück", critical: true },
-          { id: "pos-airway", articleId: "article-bandage", articleName: "Guedel-Tubus", moduleName: "Atmung", requiredQuantity: 1, unit: "Stück", critical: false },
-          { id: "pos-blank", articleId: "article-bandage", articleName: "Rettungsdecke", moduleName: "", requiredQuantity: 3, unit: "Stück", critical: false }
-        ]
-      }]
+      "/api/catalog/templates": [
+        {
+          ...kit.template,
+          positions: [
+            {
+              id: "pos-bandage",
+              articleId: "article-bandage",
+              articleName: "Verbandpäckchen mittel",
+              moduleName: "Verband",
+              requiredQuantity: 2,
+              unit: "Stück",
+              critical: true,
+            },
+            {
+              id: "pos-airway",
+              articleId: "article-bandage",
+              articleName: "Guedel-Tubus",
+              moduleName: "Atmung",
+              requiredQuantity: 1,
+              unit: "Stück",
+              critical: false,
+            },
+            {
+              id: "pos-blank",
+              articleId: "article-bandage",
+              articleName: "Rettungsdecke",
+              moduleName: "",
+              requiredQuantity: 3,
+              unit: "Stück",
+              critical: false,
+            },
+          ],
+        },
+      ],
     });
     await renderAppAt("/admin/master-data/templates");
 
-    const row = (await screen.findByText("Sanitätsrucksack A")).closest(".template-row");
+    const row = (await screen.findByText("Sanitätsrucksack A")).closest(
+      ".template-row",
+    );
     expect(row).not.toBeNull();
-    expect(within(row as HTMLElement).getByText("Version 1")).toBeInTheDocument();
-    const criticalBadge = within(row as HTMLElement).getByText("kritisch").closest(".badge");
+    expect(
+      within(row as HTMLElement).getByText("Version 1"),
+    ).toBeInTheDocument();
+    const criticalBadge = within(row as HTMLElement)
+      .getByText("kritisch")
+      .closest(".badge");
     expect(criticalBadge).not.toBeNull();
     expect(criticalBadge).toHaveClass("badge-neutral");
-    expect(within(row as HTMLElement).queryByText("Module")).not.toBeInTheDocument();
-    expect(within(row as HTMLElement).queryByText("Positionen", { exact: false })).not.toBeInTheDocument();
-    expect(within(row as HTMLElement).queryByText("Soll gesamt", { exact: false })).not.toBeInTheDocument();
+    expect(
+      within(row as HTMLElement).queryByText("Module"),
+    ).not.toBeInTheDocument();
+    expect(
+      within(row as HTMLElement).queryByText("Positionen", { exact: false }),
+    ).not.toBeInTheDocument();
+    expect(
+      within(row as HTMLElement).queryByText("Soll gesamt", { exact: false }),
+    ).not.toBeInTheDocument();
     expect(row?.querySelector(".template-row-actions")).not.toBeNull();
-    expect(row?.querySelectorAll(".template-row-actions .button-label")).toHaveLength(3);
+    expect(
+      row?.querySelectorAll(".template-row-actions .button-label"),
+    ).toHaveLength(3);
   });
 
   it("reorders template positions before saving a new version", async () => {
@@ -164,72 +409,172 @@ describe("MasterDataPage", () => {
       ...article,
       id: "article-gloves",
       name: "Einmalhandschuhe Größe M",
-      barcode: "040000000003"
+      barcode: "040000000003",
     };
     stubFetch({
       ...baseAdminRoutes(),
       "/api/catalog/articles": [article, secondArticle],
-      "/api/catalog/templates": [{
-        ...kit.template,
-        positions: [
-          { id: "pos-bandage", articleId: article.id, articleName: article.name, moduleName: "Verband", requiredQuantity: 1, unit: "Stück", critical: false },
-          { id: "pos-gloves", articleId: secondArticle.id, articleName: secondArticle.name, moduleName: "Schutz", requiredQuantity: 2, unit: "Stück", critical: false }
-        ]
-      }],
-      "/api/catalog/templates/template-san-a-v1/revise": { ok: true }
+      "/api/catalog/templates": [
+        {
+          ...kit.template,
+          positions: [
+            {
+              id: "pos-bandage",
+              articleId: article.id,
+              articleName: article.name,
+              moduleName: "Verband",
+              requiredQuantity: 1,
+              unit: "Stück",
+              critical: false,
+            },
+            {
+              id: "pos-gloves",
+              articleId: secondArticle.id,
+              articleName: secondArticle.name,
+              moduleName: "Schutz",
+              requiredQuantity: 2,
+              unit: "Stück",
+              critical: false,
+            },
+          ],
+        },
+      ],
+      "/api/catalog/templates/template-san-a-v1/revise": { ok: true },
     });
     await renderAppAt("/admin/master-data/templates");
     await screen.findByRole("heading", { name: "Stammdaten" });
-    await clickElement(await screen.findByRole("button", { name: /Bearbeiten/ }));
+    await clickElement(
+      await screen.findByRole("button", { name: /Bearbeiten/ }),
+    );
 
-    const dialog = await screen.findByRole("dialog", { name: "Rucksackvorlage bearbeiten" });
-    await clickElement(within(dialog).getByRole("button", { name: "Position 1 nach unten verschieben" }));
-    await clickElement(within(dialog).getByRole("button", { name: "Neue Version speichern" }));
+    const dialog = await screen.findByRole("dialog", {
+      name: "Rucksackvorlage bearbeiten",
+    });
+    await clickElement(
+      within(dialog).getByRole("button", {
+        name: "Position 1 nach unten verschieben",
+      }),
+    );
+    await clickElement(
+      within(dialog).getByRole("button", { name: "Neue Version speichern" }),
+    );
 
-    await waitFor(() => expect(postedBody("/api/catalog/templates/template-san-a-v1/revise")).toEqual({
-      positions: [
-        { articleId: secondArticle.id, moduleName: "Schutz", requiredQuantity: 2, critical: false },
-        { articleId: article.id, moduleName: "Verband", requiredQuantity: 1, critical: false }
-      ]
-    }));
+    await waitFor(() =>
+      expect(
+        postedBody("/api/catalog/templates/template-san-a-v1/revise"),
+      ).toEqual({
+        positions: [
+          {
+            articleId: secondArticle.id,
+            moduleName: "Schutz",
+            requiredQuantity: 2,
+            critical: false,
+          },
+          {
+            articleId: article.id,
+            moduleName: "Verband",
+            requiredQuantity: 1,
+            critical: false,
+          },
+        ],
+      }),
+    );
   });
 
   it("asks before closing template edits with unsaved changes and can save them", async () => {
     stubFetch({
       ...baseAdminRoutes(),
-      "/api/catalog/templates": [{ ...kit.template, positions: [{ id: "pos-bandage", articleId: "article-bandage", articleName: "Verbandpäckchen mittel", moduleName: "Verband", requiredQuantity: 1, unit: "Stück", critical: false }] }],
-      "/api/catalog/templates/template-san-a-v1/revise": { ok: true }
+      "/api/catalog/templates": [
+        {
+          ...kit.template,
+          positions: [
+            {
+              id: "pos-bandage",
+              articleId: "article-bandage",
+              articleName: "Verbandpäckchen mittel",
+              moduleName: "Verband",
+              requiredQuantity: 1,
+              unit: "Stück",
+              critical: false,
+            },
+          ],
+        },
+      ],
+      "/api/catalog/templates/template-san-a-v1/revise": { ok: true },
     });
     await renderAppAt("/admin/master-data/templates");
     await screen.findByRole("heading", { name: "Stammdaten" });
-    await clickElement(await screen.findByRole("button", { name: /Bearbeiten/ }));
-    const dialog = await screen.findByRole("dialog", { name: "Rucksackvorlage bearbeiten" });
+    await clickElement(
+      await screen.findByRole("button", { name: /Bearbeiten/ }),
+    );
+    const dialog = await screen.findByRole("dialog", {
+      name: "Rucksackvorlage bearbeiten",
+    });
     await changeValue(within(dialog).getByLabelText("Sollmenge"), "2");
-    await clickElement(within(dialog).getByRole("button", { name: "Abbrechen" }));
+    await clickElement(
+      within(dialog).getByRole("button", { name: "Abbrechen" }),
+    );
 
-    const confirmDialog = await screen.findByRole("dialog", { name: "Änderungen an Rucksackvorlage" });
+    const confirmDialog = await screen.findByRole("dialog", {
+      name: "Änderungen an Rucksackvorlage",
+    });
     expect(confirmDialog).toHaveClass("modal-dialog-wide");
     expect(confirmDialog.querySelector(".confirm-dialog-body")).not.toBeNull();
-    expect(within(confirmDialog).getByText("Sie haben ungespeicherte Änderungen. Möchten Sie diese vor dem Schließen speichern?")).toBeInTheDocument();
-    await clickElement(within(confirmDialog).getByRole("button", { name: "Änderungen speichern" }));
+    expect(
+      within(confirmDialog).getByText(
+        "Sie haben ungespeicherte Änderungen. Möchten Sie diese vor dem Schließen speichern?",
+      ),
+    ).toBeInTheDocument();
+    await clickElement(
+      within(confirmDialog).getByRole("button", {
+        name: "Änderungen speichern",
+      }),
+    );
 
-    await waitFor(() => expect(postedBody("/api/catalog/templates/template-san-a-v1/revise")).toEqual({
-      positions: [{ articleId: "article-bandage", moduleName: "Verband", requiredQuantity: 2, critical: false }]
-    }));
-    await waitFor(() => expect(screen.queryByRole("dialog", { name: "Rucksackvorlage bearbeiten" })).toBeNull());
+    await waitFor(() =>
+      expect(
+        postedBody("/api/catalog/templates/template-san-a-v1/revise"),
+      ).toEqual({
+        positions: [
+          {
+            articleId: "article-bandage",
+            moduleName: "Verband",
+            requiredQuantity: 2,
+            critical: false,
+          },
+        ],
+      }),
+    );
+    await waitFor(() =>
+      expect(
+        screen.queryByRole("dialog", { name: "Rucksackvorlage bearbeiten" }),
+      ).toBeNull(),
+    );
   });
 
   it("closes template modal directly when nothing changed", async () => {
     stubFetch(baseAdminRoutes());
     await renderAppAt("/admin/master-data/templates");
     await screen.findByRole("heading", { name: "Stammdaten" });
-    await clickElement(await screen.findByRole("button", { name: /Bearbeiten/ }));
-    const dialog = await screen.findByRole("dialog", { name: "Rucksackvorlage bearbeiten" });
+    await clickElement(
+      await screen.findByRole("button", { name: /Bearbeiten/ }),
+    );
+    const dialog = await screen.findByRole("dialog", {
+      name: "Rucksackvorlage bearbeiten",
+    });
 
-    await clickElement(within(dialog).getByRole("button", { name: "Abbrechen" }));
+    await clickElement(
+      within(dialog).getByRole("button", { name: "Abbrechen" }),
+    );
 
-    await waitFor(() => expect(screen.queryByRole("dialog", { name: "Rucksackvorlage bearbeiten" })).toBeNull());
-    expect(screen.queryByRole("dialog", { name: "Änderungen an Rucksackvorlage" })).toBeNull();
+    await waitFor(() =>
+      expect(
+        screen.queryByRole("dialog", { name: "Rucksackvorlage bearbeiten" }),
+      ).toBeNull(),
+    );
+    expect(
+      screen.queryByRole("dialog", { name: "Änderungen an Rucksackvorlage" }),
+    ).toBeNull();
   });
 
   it("opens the new devices tab", async () => {
@@ -237,29 +582,42 @@ describe("MasterDataPage", () => {
     await renderAppAt("/admin/master-data/articles");
     await screen.findByRole("heading", { name: "Stammdaten" });
     await clickElement(screen.getByRole("tab", { name: "Geräte" }));
-    expect(await screen.findByRole("button", { name: /Gerät hinzufügen/ })).toBeInTheDocument();
+    expect(
+      await screen.findByRole("button", { name: /Gerät hinzufügen/ }),
+    ).toBeInTheDocument();
   });
 
   it("assigns devices to kits from the create dialog", async () => {
     stubFetch(baseAdminRoutes());
     await renderAppAt("/admin/master-data/devices");
     await screen.findByRole("heading", { name: "Stammdaten" });
-    await clickElement(await screen.findByRole("button", { name: "Gerät hinzufügen" }));
+    await clickElement(
+      await screen.findByRole("button", { name: "Gerät hinzufügen" }),
+    );
 
     const dialog = await screen.findByRole("dialog", { name: "Gerät anlegen" });
     await changeValue(within(dialog).getByLabelText("Name"), "AED im Rucksack");
-    await changeValue(within(dialog).getByRole("combobox", { name: "Lagerort" }), "Rucksack");
-    await mouseDownElement(await screen.findByRole("option", { name: "Rucksack Fahrzeug 1" }));
-    await clickElement(within(dialog).getByRole("button", { name: "Gerät anlegen" }));
+    await changeValue(
+      within(dialog).getByRole("combobox", { name: "Lagerort" }),
+      "Rucksack",
+    );
+    await mouseDownElement(
+      await screen.findByRole("option", { name: "Rucksack Fahrzeug 1" }),
+    );
+    await clickElement(
+      within(dialog).getByRole("button", { name: "Gerät anlegen" }),
+    );
 
-    await waitFor(() => expect(postedBody("/api/catalog/devices")).toEqual({
-      name: "AED im Rucksack",
-      articleId: article.id,
-      kitId: kit.id,
-      stkIntervalMonths: null,
-      mtkIntervalMonths: null,
-      active: true
-    }));
+    await waitFor(() =>
+      expect(postedBody("/api/catalog/devices")).toEqual({
+        name: "AED im Rucksack",
+        articleId: article.id,
+        kitId: kit.id,
+        stkIntervalMonths: null,
+        mtkIntervalMonths: null,
+        active: true,
+      }),
+    );
   });
 
   it("reorders articles from the master-data list", async () => {
@@ -267,23 +625,33 @@ describe("MasterDataPage", () => {
       ...article,
       id: "article-gloves",
       name: "Einmalhandschuhe Größe M",
-      barcode: "040000000003"
+      barcode: "040000000003",
     };
     stubFetch({
       ...baseAdminRoutes(),
       "/api/catalog/articles": [article, secondArticle],
-      "/api/catalog/articles/reorder": { ok: true }
+      "/api/catalog/articles/reorder": { ok: true },
     });
     await renderAppAt("/admin/master-data/articles");
 
-    const row = (await screen.findByText("Einmalhandschuhe Größe M")).closest(".article-list-row");
+    const row = (await screen.findByText("Einmalhandschuhe Größe M")).closest(
+      ".article-list-row",
+    );
     expect(row).not.toBeNull();
-    await clickElement(within(row as HTMLElement).getByRole("button", { name: "Sortieren" }));
-    await clickElement(within(row as HTMLElement).getByRole("button", { name: "Einmalhandschuhe Größe M nach oben verschieben" }));
+    await clickElement(
+      within(row as HTMLElement).getByRole("button", { name: "Sortieren" }),
+    );
+    await clickElement(
+      within(row as HTMLElement).getByRole("button", {
+        name: "Einmalhandschuhe Größe M nach oben verschieben",
+      }),
+    );
 
-    await waitFor(() => expect(requestBody("/api/catalog/articles/reorder", "POST")).toEqual({
-      articleIds: [secondArticle.id, article.id]
-    }));
+    await waitFor(() =>
+      expect(requestBody("/api/catalog/articles/reorder", "POST")).toEqual({
+        articleIds: [secondArticle.id, article.id],
+      }),
+    );
   });
 
   it("keeps article reorder controls collapsed until Sortieren is opened", async () => {
@@ -291,22 +659,36 @@ describe("MasterDataPage", () => {
       ...article,
       id: "article-gloves",
       name: "Einmalhandschuhe Größe M",
-      barcode: "040000000003"
+      barcode: "040000000003",
     };
     stubFetch({
       ...baseAdminRoutes(),
-      "/api/catalog/articles": [article, secondArticle]
+      "/api/catalog/articles": [article, secondArticle],
     });
     await renderAppAt("/admin/master-data/articles");
 
-    const sortButtons = await screen.findAllByRole("button", { name: "Sortieren" });
+    const sortButtons = await screen.findAllByRole("button", {
+      name: "Sortieren",
+    });
     expect(sortButtons).toHaveLength(2);
-    expect(screen.queryByRole("button", { name: `${article.name} an den Anfang verschieben` })).toBeNull();
+    expect(
+      screen.queryByRole("button", {
+        name: `${article.name} an den Anfang verschieben`,
+      }),
+    ).toBeNull();
 
     await clickElement(sortButtons[0] as HTMLElement);
 
-    expect(screen.getByRole("button", { name: `${article.name} an den Anfang verschieben` })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: `${article.name} an das Ende verschieben` })).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", {
+        name: `${article.name} an den Anfang verschieben`,
+      }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", {
+        name: `${article.name} an das Ende verschieben`,
+      }),
+    ).toBeInTheDocument();
   });
 
   it("only keeps one article reorder group open at a time", async () => {
@@ -314,75 +696,108 @@ describe("MasterDataPage", () => {
       ...article,
       id: "article-gloves",
       name: "Einmalhandschuhe Größe M",
-      barcode: "040000000003"
+      barcode: "040000000003",
     };
     stubFetch({
       ...baseAdminRoutes(),
-      "/api/catalog/articles": [article, secondArticle]
+      "/api/catalog/articles": [article, secondArticle],
     });
     await renderAppAt("/admin/master-data/articles");
 
-    const sortButtons = await screen.findAllByRole("button", { name: "Sortieren" });
+    const sortButtons = await screen.findAllByRole("button", {
+      name: "Sortieren",
+    });
     await clickElement(sortButtons[0] as HTMLElement);
-    expect(screen.getByRole("button", { name: `${article.name} an den Anfang verschieben` })).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", {
+        name: `${article.name} an den Anfang verschieben`,
+      }),
+    ).toBeInTheDocument();
 
     await clickElement(sortButtons[1] as HTMLElement);
 
-    expect(screen.queryByRole("button", { name: `${article.name} an den Anfang verschieben` })).toBeNull();
-    expect(screen.getByRole("button", { name: `${secondArticle.name} an den Anfang verschieben` })).toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", {
+        name: `${article.name} an den Anfang verschieben`,
+      }),
+    ).toBeNull();
+    expect(
+      screen.getByRole("button", {
+        name: `${secondArticle.name} an den Anfang verschieben`,
+      }),
+    ).toBeInTheDocument();
   });
 
   it("restores the active master-data tab and device filters from the URL", async () => {
     stubFetch({
       ...baseAdminRoutes(),
-      "/api/catalog/devices": [{ ...medicalDevice, active: false }]
+      "/api/catalog/devices": [{ ...medicalDevice, active: false }],
     });
     await renderAppAt("/admin/master-data/devices?active=inactive");
     await screen.findByLabelText("Status");
-    expect(screen.getByRole("tab", { name: "Geräte" })).toHaveAttribute("aria-selected", "true");
+    expect(screen.getByRole("tab", { name: "Geräte" })).toHaveAttribute(
+      "aria-selected",
+      "true",
+    );
     expect(screen.getByLabelText("Status")).toHaveValue("Inaktiv");
     expect(screen.getByText("Corpuls C3")).toBeInTheDocument();
 
-    await clickElement(screen.getByRole("button", { name: "Filter zurücksetzen" }));
-    await waitFor(() => expect(getActiveRouter()?.state.location.pathname).toEqual("/admin/master-data/devices"));
+    await clickElement(
+      screen.getByRole("button", { name: "Filter zurücksetzen" }),
+    );
+    await waitFor(() =>
+      expect(getActiveRouter()?.state.location.pathname).toEqual(
+        "/admin/master-data/devices",
+      ),
+    );
     expect(getActiveRouter()?.state.location.search).toEqual({});
   });
 
   it("renders kit assignments in the device list", async () => {
     stubFetch({
       ...baseAdminRoutes(),
-      "/api/catalog/devices": [{
-        ...medicalDevice,
-        kit: {
-          id: kit.id,
-          name: kit.name,
-          code: kit.code,
-          locationId: kit.locationId,
-          locationName: kit.location.name
-        }
-      }]
+      "/api/catalog/devices": [
+        {
+          ...medicalDevice,
+          kit: {
+            id: kit.id,
+            name: kit.name,
+            code: kit.code,
+            locationId: kit.locationId,
+            locationName: kit.location.name,
+          },
+        },
+      ],
     });
     await renderAppAt("/admin/master-data/devices");
 
-    const row = (await screen.findByText("Corpuls C3")).closest(".compact-list-row");
+    const row = (await screen.findByText("Corpuls C3")).closest(
+      ".compact-list-row",
+    );
     expect(row).not.toBeNull();
-    expect(within(row as HTMLElement).getByText("Rucksack Fahrzeug 1 · Verbandpäckchen mittel")).toBeInTheDocument();
+    expect(
+      within(row as HTMLElement).getByText(
+        "Rucksack Fahrzeug 1 · Verbandpäckchen mittel",
+      ),
+    ).toBeInTheDocument();
   });
 
   it("includes kits in the device location filter and restores them from the URL", async () => {
     stubFetch({
       ...baseAdminRoutes(),
-      "/api/catalog/devices": [{
-        ...medicalDevice,
-        kitId: kit.id,
-        kit: {
-          id: kit.id,
-          name: kit.name,
-          code: kit.code,
-          locationId: kit.locationId,
-          locationName: kit.location.name
-        }
-      }]
+      "/api/catalog/devices": [
+        {
+          ...medicalDevice,
+          kitId: kit.id,
+          kit: {
+            id: kit.id,
+            name: kit.name,
+            code: kit.code,
+            locationId: kit.locationId,
+            locationName: kit.location.name,
+          },
+        },
+      ],
     });
     await renderAppAt(`/admin/master-data/devices?locationId=${kit.id}`);
 
@@ -390,7 +805,9 @@ describe("MasterDataPage", () => {
     expect(locationFilter).toHaveValue(kit.name);
     await changeValue(locationFilter, "Rucksack");
 
-    expect(await screen.findByRole("option", { name: kit.name })).toBeInTheDocument();
+    expect(
+      await screen.findByRole("option", { name: kit.name }),
+    ).toBeInTheDocument();
     expect(screen.getByText("Corpuls C3")).toBeInTheDocument();
   });
 
@@ -402,24 +819,44 @@ describe("MasterDataPage", () => {
       "/api/catalog/locations/loc-main": { ok: true },
       "/api/catalog/templates/template-san-a-v1": { ok: true },
       "/api/catalog/devices/device-1": { ok: true },
-      "/api/catalog/devices": [medicalDevice]
+      "/api/catalog/devices": [medicalDevice],
     });
     await renderAppAt("/admin/master-data/articles");
-    await screen.findByRole("button", { name: /Verbandpäckchen mittel löschen/ });
+    await screen.findByRole("button", {
+      name: /Verbandpäckchen mittel löschen/,
+    });
 
-    await clickElement(screen.getByRole("button", { name: /Verbandpäckchen mittel löschen/ }));
+    await clickElement(
+      screen.getByRole("button", { name: /Verbandpäckchen mittel löschen/ }),
+    );
     await clickElement(screen.getByRole("tab", { name: "Lagerorte" }));
-    await clickElement(await screen.findByRole("button", { name: /Hauptlager löschen/ }));
+    await clickElement(
+      await screen.findByRole("button", { name: /Hauptlager löschen/ }),
+    );
     await clickElement(screen.getByRole("tab", { name: "Rucksackvorlagen" }));
-    await clickElement(await screen.findByRole("button", { name: /Sanitätsrucksack A v1 löschen/ }));
+    await clickElement(
+      await screen.findByRole("button", {
+        name: /Sanitätsrucksack A v1 löschen/,
+      }),
+    );
     await clickElement(screen.getByRole("tab", { name: "Geräte" }));
-    await clickElement(await screen.findByRole("button", { name: /Corpuls C3 löschen/ }));
+    await clickElement(
+      await screen.findByRole("button", { name: /Corpuls C3 löschen/ }),
+    );
 
     await waitFor(() => {
-      expect(wasRequested("/api/catalog/articles/article-bandage", "DELETE")).toBe(true);
-      expect(wasRequested("/api/catalog/locations/loc-main", "DELETE")).toBe(true);
-      expect(wasRequested("/api/catalog/templates/template-san-a-v1", "DELETE")).toBe(true);
-      expect(wasRequested("/api/catalog/devices/device-1", "DELETE")).toBe(true);
+      expect(
+        wasRequested("/api/catalog/articles/article-bandage", "DELETE"),
+      ).toBe(true);
+      expect(wasRequested("/api/catalog/locations/loc-main", "DELETE")).toBe(
+        true,
+      );
+      expect(
+        wasRequested("/api/catalog/templates/template-san-a-v1", "DELETE"),
+      ).toBe(true);
+      expect(wasRequested("/api/catalog/devices/device-1", "DELETE")).toBe(
+        true,
+      );
     });
   });
 
@@ -427,75 +864,126 @@ describe("MasterDataPage", () => {
     stubFetch(baseAdminRoutes());
     await renderAppAt("/admin/master-data");
     await screen.findByRole("heading", { name: "Stammdaten" });
-    await waitFor(() => expect(getActiveRouter()?.state.location.pathname).toEqual("/admin/master-data/articles"));
-    expect(screen.getByRole("tab", { name: "Artikel" })).toHaveAttribute("aria-selected", "true");
+    await waitFor(() =>
+      expect(getActiveRouter()?.state.location.pathname).toEqual(
+        "/admin/master-data/articles",
+      ),
+    );
+    expect(screen.getByRole("tab", { name: "Artikel" })).toHaveAttribute(
+      "aria-selected",
+      "true",
+    );
   });
 
   it("renders articles in a denser table-style row with detail columns and mobile-ready action labels", async () => {
     stubFetch({
       ...baseAdminRoutes(),
-      "/api/catalog/articles": [{
-        ...article,
-        manufacturerPartNumber: "VB-1000",
-        medicalDevice: true,
-        stkRequired: true,
-        notes: "Nicht fallen lassen!",
-        storageNotes: "Trocken lagern",
-        stkIntervalMonths: 12,
-        mtkRequired: true,
-        mtkIntervalMonths: 24,
-        criticalDefault: true
-      }]
+      "/api/catalog/articles": [
+        {
+          ...article,
+          manufacturerPartNumber: "VB-1000",
+          unitsPerPackage: 10,
+          medicalDevice: true,
+          stkRequired: true,
+          notes: "Nicht fallen lassen!",
+          storageNotes: "Trocken lagern",
+          stkIntervalMonths: 12,
+          mtkRequired: true,
+          mtkIntervalMonths: 24,
+          criticalDefault: true,
+        },
+      ],
     });
     await renderAppAt("/admin/master-data/articles");
     const articleName = await screen.findByText("Verbandpäckchen mittel");
     const tableHeader = document.querySelector(".article-table-header");
     expect(tableHeader).not.toBeNull();
-    expect(within(tableHeader as HTMLElement).queryByText("Artikel")).toBeNull();
-    expect(within(tableHeader as HTMLElement).getByText("Hinweise")).toBeInTheDocument();
-    expect(within(tableHeader as HTMLElement).getByText("Lagerhinweise")).toBeInTheDocument();
-    expect(within(tableHeader as HTMLElement).queryByText("Aktionen")).toBeNull();
+    expect(
+      within(tableHeader as HTMLElement).queryByText("Artikel"),
+    ).toBeNull();
+    expect(
+      within(tableHeader as HTMLElement).getByText("Hinweise"),
+    ).toBeInTheDocument();
+    expect(
+      within(tableHeader as HTMLElement).getByText("Lagerhinweise"),
+    ).toBeInTheDocument();
+    expect(
+      within(tableHeader as HTMLElement).queryByText("Aktionen"),
+    ).toBeNull();
     const row = articleName.closest(".article-list-row");
     expect(row).not.toBeNull();
     expect(screen.getAllByText("Hinweise")).toHaveLength(1);
     expect(screen.getAllByText("Lagerhinweise")).toHaveLength(1);
-    expect(within(row as HTMLElement).getByText("Stück · 040000000001")).toBeInTheDocument();
-    expect(within(row as HTMLElement).getByText("Nicht fallen lassen!")).toBeInTheDocument();
-    expect(within(row as HTMLElement).getByText("Trocken lagern")).toBeInTheDocument();
+    expect(
+      within(row as HTMLElement).getByText("Stück · VE 10 · 040000000001"),
+    ).toBeInTheDocument();
+    expect(
+      within(row as HTMLElement).getByText("Nicht fallen lassen!"),
+    ).toBeInTheDocument();
+    expect(
+      within(row as HTMLElement).getByText("Trocken lagern"),
+    ).toBeInTheDocument();
     expect(row?.querySelector(".article-row-badges")).not.toBeNull();
     expect(row?.querySelector(".row-action-buttons")).not.toBeNull();
     expect(within(row as HTMLElement).getByText("MPDG")).toBeInTheDocument();
     expect(within(row as HTMLElement).getByText("STK")).toBeInTheDocument();
     expect(within(row as HTMLElement).getByText("MTK")).toBeInTheDocument();
-    expect(within(row as HTMLElement).getByText("kritisch")).toBeInTheDocument();
-    expect(within(row as HTMLElement).getByRole("link", { name: "Link" })).toHaveAttribute("href", "https://shop.example.org/articles/verbandpaeckchen-mittel");
-    expect(within(row as HTMLElement).getByRole("button", { name: "Bearbeiten" })).toBeInTheDocument();
-    expect(within(row as HTMLElement).getByRole("button", { name: /Verbandpäckchen mittel löschen/ })).toBeInTheDocument();
-    expect(within(row as HTMLElement).getByRole("button", { name: "Sortieren" })).toBeInTheDocument();
-    expect(row?.querySelectorAll(".row-action-buttons .button-label")).toHaveLength(4);
+    expect(
+      within(row as HTMLElement).getByText("kritisch"),
+    ).toBeInTheDocument();
+    expect(
+      within(row as HTMLElement).getByRole("link", { name: "Link" }),
+    ).toHaveAttribute(
+      "href",
+      "https://shop.example.org/articles/verbandpaeckchen-mittel",
+    );
+    expect(
+      within(row as HTMLElement).getByRole("button", { name: "Bearbeiten" }),
+    ).toBeInTheDocument();
+    expect(
+      within(row as HTMLElement).getByRole("button", {
+        name: /Verbandpäckchen mittel löschen/,
+      }),
+    ).toBeInTheDocument();
+    expect(
+      within(row as HTMLElement).getByRole("button", { name: "Sortieren" }),
+    ).toBeInTheDocument();
+    expect(
+      row?.querySelectorAll(".row-action-buttons .button-label"),
+    ).toHaveLength(4);
   });
 
   it("renders article filters in a compact checkbox group", async () => {
     stubFetch(baseAdminRoutes());
     await renderAppAt("/admin/master-data/articles");
 
-    const filters = await screen.findByRole("search", { name: "Artikel filtern" });
+    const filters = await screen.findByRole("search", {
+      name: "Artikel filtern",
+    });
     const checkboxGroup = within(filters).getByLabelText("Artikelmerkmale");
     expect(checkboxGroup).toHaveClass("article-filter-checks");
-    expect(within(checkboxGroup).getByLabelText("MPDG").closest(".check-field")).toHaveClass(
-      "check-field-compact",
-    );
+    expect(
+      within(checkboxGroup).getByLabelText("MPDG").closest(".check-field"),
+    ).toHaveClass("check-field-compact");
   });
 });
 
 function baseAdminRoutes() {
   return {
     "/api/auth/setup/status": { initialized: true },
-    "/api/auth/session": { user: { id: "user-admin", email: "admin@rescuebase.local", displayName: "Admin", role: "ADMIN", twoFactorEnabled: false } },
+    "/api/auth/session": {
+      user: {
+        id: "user-admin",
+        email: "admin@rescuebase.local",
+        displayName: "Admin",
+        role: "ADMIN",
+        twoFactorEnabled: false,
+      },
+    },
     "/api/catalog/articles": [article],
     "/api/catalog/locations": [location],
     "/api/catalog/kits": [kit],
     "/api/catalog/templates": [kit.template],
-    "/api/catalog/devices": []
+    "/api/catalog/devices": [],
   };
 }

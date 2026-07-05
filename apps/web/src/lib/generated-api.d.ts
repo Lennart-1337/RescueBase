@@ -4,4106 +4,4117 @@
  */
 
 export interface paths {
-    "/admin/settings": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["AdminSettingsController_getAll"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/admin/settings/general": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post: operations["AdminSettingsController_updateGeneral"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/admin/settings/alerts": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post: operations["AdminSettingsController_updateAlerts"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/admin/settings/inventory": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post: operations["AdminSettingsController_updateInventory"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/admin/settings/templates/{key}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post: operations["AdminSettingsController_updateTemplate"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/admin/settings/templates/{key}/preview": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post: operations["AdminSettingsController_previewTemplate"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/auth/setup/status": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["AuthController_setupStatus"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/auth/setup/first-admin": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post: operations["AuthController_createFirstAdmin"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/auth/login": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post: operations["AuthController_login"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/auth/invitations/{token}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["AuthController_invitation"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/auth/invitations/accept": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post: operations["AuthController_acceptInvitation"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/auth/password-reset/request": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post: operations["AuthController_requestPasswordReset"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/auth/password-reset/{token}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["AuthController_passwordReset"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/auth/password-reset/confirm": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post: operations["AuthController_confirmPasswordReset"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/auth/session": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["AuthController_session"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/auth/logout": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post: operations["AuthController_logout"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/auth/2fa/totp/setup": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post: operations["AuthController_setupTotp"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/auth/2fa/totp/enable": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post: operations["AuthController_enableTotp"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/auth/2fa/email/start": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post: operations["AuthController_startEmailTwoFactor"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/auth/2fa/email/enable": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post: operations["AuthController_enableEmailTwoFactor"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/auth/preferences/order-notifications": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post: operations["AuthController_updateOrderNotifications"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/auth/2fa/disable": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post: operations["AuthController_disableTwoFactor"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/auth/invite": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post: operations["AuthController_invite"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/auth/users": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["AuthController_users"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/auth/users/{id}/active": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post: operations["AuthController_setUserActive"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/auth/users/{id}/role": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post: operations["AuthController_setUserRole"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/auth/users/{id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        delete: operations["AuthController_deleteUser"];
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/catalog/articles": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["CatalogController_articles"];
-        put?: never;
-        post: operations["CatalogController_createArticle"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/catalog/articles/reorder": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post: operations["CatalogController_reorderArticles"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/catalog/articles/{id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        delete: operations["CatalogController_deleteArticle"];
-        options?: never;
-        head?: never;
-        patch: operations["CatalogController_updateArticle"];
-        trace?: never;
-    };
-    "/catalog/locations": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["CatalogController_locations"];
-        put?: never;
-        post: operations["CatalogController_createLocation"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/catalog/locations/{id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        delete: operations["CatalogController_deleteLocation"];
-        options?: never;
-        head?: never;
-        patch: operations["CatalogController_updateLocation"];
-        trace?: never;
-    };
-    "/catalog/devices": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["MedicalDevicesController_list"];
-        put?: never;
-        post: operations["MedicalDevicesController_create"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/catalog/devices/{id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        delete: operations["MedicalDevicesController_delete"];
-        options?: never;
-        head?: never;
-        patch: operations["MedicalDevicesController_update"];
-        trace?: never;
-    };
-    "/catalog/templates": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["CatalogController_templates"];
-        put?: never;
-        post: operations["CatalogController_createTemplate"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/catalog/templates/{id}/revise": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post: operations["CatalogController_reviseTemplate"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/catalog/templates/{id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        delete: operations["CatalogController_deleteTemplate"];
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/catalog/kits": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["CatalogController_kits"];
-        put?: never;
-        post: operations["CatalogController_createKit"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/catalog/kits/{id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        delete: operations["CatalogController_deleteKit"];
-        options?: never;
-        head?: never;
-        patch: operations["CatalogController_updateKit"];
-        trace?: never;
-    };
-    "/catalog/kits/{id}/rotate-token": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post: operations["CatalogController_rotateToken"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/inventory/batches": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["InventoryController_batches"];
-        put?: never;
-        post: operations["InventoryController_createBatch"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/inventory/targets": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["InventoryController_targets"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/inventory/targets/reconcile": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post: operations["InventoryController_reconcileTargets"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/inventory/targets/{articleId}/{locationId}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put: operations["InventoryController_upsertTarget"];
-        post?: never;
-        delete: operations["InventoryController_clearTarget"];
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/inventory/procurement-orders": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["InventoryController_procurementOrders"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/inventory/procurement-orders/{id}/start": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post: operations["InventoryController_startProcurementOrder"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/inventory/procurement-orders/{id}/receive": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post: operations["InventoryController_receiveProcurementOrder"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/inventory/procurement-orders/{id}/cancel": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post: operations["InventoryController_cancelProcurementOrder"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/inventory/automation-config": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["InventoryController_automationConfig"];
-        put?: never;
-        post: operations["InventoryController_updateAutomationConfig"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/inventory/batches/{id}/movements": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["InventoryController_movements"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/inventory/batches/{id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        delete: operations["InventoryController_deleteBatch"];
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/inventory/batches/{id}/corrections": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post: operations["InventoryController_correctBatch"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/inventory/expiry-warnings": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["InventoryController_expiryWarnings"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/purchase-orders": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["PurchaseOrdersController_list"];
-        put?: never;
-        post: operations["PurchaseOrdersController_create"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/purchase-orders/from-shortages": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post: operations["PurchaseOrdersController_createFromShortages"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/purchase-orders/{id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["PurchaseOrdersController_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch: operations["PurchaseOrdersController_update"];
-        trace?: never;
-    };
-    "/purchase-orders/{id}/archive": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post: operations["PurchaseOrdersController_archive"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/purchase-orders/{id}/restore": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post: operations["PurchaseOrdersController_restore"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/purchase-orders/{id}/approve": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post: operations["PurchaseOrdersController_approve"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/purchase-orders/{id}/order": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post: operations["PurchaseOrdersController_markOrdered"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/purchase-orders/{id}/receive": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post: operations["PurchaseOrdersController_receive"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/public/kits/{token}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["PublicChecksController_getPublicKit"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/public/kits/{token}/checks": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post: operations["PublicChecksController_completeCheck"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/checks": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["CheckRecordsController_list"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/checks/{id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["CheckRecordsController_detail"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/replenishment-orders": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["ReplenishmentController_list"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/replenishment-orders/{id}/fulfill": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post: operations["ReplenishmentController_fulfill"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/replenishment-orders/{id}/cancel": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post: operations["ReplenishmentController_cancel"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/audit": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["AuditController_list"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/reports/csv/inventory": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["ReportsController_inventoryCsv"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/reports/csv/replenishment": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["ReportsController_replenishmentCsv"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/reports/procurement.pdf": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["ReportsController_procurement"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/reports/qr-label/{kitId}.pdf": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["ReportsController_qrLabel"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/reports/replenishment/{orderId}.pdf": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["ReportsController_replenishment"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/reports/purchase-orders/{orderId}.pdf": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["ReportsController_purchaseOrder"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
+  "/admin/settings": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations["AdminSettingsController_getAll"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/admin/settings/general": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post: operations["AdminSettingsController_updateGeneral"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/admin/settings/alerts": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post: operations["AdminSettingsController_updateAlerts"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/admin/settings/inventory": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post: operations["AdminSettingsController_updateInventory"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/admin/settings/templates/{key}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post: operations["AdminSettingsController_updateTemplate"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/admin/settings/templates/{key}/preview": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post: operations["AdminSettingsController_previewTemplate"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/auth/setup/status": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations["AuthController_setupStatus"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/auth/setup/first-admin": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post: operations["AuthController_createFirstAdmin"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/auth/login": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post: operations["AuthController_login"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/auth/invitations/{token}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations["AuthController_invitation"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/auth/invitations/accept": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post: operations["AuthController_acceptInvitation"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/auth/password-reset/request": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post: operations["AuthController_requestPasswordReset"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/auth/password-reset/{token}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations["AuthController_passwordReset"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/auth/password-reset/confirm": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post: operations["AuthController_confirmPasswordReset"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/auth/session": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations["AuthController_session"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/auth/logout": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post: operations["AuthController_logout"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/auth/2fa/totp/setup": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post: operations["AuthController_setupTotp"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/auth/2fa/totp/enable": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post: operations["AuthController_enableTotp"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/auth/2fa/email/start": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post: operations["AuthController_startEmailTwoFactor"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/auth/2fa/email/enable": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post: operations["AuthController_enableEmailTwoFactor"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/auth/preferences/order-notifications": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post: operations["AuthController_updateOrderNotifications"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/auth/2fa/disable": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post: operations["AuthController_disableTwoFactor"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/auth/invite": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post: operations["AuthController_invite"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/auth/users": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations["AuthController_users"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/auth/users/{id}/active": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post: operations["AuthController_setUserActive"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/auth/users/{id}/role": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post: operations["AuthController_setUserRole"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/auth/users/{id}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    delete: operations["AuthController_deleteUser"];
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/catalog/articles": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations["CatalogController_articles"];
+    put?: never;
+    post: operations["CatalogController_createArticle"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/catalog/articles/reorder": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post: operations["CatalogController_reorderArticles"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/catalog/articles/{id}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    delete: operations["CatalogController_deleteArticle"];
+    options?: never;
+    head?: never;
+    patch: operations["CatalogController_updateArticle"];
+    trace?: never;
+  };
+  "/catalog/locations": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations["CatalogController_locations"];
+    put?: never;
+    post: operations["CatalogController_createLocation"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/catalog/locations/{id}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    delete: operations["CatalogController_deleteLocation"];
+    options?: never;
+    head?: never;
+    patch: operations["CatalogController_updateLocation"];
+    trace?: never;
+  };
+  "/catalog/devices": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations["MedicalDevicesController_list"];
+    put?: never;
+    post: operations["MedicalDevicesController_create"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/catalog/devices/{id}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    delete: operations["MedicalDevicesController_delete"];
+    options?: never;
+    head?: never;
+    patch: operations["MedicalDevicesController_update"];
+    trace?: never;
+  };
+  "/catalog/templates": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations["CatalogController_templates"];
+    put?: never;
+    post: operations["CatalogController_createTemplate"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/catalog/templates/{id}/revise": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post: operations["CatalogController_reviseTemplate"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/catalog/templates/{id}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    delete: operations["CatalogController_deleteTemplate"];
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/catalog/kits": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations["CatalogController_kits"];
+    put?: never;
+    post: operations["CatalogController_createKit"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/catalog/kits/{id}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    delete: operations["CatalogController_deleteKit"];
+    options?: never;
+    head?: never;
+    patch: operations["CatalogController_updateKit"];
+    trace?: never;
+  };
+  "/catalog/kits/{id}/rotate-token": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post: operations["CatalogController_rotateToken"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/inventory/batches": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations["InventoryController_batches"];
+    put?: never;
+    post: operations["InventoryController_createBatch"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/inventory/targets": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations["InventoryController_targets"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/inventory/targets/reconcile": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post: operations["InventoryController_reconcileTargets"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/inventory/targets/{articleId}/{locationId}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put: operations["InventoryController_upsertTarget"];
+    post?: never;
+    delete: operations["InventoryController_clearTarget"];
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/inventory/procurement-orders": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations["InventoryController_procurementOrders"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/inventory/procurement-orders/{id}/start": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post: operations["InventoryController_startProcurementOrder"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/inventory/procurement-orders/{id}/receive": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post: operations["InventoryController_receiveProcurementOrder"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/inventory/procurement-orders/{id}/cancel": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post: operations["InventoryController_cancelProcurementOrder"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/inventory/automation-config": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations["InventoryController_automationConfig"];
+    put?: never;
+    post: operations["InventoryController_updateAutomationConfig"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/inventory/batches/{id}/movements": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations["InventoryController_movements"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/inventory/batches/{id}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    delete: operations["InventoryController_deleteBatch"];
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/inventory/batches/{id}/corrections": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post: operations["InventoryController_correctBatch"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/inventory/expiry-warnings": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations["InventoryController_expiryWarnings"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/purchase-orders": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations["PurchaseOrdersController_list"];
+    put?: never;
+    post: operations["PurchaseOrdersController_create"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/purchase-orders/from-shortages": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post: operations["PurchaseOrdersController_createFromShortages"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/purchase-orders/{id}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations["PurchaseOrdersController_get"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch: operations["PurchaseOrdersController_update"];
+    trace?: never;
+  };
+  "/purchase-orders/{id}/archive": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post: operations["PurchaseOrdersController_archive"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/purchase-orders/{id}/restore": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post: operations["PurchaseOrdersController_restore"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/purchase-orders/{id}/approve": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post: operations["PurchaseOrdersController_approve"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/purchase-orders/{id}/order": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post: operations["PurchaseOrdersController_markOrdered"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/purchase-orders/{id}/receive": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post: operations["PurchaseOrdersController_receive"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/public/kits/{token}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations["PublicChecksController_getPublicKit"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/public/kits/{token}/checks": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post: operations["PublicChecksController_completeCheck"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/checks": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations["CheckRecordsController_list"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/checks/{id}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations["CheckRecordsController_detail"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/replenishment-orders": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations["ReplenishmentController_list"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/replenishment-orders/{id}/fulfill": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post: operations["ReplenishmentController_fulfill"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/replenishment-orders/{id}/cancel": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post: operations["ReplenishmentController_cancel"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/audit": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations["AuditController_list"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/reports/csv/inventory": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations["ReportsController_inventoryCsv"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/reports/csv/replenishment": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations["ReportsController_replenishmentCsv"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/reports/procurement.pdf": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations["ReportsController_procurement"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/reports/qr-label/{kitId}.pdf": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations["ReportsController_qrLabel"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/reports/replenishment/{orderId}.pdf": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations["ReportsController_replenishment"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/reports/purchase-orders/{orderId}.pdf": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations["ReportsController_purchaseOrder"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
 }
 export type webhooks = Record<string, never>;
 export interface components {
-    schemas: {
-        /** @enum {string} */
-        UserRole: "ADMIN" | "WAREHOUSE";
-        /** @enum {string} */
-        TwoFactorMethod: "TOTP" | "EMAIL";
-        /** @enum {string} */
-        KitOperationalStatus: "READY" | "CONDITIONAL" | "NOT_READY";
-        /** @enum {string} */
-        ReplenishmentStatus: "OPEN" | "DONE" | "CANCELLED";
-        /** @enum {string} */
-        InventoryProcurementStatus: "OPEN" | "IN_PROGRESS" | "DONE" | "CANCELLED";
-        /** @enum {string} */
-        PurchaseOrderStatus: "DRAFT" | "APPROVED" | "ORDERED" | "PARTIALLY_RECEIVED" | "RECEIVED";
-        /** @enum {string} */
-        ReplenishmentReason: "SHORTAGE" | "DISCARDED_EXPIRED" | "SHORTAGE_AND_DISCARDED_EXPIRED";
-        AppBranding: {
-            /** @example RescueBase */
-            appName: string;
-            /** @example Sanitätslager */
-            appSubtitle: string;
-            /** @example true */
-            showLogo: boolean;
-            /** @example false */
-            showAppName: boolean;
-            /** @example true */
-            showAppSubtitle: boolean;
-        };
-        SetupStatus: {
-            initialized: boolean;
-            /** @example RescueBase */
-            appName: string;
-            /** @example Sanitätslager */
-            appSubtitle: string;
-            /** @example true */
-            showLogo: boolean;
-            /** @example false */
-            showAppName: boolean;
-            /** @example true */
-            showAppSubtitle: boolean;
-        };
-        AuthenticatedUser: {
-            id: string;
-            /** Format: email */
-            email: string;
-            displayName: string;
-            role: components["schemas"]["UserRole"];
-            twoFactorEnabled: boolean;
-            twoFactorMethod?: components["schemas"]["TwoFactorMethod"];
-            newOrderNotificationsEnabled: boolean;
-        };
-        SessionResponse: {
-            user: components["schemas"]["AuthenticatedUser"];
-            /** @example RescueBase */
-            appName: string;
-            /** @example Sanitätslager */
-            appSubtitle: string;
-            /** @example true */
-            showLogo: boolean;
-            /** @example false */
-            showAppName: boolean;
-            /** @example true */
-            showAppSubtitle: boolean;
-        };
-        FirstAdminRequest: {
-            /** Format: email */
-            email: string;
-            displayName: string;
-            password: string;
-        };
-        FirstAdminResponse: {
-            /** @enum {boolean} */
-            ok: true;
-            userId: string;
-            user: components["schemas"]["AuthenticatedUser"];
-        };
-        LoginRequest: {
-            /** Format: email */
-            email?: string;
-            password?: string;
-            twoFactorCode?: string;
-            emailChallengeId?: string;
-            loginChallengeId?: string;
-        };
-        LoginResponse: {
-            requiresTwoFactor: boolean;
-            twoFactorMethod?: components["schemas"]["TwoFactorMethod"];
-            loginChallengeId?: string;
-            emailChallengeId?: string;
-            debugCode?: string;
-            user?: components["schemas"]["AuthenticatedUser"];
-        };
-        TotpSetupResponse: {
-            secret: string;
-            otpauthUrl: string;
-        };
-        EnableTotpRequest: {
-            code: string;
-        };
-        EmailTwoFactorStartResponse: {
-            challengeId: string;
-            debugCode?: string;
-        };
-        EnableEmailTwoFactorRequest: {
-            challengeId: string;
-            code: string;
-        };
-        UpdateOrderNotificationsRequest: {
-            enabled: boolean;
-        };
-        UpdateOrderNotificationsResponse: {
-            /** @enum {boolean} */
-            ok: true;
-            user: components["schemas"]["AuthenticatedUser"];
-        };
-        InviteUserRequest: {
-            /** Format: email */
-            email: string;
-            displayName: string;
-            role: components["schemas"]["UserRole"];
-        };
-        InviteUserResponse: {
-            id: string;
-            /** Format: uri */
-            invitationUrl: string;
-            /** Format: uri */
-            debugUrl?: string;
-        };
-        InvitationPreview: {
-            /** Format: email */
-            email: string;
-            displayName: string;
-            role: components["schemas"]["UserRole"];
-        };
-        AcceptInvitationRequest: {
-            token: string;
-            password: string;
-            displayName?: string;
-        };
-        AcceptInvitationResponse: {
-            /** @enum {boolean} */
-            ok: true;
-            user: components["schemas"]["AuthenticatedUser"];
-        };
-        PasswordResetRequest: {
-            /** Format: email */
-            email: string;
-        };
-        PasswordResetRequestResponse: {
-            /** @enum {boolean} */
-            ok: true;
-            /** Format: uri */
-            debugUrl?: string;
-        };
-        PasswordResetPreview: {
-            /** Format: email */
-            email: string;
-            displayName: string;
-        };
-        PasswordResetConfirmRequest: {
-            token: string;
-            password: string;
-        };
-        UserSummary: {
-            id: string;
-            /** Format: email */
-            email: string;
-            displayName: string;
-            role: components["schemas"]["UserRole"];
-            active: boolean;
-            twoFactorEnabled: boolean;
-            twoFactorMethod?: components["schemas"]["TwoFactorMethod"];
-        };
-        SetUserActiveRequest: {
-            active: boolean;
-        };
-        SetUserRoleRequest: {
-            role: components["schemas"]["UserRole"];
-        };
-        Article: {
-            id: string;
-            name: string;
-            unit: string;
-            manufacturer?: string;
-            manufacturerPartNumber?: string;
-            category?: string;
-            barcode?: string;
-            /** Format: uri */
-            articleUrl?: string;
-            defaultSupplierName?: string;
-            defaultGrossPriceCents?: number;
-            sterile: boolean;
-            medicalDevice?: boolean;
-            stkRequired?: boolean;
-            stkIntervalMonths?: number;
-            mtkRequired?: boolean;
-            mtkIntervalMonths?: number;
-            storageNotes?: string;
-            notes?: string;
-            criticalDefault: boolean;
-            /** Format: date-time */
-            createdAt?: string;
-            /** Format: date-time */
-            updatedAt?: string;
-        };
-        CreateArticleRequest: {
-            name: string;
-            unit: string;
-            manufacturer?: string;
-            manufacturerPartNumber?: string;
-            category?: string;
-            barcode?: string;
-            /** Format: uri */
-            articleUrl?: string;
-            defaultSupplierName?: string;
-            defaultGrossPriceCents?: number;
-            sterile: boolean;
-            medicalDevice?: boolean;
-            stkRequired?: boolean;
-            stkIntervalMonths?: number;
-            mtkRequired?: boolean;
-            mtkIntervalMonths?: number;
-            storageNotes?: string;
-            notes?: string;
-            criticalDefault: boolean;
-        };
-        UpdateArticleRequest: {
-            name: string;
-            unit: string;
-            manufacturer?: string;
-            manufacturerPartNumber?: string;
-            category?: string;
-            barcode?: string;
-            /** Format: uri */
-            articleUrl?: string;
-            defaultSupplierName?: string;
-            defaultGrossPriceCents?: number;
-            sterile: boolean;
-            medicalDevice?: boolean;
-            stkRequired?: boolean;
-            stkIntervalMonths?: number;
-            mtkRequired?: boolean;
-            mtkIntervalMonths?: number;
-            storageNotes?: string;
-            notes?: string;
-            criticalDefault: boolean;
-        };
-        ReorderArticlesRequest: {
-            articleIds: string[];
-        };
-        Location: {
-            id: string;
-            name: string;
-            kind: string;
-            /** Format: date-time */
-            createdAt?: string;
-            /** Format: date-time */
-            updatedAt?: string;
-        };
-        CreateLocationRequest: {
-            name: string;
-            kind: string;
-        };
-        UpdateLocationRequest: {
-            name: string;
-            kind: string;
-        };
-        MedicalDeviceArticle: {
-            id: string;
-            name: string;
-            stkRequired: boolean;
-            mtkRequired: boolean;
-            stkIntervalMonths?: number;
-            mtkIntervalMonths?: number;
-        };
-        MedicalDeviceLocation: {
-            id: string;
-            name: string;
-        };
-        MedicalDeviceKit: {
-            id: string;
-            name: string;
-            code: string;
-            locationId: string;
-            locationName: string;
-        };
-        MedicalDevice: {
-            id: string;
-            name: string;
-            articleId: string;
-            locationId: string;
-            kitId?: string;
-            serialNumber?: string;
-            inventoryNumber?: string;
-            /** Format: date-time */
-            lastStkAt?: string;
-            /** Format: date-time */
-            lastMtkAt?: string;
-            stkIntervalMonths?: number;
-            mtkIntervalMonths?: number;
-            active: boolean;
-            notes?: string;
-            article: components["schemas"]["MedicalDeviceArticle"];
-            location: components["schemas"]["MedicalDeviceLocation"];
-            kit?: components["schemas"]["MedicalDeviceKit"];
-        };
-        MedicalDeviceWriteRequest: {
-            name: string;
-            articleId: string;
-            locationId?: string;
-            kitId?: string;
-            serialNumber?: string;
-            inventoryNumber?: string;
-            /** Format: date-time */
-            lastStkAt?: string;
-            /** Format: date-time */
-            lastMtkAt?: string;
-            stkIntervalMonths?: number;
-            mtkIntervalMonths?: number;
-            active?: boolean;
-            notes?: string;
-        };
-        TemplatePosition: {
-            id: string;
-            articleId: string;
-            articleName: string;
-            moduleName?: string;
-            requiredQuantity: number;
-            unit: string;
-            critical: boolean;
-        };
-        KitTemplate: {
-            id: string;
-            name: string;
-            version: number;
-            positions: components["schemas"]["TemplatePosition"][];
-        };
-        CreateTemplatePositionRequest: {
-            articleId: string;
-            moduleName?: string;
-            requiredQuantity: number;
-            critical: boolean;
-        };
-        CreateTemplateRequest: {
-            name: string;
-            version?: number;
-            positions: components["schemas"]["CreateTemplatePositionRequest"][];
-        };
-        ReviseTemplateRequest: {
-            positions: components["schemas"]["CreateTemplatePositionRequest"][];
-        };
-        Kit: {
-            id: string;
-            name: string;
-            code: string;
-            locationId: string;
-            templateId: string;
-            status: components["schemas"]["KitOperationalStatus"];
-            publicToken: string;
-            /** Format: date-time */
-            tokenRotatedAt: string;
-            location?: {
-                id: string;
-                name: string;
-            };
-            template?: components["schemas"]["KitTemplate"];
-        };
-        KitSummary: {
-            id: string;
-            name: string;
-            code: string;
-            status: components["schemas"]["KitOperationalStatus"];
-            publicToken: string;
-        };
-        CreateKitRequest: {
-            name: string;
-            code: string;
-            locationId: string;
-            templateId: string;
-        };
-        UpdateKitRequest: {
-            name: string;
-            code: string;
-            locationId: string;
-            templateId: string;
-        };
-        Batch: {
-            id: string;
-            articleId: string;
-            locationId: string;
-            lotNumber: string;
-            /** Format: date */
-            expiresAt: string;
-            quantity: number;
-            article: {
-                id: string;
-                name: string;
-                unit: string;
-            };
-            location: {
-                id: string;
-                name: string;
-            };
-        };
-        CreateBatchRequest: {
-            articleId: string;
-            locationId: string;
-            lotNumber: string;
-            /** Format: date */
-            expiresAt: string;
-            quantity: number;
-        };
-        BatchCorrectionRequest: {
-            reason: string;
-            quantity?: number;
-            lotNumber?: string;
-            /** Format: date */
-            expiresAt?: string;
-            locationId?: string;
-        };
-        InventoryMovement: {
-            id: string;
-            batchId: string;
-            articleId: string;
-            locationId: string;
-            replenishmentOrderId?: string;
-            inventoryProcurementOrderId?: string;
-            templatePositionId?: string;
-            type: string;
-            quantity: number;
-            actorLabel: string;
-            reason?: string;
-            metadata?: {
-                [key: string]: unknown;
-            };
-            /** Format: date-time */
-            createdAt: string;
-        };
-        InventoryTargetArticle: {
-            id: string;
-            name: string;
-            unit: string;
-            /** Format: uri */
-            articleUrl?: string;
-        };
-        InventoryTargetLocation: {
-            id: string;
-            name: string;
-        };
-        InventoryProcurementReceipt: {
-            id: string;
-            batchId: string;
-            quantity: number;
-            lotNumber: string;
-            /** Format: date */
-            expiresAt: string;
-            /** Format: date-time */
-            verifiedAt: string;
-            verifiedBy: string;
-            /** Format: date-time */
-            createdAt: string;
-        };
-        InventoryProcurementOrder: {
-            id: string;
-            articleId: string;
-            locationId: string;
-            status: components["schemas"]["InventoryProcurementStatus"];
-            requestedQuantity: number;
-            receivedQuantity: number;
-            remainingQuantity: number;
-            /** Format: uri */
-            articleUrlSnapshot?: string;
-            /** Format: date-time */
-            createdAt: string;
-            /** Format: date-time */
-            updatedAt: string;
-            article: components["schemas"]["InventoryTargetArticle"];
-            location: components["schemas"]["InventoryTargetLocation"];
-            receipts: components["schemas"]["InventoryProcurementReceipt"][];
-        };
-        InventoryTarget: {
-            id: string;
-            articleId: string;
-            locationId: string;
-            targetQuantity: number;
-            currentQuantity: number;
-            shortageQuantity: number;
-            article: components["schemas"]["InventoryTargetArticle"];
-            location: components["schemas"]["InventoryTargetLocation"];
-            procurementOrder?: components["schemas"]["InventoryProcurementOrder"];
-        };
-        UpsertInventoryTargetRequest: {
-            targetQuantity: number;
-        };
-        InventoryReconcileResponse: {
-            checked: number;
-            created: number;
-            updated: number;
-            cancelled: number;
-        };
-        ReceiveProcurementOrderItemRequest: {
-            lotNumber: string;
-            /** Format: date */
-            expiresAt: string;
-            quantity: number;
-        };
-        ReceiveProcurementOrderRequest: {
-            items: components["schemas"]["ReceiveProcurementOrderItemRequest"][];
-            verified: boolean;
-        };
-        PurchaseOrderLine: {
-            id: string;
-            articleId: string;
-            articleName: string;
-            supplierArticleNumber?: string;
-            /** Format: uri */
-            articleUrl?: string;
-            manufacturerPartNumber?: string;
-            unit: string;
-            grossUnitPriceCents: number;
-            orderedQuantity: number;
-            receivedQuantity: number;
-            remainingQuantity: number;
-            lineTotalGrossCents: number;
-            note?: string;
-        };
-        PurchaseOrderReceipt: {
-            id: string;
-            lineId: string;
-            batchId: string;
-            quantity: number;
-            lotNumber: string;
-            /** Format: date */
-            expiresAt: string;
-            /** Format: date-time */
-            receivedAt: string;
-            receivedBy: string;
-            /** Format: date-time */
-            createdAt: string;
-        };
-        PurchaseOrder: {
-            id: string;
-            orderNumber: string;
-            supplierName: string;
-            locationId: string;
-            status: components["schemas"]["PurchaseOrderStatus"];
-            notes?: string;
-            /** Format: date-time */
-            archivedAt?: string;
-            /** Format: date-time */
-            approvedAt?: string;
-            approvedByName?: string;
-            /** Format: date-time */
-            orderedAt?: string;
-            /** Format: date-time */
-            receivedAt?: string;
-            totalGrossCents: number;
-            /** Format: date-time */
-            createdAt: string;
-            /** Format: date-time */
-            updatedAt: string;
-            location: components["schemas"]["InventoryTargetLocation"];
-            lines: components["schemas"]["PurchaseOrderLine"][];
-            receipts: components["schemas"]["PurchaseOrderReceipt"][];
-        };
-        PurchaseOrderLineWriteRequest: {
-            articleId: string;
-            orderedQuantity: number;
-            grossUnitPriceCents?: number;
-            note?: string;
-            supplierArticleNumber?: string;
-        };
-        PurchaseOrderWriteRequest: {
-            supplierName: string;
-            locationId: string;
-            notes?: string;
-            lines: components["schemas"]["PurchaseOrderLineWriteRequest"][];
-        };
-        PurchaseOrderLineNoteRequest: {
-            lineId: string;
-            note?: string;
-        };
-        UpdatePurchaseOrderRequest: {
-            supplierName?: string;
-            locationId?: string;
-            notes?: string;
-            lines?: components["schemas"]["PurchaseOrderLineWriteRequest"][];
-            lineNotes?: components["schemas"]["PurchaseOrderLineNoteRequest"][];
-        };
-        CreatePurchaseOrdersFromShortagesRequest: {
-            locationId: string;
-            /** @enum {string} */
-            groupingMode: "single" | "supplier";
-            supplierName?: string;
-            articleIds?: string[];
-        };
-        PurchaseOrderReceiptBatchRequest: {
-            lotNumber: string;
-            /** Format: date */
-            expiresAt: string;
-            quantity: number;
-        };
-        PurchaseOrderReceiveLineRequest: {
-            lineId: string;
-            batches: components["schemas"]["PurchaseOrderReceiptBatchRequest"][];
-        };
-        ReceivePurchaseOrderRequest: {
-            lines: components["schemas"]["PurchaseOrderReceiveLineRequest"][];
-        };
-        InventoryAutomationConfig: {
-            enabled: boolean;
-            dailyReconcileTime: string;
-            /** Format: date-time */
-            lastReconciledAt?: string | null;
-        };
-        UpdateInventoryAutomationConfigRequest: {
-            dailyReconcileTime: string;
-        };
-        GeneralSettings: {
-            /** @example RescueBase */
-            appName: string;
-            /** @example Sanitätslager */
-            appSubtitle: string;
-            /** @example true */
-            showLogo: boolean;
-            /** @example false */
-            showAppName: boolean;
-            /** @example true */
-            showAppSubtitle: boolean;
-            /** @example Europe/Berlin */
-            timezone: string;
-            newUserOrderNotificationsDefaultEnabled: boolean;
-        };
-        AlertSettings: {
-            dailyDigestEnabled: boolean;
-            dailyDigestTime: string;
-            warningWindowDays: number;
-            /** Format: date-time */
-            lastDigestSentAt: string | null;
-        };
-        AdminInventorySettings: {
-            enabled: boolean;
-            dailyReconcileTime: string;
-            /** Format: date-time */
-            lastReconciledAt: string | null;
-        };
-        /** @enum {string} */
-        NotificationTemplateKey: "ALERT_IMMEDIATE" | "ALERT_DIGEST" | "NEW_ORDER";
-        NotificationTemplate: {
-            key: components["schemas"]["NotificationTemplateKey"];
-            subjectTemplate: string;
-            introTemplate: string;
-            bodyTemplate: string;
-            allowedPlaceholders: string[];
-        };
-        AdminSettings: {
-            general: components["schemas"]["GeneralSettings"];
-            alerts: components["schemas"]["AlertSettings"];
-            inventory: components["schemas"]["AdminInventorySettings"];
-            templates: components["schemas"]["NotificationTemplate"][];
-        };
-        UpdateGeneralSettingsRequest: {
-            appName?: string;
-            appSubtitle?: string;
-            showLogo?: boolean;
-            showAppName?: boolean;
-            showAppSubtitle?: boolean;
-            timezone?: string;
-            newUserOrderNotificationsDefaultEnabled?: boolean;
-        };
-        UpdateAlertSettingsRequest: {
-            dailyDigestEnabled?: boolean;
-            dailyDigestTime?: string;
-            warningWindowDays?: number;
-        };
-        UpdateAdminInventorySettingsRequest: {
-            enabled?: boolean;
-            dailyReconcileTime?: string;
-        };
-        UpdateNotificationTemplateRequest: {
-            subjectTemplate?: string;
-            introTemplate?: string;
-            bodyTemplate?: string;
-        };
-        NotificationTemplatePreview: {
-            subject: string;
-            text: string;
-            html: string;
-        };
-        ExpiryWarning: {
-            id: string;
-            articleId: string;
-            locationId: string;
-            lotNumber: string;
-            /** Format: date */
-            expiresAt: string;
-            quantity: number;
-            article: {
-                id: string;
-                name: string;
-                unit: string;
-            };
-            location: {
-                id: string;
-                name: string;
-            };
-            /** @enum {string} */
-            severity: "EXPIRED" | "EXPIRING_SOON";
-        };
-        PublicKitResponse: {
-            kit: {
-                id: string;
-                name: string;
-                code: string;
-                status: components["schemas"]["KitOperationalStatus"];
-            };
-            template: components["schemas"]["KitTemplate"];
-        };
-        CheckPositionInput: {
-            templatePositionId: string;
-            countedQuantity: number;
-            discardedExpiredQuantity: number;
-            note?: string;
-        };
-        CompleteCheckRequest: {
-            checkerName: string;
-            signaturePngDataUrl: string;
-            positions: components["schemas"]["CheckPositionInput"][];
-        };
-        CheckEvaluation: {
-            warnings: string[];
-        };
-        CheckResponse: {
-            id: string;
-            kitId: string;
-            checkerName: string;
-            effectiveStatus: components["schemas"]["KitOperationalStatus"];
-            warnings: string[];
-            signaturePngDataUrl: string;
-            signatureHash: string;
-            /** Format: date-time */
-            createdAt: string;
-        };
-        CheckProtocolKit: {
-            id: string;
-            name: string;
-            code: string;
-        };
-        CheckProtocolOrder: {
-            id: string;
-            status: components["schemas"]["ReplenishmentStatus"];
-        };
-        CheckProtocolSummary: {
-            id: string;
-            checkerName: string;
-            selectedStatus: components["schemas"]["KitOperationalStatus"];
-            effectiveStatus: components["schemas"]["KitOperationalStatus"];
-            statusReason?: string;
-            warnings: string[];
-            signatureHash: string;
-            positionCount: number;
-            deviationCount: number;
-            kit: components["schemas"]["CheckProtocolKit"];
-            replenishmentOrder?: components["schemas"]["CheckProtocolOrder"];
-            /** Format: date-time */
-            createdAt: string;
-        };
-        CheckProtocolPosition: {
-            id: string;
-            articleId: string;
-            articleName: string;
-            moduleName?: string;
-            unit: string;
-            requiredQuantity: number;
-            countedQuantity: number;
-            discardedExpiredQuantity: number;
-            missingQuantity: number;
-            surplusQuantity: number;
-            critical: boolean;
-            note?: string;
-        };
-        CheckProtocolDetail: {
-            id: string;
-            checkerName: string;
-            selectedStatus: components["schemas"]["KitOperationalStatus"];
-            effectiveStatus: components["schemas"]["KitOperationalStatus"];
-            statusReason?: string;
-            warnings: string[];
-            signatureHash: string;
-            signaturePngDataUrl: string;
-            positionCount: number;
-            deviationCount: number;
-            kit: components["schemas"]["CheckProtocolKit"];
-            replenishmentOrder?: components["schemas"]["CheckProtocolOrder"];
-            positions: components["schemas"]["CheckProtocolPosition"][];
-            /** Format: date-time */
-            createdAt: string;
-        };
-        CheckProtocolPage: {
-            items: components["schemas"]["CheckProtocolSummary"][];
-            page: number;
-            pageSize: number;
-            total: number;
-        };
-        ReplenishmentOrderItem: {
-            articleId: string;
-            articleName: string;
-            templatePositionId: string;
-            requestedQuantity: number;
-            fulfilledQuantity: number;
-            unit: string;
-            reason: components["schemas"]["ReplenishmentReason"];
-            critical: boolean;
-        };
-        ReplenishmentOrder: {
-            id: string;
-            kitId: string;
-            checkId?: string;
-            status: components["schemas"]["ReplenishmentStatus"];
-            /** Format: date-time */
-            createdAt: string;
-            /** Format: date-time */
-            updatedAt: string;
-            kit?: components["schemas"]["KitSummary"];
-            items: components["schemas"]["ReplenishmentOrderItem"][];
-        };
-        CompleteCheckResponse: {
-            check: components["schemas"]["CheckResponse"];
-            evaluation: components["schemas"]["CheckEvaluation"];
-            replenishmentOrder?: components["schemas"]["ReplenishmentOrder"];
-        };
-        FulfillOrderItemRequest: {
-            itemId: string;
-            batchId: string;
-            quantity: number;
-        };
-        FulfillOrderRequest: {
-            items: components["schemas"]["FulfillOrderItemRequest"][];
-        };
-        FulfillOrderResponse: {
-            order: components["schemas"]["ReplenishmentOrder"];
-            completed: boolean;
-            remainingQuantity: number;
-        };
-        AuditEvent: {
-            id: string;
-            /** @enum {string} */
-            actorType: "SYSTEM" | "USER" | "PUBLIC_CHECKER";
-            actorLabel: string;
-            action: string;
-            entityType: string;
-            entityId: string;
-            payload: {
-                [key: string]: unknown;
-            };
-            /** Format: date-time */
-            createdAt: string;
-        };
-        OkResponse: {
-            /** @enum {boolean} */
-            ok: true;
-        };
+  schemas: {
+    /** @enum {string} */
+    UserRole: "ADMIN" | "WAREHOUSE";
+    /** @enum {string} */
+    TwoFactorMethod: "TOTP" | "EMAIL";
+    /** @enum {string} */
+    KitOperationalStatus: "READY" | "CONDITIONAL" | "NOT_READY";
+    /** @enum {string} */
+    ReplenishmentStatus: "OPEN" | "DONE" | "CANCELLED";
+    /** @enum {string} */
+    InventoryProcurementStatus: "OPEN" | "IN_PROGRESS" | "DONE" | "CANCELLED";
+    /** @enum {string} */
+    PurchaseOrderStatus:
+      | "DRAFT"
+      | "APPROVED"
+      | "ORDERED"
+      | "PARTIALLY_RECEIVED"
+      | "RECEIVED";
+    /** @enum {string} */
+    ReplenishmentReason:
+      | "SHORTAGE"
+      | "DISCARDED_EXPIRED"
+      | "SHORTAGE_AND_DISCARDED_EXPIRED";
+    AppBranding: {
+      /** @example RescueBase */
+      appName: string;
+      /** @example Sanitätslager */
+      appSubtitle: string;
+      /** @example true */
+      showLogo: boolean;
+      /** @example false */
+      showAppName: boolean;
+      /** @example true */
+      showAppSubtitle: boolean;
     };
-    responses: never;
-    parameters: never;
-    requestBodies: never;
-    headers: never;
-    pathItems: never;
+    SetupStatus: {
+      initialized: boolean;
+      /** @example RescueBase */
+      appName: string;
+      /** @example Sanitätslager */
+      appSubtitle: string;
+      /** @example true */
+      showLogo: boolean;
+      /** @example false */
+      showAppName: boolean;
+      /** @example true */
+      showAppSubtitle: boolean;
+    };
+    AuthenticatedUser: {
+      id: string;
+      /** Format: email */
+      email: string;
+      displayName: string;
+      role: components["schemas"]["UserRole"];
+      twoFactorEnabled: boolean;
+      twoFactorMethod?: components["schemas"]["TwoFactorMethod"];
+      newOrderNotificationsEnabled: boolean;
+    };
+    SessionResponse: {
+      user: components["schemas"]["AuthenticatedUser"];
+      /** @example RescueBase */
+      appName: string;
+      /** @example Sanitätslager */
+      appSubtitle: string;
+      /** @example true */
+      showLogo: boolean;
+      /** @example false */
+      showAppName: boolean;
+      /** @example true */
+      showAppSubtitle: boolean;
+    };
+    FirstAdminRequest: {
+      /** Format: email */
+      email: string;
+      displayName: string;
+      password: string;
+    };
+    FirstAdminResponse: {
+      /** @enum {boolean} */
+      ok: true;
+      userId: string;
+      user: components["schemas"]["AuthenticatedUser"];
+    };
+    LoginRequest: {
+      /** Format: email */
+      email?: string;
+      password?: string;
+      twoFactorCode?: string;
+      emailChallengeId?: string;
+      loginChallengeId?: string;
+    };
+    LoginResponse: {
+      requiresTwoFactor: boolean;
+      twoFactorMethod?: components["schemas"]["TwoFactorMethod"];
+      loginChallengeId?: string;
+      emailChallengeId?: string;
+      debugCode?: string;
+      user?: components["schemas"]["AuthenticatedUser"];
+    };
+    TotpSetupResponse: {
+      secret: string;
+      otpauthUrl: string;
+    };
+    EnableTotpRequest: {
+      code: string;
+    };
+    EmailTwoFactorStartResponse: {
+      challengeId: string;
+      debugCode?: string;
+    };
+    EnableEmailTwoFactorRequest: {
+      challengeId: string;
+      code: string;
+    };
+    UpdateOrderNotificationsRequest: {
+      enabled: boolean;
+    };
+    UpdateOrderNotificationsResponse: {
+      /** @enum {boolean} */
+      ok: true;
+      user: components["schemas"]["AuthenticatedUser"];
+    };
+    InviteUserRequest: {
+      /** Format: email */
+      email: string;
+      displayName: string;
+      role: components["schemas"]["UserRole"];
+    };
+    InviteUserResponse: {
+      id: string;
+      /** Format: uri */
+      invitationUrl: string;
+      /** Format: uri */
+      debugUrl?: string;
+    };
+    InvitationPreview: {
+      /** Format: email */
+      email: string;
+      displayName: string;
+      role: components["schemas"]["UserRole"];
+    };
+    AcceptInvitationRequest: {
+      token: string;
+      password: string;
+      displayName?: string;
+    };
+    AcceptInvitationResponse: {
+      /** @enum {boolean} */
+      ok: true;
+      user: components["schemas"]["AuthenticatedUser"];
+    };
+    PasswordResetRequest: {
+      /** Format: email */
+      email: string;
+    };
+    PasswordResetRequestResponse: {
+      /** @enum {boolean} */
+      ok: true;
+      /** Format: uri */
+      debugUrl?: string;
+    };
+    PasswordResetPreview: {
+      /** Format: email */
+      email: string;
+      displayName: string;
+    };
+    PasswordResetConfirmRequest: {
+      token: string;
+      password: string;
+    };
+    UserSummary: {
+      id: string;
+      /** Format: email */
+      email: string;
+      displayName: string;
+      role: components["schemas"]["UserRole"];
+      active: boolean;
+      twoFactorEnabled: boolean;
+      twoFactorMethod?: components["schemas"]["TwoFactorMethod"];
+    };
+    SetUserActiveRequest: {
+      active: boolean;
+    };
+    SetUserRoleRequest: {
+      role: components["schemas"]["UserRole"];
+    };
+    Article: {
+      id: string;
+      name: string;
+      unit: string;
+      manufacturer?: string;
+      manufacturerPartNumber?: string;
+      category?: string;
+      barcode?: string;
+      /** Format: uri */
+      articleUrl?: string;
+      defaultSupplierName?: string;
+      unitsPerPackage?: number;
+      defaultGrossPriceCents?: number;
+      sterile: boolean;
+      medicalDevice?: boolean;
+      stkRequired?: boolean;
+      stkIntervalMonths?: number;
+      mtkRequired?: boolean;
+      mtkIntervalMonths?: number;
+      storageNotes?: string;
+      notes?: string;
+      criticalDefault: boolean;
+      /** Format: date-time */
+      createdAt?: string;
+      /** Format: date-time */
+      updatedAt?: string;
+    };
+    CreateArticleRequest: {
+      name: string;
+      unit: string;
+      manufacturer?: string;
+      manufacturerPartNumber?: string;
+      category?: string;
+      barcode?: string;
+      /** Format: uri */
+      articleUrl?: string;
+      defaultSupplierName?: string;
+      unitsPerPackage?: number;
+      defaultGrossPriceCents?: number;
+      sterile: boolean;
+      medicalDevice?: boolean;
+      stkRequired?: boolean;
+      stkIntervalMonths?: number;
+      mtkRequired?: boolean;
+      mtkIntervalMonths?: number;
+      storageNotes?: string;
+      notes?: string;
+      criticalDefault: boolean;
+    };
+    UpdateArticleRequest: {
+      name: string;
+      unit: string;
+      manufacturer?: string;
+      manufacturerPartNumber?: string;
+      category?: string;
+      barcode?: string;
+      /** Format: uri */
+      articleUrl?: string;
+      defaultSupplierName?: string;
+      unitsPerPackage?: number;
+      defaultGrossPriceCents?: number;
+      sterile: boolean;
+      medicalDevice?: boolean;
+      stkRequired?: boolean;
+      stkIntervalMonths?: number;
+      mtkRequired?: boolean;
+      mtkIntervalMonths?: number;
+      storageNotes?: string;
+      notes?: string;
+      criticalDefault: boolean;
+    };
+    ReorderArticlesRequest: {
+      articleIds: string[];
+    };
+    Location: {
+      id: string;
+      name: string;
+      kind: string;
+      /** Format: date-time */
+      createdAt?: string;
+      /** Format: date-time */
+      updatedAt?: string;
+    };
+    CreateLocationRequest: {
+      name: string;
+      kind: string;
+    };
+    UpdateLocationRequest: {
+      name: string;
+      kind: string;
+    };
+    MedicalDeviceArticle: {
+      id: string;
+      name: string;
+      stkRequired: boolean;
+      mtkRequired: boolean;
+      stkIntervalMonths?: number;
+      mtkIntervalMonths?: number;
+    };
+    MedicalDeviceLocation: {
+      id: string;
+      name: string;
+    };
+    MedicalDeviceKit: {
+      id: string;
+      name: string;
+      code: string;
+      locationId: string;
+      locationName: string;
+    };
+    MedicalDevice: {
+      id: string;
+      name: string;
+      articleId: string;
+      locationId: string;
+      kitId?: string;
+      serialNumber?: string;
+      inventoryNumber?: string;
+      /** Format: date-time */
+      lastStkAt?: string;
+      /** Format: date-time */
+      lastMtkAt?: string;
+      stkIntervalMonths?: number;
+      mtkIntervalMonths?: number;
+      active: boolean;
+      notes?: string;
+      article: components["schemas"]["MedicalDeviceArticle"];
+      location: components["schemas"]["MedicalDeviceLocation"];
+      kit?: components["schemas"]["MedicalDeviceKit"];
+    };
+    MedicalDeviceWriteRequest: {
+      name: string;
+      articleId: string;
+      locationId?: string;
+      kitId?: string;
+      serialNumber?: string;
+      inventoryNumber?: string;
+      /** Format: date-time */
+      lastStkAt?: string;
+      /** Format: date-time */
+      lastMtkAt?: string;
+      stkIntervalMonths?: number;
+      mtkIntervalMonths?: number;
+      active?: boolean;
+      notes?: string;
+    };
+    TemplatePosition: {
+      id: string;
+      articleId: string;
+      articleName: string;
+      moduleName?: string;
+      requiredQuantity: number;
+      unit: string;
+      critical: boolean;
+    };
+    KitTemplate: {
+      id: string;
+      name: string;
+      version: number;
+      positions: components["schemas"]["TemplatePosition"][];
+    };
+    CreateTemplatePositionRequest: {
+      articleId: string;
+      moduleName?: string;
+      requiredQuantity: number;
+      critical: boolean;
+    };
+    CreateTemplateRequest: {
+      name: string;
+      version?: number;
+      positions: components["schemas"]["CreateTemplatePositionRequest"][];
+    };
+    ReviseTemplateRequest: {
+      positions: components["schemas"]["CreateTemplatePositionRequest"][];
+    };
+    Kit: {
+      id: string;
+      name: string;
+      code: string;
+      locationId: string;
+      templateId: string;
+      status: components["schemas"]["KitOperationalStatus"];
+      publicToken: string;
+      /** Format: date-time */
+      tokenRotatedAt: string;
+      location?: {
+        id: string;
+        name: string;
+      };
+      template?: components["schemas"]["KitTemplate"];
+    };
+    KitSummary: {
+      id: string;
+      name: string;
+      code: string;
+      status: components["schemas"]["KitOperationalStatus"];
+      publicToken: string;
+    };
+    CreateKitRequest: {
+      name: string;
+      code: string;
+      locationId: string;
+      templateId: string;
+    };
+    UpdateKitRequest: {
+      name: string;
+      code: string;
+      locationId: string;
+      templateId: string;
+    };
+    Batch: {
+      id: string;
+      articleId: string;
+      locationId: string;
+      lotNumber: string;
+      /** Format: date */
+      expiresAt: string;
+      quantity: number;
+      article: {
+        id: string;
+        name: string;
+        unit: string;
+      };
+      location: {
+        id: string;
+        name: string;
+      };
+    };
+    CreateBatchRequest: {
+      articleId: string;
+      locationId: string;
+      lotNumber: string;
+      /** Format: date */
+      expiresAt: string;
+      quantity: number;
+    };
+    BatchCorrectionRequest: {
+      reason: string;
+      quantity?: number;
+      lotNumber?: string;
+      /** Format: date */
+      expiresAt?: string;
+      locationId?: string;
+    };
+    InventoryMovement: {
+      id: string;
+      batchId: string;
+      articleId: string;
+      locationId: string;
+      replenishmentOrderId?: string;
+      inventoryProcurementOrderId?: string;
+      templatePositionId?: string;
+      type: string;
+      quantity: number;
+      actorLabel: string;
+      reason?: string;
+      metadata?: {
+        [key: string]: unknown;
+      };
+      /** Format: date-time */
+      createdAt: string;
+    };
+    InventoryTargetArticle: {
+      id: string;
+      name: string;
+      unit: string;
+      /** Format: uri */
+      articleUrl?: string;
+    };
+    InventoryTargetLocation: {
+      id: string;
+      name: string;
+    };
+    InventoryProcurementReceipt: {
+      id: string;
+      batchId: string;
+      quantity: number;
+      lotNumber: string;
+      /** Format: date */
+      expiresAt: string;
+      /** Format: date-time */
+      verifiedAt: string;
+      verifiedBy: string;
+      /** Format: date-time */
+      createdAt: string;
+    };
+    InventoryProcurementOrder: {
+      id: string;
+      articleId: string;
+      locationId: string;
+      status: components["schemas"]["InventoryProcurementStatus"];
+      requestedQuantity: number;
+      receivedQuantity: number;
+      remainingQuantity: number;
+      /** Format: uri */
+      articleUrlSnapshot?: string;
+      /** Format: date-time */
+      createdAt: string;
+      /** Format: date-time */
+      updatedAt: string;
+      article: components["schemas"]["InventoryTargetArticle"];
+      location: components["schemas"]["InventoryTargetLocation"];
+      receipts: components["schemas"]["InventoryProcurementReceipt"][];
+    };
+    InventoryTarget: {
+      id: string;
+      articleId: string;
+      locationId: string;
+      targetQuantity: number;
+      currentQuantity: number;
+      shortageQuantity: number;
+      article: components["schemas"]["InventoryTargetArticle"];
+      location: components["schemas"]["InventoryTargetLocation"];
+      procurementOrder?: components["schemas"]["InventoryProcurementOrder"];
+    };
+    UpsertInventoryTargetRequest: {
+      targetQuantity: number;
+    };
+    InventoryReconcileResponse: {
+      checked: number;
+      created: number;
+      updated: number;
+      cancelled: number;
+    };
+    ReceiveProcurementOrderItemRequest: {
+      lotNumber: string;
+      /** Format: date */
+      expiresAt: string;
+      quantity: number;
+    };
+    ReceiveProcurementOrderRequest: {
+      items: components["schemas"]["ReceiveProcurementOrderItemRequest"][];
+      verified: boolean;
+    };
+    PurchaseOrderLine: {
+      id: string;
+      articleId: string;
+      articleName: string;
+      supplierArticleNumber?: string;
+      /** Format: uri */
+      articleUrl?: string;
+      manufacturerPartNumber?: string;
+      unit: string;
+      grossUnitPriceCents: number;
+      orderedQuantity: number;
+      receivedQuantity: number;
+      remainingQuantity: number;
+      lineTotalGrossCents: number;
+      note?: string;
+    };
+    PurchaseOrderReceipt: {
+      id: string;
+      lineId: string;
+      batchId: string;
+      quantity: number;
+      lotNumber: string;
+      /** Format: date */
+      expiresAt: string;
+      /** Format: date-time */
+      receivedAt: string;
+      receivedBy: string;
+      /** Format: date-time */
+      createdAt: string;
+    };
+    PurchaseOrder: {
+      id: string;
+      orderNumber: string;
+      supplierName: string;
+      locationId: string;
+      status: components["schemas"]["PurchaseOrderStatus"];
+      notes?: string;
+      /** Format: date-time */
+      archivedAt?: string;
+      /** Format: date-time */
+      approvedAt?: string;
+      approvedByName?: string;
+      /** Format: date-time */
+      orderedAt?: string;
+      /** Format: date-time */
+      receivedAt?: string;
+      totalGrossCents: number;
+      /** Format: date-time */
+      createdAt: string;
+      /** Format: date-time */
+      updatedAt: string;
+      location: components["schemas"]["InventoryTargetLocation"];
+      lines: components["schemas"]["PurchaseOrderLine"][];
+      receipts: components["schemas"]["PurchaseOrderReceipt"][];
+    };
+    PurchaseOrderLineWriteRequest: {
+      articleId: string;
+      orderedQuantity: number;
+      grossUnitPriceCents?: number;
+      note?: string;
+      supplierArticleNumber?: string;
+    };
+    PurchaseOrderWriteRequest: {
+      supplierName: string;
+      locationId: string;
+      notes?: string;
+      lines: components["schemas"]["PurchaseOrderLineWriteRequest"][];
+    };
+    PurchaseOrderLineNoteRequest: {
+      lineId: string;
+      note?: string;
+    };
+    UpdatePurchaseOrderRequest: {
+      supplierName?: string;
+      locationId?: string;
+      notes?: string;
+      lines?: components["schemas"]["PurchaseOrderLineWriteRequest"][];
+      lineNotes?: components["schemas"]["PurchaseOrderLineNoteRequest"][];
+    };
+    CreatePurchaseOrdersFromShortagesRequest: {
+      locationId: string;
+      /** @enum {string} */
+      groupingMode: "single" | "supplier";
+      supplierName?: string;
+      articleIds?: string[];
+    };
+    PurchaseOrderReceiptBatchRequest: {
+      lotNumber: string;
+      /** Format: date */
+      expiresAt: string;
+      quantity: number;
+    };
+    PurchaseOrderReceiveLineRequest: {
+      lineId: string;
+      batches: components["schemas"]["PurchaseOrderReceiptBatchRequest"][];
+    };
+    ReceivePurchaseOrderRequest: {
+      lines: components["schemas"]["PurchaseOrderReceiveLineRequest"][];
+    };
+    InventoryAutomationConfig: {
+      enabled: boolean;
+      dailyReconcileTime: string;
+      /** Format: date-time */
+      lastReconciledAt?: string | null;
+    };
+    UpdateInventoryAutomationConfigRequest: {
+      dailyReconcileTime: string;
+    };
+    GeneralSettings: {
+      /** @example RescueBase */
+      appName: string;
+      /** @example Sanitätslager */
+      appSubtitle: string;
+      /** @example true */
+      showLogo: boolean;
+      /** @example false */
+      showAppName: boolean;
+      /** @example true */
+      showAppSubtitle: boolean;
+      /** @example Europe/Berlin */
+      timezone: string;
+      newUserOrderNotificationsDefaultEnabled: boolean;
+    };
+    AlertSettings: {
+      dailyDigestEnabled: boolean;
+      dailyDigestTime: string;
+      warningWindowDays: number;
+      /** Format: date-time */
+      lastDigestSentAt: string | null;
+    };
+    AdminInventorySettings: {
+      enabled: boolean;
+      dailyReconcileTime: string;
+      /** Format: date-time */
+      lastReconciledAt: string | null;
+    };
+    /** @enum {string} */
+    NotificationTemplateKey: "ALERT_IMMEDIATE" | "ALERT_DIGEST" | "NEW_ORDER";
+    NotificationTemplate: {
+      key: components["schemas"]["NotificationTemplateKey"];
+      subjectTemplate: string;
+      introTemplate: string;
+      bodyTemplate: string;
+      allowedPlaceholders: string[];
+    };
+    AdminSettings: {
+      general: components["schemas"]["GeneralSettings"];
+      alerts: components["schemas"]["AlertSettings"];
+      inventory: components["schemas"]["AdminInventorySettings"];
+      templates: components["schemas"]["NotificationTemplate"][];
+    };
+    UpdateGeneralSettingsRequest: {
+      appName?: string;
+      appSubtitle?: string;
+      showLogo?: boolean;
+      showAppName?: boolean;
+      showAppSubtitle?: boolean;
+      timezone?: string;
+      newUserOrderNotificationsDefaultEnabled?: boolean;
+    };
+    UpdateAlertSettingsRequest: {
+      dailyDigestEnabled?: boolean;
+      dailyDigestTime?: string;
+      warningWindowDays?: number;
+    };
+    UpdateAdminInventorySettingsRequest: {
+      enabled?: boolean;
+      dailyReconcileTime?: string;
+    };
+    UpdateNotificationTemplateRequest: {
+      subjectTemplate?: string;
+      introTemplate?: string;
+      bodyTemplate?: string;
+    };
+    NotificationTemplatePreview: {
+      subject: string;
+      text: string;
+      html: string;
+    };
+    ExpiryWarning: {
+      id: string;
+      articleId: string;
+      locationId: string;
+      lotNumber: string;
+      /** Format: date */
+      expiresAt: string;
+      quantity: number;
+      article: {
+        id: string;
+        name: string;
+        unit: string;
+      };
+      location: {
+        id: string;
+        name: string;
+      };
+      /** @enum {string} */
+      severity: "EXPIRED" | "EXPIRING_SOON";
+    };
+    PublicKitResponse: {
+      kit: {
+        id: string;
+        name: string;
+        code: string;
+        status: components["schemas"]["KitOperationalStatus"];
+      };
+      template: components["schemas"]["KitTemplate"];
+    };
+    CheckPositionInput: {
+      templatePositionId: string;
+      countedQuantity: number;
+      discardedExpiredQuantity: number;
+      note?: string;
+    };
+    CompleteCheckRequest: {
+      checkerName: string;
+      signaturePngDataUrl: string;
+      positions: components["schemas"]["CheckPositionInput"][];
+    };
+    CheckEvaluation: {
+      warnings: string[];
+    };
+    CheckResponse: {
+      id: string;
+      kitId: string;
+      checkerName: string;
+      effectiveStatus: components["schemas"]["KitOperationalStatus"];
+      warnings: string[];
+      signaturePngDataUrl: string;
+      signatureHash: string;
+      /** Format: date-time */
+      createdAt: string;
+    };
+    CheckProtocolKit: {
+      id: string;
+      name: string;
+      code: string;
+    };
+    CheckProtocolOrder: {
+      id: string;
+      status: components["schemas"]["ReplenishmentStatus"];
+    };
+    CheckProtocolSummary: {
+      id: string;
+      checkerName: string;
+      selectedStatus: components["schemas"]["KitOperationalStatus"];
+      effectiveStatus: components["schemas"]["KitOperationalStatus"];
+      statusReason?: string;
+      warnings: string[];
+      signatureHash: string;
+      positionCount: number;
+      deviationCount: number;
+      kit: components["schemas"]["CheckProtocolKit"];
+      replenishmentOrder?: components["schemas"]["CheckProtocolOrder"];
+      /** Format: date-time */
+      createdAt: string;
+    };
+    CheckProtocolPosition: {
+      id: string;
+      articleId: string;
+      articleName: string;
+      moduleName?: string;
+      unit: string;
+      requiredQuantity: number;
+      countedQuantity: number;
+      discardedExpiredQuantity: number;
+      missingQuantity: number;
+      surplusQuantity: number;
+      critical: boolean;
+      note?: string;
+    };
+    CheckProtocolDetail: {
+      id: string;
+      checkerName: string;
+      selectedStatus: components["schemas"]["KitOperationalStatus"];
+      effectiveStatus: components["schemas"]["KitOperationalStatus"];
+      statusReason?: string;
+      warnings: string[];
+      signatureHash: string;
+      signaturePngDataUrl: string;
+      positionCount: number;
+      deviationCount: number;
+      kit: components["schemas"]["CheckProtocolKit"];
+      replenishmentOrder?: components["schemas"]["CheckProtocolOrder"];
+      positions: components["schemas"]["CheckProtocolPosition"][];
+      /** Format: date-time */
+      createdAt: string;
+    };
+    CheckProtocolPage: {
+      items: components["schemas"]["CheckProtocolSummary"][];
+      page: number;
+      pageSize: number;
+      total: number;
+    };
+    ReplenishmentOrderItem: {
+      articleId: string;
+      articleName: string;
+      templatePositionId: string;
+      requestedQuantity: number;
+      fulfilledQuantity: number;
+      unit: string;
+      reason: components["schemas"]["ReplenishmentReason"];
+      critical: boolean;
+    };
+    ReplenishmentOrder: {
+      id: string;
+      kitId: string;
+      checkId?: string;
+      status: components["schemas"]["ReplenishmentStatus"];
+      /** Format: date-time */
+      createdAt: string;
+      /** Format: date-time */
+      updatedAt: string;
+      kit?: components["schemas"]["KitSummary"];
+      items: components["schemas"]["ReplenishmentOrderItem"][];
+    };
+    CompleteCheckResponse: {
+      check: components["schemas"]["CheckResponse"];
+      evaluation: components["schemas"]["CheckEvaluation"];
+      replenishmentOrder?: components["schemas"]["ReplenishmentOrder"];
+    };
+    FulfillOrderItemRequest: {
+      itemId: string;
+      batchId: string;
+      quantity: number;
+    };
+    FulfillOrderRequest: {
+      items: components["schemas"]["FulfillOrderItemRequest"][];
+    };
+    FulfillOrderResponse: {
+      order: components["schemas"]["ReplenishmentOrder"];
+      completed: boolean;
+      remainingQuantity: number;
+    };
+    AuditEvent: {
+      id: string;
+      /** @enum {string} */
+      actorType: "SYSTEM" | "USER" | "PUBLIC_CHECKER";
+      actorLabel: string;
+      action: string;
+      entityType: string;
+      entityId: string;
+      payload: {
+        [key: string]: unknown;
+      };
+      /** Format: date-time */
+      createdAt: string;
+    };
+    OkResponse: {
+      /** @enum {boolean} */
+      ok: true;
+    };
+  };
+  responses: never;
+  parameters: never;
+  requestBodies: never;
+  headers: never;
+  pathItems: never;
 }
 export type $defs = Record<string, never>;
 export interface operations {
-    AdminSettingsController_getAll: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Aggregated app settings */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["AdminSettings"];
-                };
-            };
-        };
-    };
-    AdminSettingsController_updateGeneral: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["UpdateGeneralSettingsRequest"];
-            };
-        };
-        responses: {
-            /** @description General settings updated */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["GeneralSettings"];
-                };
-            };
-        };
-    };
-    AdminSettingsController_updateAlerts: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["UpdateAlertSettingsRequest"];
-            };
-        };
-        responses: {
-            /** @description Alert settings updated */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["AlertSettings"];
-                };
-            };
-        };
-    };
-    AdminSettingsController_updateInventory: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["UpdateAdminInventorySettingsRequest"];
-            };
-        };
-        responses: {
-            /** @description Inventory settings updated */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["AdminInventorySettings"];
-                };
-            };
-        };
-    };
-    AdminSettingsController_updateTemplate: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                key: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["UpdateNotificationTemplateRequest"];
-            };
-        };
-        responses: {
-            /** @description Notification template updated */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["NotificationTemplate"];
-                };
-            };
-        };
-    };
-    AdminSettingsController_previewTemplate: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                key: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["UpdateNotificationTemplateRequest"];
-            };
-        };
-        responses: {
-            /** @description Notification template preview */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["NotificationTemplatePreview"];
-                };
-            };
-        };
-    };
-    AuthController_setupStatus: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Setup status */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["SetupStatus"];
-                };
-            };
-        };
-    };
-    AuthController_createFirstAdmin: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["FirstAdminRequest"];
-            };
-        };
-        responses: {
-            /** @description First admin created */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["FirstAdminResponse"];
-                };
-            };
-        };
-    };
-    AuthController_login: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["LoginRequest"];
-            };
-        };
-        responses: {
-            /** @description Login result */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["LoginResponse"];
-                };
-            };
-        };
-    };
-    AuthController_invitation: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                token: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Invitation preview */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["InvitationPreview"];
-                };
-            };
-        };
-    };
-    AuthController_acceptInvitation: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["AcceptInvitationRequest"];
-            };
-        };
-        responses: {
-            /** @description Invitation accepted */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["AcceptInvitationResponse"];
-                };
-            };
-        };
-    };
-    AuthController_requestPasswordReset: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["PasswordResetRequest"];
-            };
-        };
-        responses: {
-            /** @description Password reset requested */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["PasswordResetRequestResponse"];
-                };
-            };
-        };
-    };
-    AuthController_passwordReset: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                token: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Password reset preview */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["PasswordResetPreview"];
-                };
-            };
-        };
-    };
-    AuthController_confirmPasswordReset: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["PasswordResetConfirmRequest"];
-            };
-        };
-        responses: {
-            /** @description Password reset confirmed */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["OkResponse"];
-                };
-            };
-        };
-    };
-    AuthController_session: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Active session */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["SessionResponse"];
-                };
-            };
-        };
-    };
-    AuthController_logout: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Logged out */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["OkResponse"];
-                };
-            };
-        };
-    };
-    AuthController_setupTotp: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description TOTP setup */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["TotpSetupResponse"];
-                };
-            };
-        };
-    };
-    AuthController_enableTotp: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["EnableTotpRequest"];
-            };
-        };
-        responses: {
-            /** @description TOTP enabled */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["OkResponse"];
-                };
-            };
-        };
-    };
-    AuthController_startEmailTwoFactor: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Email 2FA challenge started */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["EmailTwoFactorStartResponse"];
-                };
-            };
-        };
-    };
-    AuthController_enableEmailTwoFactor: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["EnableEmailTwoFactorRequest"];
-            };
-        };
-        responses: {
-            /** @description Email 2FA enabled */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["OkResponse"];
-                };
-            };
-        };
-    };
-    AuthController_updateOrderNotifications: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["UpdateOrderNotificationsRequest"];
-            };
-        };
-        responses: {
-            /** @description Order notifications preference updated */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["UpdateOrderNotificationsResponse"];
-                };
-            };
-        };
-    };
-    AuthController_disableTwoFactor: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description 2FA disabled */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["OkResponse"];
-                };
-            };
-        };
-    };
-    AuthController_invite: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["InviteUserRequest"];
-            };
-        };
-        responses: {
-            /** @description Invitation */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["InviteUserResponse"];
-                };
-            };
-        };
-    };
-    AuthController_users: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Users */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["UserSummary"][];
-                };
-            };
-        };
-    };
-    AuthController_setUserActive: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["SetUserActiveRequest"];
-            };
-        };
-        responses: {
-            /** @description User activation updated */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["OkResponse"];
-                };
-            };
-        };
-    };
-    AuthController_setUserRole: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["SetUserRoleRequest"];
-            };
-        };
-        responses: {
-            /** @description User role updated */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["OkResponse"];
-                };
-            };
-        };
-    };
-    AuthController_deleteUser: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description User deleted */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["OkResponse"];
-                };
-            };
-        };
-    };
-    CatalogController_articles: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Articles */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Article"][];
-                };
-            };
-        };
-    };
-    CatalogController_createArticle: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["CreateArticleRequest"];
-            };
-        };
-        responses: {
-            /** @description Article created */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Article"];
-                };
-            };
-        };
-    };
-    CatalogController_reorderArticles: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["ReorderArticlesRequest"];
-            };
-        };
-        responses: {
-            /** @description Articles reordered */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["OkResponse"];
-                };
-            };
-        };
-    };
-    CatalogController_deleteArticle: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Article deleted */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["OkResponse"];
-                };
-            };
-        };
-    };
-    CatalogController_updateArticle: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["UpdateArticleRequest"];
-            };
-        };
-        responses: {
-            /** @description Article updated */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Article"];
-                };
-            };
-        };
-    };
-    CatalogController_locations: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Locations */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Location"][];
-                };
-            };
-        };
-    };
-    CatalogController_createLocation: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["CreateLocationRequest"];
-            };
-        };
-        responses: {
-            /** @description Location created */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Location"];
-                };
-            };
-        };
-    };
-    CatalogController_deleteLocation: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Location deleted */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["OkResponse"];
-                };
-            };
-        };
-    };
-    CatalogController_updateLocation: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["UpdateLocationRequest"];
-            };
-        };
-        responses: {
-            /** @description Location updated */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Location"];
-                };
-            };
-        };
-    };
-    MedicalDevicesController_list: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Medical devices */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["MedicalDevice"][];
-                };
-            };
-        };
-    };
-    MedicalDevicesController_create: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["MedicalDeviceWriteRequest"];
-            };
-        };
-        responses: {
-            /** @description Medical device created */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["MedicalDevice"];
-                };
-            };
-        };
-    };
-    MedicalDevicesController_delete: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Medical device deleted */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["OkResponse"];
-                };
-            };
-        };
-    };
-    MedicalDevicesController_update: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["MedicalDeviceWriteRequest"];
-            };
-        };
-        responses: {
-            /** @description Medical device updated */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["MedicalDevice"];
-                };
-            };
-        };
-    };
-    CatalogController_templates: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Templates */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["KitTemplate"][];
-                };
-            };
-        };
-    };
-    CatalogController_createTemplate: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["CreateTemplateRequest"];
-            };
-        };
-        responses: {
-            /** @description Template created */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["KitTemplate"];
-                };
-            };
-        };
-    };
-    CatalogController_reviseTemplate: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["ReviseTemplateRequest"];
-            };
-        };
-        responses: {
-            /** @description Template revised */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["KitTemplate"];
-                };
-            };
-        };
-    };
-    CatalogController_deleteTemplate: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Template deleted */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["OkResponse"];
-                };
-            };
-        };
-    };
-    CatalogController_kits: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Kits */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Kit"][];
-                };
-            };
-        };
-    };
-    CatalogController_createKit: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["CreateKitRequest"];
-            };
-        };
-        responses: {
-            /** @description Kit created */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Kit"];
-                };
-            };
-        };
-    };
-    CatalogController_deleteKit: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Kit deleted */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["OkResponse"];
-                };
-            };
-        };
-    };
-    CatalogController_updateKit: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["UpdateKitRequest"];
-            };
-        };
-        responses: {
-            /** @description Kit updated */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Kit"];
-                };
-            };
-        };
-    };
-    CatalogController_rotateToken: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Kit token rotated */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Kit"];
-                };
-            };
-        };
-    };
-    InventoryController_batches: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Batches */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Batch"][];
-                };
-            };
-        };
-    };
-    InventoryController_createBatch: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["CreateBatchRequest"];
-            };
-        };
-        responses: {
-            /** @description Batch created */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Batch"];
-                };
-            };
-        };
-    };
-    InventoryController_targets: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Inventory targets */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["InventoryTarget"][];
-                };
-            };
-        };
-    };
-    InventoryController_reconcileTargets: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Inventory targets reconciled */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["InventoryReconcileResponse"];
-                };
-            };
-        };
-    };
-    InventoryController_upsertTarget: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                articleId: string;
-                locationId: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["UpsertInventoryTargetRequest"];
-            };
-        };
-        responses: {
-            /** @description Inventory target saved */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["InventoryTarget"];
-                };
-            };
-        };
-    };
-    InventoryController_clearTarget: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                articleId: string;
-                locationId: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Inventory target cleared */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["OkResponse"];
-                };
-            };
-        };
-    };
-    InventoryController_procurementOrders: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Procurement orders */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["InventoryProcurementOrder"][];
-                };
-            };
-        };
-    };
-    InventoryController_startProcurementOrder: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Procurement order started */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["InventoryProcurementOrder"];
-                };
-            };
-        };
-    };
-    InventoryController_receiveProcurementOrder: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["ReceiveProcurementOrderRequest"];
-            };
-        };
-        responses: {
-            /** @description Procurement order received */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["InventoryProcurementOrder"];
-                };
-            };
-        };
-    };
-    InventoryController_cancelProcurementOrder: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Procurement order cancelled */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["InventoryProcurementOrder"];
-                };
-            };
-        };
-    };
-    InventoryController_automationConfig: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Inventory automation config */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["InventoryAutomationConfig"];
-                };
-            };
-        };
-    };
-    InventoryController_updateAutomationConfig: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["UpdateInventoryAutomationConfigRequest"];
-            };
-        };
-        responses: {
-            /** @description Inventory automation config updated */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["InventoryAutomationConfig"];
-                };
-            };
-        };
-    };
-    InventoryController_movements: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Batch movements */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["InventoryMovement"][];
-                };
-            };
-        };
-    };
-    InventoryController_deleteBatch: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Batch deleted */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["OkResponse"];
-                };
-            };
-        };
-    };
-    InventoryController_correctBatch: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["BatchCorrectionRequest"];
-            };
-        };
-        responses: {
-            /** @description Batch corrected */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Batch"];
-                };
-            };
-        };
-    };
-    InventoryController_expiryWarnings: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Expiry warnings */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ExpiryWarning"][];
-                };
-            };
-        };
-    };
-    PurchaseOrdersController_list: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Purchase orders */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["PurchaseOrder"][];
-                };
-            };
-        };
-    };
-    PurchaseOrdersController_create: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["PurchaseOrderWriteRequest"];
-            };
-        };
-        responses: {
-            /** @description Purchase order created */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["PurchaseOrder"];
-                };
-            };
-        };
-    };
-    PurchaseOrdersController_createFromShortages: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["CreatePurchaseOrdersFromShortagesRequest"];
-            };
-        };
-        responses: {
-            /** @description Purchase orders created */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["PurchaseOrder"][];
-                };
-            };
-        };
-    };
-    PurchaseOrdersController_get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Purchase order */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["PurchaseOrder"];
-                };
-            };
-        };
-    };
-    PurchaseOrdersController_update: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["UpdatePurchaseOrderRequest"];
-            };
-        };
-        responses: {
-            /** @description Purchase order updated */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["PurchaseOrder"];
-                };
-            };
-        };
-    };
-    PurchaseOrdersController_archive: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Purchase order archived */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["PurchaseOrder"];
-                };
-            };
-        };
-    };
-    PurchaseOrdersController_restore: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Purchase order restored */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["PurchaseOrder"];
-                };
-            };
-        };
-    };
-    PurchaseOrdersController_approve: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Purchase order approved */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["PurchaseOrder"];
-                };
-            };
-        };
-    };
-    PurchaseOrdersController_markOrdered: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Purchase order marked ordered */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["PurchaseOrder"];
-                };
-            };
-        };
-    };
-    PurchaseOrdersController_receive: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["ReceivePurchaseOrderRequest"];
-            };
-        };
-        responses: {
-            /** @description Purchase order received */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["PurchaseOrder"];
-                };
-            };
-        };
-    };
-    PublicChecksController_getPublicKit: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                token: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Public kit */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["PublicKitResponse"];
-                };
-            };
-        };
-    };
-    PublicChecksController_completeCheck: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                token: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["CompleteCheckRequest"];
-            };
-        };
-        responses: {
-            /** @description Check completed */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["CompleteCheckResponse"];
-                };
-            };
-        };
-    };
-    CheckRecordsController_list: {
-        parameters: {
-            query?: {
-                q?: string;
-                kitId?: string;
-                status?: string;
-                page?: string;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Check protocols */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["CheckProtocolPage"];
-                };
-            };
-        };
-    };
-    CheckRecordsController_detail: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Check protocol */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["CheckProtocolDetail"];
-                };
-            };
-        };
-    };
-    ReplenishmentController_list: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Replenishment orders */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ReplenishmentOrder"][];
-                };
-            };
-        };
-    };
-    ReplenishmentController_fulfill: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["FulfillOrderRequest"];
-            };
-        };
-        responses: {
-            /** @description Fulfillment booked */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["FulfillOrderResponse"];
-                };
-            };
-        };
-    };
-    ReplenishmentController_cancel: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Order cancelled */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ReplenishmentOrder"];
-                };
-            };
-        };
-    };
-    AuditController_list: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Audit events */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["AuditEvent"][];
-                };
-            };
-        };
-    };
-    ReportsController_inventoryCsv: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Binary report */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "text/csv": string;
-                };
-            };
-        };
-    };
-    ReportsController_replenishmentCsv: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Binary report */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "text/csv": string;
-                };
-            };
-        };
-    };
-    ReportsController_procurement: {
-        parameters: {
-            query?: {
-                articleId?: string;
-                locationId?: string;
-                q?: string;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Binary report */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/pdf": string;
-                };
-            };
-        };
-    };
-    ReportsController_qrLabel: {
-        parameters: {
-            query?: {
-                format?: "a4" | "label";
-            };
-            header?: never;
-            path: {
-                kitId: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Binary report */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/pdf": string;
-                };
-            };
-        };
-    };
-    ReportsController_replenishment: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                orderId: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Binary report */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/pdf": string;
-                };
-            };
-        };
-    };
-    ReportsController_purchaseOrder: {
-        parameters: {
-            query?: {
-                includeLineNotes?: "true" | "false";
-            };
-            header?: never;
-            path: {
-                orderId: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Binary report */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/pdf": string;
-                };
-            };
-        };
-    };
+  AdminSettingsController_getAll: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Aggregated app settings */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["AdminSettings"];
+        };
+      };
+    };
+  };
+  AdminSettingsController_updateGeneral: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["UpdateGeneralSettingsRequest"];
+      };
+    };
+    responses: {
+      /** @description General settings updated */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["GeneralSettings"];
+        };
+      };
+    };
+  };
+  AdminSettingsController_updateAlerts: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["UpdateAlertSettingsRequest"];
+      };
+    };
+    responses: {
+      /** @description Alert settings updated */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["AlertSettings"];
+        };
+      };
+    };
+  };
+  AdminSettingsController_updateInventory: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["UpdateAdminInventorySettingsRequest"];
+      };
+    };
+    responses: {
+      /** @description Inventory settings updated */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["AdminInventorySettings"];
+        };
+      };
+    };
+  };
+  AdminSettingsController_updateTemplate: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        key: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["UpdateNotificationTemplateRequest"];
+      };
+    };
+    responses: {
+      /** @description Notification template updated */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["NotificationTemplate"];
+        };
+      };
+    };
+  };
+  AdminSettingsController_previewTemplate: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        key: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["UpdateNotificationTemplateRequest"];
+      };
+    };
+    responses: {
+      /** @description Notification template preview */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["NotificationTemplatePreview"];
+        };
+      };
+    };
+  };
+  AuthController_setupStatus: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Setup status */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["SetupStatus"];
+        };
+      };
+    };
+  };
+  AuthController_createFirstAdmin: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["FirstAdminRequest"];
+      };
+    };
+    responses: {
+      /** @description First admin created */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["FirstAdminResponse"];
+        };
+      };
+    };
+  };
+  AuthController_login: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["LoginRequest"];
+      };
+    };
+    responses: {
+      /** @description Login result */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["LoginResponse"];
+        };
+      };
+    };
+  };
+  AuthController_invitation: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        token: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Invitation preview */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["InvitationPreview"];
+        };
+      };
+    };
+  };
+  AuthController_acceptInvitation: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["AcceptInvitationRequest"];
+      };
+    };
+    responses: {
+      /** @description Invitation accepted */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["AcceptInvitationResponse"];
+        };
+      };
+    };
+  };
+  AuthController_requestPasswordReset: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["PasswordResetRequest"];
+      };
+    };
+    responses: {
+      /** @description Password reset requested */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["PasswordResetRequestResponse"];
+        };
+      };
+    };
+  };
+  AuthController_passwordReset: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        token: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Password reset preview */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["PasswordResetPreview"];
+        };
+      };
+    };
+  };
+  AuthController_confirmPasswordReset: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["PasswordResetConfirmRequest"];
+      };
+    };
+    responses: {
+      /** @description Password reset confirmed */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["OkResponse"];
+        };
+      };
+    };
+  };
+  AuthController_session: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Active session */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["SessionResponse"];
+        };
+      };
+    };
+  };
+  AuthController_logout: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Logged out */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["OkResponse"];
+        };
+      };
+    };
+  };
+  AuthController_setupTotp: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description TOTP setup */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["TotpSetupResponse"];
+        };
+      };
+    };
+  };
+  AuthController_enableTotp: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["EnableTotpRequest"];
+      };
+    };
+    responses: {
+      /** @description TOTP enabled */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["OkResponse"];
+        };
+      };
+    };
+  };
+  AuthController_startEmailTwoFactor: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Email 2FA challenge started */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["EmailTwoFactorStartResponse"];
+        };
+      };
+    };
+  };
+  AuthController_enableEmailTwoFactor: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["EnableEmailTwoFactorRequest"];
+      };
+    };
+    responses: {
+      /** @description Email 2FA enabled */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["OkResponse"];
+        };
+      };
+    };
+  };
+  AuthController_updateOrderNotifications: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["UpdateOrderNotificationsRequest"];
+      };
+    };
+    responses: {
+      /** @description Order notifications preference updated */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["UpdateOrderNotificationsResponse"];
+        };
+      };
+    };
+  };
+  AuthController_disableTwoFactor: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description 2FA disabled */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["OkResponse"];
+        };
+      };
+    };
+  };
+  AuthController_invite: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["InviteUserRequest"];
+      };
+    };
+    responses: {
+      /** @description Invitation */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["InviteUserResponse"];
+        };
+      };
+    };
+  };
+  AuthController_users: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Users */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["UserSummary"][];
+        };
+      };
+    };
+  };
+  AuthController_setUserActive: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["SetUserActiveRequest"];
+      };
+    };
+    responses: {
+      /** @description User activation updated */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["OkResponse"];
+        };
+      };
+    };
+  };
+  AuthController_setUserRole: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["SetUserRoleRequest"];
+      };
+    };
+    responses: {
+      /** @description User role updated */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["OkResponse"];
+        };
+      };
+    };
+  };
+  AuthController_deleteUser: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description User deleted */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["OkResponse"];
+        };
+      };
+    };
+  };
+  CatalogController_articles: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Articles */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["Article"][];
+        };
+      };
+    };
+  };
+  CatalogController_createArticle: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["CreateArticleRequest"];
+      };
+    };
+    responses: {
+      /** @description Article created */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["Article"];
+        };
+      };
+    };
+  };
+  CatalogController_reorderArticles: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["ReorderArticlesRequest"];
+      };
+    };
+    responses: {
+      /** @description Articles reordered */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["OkResponse"];
+        };
+      };
+    };
+  };
+  CatalogController_deleteArticle: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Article deleted */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["OkResponse"];
+        };
+      };
+    };
+  };
+  CatalogController_updateArticle: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["UpdateArticleRequest"];
+      };
+    };
+    responses: {
+      /** @description Article updated */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["Article"];
+        };
+      };
+    };
+  };
+  CatalogController_locations: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Locations */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["Location"][];
+        };
+      };
+    };
+  };
+  CatalogController_createLocation: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["CreateLocationRequest"];
+      };
+    };
+    responses: {
+      /** @description Location created */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["Location"];
+        };
+      };
+    };
+  };
+  CatalogController_deleteLocation: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Location deleted */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["OkResponse"];
+        };
+      };
+    };
+  };
+  CatalogController_updateLocation: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["UpdateLocationRequest"];
+      };
+    };
+    responses: {
+      /** @description Location updated */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["Location"];
+        };
+      };
+    };
+  };
+  MedicalDevicesController_list: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Medical devices */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["MedicalDevice"][];
+        };
+      };
+    };
+  };
+  MedicalDevicesController_create: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["MedicalDeviceWriteRequest"];
+      };
+    };
+    responses: {
+      /** @description Medical device created */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["MedicalDevice"];
+        };
+      };
+    };
+  };
+  MedicalDevicesController_delete: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Medical device deleted */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["OkResponse"];
+        };
+      };
+    };
+  };
+  MedicalDevicesController_update: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["MedicalDeviceWriteRequest"];
+      };
+    };
+    responses: {
+      /** @description Medical device updated */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["MedicalDevice"];
+        };
+      };
+    };
+  };
+  CatalogController_templates: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Templates */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["KitTemplate"][];
+        };
+      };
+    };
+  };
+  CatalogController_createTemplate: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["CreateTemplateRequest"];
+      };
+    };
+    responses: {
+      /** @description Template created */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["KitTemplate"];
+        };
+      };
+    };
+  };
+  CatalogController_reviseTemplate: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["ReviseTemplateRequest"];
+      };
+    };
+    responses: {
+      /** @description Template revised */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["KitTemplate"];
+        };
+      };
+    };
+  };
+  CatalogController_deleteTemplate: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Template deleted */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["OkResponse"];
+        };
+      };
+    };
+  };
+  CatalogController_kits: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Kits */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["Kit"][];
+        };
+      };
+    };
+  };
+  CatalogController_createKit: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["CreateKitRequest"];
+      };
+    };
+    responses: {
+      /** @description Kit created */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["Kit"];
+        };
+      };
+    };
+  };
+  CatalogController_deleteKit: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Kit deleted */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["OkResponse"];
+        };
+      };
+    };
+  };
+  CatalogController_updateKit: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["UpdateKitRequest"];
+      };
+    };
+    responses: {
+      /** @description Kit updated */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["Kit"];
+        };
+      };
+    };
+  };
+  CatalogController_rotateToken: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Kit token rotated */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["Kit"];
+        };
+      };
+    };
+  };
+  InventoryController_batches: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Batches */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["Batch"][];
+        };
+      };
+    };
+  };
+  InventoryController_createBatch: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["CreateBatchRequest"];
+      };
+    };
+    responses: {
+      /** @description Batch created */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["Batch"];
+        };
+      };
+    };
+  };
+  InventoryController_targets: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Inventory targets */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["InventoryTarget"][];
+        };
+      };
+    };
+  };
+  InventoryController_reconcileTargets: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Inventory targets reconciled */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["InventoryReconcileResponse"];
+        };
+      };
+    };
+  };
+  InventoryController_upsertTarget: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        articleId: string;
+        locationId: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["UpsertInventoryTargetRequest"];
+      };
+    };
+    responses: {
+      /** @description Inventory target saved */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["InventoryTarget"];
+        };
+      };
+    };
+  };
+  InventoryController_clearTarget: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        articleId: string;
+        locationId: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Inventory target cleared */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["OkResponse"];
+        };
+      };
+    };
+  };
+  InventoryController_procurementOrders: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Procurement orders */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["InventoryProcurementOrder"][];
+        };
+      };
+    };
+  };
+  InventoryController_startProcurementOrder: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Procurement order started */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["InventoryProcurementOrder"];
+        };
+      };
+    };
+  };
+  InventoryController_receiveProcurementOrder: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["ReceiveProcurementOrderRequest"];
+      };
+    };
+    responses: {
+      /** @description Procurement order received */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["InventoryProcurementOrder"];
+        };
+      };
+    };
+  };
+  InventoryController_cancelProcurementOrder: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Procurement order cancelled */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["InventoryProcurementOrder"];
+        };
+      };
+    };
+  };
+  InventoryController_automationConfig: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Inventory automation config */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["InventoryAutomationConfig"];
+        };
+      };
+    };
+  };
+  InventoryController_updateAutomationConfig: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["UpdateInventoryAutomationConfigRequest"];
+      };
+    };
+    responses: {
+      /** @description Inventory automation config updated */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["InventoryAutomationConfig"];
+        };
+      };
+    };
+  };
+  InventoryController_movements: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Batch movements */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["InventoryMovement"][];
+        };
+      };
+    };
+  };
+  InventoryController_deleteBatch: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Batch deleted */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["OkResponse"];
+        };
+      };
+    };
+  };
+  InventoryController_correctBatch: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["BatchCorrectionRequest"];
+      };
+    };
+    responses: {
+      /** @description Batch corrected */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["Batch"];
+        };
+      };
+    };
+  };
+  InventoryController_expiryWarnings: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Expiry warnings */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ExpiryWarning"][];
+        };
+      };
+    };
+  };
+  PurchaseOrdersController_list: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Purchase orders */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["PurchaseOrder"][];
+        };
+      };
+    };
+  };
+  PurchaseOrdersController_create: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["PurchaseOrderWriteRequest"];
+      };
+    };
+    responses: {
+      /** @description Purchase order created */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["PurchaseOrder"];
+        };
+      };
+    };
+  };
+  PurchaseOrdersController_createFromShortages: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["CreatePurchaseOrdersFromShortagesRequest"];
+      };
+    };
+    responses: {
+      /** @description Purchase orders created */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["PurchaseOrder"][];
+        };
+      };
+    };
+  };
+  PurchaseOrdersController_get: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Purchase order */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["PurchaseOrder"];
+        };
+      };
+    };
+  };
+  PurchaseOrdersController_update: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["UpdatePurchaseOrderRequest"];
+      };
+    };
+    responses: {
+      /** @description Purchase order updated */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["PurchaseOrder"];
+        };
+      };
+    };
+  };
+  PurchaseOrdersController_archive: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Purchase order archived */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["PurchaseOrder"];
+        };
+      };
+    };
+  };
+  PurchaseOrdersController_restore: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Purchase order restored */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["PurchaseOrder"];
+        };
+      };
+    };
+  };
+  PurchaseOrdersController_approve: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Purchase order approved */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["PurchaseOrder"];
+        };
+      };
+    };
+  };
+  PurchaseOrdersController_markOrdered: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Purchase order marked ordered */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["PurchaseOrder"];
+        };
+      };
+    };
+  };
+  PurchaseOrdersController_receive: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["ReceivePurchaseOrderRequest"];
+      };
+    };
+    responses: {
+      /** @description Purchase order received */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["PurchaseOrder"];
+        };
+      };
+    };
+  };
+  PublicChecksController_getPublicKit: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        token: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Public kit */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["PublicKitResponse"];
+        };
+      };
+    };
+  };
+  PublicChecksController_completeCheck: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        token: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["CompleteCheckRequest"];
+      };
+    };
+    responses: {
+      /** @description Check completed */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["CompleteCheckResponse"];
+        };
+      };
+    };
+  };
+  CheckRecordsController_list: {
+    parameters: {
+      query?: {
+        q?: string;
+        kitId?: string;
+        status?: string;
+        page?: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Check protocols */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["CheckProtocolPage"];
+        };
+      };
+    };
+  };
+  CheckRecordsController_detail: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Check protocol */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["CheckProtocolDetail"];
+        };
+      };
+    };
+  };
+  ReplenishmentController_list: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Replenishment orders */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ReplenishmentOrder"][];
+        };
+      };
+    };
+  };
+  ReplenishmentController_fulfill: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["FulfillOrderRequest"];
+      };
+    };
+    responses: {
+      /** @description Fulfillment booked */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["FulfillOrderResponse"];
+        };
+      };
+    };
+  };
+  ReplenishmentController_cancel: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Order cancelled */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ReplenishmentOrder"];
+        };
+      };
+    };
+  };
+  AuditController_list: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Audit events */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["AuditEvent"][];
+        };
+      };
+    };
+  };
+  ReportsController_inventoryCsv: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Binary report */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "text/csv": string;
+        };
+      };
+    };
+  };
+  ReportsController_replenishmentCsv: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Binary report */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "text/csv": string;
+        };
+      };
+    };
+  };
+  ReportsController_procurement: {
+    parameters: {
+      query?: {
+        articleId?: string;
+        locationId?: string;
+        q?: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Binary report */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/pdf": string;
+        };
+      };
+    };
+  };
+  ReportsController_qrLabel: {
+    parameters: {
+      query?: {
+        format?: "a4" | "label";
+      };
+      header?: never;
+      path: {
+        kitId: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Binary report */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/pdf": string;
+        };
+      };
+    };
+  };
+  ReportsController_replenishment: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        orderId: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Binary report */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/pdf": string;
+        };
+      };
+    };
+  };
+  ReportsController_purchaseOrder: {
+    parameters: {
+      query?: {
+        includeLineNotes?: "true" | "false";
+      };
+      header?: never;
+      path: {
+        orderId: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Binary report */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/pdf": string;
+        };
+      };
+    };
+  };
 }

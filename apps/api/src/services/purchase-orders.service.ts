@@ -1,11 +1,17 @@
-import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from "@nestjs/common";
 import { PurchaseOrderStatus } from "@prisma/client";
 import type { AuthenticatedUser } from "../auth/auth.service.js";
 import { PrismaService } from "../persistence/prisma.service.js";
 import { toIsoDate, toIsoDateTime } from "../persistence/mappers.js";
 import { AuditService } from "./audit.service.js";
 
-type PurchaseOrderRecord = Awaited<ReturnType<PurchaseOrdersService["findOrderRecord"]>>;
+type PurchaseOrderRecord = Awaited<
+  ReturnType<PurchaseOrdersService["findOrderRecord"]>
+>;
 type PurchaseOrderLineInput = {
   articleId: string;
   orderedQuantity: number;
@@ -38,20 +44,20 @@ type ShortageBody = {
 const orderInclude = {
   location: { select: { id: true, name: true } },
   lines: { orderBy: { createdAt: "asc" as const } },
-  receipts: { orderBy: { createdAt: "asc" as const } }
+  receipts: { orderBy: { createdAt: "asc" as const } },
 };
 
 @Injectable()
 export class PurchaseOrdersService {
   constructor(
     private readonly prisma: PrismaService,
-    private readonly audit: AuditService
+    private readonly audit: AuditService,
   ) {}
 
   async list() {
     const orders = await this.prisma.purchaseOrder.findMany({
       include: orderInclude,
-      orderBy: [{ status: "asc" }, { updatedAt: "desc" }]
+      orderBy: [{ status: "asc" }, { updatedAt: "desc" }],
     });
     return orders.map(mapPurchaseOrder);
   }
@@ -66,7 +72,7 @@ export class PurchaseOrdersService {
     const updated = await this.prisma.purchaseOrder.update({
       where: { id },
       data: { archivedAt: new Date() },
-      include: orderInclude
+      include: orderInclude,
     });
     await this.audit.record({
       actorType: "USER",
@@ -74,7 +80,7 @@ export class PurchaseOrdersService {
       action: "PURCHASE_ORDER_ARCHIVED",
       entityType: "PurchaseOrder",
       entityId: id,
-      payload: { orderNumber: updated.orderNumber }
+      payload: { orderNumber: updated.orderNumber },
     });
     return mapPurchaseOrder(updated);
   }
@@ -85,7 +91,7 @@ export class PurchaseOrdersService {
     const updated = await this.prisma.purchaseOrder.update({
       where: { id },
       data: { archivedAt: null },
-      include: orderInclude
+      include: orderInclude,
     });
     await this.audit.record({
       actorType: "USER",
@@ -93,7 +99,7 @@ export class PurchaseOrdersService {
       action: "PURCHASE_ORDER_RESTORED",
       entityType: "PurchaseOrder",
       entityId: id,
-      payload: { orderNumber: updated.orderNumber }
+      payload: { orderNumber: updated.orderNumber },
     });
     return mapPurchaseOrder(updated);
   }
@@ -106,9 +112,9 @@ export class PurchaseOrdersService {
         supplierName: payload.supplierName,
         locationId: payload.locationId,
         notes: payload.notes,
-        lines: { create: payload.lines }
+        lines: { create: payload.lines },
       },
-      include: orderInclude
+      include: orderInclude,
     });
     await this.audit.record({
       actorType: "USER",
@@ -116,28 +122,48 @@ export class PurchaseOrdersService {
       action: "PURCHASE_ORDER_CREATED",
       entityType: "PurchaseOrder",
       entityId: order.id,
-      payload: { orderNumber: order.orderNumber, lines: order.lines.length }
+      payload: { orderNumber: order.orderNumber, lines: order.lines.length },
     });
     return mapPurchaseOrder(order);
   }
 
   async createFromShortages(body: ShortageBody) {
     const shortages = await this.shortages(body.locationId, body.articleIds);
-    if (shortages.length === 0) throw new BadRequestException("Für diese Auswahl gibt es keine offenen Fehlmengen.");
-    const groups = body.groupingMode === "supplier"
-      ? groupBy(shortages, (entry) => entry.article.defaultSupplierName ?? "Ohne Lieferant")
-      : new Map([[normalizeRequiredText(body.supplierName, "Lieferant ist erforderlich."), shortages]]);
+    if (shortages.length === 0)
+      throw new BadRequestException(
+        "Für diese Auswahl gibt es keine offenen Fehlmengen.",
+      );
+    const groups =
+      body.groupingMode === "supplier"
+        ? groupBy(
+            shortages,
+            (entry) => entry.article.defaultSupplierName ?? "Ohne Lieferant",
+          )
+        : new Map([
+            [
+              normalizeRequiredText(
+                body.supplierName,
+                "Lieferant ist erforderlich.",
+              ),
+              shortages,
+            ],
+          ]);
 
     const orders = [];
     for (const [supplierName, entries] of groups) {
-      orders.push(await this.createDraft({
-        supplierName,
-        locationId: body.locationId,
-        lines: entries.map((entry) => ({
-          articleId: entry.articleId,
-          orderedQuantity: entry.shortageQuantity
-        }))
-      }));
+      orders.push(
+        await this.createDraft({
+          supplierName,
+          locationId: body.locationId,
+          lines: entries.map((entry) => ({
+            articleId: entry.articleId,
+            orderedQuantity: roundUpToPackage(
+              entry.shortageQuantity,
+              entry.article.unitsPerPackage,
+            ),
+          })),
+        }),
+      );
     }
     return orders;
   }
@@ -155,16 +181,19 @@ export class PurchaseOrdersService {
     if (order.status !== PurchaseOrderStatus.DRAFT) {
       throw new BadRequestException("Nur Entwürfe können freigegeben werden.");
     }
-    if (order.lines.length === 0) throw new BadRequestException("Eine Bestellung benötigt mindestens eine Position.");
+    if (order.lines.length === 0)
+      throw new BadRequestException(
+        "Eine Bestellung benötigt mindestens eine Position.",
+      );
     const updated = await this.prisma.purchaseOrder.update({
       where: { id },
       data: {
         approvedAt: new Date(),
         approvedByUserId: user.id,
         approvedByName: user.displayName,
-        status: PurchaseOrderStatus.APPROVED
+        status: PurchaseOrderStatus.APPROVED,
       },
-      include: orderInclude
+      include: orderInclude,
     });
     await this.audit.record({
       actorType: "USER",
@@ -172,7 +201,7 @@ export class PurchaseOrdersService {
       action: "PURCHASE_ORDER_APPROVED",
       entityType: "PurchaseOrder",
       entityId: id,
-      payload: { orderNumber: updated.orderNumber }
+      payload: { orderNumber: updated.orderNumber },
     });
     return mapPurchaseOrder(updated);
   }
@@ -180,26 +209,34 @@ export class PurchaseOrdersService {
   async markOrdered(id: string) {
     const order = await this.findOrderRecord(id);
     if (order.status !== PurchaseOrderStatus.APPROVED) {
-      throw new BadRequestException("Bestellungen müssen vor dem Bestellen freigegeben werden.");
+      throw new BadRequestException(
+        "Bestellungen müssen vor dem Bestellen freigegeben werden.",
+      );
     }
     const updated = await this.prisma.purchaseOrder.update({
       where: { id },
       data: { orderedAt: new Date(), status: PurchaseOrderStatus.ORDERED },
-      include: orderInclude
+      include: orderInclude,
     });
     return mapPurchaseOrder(updated);
   }
 
   async receive(id: string, body: ReceivePurchaseOrderBody) {
     const order = await this.findOrderRecord(id);
-    if (order.status !== PurchaseOrderStatus.ORDERED && order.status !== PurchaseOrderStatus.PARTIALLY_RECEIVED) {
-      throw new BadRequestException("Wareneingang ist nur für bestellte Bestellungen möglich.");
+    if (
+      order.status !== PurchaseOrderStatus.ORDERED &&
+      order.status !== PurchaseOrderStatus.PARTIALLY_RECEIVED
+    ) {
+      throw new BadRequestException(
+        "Wareneingang ist nur für bestellte Bestellungen möglich.",
+      );
     }
     const normalized = normalizeReceiptBody(body, order.lines);
     const updated = await this.prisma.$transaction(async (tx) => {
       for (const entry of normalized) {
         const line = order.lines.find((item) => item.id === entry.lineId);
-        if (!line) throw new BadRequestException("Bestellposition nicht gefunden.");
+        if (!line)
+          throw new BadRequestException("Bestellposition nicht gefunden.");
         for (const batchItem of entry.batches) {
           const receivedAt = new Date();
           const batch = await tx.batch.create({
@@ -208,8 +245,8 @@ export class PurchaseOrdersService {
               locationId: order.locationId,
               lotNumber: batchItem.lotNumber,
               expiresAt: batchItem.expiresAt,
-              quantity: batchItem.quantity
-            }
+              quantity: batchItem.quantity,
+            },
           });
           await tx.inventoryMovement.create({
             data: {
@@ -221,8 +258,11 @@ export class PurchaseOrdersService {
               quantity: batchItem.quantity,
               actorLabel: "Lagerteam",
               reason: "Wareneingang Bestellung",
-              metadata: { lotNumber: batchItem.lotNumber, expiresAt: toIsoDate(batchItem.expiresAt) }
-            }
+              metadata: {
+                lotNumber: batchItem.lotNumber,
+                expiresAt: toIsoDate(batchItem.expiresAt),
+              },
+            },
           });
           await tx.purchaseOrderReceipt.create({
             data: {
@@ -233,23 +273,33 @@ export class PurchaseOrdersService {
               lotNumber: batchItem.lotNumber,
               expiresAt: batchItem.expiresAt,
               receivedAt,
-              receivedBy: "Lagerteam"
-            }
+              receivedBy: "Lagerteam",
+            },
           });
         }
         await tx.purchaseOrderLine.update({
           where: { id: entry.lineId },
-          data: { receivedQuantity: { increment: entry.totalQuantity } }
+          data: { receivedQuantity: { increment: entry.totalQuantity } },
         });
       }
 
-      const lines = await tx.purchaseOrderLine.findMany({ where: { orderId: order.id } });
-      const nextStatus = lines.every((line) => line.receivedQuantity >= line.orderedQuantity)
+      const lines = await tx.purchaseOrderLine.findMany({
+        where: { orderId: order.id },
+      });
+      const nextStatus = lines.every(
+        (line) => line.receivedQuantity >= line.orderedQuantity,
+      )
         ? PurchaseOrderStatus.RECEIVED
         : PurchaseOrderStatus.PARTIALLY_RECEIVED;
       await tx.purchaseOrder.update({
         where: { id: order.id },
-        data: { status: nextStatus, receivedAt: nextStatus === PurchaseOrderStatus.RECEIVED ? new Date() : order.receivedAt }
+        data: {
+          status: nextStatus,
+          receivedAt:
+            nextStatus === PurchaseOrderStatus.RECEIVED
+              ? new Date()
+              : order.receivedAt,
+        },
       });
       await this.audit.recordInTransaction(tx, {
         actorType: "USER",
@@ -257,15 +307,20 @@ export class PurchaseOrdersService {
         action: "PURCHASE_ORDER_RECEIVED",
         entityType: "PurchaseOrder",
         entityId: order.id,
-        payload: { lines: normalized.length }
+        payload: { lines: normalized.length },
       });
-      return tx.purchaseOrder.findUniqueOrThrow({ where: { id: order.id }, include: orderInclude });
+      return tx.purchaseOrder.findUniqueOrThrow({
+        where: { id: order.id },
+        include: orderInclude,
+      });
     });
     return mapPurchaseOrder(updated);
   }
 
   private async updateDraft(id: string, body: UpdatePurchaseOrderBody) {
-    const payload = body.lines ? await this.normalizeDraftPayload(body as CreatePurchaseOrderBody) : null;
+    const payload = body.lines
+      ? await this.normalizeDraftPayload(body as CreatePurchaseOrderBody)
+      : null;
     const order = await this.prisma.$transaction(async (tx) => {
       if (payload?.lines) {
         await tx.purchaseOrderLine.deleteMany({ where: { orderId: id } });
@@ -273,33 +328,46 @@ export class PurchaseOrdersService {
       await tx.purchaseOrder.update({
         where: { id },
         data: {
-          ...(payload ? {
-            supplierName: payload.supplierName,
-            locationId: payload.locationId,
-            notes: payload.notes,
-            lines: { create: payload.lines }
-          } : {
-            supplierName: optionalPatchText(body.supplierName),
-            locationId: body.locationId ? await this.normalizeLocationId(body.locationId) : undefined,
-            notes: optionalNullableText(body.notes)
-          })
-        }
+          ...(payload
+            ? {
+                supplierName: payload.supplierName,
+                locationId: payload.locationId,
+                notes: payload.notes,
+                lines: { create: payload.lines },
+              }
+            : {
+                supplierName: optionalPatchText(body.supplierName),
+                locationId: body.locationId
+                  ? await this.normalizeLocationId(body.locationId)
+                  : undefined,
+                notes: optionalNullableText(body.notes),
+              }),
+        },
       });
-      return tx.purchaseOrder.findUniqueOrThrow({ where: { id }, include: orderInclude });
+      return tx.purchaseOrder.findUniqueOrThrow({
+        where: { id },
+        include: orderInclude,
+      });
     });
     return mapPurchaseOrder(order);
   }
 
-  private async updateApprovedFields(order: NonNullable<PurchaseOrderRecord>, body: UpdatePurchaseOrderBody) {
+  private async updateApprovedFields(
+    order: NonNullable<PurchaseOrderRecord>,
+    body: UpdatePurchaseOrderBody,
+  ) {
     const forbidden = body.locationId || body.lines?.length;
-    if (forbidden) throw new BadRequestException("Nach Freigabe dürfen Positionen, Mengen, Preise und Zielort nicht mehr geändert werden.");
+    if (forbidden)
+      throw new BadRequestException(
+        "Nach Freigabe dürfen Positionen, Mengen, Preise und Zielort nicht mehr geändert werden.",
+      );
     const updated = await this.prisma.$transaction(async (tx) => {
       await tx.purchaseOrder.update({
         where: { id: order.id },
         data: {
           supplierName: optionalPatchText(body.supplierName),
-          notes: optionalNullableText(body.notes)
-        }
+          notes: optionalNullableText(body.notes),
+        },
       });
       for (const lineNote of body.lineNotes ?? []) {
         if (!order.lines.some((line) => line.id === lineNote.lineId)) {
@@ -307,81 +375,141 @@ export class PurchaseOrdersService {
         }
         await tx.purchaseOrderLine.update({
           where: { id: lineNote.lineId },
-          data: { note: optionalNullableText(lineNote.note) }
+          data: { note: optionalNullableText(lineNote.note) },
         });
       }
-      return tx.purchaseOrder.findUniqueOrThrow({ where: { id: order.id }, include: orderInclude });
+      return tx.purchaseOrder.findUniqueOrThrow({
+        where: { id: order.id },
+        include: orderInclude,
+      });
     });
     return mapPurchaseOrder(updated);
   }
 
   private async normalizeDraftPayload(body: CreatePurchaseOrderBody) {
-    const supplierName = normalizeRequiredText(body.supplierName, "Lieferant ist erforderlich.");
-    const locationId = normalizeRequiredText(body.locationId, "Zielort ist erforderlich.");
+    const supplierName = normalizeRequiredText(
+      body.supplierName,
+      "Lieferant ist erforderlich.",
+    );
+    const locationId = normalizeRequiredText(
+      body.locationId,
+      "Zielort ist erforderlich.",
+    );
     await this.normalizeLocationId(locationId);
-    if (!body.lines?.length) throw new BadRequestException("Eine Bestellung benötigt mindestens eine Position.");
+    if (!body.lines?.length)
+      throw new BadRequestException(
+        "Eine Bestellung benötigt mindestens eine Position.",
+      );
     const articles = await this.prisma.article.findMany({
-      where: { id: { in: body.lines.map((line) => line.articleId) }, deletedAt: null }
+      where: {
+        id: { in: body.lines.map((line) => line.articleId) },
+        deletedAt: null,
+      },
     });
-    const articleMap = new Map(articles.map((article) => [article.id, article]));
+    const articleMap = new Map(
+      articles.map((article) => [article.id, article]),
+    );
     const lines = body.lines.map((line) => {
       const article = articleMap.get(line.articleId);
       if (!article) throw new BadRequestException("Artikel nicht gefunden.");
       return {
         articleId: article.id,
         articleNameSnapshot: article.name,
-        supplierArticleNumberSnapshot: optionalNullableText(line.supplierArticleNumber) ?? article.manufacturerPartNumber,
+        supplierArticleNumberSnapshot:
+          optionalNullableText(line.supplierArticleNumber) ??
+          article.manufacturerPartNumber,
         articleUrlSnapshot: article.articleUrl,
         manufacturerPartNumberSnapshot: article.manufacturerPartNumber,
         unitSnapshot: article.unit,
-        grossUnitPriceCents: normalizeNonNegativeInteger(line.grossUnitPriceCents ?? article.defaultGrossPriceCents ?? 0, "Preis muss eine ganze Cent-Zahl sein."),
-        orderedQuantity: normalizePositiveInteger(line.orderedQuantity, "Bestellmenge muss eine ganze Zahl größer 0 sein."),
-        note: optionalNullableText(line.note)
+        grossUnitPriceCents: normalizeNonNegativeInteger(
+          line.grossUnitPriceCents ?? article.defaultGrossPriceCents ?? 0,
+          "Preis muss eine ganze Cent-Zahl sein.",
+        ),
+        orderedQuantity: normalizePositiveInteger(
+          line.orderedQuantity,
+          "Bestellmenge muss eine ganze Zahl größer 0 sein.",
+        ),
+        note: optionalNullableText(line.note),
       };
     });
-    return { supplierName, locationId, notes: optionalNullableText(body.notes), lines };
+    return {
+      supplierName,
+      locationId,
+      notes: optionalNullableText(body.notes),
+      lines,
+    };
   }
 
   private async shortages(locationId: string, articleIds?: string[]) {
     const targets = await this.prisma.inventoryTarget.findMany({
-      where: { locationId, ...(articleIds?.length ? { articleId: { in: articleIds } } : {}) },
-      include: { article: true, location: true }
+      where: {
+        locationId,
+        ...(articleIds?.length ? { articleId: { in: articleIds } } : {}),
+      },
+      include: { article: true, location: true },
     });
     const now = new Date();
     const batches = await this.prisma.batch.findMany({
-      where: { locationId, deletedAt: null, expiresAt: { gt: now }, quantity: { gt: 0 } }
+      where: {
+        locationId,
+        deletedAt: null,
+        expiresAt: { gt: now },
+        quantity: { gt: 0 },
+      },
     });
     const stock = new Map<string, number>();
-    for (const batch of batches) stock.set(batch.articleId, (stock.get(batch.articleId) ?? 0) + batch.quantity);
+    for (const batch of batches)
+      stock.set(
+        batch.articleId,
+        (stock.get(batch.articleId) ?? 0) + batch.quantity,
+      );
     return targets
-      .map((target) => ({ ...target, shortageQuantity: Math.max(target.targetQuantity - (stock.get(target.articleId) ?? 0), 0) }))
+      .map((target) => ({
+        ...target,
+        shortageQuantity: Math.max(
+          target.targetQuantity - (stock.get(target.articleId) ?? 0),
+          0,
+        ),
+      }))
       .filter((target) => target.shortageQuantity > 0);
   }
 
   private async nextOrderNumber() {
     const year = new Date().getUTCFullYear();
     const count = await this.prisma.purchaseOrder.count({
-      where: { orderNumber: { startsWith: `PO-${year}-` } }
+      where: { orderNumber: { startsWith: `PO-${year}-` } },
     });
     return `PO-${year}-${String(count + 1).padStart(6, "0")}`;
   }
 
   private async findOrderRecord(id: string) {
-    const order = await this.prisma.purchaseOrder.findUnique({ where: { id }, include: orderInclude });
+    const order = await this.prisma.purchaseOrder.findUnique({
+      where: { id },
+      include: orderInclude,
+    });
     if (!order) throw new NotFoundException("Bestellung nicht gefunden.");
     return order;
   }
 
   private async normalizeLocationId(locationId: string) {
-    const normalized = normalizeRequiredText(locationId, "Zielort ist erforderlich.");
-    const location = await this.prisma.location.findFirst({ where: { id: normalized, deletedAt: null }, select: { id: true } });
+    const normalized = normalizeRequiredText(
+      locationId,
+      "Zielort ist erforderlich.",
+    );
+    const location = await this.prisma.location.findFirst({
+      where: { id: normalized, deletedAt: null },
+      select: { id: true },
+    });
     if (!location) throw new BadRequestException("Zielort nicht gefunden.");
     return normalized;
   }
 }
 
 function mapPurchaseOrder(order: NonNullable<PurchaseOrderRecord>) {
-  const totalGrossCents = order.lines.reduce((sum, line) => sum + line.grossUnitPriceCents * line.orderedQuantity, 0);
+  const totalGrossCents = order.lines.reduce(
+    (sum, line) => sum + line.grossUnitPriceCents * line.orderedQuantity,
+    0,
+  );
   return {
     id: order.id,
     orderNumber: order.orderNumber,
@@ -409,9 +537,12 @@ function mapPurchaseOrder(order: NonNullable<PurchaseOrderRecord>) {
       grossUnitPriceCents: line.grossUnitPriceCents,
       orderedQuantity: line.orderedQuantity,
       receivedQuantity: line.receivedQuantity,
-      remainingQuantity: Math.max(line.orderedQuantity - line.receivedQuantity, 0),
+      remainingQuantity: Math.max(
+        line.orderedQuantity - line.receivedQuantity,
+        0,
+      ),
       lineTotalGrossCents: line.grossUnitPriceCents * line.orderedQuantity,
-      note: line.note ?? undefined
+      note: line.note ?? undefined,
     })),
     receipts: order.receipts.map((receipt) => ({
       id: receipt.id,
@@ -422,30 +553,46 @@ function mapPurchaseOrder(order: NonNullable<PurchaseOrderRecord>) {
       expiresAt: toIsoDate(receipt.expiresAt),
       receivedAt: toIsoDateTime(receipt.receivedAt),
       receivedBy: receipt.receivedBy,
-      createdAt: toIsoDateTime(receipt.createdAt)
-    }))
+      createdAt: toIsoDateTime(receipt.createdAt),
+    })),
   };
 }
 
-function normalizeReceiptBody(body: ReceivePurchaseOrderBody, lines: NonNullable<PurchaseOrderRecord>["lines"]) {
-  if (!body.lines?.length) throw new BadRequestException("Mindestens eine Wareneingangsposition ist erforderlich.");
+function normalizeReceiptBody(
+  body: ReceivePurchaseOrderBody,
+  lines: NonNullable<PurchaseOrderRecord>["lines"],
+) {
+  if (!body.lines?.length)
+    throw new BadRequestException(
+      "Mindestens eine Wareneingangsposition ist erforderlich.",
+    );
   return body.lines.map((entry) => {
     const line = lines.find((item) => item.id === entry.lineId);
     if (!line) throw new BadRequestException("Bestellposition nicht gefunden.");
-    if (!entry.batches?.length) throw new BadRequestException("Mindestens eine Charge ist erforderlich.");
+    if (!entry.batches?.length)
+      throw new BadRequestException("Mindestens eine Charge ist erforderlich.");
     const batches = entry.batches.map((item) => {
-      const lotNumber = normalizeRequiredText(item.lotNumber, "Chargennummer ist erforderlich.");
+      const lotNumber = normalizeRequiredText(
+        item.lotNumber,
+        "Chargennummer ist erforderlich.",
+      );
       const expiresAt = new Date(item.expiresAt);
-      if (Number.isNaN(expiresAt.getTime())) throw new BadRequestException("Ablaufdatum ist ungültig.");
+      if (Number.isNaN(expiresAt.getTime()))
+        throw new BadRequestException("Ablaufdatum ist ungültig.");
       return {
         lotNumber,
         expiresAt,
-        quantity: normalizePositiveInteger(item.quantity, "Wareneingangsmenge muss eine ganze Zahl größer 0 sein.")
+        quantity: normalizePositiveInteger(
+          item.quantity,
+          "Wareneingangsmenge muss eine ganze Zahl größer 0 sein.",
+        ),
       };
     });
     const totalQuantity = batches.reduce((sum, item) => sum + item.quantity, 0);
     if (totalQuantity > line.orderedQuantity - line.receivedQuantity) {
-      throw new BadRequestException("Wareneingang überschreitet die offene Bestellmenge.");
+      throw new BadRequestException(
+        "Wareneingang überschreitet die offene Bestellmenge.",
+      );
     }
     return { lineId: entry.lineId, batches, totalQuantity };
   });
@@ -467,7 +614,9 @@ function normalizeRequiredText(value: string | undefined, message: string) {
 }
 
 function optionalPatchText(value: string | undefined) {
-  return value === undefined ? undefined : normalizeRequiredText(value, "Feld darf nicht leer sein.");
+  return value === undefined
+    ? undefined
+    : normalizeRequiredText(value, "Feld darf nicht leer sein.");
 }
 
 function optionalNullableText(value: string | undefined) {
@@ -478,12 +627,19 @@ function optionalNullableText(value: string | undefined) {
 
 function normalizePositiveInteger(value: number, message: string) {
   const normalized = Math.trunc(Number(value));
-  if (!Number.isFinite(normalized) || normalized <= 0) throw new BadRequestException(message);
+  if (!Number.isFinite(normalized) || normalized <= 0)
+    throw new BadRequestException(message);
   return normalized;
 }
 
 function normalizeNonNegativeInteger(value: number, message: string) {
   const normalized = Math.trunc(Number(value));
-  if (!Number.isFinite(normalized) || normalized < 0) throw new BadRequestException(message);
+  if (!Number.isFinite(normalized) || normalized < 0)
+    throw new BadRequestException(message);
   return normalized;
+}
+
+function roundUpToPackage(quantity: number, unitsPerPackage: number | null) {
+  if (!unitsPerPackage || unitsPerPackage <= 1) return quantity;
+  return Math.ceil(quantity / unitsPerPackage) * unitsPerPackage;
 }

@@ -60,6 +60,11 @@
   padding-top: 14px;
 }
 
+.purchase-order-package-hint {
+  color: #657386;
+  margin: -4px 0 0;
+}
+
 .purchase-order-new-line:first-child {
   border-top: 0;
   padding-top: 0;

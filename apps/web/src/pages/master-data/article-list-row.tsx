@@ -19,12 +19,20 @@ export function ArticleListRow(props: {
   onToggleReorder: () => void;
 }) {
   const { article } = props;
+  const details = [
+    article.unit,
+    article.unitsPerPackage ? `VE ${article.unitsPerPackage}` : null,
+    article.barcode,
+    article.defaultSupplierName,
+  ]
+    .filter(Boolean)
+    .join(" · ");
 
   return (
     <div className="table-row article-list-row">
       <span className="article-row-main">
         <strong>{article.name}</strong>
-        <small>{article.unit}{article.barcode ? ` · ${article.barcode}` : ""}{article.defaultSupplierName ? ` · ${article.defaultSupplierName}` : ""}</small>
+        <small>{details}</small>
       </span>
       <span className="article-row-detail">
         <small>{article.notes || ""}</small>
@@ -39,9 +47,13 @@ export function ArticleListRow(props: {
         {article.criticalDefault ? <Badge>kritisch</Badge> : null}
         {article.stkRequired ? <Badge>STK</Badge> : null}
         {article.mtkRequired ? <Badge>MTK</Badge> : null}
-        {typeof article.defaultGrossPriceCents === "number" ? <Badge>{formatMoney(article.defaultGrossPriceCents)}</Badge> : null}
+        {typeof article.defaultGrossPriceCents === "number" ? (
+          <Badge>{formatMoney(article.defaultGrossPriceCents)}</Badge>
+        ) : null}
       </div>
-      <RowActions className={`article-row-actions${props.isReorderExpanded ? " article-row-actions-expanded" : ""}`}>
+      <RowActions
+        className={`article-row-actions${props.isReorderExpanded ? " article-row-actions-expanded" : ""}`}
+      >
         <Button
           aria-expanded={props.isReorderExpanded}
           className="mobile-icon-button article-sort-button"
@@ -52,9 +64,33 @@ export function ArticleListRow(props: {
           <ArrowDownUp data-icon="inline-start" />
           <span className="button-label">Sortieren</span>
         </Button>
-        {props.isReorderExpanded ? <ReorderControls disabled={props.isSubmitting} isFirst={!props.canMoveUp} isLast={!props.canMoveDown} label={article.name} onMove={props.onMove} /> : null}
-        {article.articleUrl ? <AnchorButton className="mobile-icon-button" href={article.articleUrl} rel="noreferrer" target="_blank" variant="secondary"><ExternalLink data-icon="inline-start" /><span className="button-label">Link</span></AnchorButton> : null}
-        <Button className="mobile-icon-button" onClick={props.onEdit} type="button" variant="ghost">
+        {props.isReorderExpanded ? (
+          <ReorderControls
+            disabled={props.isSubmitting}
+            isFirst={!props.canMoveUp}
+            isLast={!props.canMoveDown}
+            label={article.name}
+            onMove={props.onMove}
+          />
+        ) : null}
+        {article.articleUrl ? (
+          <AnchorButton
+            className="mobile-icon-button"
+            href={article.articleUrl}
+            rel="noreferrer"
+            target="_blank"
+            variant="secondary"
+          >
+            <ExternalLink data-icon="inline-start" />
+            <span className="button-label">Link</span>
+          </AnchorButton>
+        ) : null}
+        <Button
+          className="mobile-icon-button"
+          onClick={props.onEdit}
+          type="button"
+          variant="ghost"
+        >
           <Pencil data-icon="inline-start" />
           <span className="button-label">Bearbeiten</span>
         </Button>

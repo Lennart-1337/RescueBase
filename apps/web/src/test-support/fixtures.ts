@@ -8,7 +8,12 @@ export const kit = {
   publicToken: "SAN-RS-001-ZUGANG-2026",
   tokenRotatedAt: "2026-06-11T00:00:00.000Z",
   location: { id: "loc-rtw-1", name: "Fahrzeug 1" },
-  template: { id: "template-san-a-v1", name: "Sanitätsrucksack A", version: 1, positions: [] }
+  template: {
+    id: "template-san-a-v1",
+    name: "Sanitätsrucksack A",
+    version: 1,
+    positions: [],
+  },
 };
 
 export const batch = {
@@ -18,8 +23,12 @@ export const batch = {
   lotNumber: "VB-2026-04",
   expiresAt: "2027-04-30",
   quantity: 120,
-  article: { id: "article-bandage", name: "Verbandpäckchen mittel", unit: "Stück" },
-  location: { id: "loc-main", name: "Hauptlager" }
+  article: {
+    id: "article-bandage",
+    name: "Verbandpäckchen mittel",
+    unit: "Stück",
+  },
+  location: { id: "loc-main", name: "Hauptlager" },
 };
 
 export const article = {
@@ -31,6 +40,7 @@ export const article = {
   category: "Verbandmaterial",
   barcode: "040000000001",
   articleUrl: "https://shop.example.org/articles/verbandpaeckchen-mittel",
+  unitsPerPackage: 10,
   sterile: true,
   medicalDevice: false,
   stkRequired: false,
@@ -39,7 +49,7 @@ export const article = {
   mtkIntervalMonths: null,
   storageNotes: "Trocken lagern",
   notes: "Einzeln steril verpackt",
-  criticalDefault: false
+  criticalDefault: false,
 };
 export const location = { id: "loc-main", name: "Hauptlager", kind: "STORAGE" };
 
@@ -59,7 +69,7 @@ export const medicalDevice = {
   notes: null,
   article,
   location,
-  kit: null
+  kit: null,
 };
 
 export const order = {
@@ -69,7 +79,18 @@ export const order = {
   createdAt: "2026-06-11T09:15:00.000Z",
   updatedAt: "2026-06-11T09:15:00.000Z",
   kit,
-  items: [{ articleId: "article-bandage", articleName: "Verbandpäckchen mittel", templatePositionId: "pos-bandage", requestedQuantity: 3, fulfilledQuantity: 0, unit: "Stück", reason: "SHORTAGE", critical: false }]
+  items: [
+    {
+      articleId: "article-bandage",
+      articleName: "Verbandpäckchen mittel",
+      templatePositionId: "pos-bandage",
+      requestedQuantity: 3,
+      fulfilledQuantity: 0,
+      unit: "Stück",
+      reason: "SHORTAGE",
+      critical: false,
+    },
+  ],
 };
 
 export const inventoryTarget = {
@@ -79,8 +100,14 @@ export const inventoryTarget = {
   targetQuantity: 150,
   currentQuantity: 120,
   shortageQuantity: 30,
-  article: { id: "article-bandage", name: "Verbandpäckchen mittel", unit: "Stück", articleUrl: "https://shop.example.org/articles/verbandpaeckchen-mittel" },
-  location: { id: "loc-main", name: "Hauptlager" }
+  article: {
+    id: "article-bandage",
+    name: "Verbandpäckchen mittel",
+    unit: "Stück",
+    articleUrl: "https://shop.example.org/articles/verbandpaeckchen-mittel",
+    unitsPerPackage: 10,
+  },
+  location: { id: "loc-main", name: "Hauptlager" },
 };
 
 export const procurementOrder = {
@@ -91,12 +118,18 @@ export const procurementOrder = {
   requestedQuantity: 30,
   receivedQuantity: 0,
   remainingQuantity: 30,
-  articleUrlSnapshot: "https://shop.example.org/articles/verbandpaeckchen-mittel",
+  articleUrlSnapshot:
+    "https://shop.example.org/articles/verbandpaeckchen-mittel",
   createdAt: "2026-06-18T02:00:00.000Z",
   updatedAt: "2026-06-18T02:00:00.000Z",
-  article: { id: "article-bandage", name: "Verbandpäckchen mittel", unit: "Stück", articleUrl: "https://shop.example.org/articles/verbandpaeckchen-mittel" },
+  article: {
+    id: "article-bandage",
+    name: "Verbandpäckchen mittel",
+    unit: "Stück",
+    articleUrl: "https://shop.example.org/articles/verbandpaeckchen-mittel",
+  },
   location: { id: "loc-main", name: "Hauptlager" },
-  receipts: []
+  receipts: [],
 };
 
 export const purchaseOrder = {
@@ -111,19 +144,21 @@ export const purchaseOrder = {
   createdAt: "2026-06-26T09:00:00.000Z",
   updatedAt: "2026-06-26T09:00:00.000Z",
   location: { id: "loc-main", name: "Hauptlager" },
-  lines: [{
-    id: "purchase-line-1",
-    articleId: "article-bandage",
-    articleName: "Verbandpäckchen mittel",
-    supplierArticleNumber: "VB-1000",
-    articleUrl: "https://shop.example.org/articles/verbandpaeckchen-mittel",
-    manufacturerPartNumber: "VB-1000",
-    unit: "Stück",
-    grossUnitPriceCents: 249,
-    orderedQuantity: 4,
-    receivedQuantity: 0,
-    remainingQuantity: 4,
-    lineTotalGrossCents: 996
-  }],
-  receipts: []
+  lines: [
+    {
+      id: "purchase-line-1",
+      articleId: "article-bandage",
+      articleName: "Verbandpäckchen mittel",
+      supplierArticleNumber: "VB-1000",
+      articleUrl: "https://shop.example.org/articles/verbandpaeckchen-mittel",
+      manufacturerPartNumber: "VB-1000",
+      unit: "Stück",
+      grossUnitPriceCents: 249,
+      orderedQuantity: 4,
+      receivedQuantity: 0,
+      remainingQuantity: 4,
+      lineTotalGrossCents: 996,
+    },
+  ],
+  receipts: [],
 };
