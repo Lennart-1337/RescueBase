@@ -7,7 +7,7 @@ RescueBase is a web-based MVP for managing Sanitätslager, Sanitätsrucksäcke, 
 - npm workspaces with `apps/api`, `apps/web` and `packages/domain`
 - NestJS API with OpenAPI, Prisma schema and MariaDB 11.4 target
 - React + Vite SPA with Tailwind-compatible CSS and shadcn-style primitives
-- Docker Compose deployment with Caddy reverse proxy
+- npm-driven local development and GHCR-backed server deployment with Caddy reverse proxy
 - Jest domain/API tests, Vitest frontend tests and Playwright-ready structure
 
 ## Local Development
@@ -15,18 +15,20 @@ RescueBase is a web-based MVP for managing Sanitätslager, Sanitätsrucksäcke, 
 ```bash
 npm_config_cache=.npm-cache npm install
 npm run prisma:generate
-docker compose up -d mariadb
-npm run prisma:deploy
-npm run build -w @rescuebase/api
-npm run prisma:seed
 npm run generate:api-client
 npm run test
 npm run build
-npm run dev:api
-npm run dev:web
+npm run dev:stack
 ```
 
-The API starts on `http://localhost:3000`. The SPA starts on `http://localhost:5173`.
+`npm run dev:stack` is the supported local entrypoint. It starts MariaDB, runs `prisma migrate deploy`, then launches the API and SPA dev servers. The API starts on `http://localhost:3000`. The SPA starts on `http://localhost:5173`.
+
+If you only need one process after the stack is prepared, use the npm entrypoints instead of ad hoc shell commands:
+
+- `npm run dev:db`
+- `npm run dev:api`
+- `npm run dev:web`
+- `npm run prisma:seed`
 
 API runtime persistence uses MariaDB through Prisma. The development seed creates the reproducible QR/NFC check link
 `/check/SAN-RS-001-ZUGANG-2026`; production deployments should omit `RESCUEBASE_SEED_DEV_DATA` and use the setup/admin
@@ -73,7 +75,7 @@ Use `.env.production.example` as the baseline for production. The recommended pr
 - push to `main`
 - let CI pass
 - let `Publish Production Images` push Linux `amd64` images to private GHCR
-- let the server pull images from GHCR instead of building them locally
+- deploy on the server by pulling GHCR images, never by building them locally
 
 The production environment file must set at least:
 
@@ -125,7 +127,7 @@ Use `.env.staging.example` as the baseline for staging. The recommended staging 
 - push to `staging`
 - let CI pass
 - let `Publish Staging Images` push Linux `amd64` images to private GHCR
-- let the server pull images from GHCR instead of building them locally
+- deploy on the server by pulling GHCR images, never by building them locally
 
 Required staging assets:
 
@@ -159,10 +161,12 @@ The deploy script updates the checkout, logs into GHCR, pulls the images referen
 
 RescueBase staging is designed to sit behind Cloudflare with SSL mode `Full (strict)`. Use a proxied DNS record for your staging hostname and install a Cloudflare Origin Certificate plus private key on the server. The staging Caddy service mounts those files and terminates HTTPS directly on the origin.
 
-After placing the certificate and key, recreate Caddy:
+After placing the certificate and key, rerun the staging deploy script so the GHCR-backed stack is recreated without enabling host-side builds:
 
 ```bash
-docker compose --env-file .env.staging -f docker-compose.yml -f docker-compose.staging.yml up -d --force-recreate caddy
+export GHCR_USERNAME="<ghcr-user>"
+export GHCR_TOKEN="<ghcr-read-token>"
+sh scripts/staging/deploy.sh
 ```
 
 ### Backups and Restore

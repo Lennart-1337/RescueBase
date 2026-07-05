@@ -46,6 +46,9 @@ export function InventoryPage({ user: _user }: { user: AuthenticatedUser }) {
   const [batchPage, setBatchPage] = useState(1);
   const [targetPage, setTargetPage] = useState(1);
   const [procurementPage, setProcurementPage] = useState(1);
+  const [batchPageSize, setBatchPageSize] = useState(INVENTORY_LIST_PAGE_SIZE);
+  const [targetPageSize, setTargetPageSize] = useState(INVENTORY_LIST_PAGE_SIZE);
+  const [procurementPageSize, setProcurementPageSize] = useState(INVENTORY_LIST_PAGE_SIZE);
   const queryClient = useQueryClient();
   const navigate = useNavigate({ from: "/admin/inventory" });
   const search = useSearch({ from: "/admin/inventory" });
@@ -89,9 +92,9 @@ export function InventoryPage({ user: _user }: { user: AuthenticatedUser }) {
   });
   const filteredTargets = (targets.data ?? []).filter((target) => matchesInventoryFilters(filters, target.articleId, target.locationId, target.article.name, target.location.name));
   const filteredProcurementOrders = (procurementOrders.data ?? []).filter((order) => matchesInventoryFilters(filters, order.articleId, order.locationId, order.article.name, order.location.name, order.id, ...order.receipts.map((receipt) => receipt.lotNumber)));
-  const pagedBatches = paginateItems(filteredBatches, batchPage, INVENTORY_LIST_PAGE_SIZE);
-  const pagedTargets = paginateItems(filteredTargets, targetPage, INVENTORY_LIST_PAGE_SIZE);
-  const pagedProcurementOrders = paginateItems(filteredProcurementOrders, procurementPage, INVENTORY_LIST_PAGE_SIZE);
+  const pagedBatches = paginateItems(filteredBatches, batchPage, batchPageSize);
+  const pagedTargets = paginateItems(filteredTargets, targetPage, targetPageSize);
+  const pagedProcurementOrders = paginateItems(filteredProcurementOrders, procurementPage, procurementPageSize);
   const procurementPdfHref = rescueBaseApi.reportUrl(`/reports/procurement.pdf${toProcurementPdfSearch(filters)}`);
 
   useEffect(() => {
@@ -109,16 +112,16 @@ export function InventoryPage({ user: _user }: { user: AuthenticatedUser }) {
   }, [filters.articleId, filters.locationId, filters.q, filters.showEmpty]);
 
   useEffect(() => {
-    setBatchPage((page) => clampPage(page, filteredBatches.length, INVENTORY_LIST_PAGE_SIZE));
-  }, [filteredBatches.length]);
+    setBatchPage((page) => clampPage(page, filteredBatches.length, batchPageSize));
+  }, [batchPageSize, filteredBatches.length]);
 
   useEffect(() => {
-    setTargetPage((page) => clampPage(page, filteredTargets.length, INVENTORY_LIST_PAGE_SIZE));
-  }, [filteredTargets.length]);
+    setTargetPage((page) => clampPage(page, filteredTargets.length, targetPageSize));
+  }, [filteredTargets.length, targetPageSize]);
 
   useEffect(() => {
-    setProcurementPage((page) => clampPage(page, filteredProcurementOrders.length, INVENTORY_LIST_PAGE_SIZE));
-  }, [filteredProcurementOrders.length]);
+    setProcurementPage((page) => clampPage(page, filteredProcurementOrders.length, procurementPageSize));
+  }, [filteredProcurementOrders.length, procurementPageSize]);
 
   function updateFilters(patch: Partial<typeof filters>) {
     void navigate({
@@ -181,8 +184,8 @@ export function InventoryPage({ user: _user }: { user: AuthenticatedUser }) {
       ]} label="Lagerkennzahlen" />
       <PageToolbar label="Bestand filtern"><InventoryFilterToolbar articles={articles.data} countLabel={`${filteredBatches.length}/${batches.data.length} Chargen sichtbar`} filters={filters} locations={locations.data} onChange={updateFilters} onReset={resetFilters} /></PageToolbar>
       <Workspace className="inventory-workspace">
-        <WorkspaceMain label="Bestandschargen"><BatchListPanel batches={pagedBatches} error={deleteMutation.error ? toError(deleteMutation.error) : null} filteredCount={filteredBatches.length} isSubmitting={deleteMutation.isPending} onDelete={(id) => deleteMutation.mutate(id)} onPageChange={setBatchPage} onSelect={(id) => { setSelectedBatchId(id); setCorrectionOpen(true); }} page={batchPage} pageSize={INVENTORY_LIST_PAGE_SIZE} selectedBatchId={selectedBatchId} totalCount={batches.data.length} /></WorkspaceMain>
-        <WorkspaceRail className="inventory-planning-grid" label="Bestandsplanung"><TargetPanel error={targetMutation.error || clearTargetMutation.error ? toError(targetMutation.error ?? clearTargetMutation.error) : null} filteredCount={filteredTargets.length} isSubmitting={targetMutation.isPending || clearTargetMutation.isPending} onClear={clearTarget} onCreate={openCreateTarget} onEdit={openEditTarget} onPageChange={setTargetPage} page={targetPage} pageSize={INVENTORY_LIST_PAGE_SIZE} targets={pagedTargets} totalCount={targets.data.length} /><ProcurementOrderPanel error={startOrderMutation.error || cancelOrderMutation.error ? toError(startOrderMutation.error ?? cancelOrderMutation.error) : null} filteredCount={filteredProcurementOrders.length} isSubmitting={startOrderMutation.isPending || cancelOrderMutation.isPending || receiveOrderMutation.isPending} onCancel={(order) => cancelOrderMutation.mutate(order.id)} onPageChange={setProcurementPage} onReceive={openReceive} onStart={(order) => startOrderMutation.mutate(order.id)} orders={pagedProcurementOrders} page={procurementPage} pageSize={INVENTORY_LIST_PAGE_SIZE} pdfHref={procurementPdfHref} totalCount={procurementOrders.data.length} /></WorkspaceRail>
+        <WorkspaceMain label="Bestandschargen"><BatchListPanel batches={pagedBatches} error={deleteMutation.error ? toError(deleteMutation.error) : null} filteredCount={filteredBatches.length} isSubmitting={deleteMutation.isPending} onDelete={(id) => deleteMutation.mutate(id)} onPageChange={setBatchPage} onPageSizeChange={(pageSize) => { setBatchPageSize(pageSize); setBatchPage(1); }} onSelect={(id) => { setSelectedBatchId(id); setCorrectionOpen(true); }} page={batchPage} pageSize={batchPageSize} pageSizeOptions={INVENTORY_PAGE_SIZE_OPTIONS} selectedBatchId={selectedBatchId} totalCount={batches.data.length} /></WorkspaceMain>
+        <WorkspaceRail className="inventory-planning-grid" label="Bestandsplanung"><TargetPanel error={targetMutation.error || clearTargetMutation.error ? toError(targetMutation.error ?? clearTargetMutation.error) : null} filteredCount={filteredTargets.length} isSubmitting={targetMutation.isPending || clearTargetMutation.isPending} onClear={clearTarget} onCreate={openCreateTarget} onEdit={openEditTarget} onPageChange={setTargetPage} onPageSizeChange={(pageSize) => { setTargetPageSize(pageSize); setTargetPage(1); }} page={targetPage} pageSize={targetPageSize} pageSizeOptions={INVENTORY_PAGE_SIZE_OPTIONS} targets={pagedTargets} totalCount={targets.data.length} /><ProcurementOrderPanel error={startOrderMutation.error || cancelOrderMutation.error ? toError(startOrderMutation.error ?? cancelOrderMutation.error) : null} filteredCount={filteredProcurementOrders.length} isSubmitting={startOrderMutation.isPending || cancelOrderMutation.isPending || receiveOrderMutation.isPending} onCancel={(order) => cancelOrderMutation.mutate(order.id)} onPageChange={setProcurementPage} onPageSizeChange={(pageSize) => { setProcurementPageSize(pageSize); setProcurementPage(1); }} onReceive={openReceive} onStart={(order) => startOrderMutation.mutate(order.id)} orders={pagedProcurementOrders} page={procurementPage} pageSize={procurementPageSize} pageSizeOptions={INVENTORY_PAGE_SIZE_OPTIONS} pdfHref={procurementPdfHref} totalCount={procurementOrders.data.length} /></WorkspaceRail>
       </Workspace>
       <TargetDialog articles={articles.data} draft={targetDraft} error={targetMutation.error ? toError(targetMutation.error) : null} isOpen={targetOpen} isSubmitting={targetMutation.isPending} locations={locations.data} onChange={setTargetDraft} onClose={() => setTargetOpen(false)} onSubmit={() => targetMutation.mutate({ draft: targetDraft })} />
       <ProcurementReceiveDialog draftItems={receiptItems} error={receiveOrderMutation.error ? toError(receiveOrderMutation.error) : null} isOpen={receiveOpen} isSubmitting={receiveOrderMutation.isPending} onAddItem={() => setReceiptItems((items) => [...items, emptyReceiptItem()])} onChangeItem={(index, item) => setReceiptItems((items) => items.map((entry, entryIndex) => entryIndex === index ? item : entry))} onClose={() => setReceiveOpen(false)} onRemoveItem={(index) => setReceiptItems((items) => items.length === 1 ? items : items.filter((_, entryIndex) => entryIndex !== index))} onSubmit={() => selectedReceiveOrder && receiveOrderMutation.mutate({ id: selectedReceiveOrder.id, items: receiptItems, verified: receiptVerified })} onVerifiedChange={setReceiptVerified} order={selectedReceiveOrder} verified={receiptVerified} />
@@ -201,6 +204,8 @@ function matchesInventoryFilters(filters: InventoryFilters, articleId: string, l
 function emptyReceiptItem(): ReceiptDraftItem {
   return { expiresAt: "", lotNumber: "", quantity: "" };
 }
+
+const INVENTORY_PAGE_SIZE_OPTIONS = [10, 25, 50];
 
 function toProcurementPdfSearch(filters: InventoryFilters) {
   const params = new URLSearchParams();

@@ -14,11 +14,13 @@ export function ProcurementOrderPanel(props: {
   isSubmitting: boolean;
   onCancel: (order: InventoryProcurementOrder) => void;
   onPageChange: (page: number) => void;
+  onPageSizeChange: (pageSize: number) => void;
   onReceive: (order: InventoryProcurementOrder) => void;
   onStart: (order: InventoryProcurementOrder) => void;
   orders: InventoryProcurementOrder[];
   page: number;
   pageSize: number;
+  pageSizeOptions: number[];
   pdfHref: string;
   filteredCount: number;
   totalCount: number;
@@ -66,7 +68,7 @@ export function ProcurementOrderPanel(props: {
         ))}
       </div>
       {props.orders.length === 0 ? <div className="compact-list-empty">Keine Beschaffungsaufträge für die gesetzten Filter.</div> : null}
-      <ListPagination label="Beschaffungsseiten" onPageChange={props.onPageChange} page={props.page} pageSize={props.pageSize} total={props.filteredCount} />
+      <ListPagination label="Beschaffungsseiten" onPageChange={props.onPageChange} onPageSizeChange={props.onPageSizeChange} page={props.page} pageSize={props.pageSize} pageSizeOptions={props.pageSizeOptions} total={props.filteredCount} />
     </Panel>
   );
 }

@@ -252,16 +252,16 @@ describe("InventoryPage", () => {
     expect(screen.queryByText("Sollartikel 11")).toBeNull();
     expect(screen.queryByText("Bestellartikel 11")).toBeNull();
 
-    await clickElement(within(screen.getByLabelText("Chargenseiten")).getByRole("button", { name: "Weiter" }));
+    await clickElement(within(screen.getByLabelText("Chargenseiten")).getByRole("button", { name: "Nächste Seite" }));
     expect(screen.getByText(/LOT-11/)).toBeInTheDocument();
     expect(screen.queryByText("Sollartikel 11")).toBeNull();
     expect(screen.queryByText("Bestellartikel 11")).toBeNull();
 
-    await clickElement(within(screen.getByLabelText("Sollbestandsseiten")).getByRole("button", { name: "Weiter" }));
+    await clickElement(within(screen.getByLabelText("Sollbestandsseiten")).getByRole("button", { name: "Nächste Seite" }));
     expect(screen.getByText("Sollartikel 11")).toBeInTheDocument();
     expect(screen.queryByText("Bestellartikel 11")).toBeNull();
 
-    await clickElement(within(screen.getByLabelText("Beschaffungsseiten")).getByRole("button", { name: "Weiter" }));
+    await clickElement(within(screen.getByLabelText("Beschaffungsseiten")).getByRole("button", { name: "Nächste Seite" }));
     expect(screen.getByText("Bestellartikel 11")).toBeInTheDocument();
   });
 
