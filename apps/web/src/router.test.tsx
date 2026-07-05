@@ -1,5 +1,6 @@
 import { screen, waitFor, within } from "@testing-library/react";
 import { batch, kit, order, purchaseOrder } from "./test-support/fixtures";
+import { createAppRouter } from "./App";
 import {
   clickElement,
   renderAppAt,
@@ -9,6 +10,12 @@ import {
 
 describe("RescueBase routes", () => {
   afterEach(resetTestBrowser);
+
+  it("uses intent preloading for route links", () => {
+    const router = createAppRouter();
+
+    expect(router.options.defaultPreload).toBe("intent");
+  });
 
   it("renders the admin dashboard from routed API data", async () => {
     stubFetch({
