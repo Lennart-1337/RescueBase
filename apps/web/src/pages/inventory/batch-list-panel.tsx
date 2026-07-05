@@ -1,5 +1,6 @@
 import { History, Trash2 } from "lucide-react";
 import { daysUntil, formatDate } from "../../app/formatters";
+import { ListPagination } from "../../components/list-pagination";
 import { RowActions } from "../../components/list-row";
 import { PanelHeader } from "../../components/panel-header";
 import { InlineError } from "../../components/state-panels";
@@ -11,8 +12,12 @@ export function BatchListPanel(props: {
   error: Error | null;
   isSubmitting: boolean;
   onDelete: (id: string) => void;
+  onPageChange: (page: number) => void;
   onSelect: (id: string) => void;
+  page: number;
+  pageSize: number;
   selectedBatchId: string | null;
+  filteredCount: number;
   totalCount: number;
 }) {
 
@@ -35,6 +40,7 @@ export function BatchListPanel(props: {
         ))}
       </div>
       {props.batches.length === 0 ? <div className="compact-list-empty">Aktuell sind keine sichtbaren Chargen vorhanden.</div> : null}
+      <ListPagination label="Chargenseiten" onPageChange={props.onPageChange} page={props.page} pageSize={props.pageSize} total={props.filteredCount} />
       {props.error ? <InlineError error={props.error} /> : null}
     </Panel>
   );

@@ -224,6 +224,47 @@ describe("InventoryPage", () => {
     expect(screen.getByRole("link", { name: /PDF Einkaufsliste/ }).getAttribute("href")).toMatch(/^\/api\/reports\/procurement\.pdf\?q=Verband&rev=/);
   });
 
+  it("paginates batches, targets and procurement orders independently", async () => {
+    stubFetch(baseInventoryRoutes({
+      "/api/inventory/batches": Array.from({ length: 11 }, (_, index) => ({
+        ...batch,
+        id: `batch-${index + 1}`,
+        lotNumber: `LOT-${index + 1}`,
+        article: { ...batch.article, id: `batch-article-${index + 1}`, name: `Chargeartikel ${index + 1}` }
+      })),
+      "/api/inventory/targets": Array.from({ length: 11 }, (_, index) => ({
+        ...inventoryTarget,
+        id: `target-${index + 1}`,
+        articleId: `target-article-${index + 1}`,
+        article: { ...inventoryTarget.article, id: `target-article-${index + 1}`, name: `Sollartikel ${index + 1}` }
+      })),
+      "/api/inventory/procurement-orders": Array.from({ length: 11 }, (_, index) => ({
+        ...procurementOrder,
+        id: `proc-order-${index + 1}`,
+        articleId: `proc-article-${index + 1}`,
+        article: { ...procurementOrder.article, id: `proc-article-${index + 1}`, name: `Bestellartikel ${index + 1}` }
+      }))
+    }));
+    await renderAppAt("/admin/inventory");
+    await screen.findByRole("heading", { name: "Lager" });
+
+    expect(screen.queryByText(/LOT-11/)).toBeNull();
+    expect(screen.queryByText("Sollartikel 11")).toBeNull();
+    expect(screen.queryByText("Bestellartikel 11")).toBeNull();
+
+    await clickElement(within(screen.getByLabelText("Chargenseiten")).getByRole("button", { name: "Weiter" }));
+    expect(screen.getByText(/LOT-11/)).toBeInTheDocument();
+    expect(screen.queryByText("Sollartikel 11")).toBeNull();
+    expect(screen.queryByText("Bestellartikel 11")).toBeNull();
+
+    await clickElement(within(screen.getByLabelText("Sollbestandsseiten")).getByRole("button", { name: "Weiter" }));
+    expect(screen.getByText("Sollartikel 11")).toBeInTheDocument();
+    expect(screen.queryByText("Bestellartikel 11")).toBeNull();
+
+    await clickElement(within(screen.getByLabelText("Beschaffungsseiten")).getByRole("button", { name: "Weiter" }));
+    expect(screen.getByText("Bestellartikel 11")).toBeInTheDocument();
+  });
+
   it("does not show the automation panel in Lager", async () => {
     stubFetch(baseInventoryRoutes());
     await renderAppAt("/admin/inventory");

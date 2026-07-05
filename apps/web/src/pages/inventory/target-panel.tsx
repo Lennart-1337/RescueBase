@@ -1,4 +1,5 @@
 import { ExternalLink, Pencil, Plus, Trash2 } from "lucide-react";
+import { ListPagination } from "../../components/list-pagination";
 import { ListRow, RowActions } from "../../components/list-row";
 import { PanelHeader } from "../../components/panel-header";
 import { InlineError } from "../../components/state-panels";
@@ -11,6 +12,10 @@ export function TargetPanel(props: {
   onClear: (target: InventoryTarget) => void;
   onCreate: () => void;
   onEdit: (target: InventoryTarget) => void;
+  onPageChange: (page: number) => void;
+  page: number;
+  pageSize: number;
+  filteredCount: number;
   targets: InventoryTarget[];
   totalCount: number;
 }) {
@@ -18,7 +23,7 @@ export function TargetPanel(props: {
     <Panel>
       <PanelHeader title="Sollbestände" actions={(
         <div className="topbar-actions">
-          <Badge tone="info">{props.targets.length}/{props.totalCount} sichtbar</Badge>
+          <Badge tone="info">{props.filteredCount}/{props.totalCount} sichtbar</Badge>
           <Button onClick={props.onCreate} type="button"><Plus data-icon="inline-start" />Soll hinzufügen</Button>
         </div>
       )} />
@@ -38,6 +43,7 @@ export function TargetPanel(props: {
         ))}
       </div>
       {props.targets.length === 0 ? <div className="compact-list-empty">Keine Sollbestände für die gesetzten Filter.</div> : null}
+      <ListPagination label="Sollbestandsseiten" onPageChange={props.onPageChange} page={props.page} pageSize={props.pageSize} total={props.filteredCount} />
     </Panel>
   );
 }
