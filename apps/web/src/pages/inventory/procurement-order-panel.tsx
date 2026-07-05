@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Download, ExternalLink, PackageCheck, Play, XCircle } from "lucide-react";
+import { ListPagination } from "../../components/list-pagination";
 import { ListRow, RowActions } from "../../components/list-row";
 import { PanelHeader } from "../../components/panel-header";
 import { InlineError } from "../../components/state-panels";
@@ -12,10 +13,14 @@ export function ProcurementOrderPanel(props: {
   error: Error | null;
   isSubmitting: boolean;
   onCancel: (order: InventoryProcurementOrder) => void;
+  onPageChange: (page: number) => void;
   onReceive: (order: InventoryProcurementOrder) => void;
   onStart: (order: InventoryProcurementOrder) => void;
   orders: InventoryProcurementOrder[];
+  page: number;
+  pageSize: number;
   pdfHref: string;
+  filteredCount: number;
   totalCount: number;
 }) {
   const [pdfHref, setPdfHref] = useState(() => freshProcurementPdfUrl(props.pdfHref));
@@ -34,7 +39,7 @@ export function ProcurementOrderPanel(props: {
     <Panel>
       <PanelHeader title="Beschaffungsaufträge" actions={(
         <div className="topbar-actions">
-          <Badge tone="info">{props.orders.length}/{props.totalCount} sichtbar</Badge>
+          <Badge tone="info">{props.filteredCount}/{props.totalCount} sichtbar</Badge>
           <AnchorButton
             href={pdfHref}
             onClick={(event) => {
@@ -61,6 +66,7 @@ export function ProcurementOrderPanel(props: {
         ))}
       </div>
       {props.orders.length === 0 ? <div className="compact-list-empty">Keine Beschaffungsaufträge für die gesetzten Filter.</div> : null}
+      <ListPagination label="Beschaffungsseiten" onPageChange={props.onPageChange} page={props.page} pageSize={props.pageSize} total={props.filteredCount} />
     </Panel>
   );
 }
