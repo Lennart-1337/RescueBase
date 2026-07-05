@@ -5,7 +5,7 @@
 .auth-panel .panel-header svg {
   width: 24px;
   height: 24px;
-  color: #b42318;
+  color: var(--color-brand-solid);
 }
 
 .auth-form {
@@ -15,7 +15,7 @@
 }
 
 .text-link {
-  color: #657386;
+  color: var(--color-text-muted);
   font-size: 13px;
   text-decoration: underline;
 }

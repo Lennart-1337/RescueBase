@@ -33,26 +33,26 @@
 }
 
 .badge-neutral {
-  background: #f2f4f7;
-  color: #344054;
+  background: var(--color-surface-subtle);
+  color: var(--color-text-body);
 }
 
 .badge-ready {
-  background: #dcfae6;
-  color: #067647;
+  background: var(--color-success-soft-strong);
+  color: var(--color-success-text);
 }
 
 .badge-warning {
-  background: #fef0c7;
-  color: #93370d;
+  background: var(--color-warning-soft-strong);
+  color: var(--color-warning-text-deep);
 }
 
 .badge-danger {
-  background: #fee4e2;
-  color: #a51d15;
+  background: var(--color-brand-soft-strong);
+  color: var(--color-brand-strong);
 }
 
 .badge-info {
-  background: #e0eaff;
-  color: #3538cd;
+  background: var(--color-info-badge);
+  color: var(--color-info-text);
 }

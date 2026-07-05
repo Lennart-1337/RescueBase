@@ -10,16 +10,16 @@
 
 .template-preview {
   min-height: 220px;
-  border: 1px solid #e0e6ef;
+  border: 1px solid var(--color-border-default);
   border-radius: 10px;
   padding: 14px;
-  background: #fbfcfe;
+  background: var(--color-surface-muted);
 }
 
 .template-preview > span {
   display: block;
   margin-bottom: 10px;
-  color: #657386;
+  color: var(--color-text-muted);
   font-size: 12px;
   font-weight: 800;
   text-transform: uppercase;
@@ -38,7 +38,7 @@
 }
 
 .field-help {
-  color: #657386;
+  color: var(--color-text-muted);
   font-size: 12px;
   font-weight: 500;
   line-height: 1.45;

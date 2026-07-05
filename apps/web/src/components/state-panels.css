@@ -14,7 +14,7 @@
 }
 
 .metric span {
-  color: #657386;
+  color: var(--color-text-muted);
 }
 
 .metric-icon {
@@ -27,23 +27,23 @@
 }
 
 .metric-icon.ready {
-  background: #ecfdf3;
-  color: #067647;
+  background: var(--color-success-soft);
+  color: var(--color-success-text);
 }
 
 .metric-icon.warning {
-  background: #fffaeb;
-  color: #b54708;
+  background: var(--color-warning-soft);
+  color: var(--color-warning-text);
 }
 
 .metric-icon.danger {
-  background: #fff1f0;
-  color: #b42318;
+  background: var(--color-brand-soft);
+  color: var(--color-brand-solid);
 }
 
 .metric-icon.info {
-  background: #eff4ff;
-  color: #3538cd;
+  background: var(--color-info-soft);
+  color: var(--color-info-text);
 }
 
 .metric strong {
@@ -86,11 +86,11 @@
 .success-panel p,
 .empty-state p {
   margin: 0;
-  color: #657386;
+  color: var(--color-text-muted);
 }
 
 .error-state {
-  color: #a51d15;
+  color: var(--color-brand-strong);
 }
 
 .inline-error {
@@ -99,10 +99,10 @@
   display: flex;
   align-items: center;
   gap: 10px;
-  border: 1px solid #fecdca;
+  border: 1px solid var(--color-danger-line);
   border-radius: 8px;
-  background: #fff1f0;
-  color: #a51d15;
+  background: var(--color-brand-soft);
+  color: var(--color-brand-strong);
   padding: 10px 12px;
   font-size: 14px;
   font-weight: 700;

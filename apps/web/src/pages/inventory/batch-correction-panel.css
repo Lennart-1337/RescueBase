@@ -15,10 +15,10 @@
 
 .batch-correction-history-card {
   margin-top: 18px;
-  border: 1px solid #edf0f4;
+  border: 1px solid var(--color-border-subtle);
   border-radius: 12px;
   overflow: hidden;
-  background: #fff;
+  background: var(--color-surface);
 }
 
 .batch-correction-history-row {
@@ -31,7 +31,7 @@
 }
 
 .batch-correction-history-row + .batch-correction-history-row {
-  border-top: 1px solid #edf0f4;
+  border-top: 1px solid var(--color-border-subtle);
 }
 
 .batch-correction-history-copy,
@@ -41,7 +41,7 @@
 }
 
 .batch-correction-history-copy small {
-  color: #657386;
+  color: var(--color-text-muted);
 }
 
 @media (max-width: 1200px) {

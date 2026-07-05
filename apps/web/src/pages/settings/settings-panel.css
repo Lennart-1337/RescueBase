@@ -1,6 +1,6 @@
 .settings-meta {
   margin: -4px 18px 16px;
-  color: #657386;
+  color: var(--color-text-muted);
   font-size: 13px;
   font-weight: 600;
 }
@@ -20,14 +20,14 @@
   display: grid;
   gap: 4px;
   align-self: start;
-  border: 1px solid #f0d5d2;
+  border: 1px solid var(--color-brand-line-soft);
   border-radius: 10px;
   padding: 10px 12px;
-  background: linear-gradient(180deg, #fff9f8 0%, #fffdfc 100%);
+  background: linear-gradient(180deg, var(--color-brand-softest) 0%, var(--color-surface) 100%);
 }
 
 .settings-subsection > span {
-  color: #657386;
+  color: var(--color-text-muted);
   font-size: 13px;
 }
 

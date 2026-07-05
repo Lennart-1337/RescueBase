@@ -12,6 +12,7 @@ import type { AuthenticatedUser } from "../lib/types";
 import { type AppBranding } from "./branding";
 import { BrandMark } from "./brand-mark";
 import { LegalLinks } from "./legal-links";
+import { ThemeToggle } from "./theme";
 import "./admin-shell.css";
 import "./brand-mark.css";
 
@@ -54,6 +55,7 @@ export function AdminShell({ children, user, branding }: { children: ReactNode; 
               {branding.showAppName ? <strong>{branding.appName}</strong> : null}
               {branding.showAppSubtitle ? <span>{branding.appSubtitle}</span> : null}
             </div>
+            <ThemeToggle className="shell-theme-toggle" />
             <Button aria-expanded={isMobileNavOpen} aria-haspopup="dialog" aria-label="Menü öffnen" className="mobile-menu-button" onClick={() => setIsMobileNavOpen(true)} type="button" variant="ghost">
               <Menu />
             </Button>
@@ -104,6 +106,7 @@ export function AdminShell({ children, user, branding }: { children: ReactNode; 
                   <X />
                 </Button>
               </div>
+              <ThemeToggle className="mobile-shell-theme-toggle" />
               <NavigationList items={navigationItems} onNavigate={() => setIsMobileNavOpen(false)} />
               <div className="mobile-drawer-user">
                 <span>{user.displayName}</span>

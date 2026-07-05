@@ -10,14 +10,14 @@
   width: 220px;
   height: 220px;
   border-radius: 8px;
-  border: 1px solid #d6dce5;
-  background: #ffffff;
+  border: 1px solid var(--color-border-strong);
+  background: var(--color-surface);
 }
 
 .totp-qr-placeholder {
   display: grid;
   place-items: center;
-  color: #657386;
+  color: var(--color-text-muted);
   font-size: 13px;
   font-weight: 700;
 }
@@ -31,14 +31,14 @@
   display: grid;
   gap: 6px;
   padding: 12px;
-  border: 1px solid #edf0f4;
+  border: 1px solid var(--color-border-subtle);
   border-radius: 8px;
-  background: #fbfcfe;
+  background: var(--color-surface-muted);
 }
 
 .copy-row span,
 .copy-row small {
-  color: #657386;
+  color: var(--color-text-muted);
   word-break: break-word;
 }
 

@@ -6,12 +6,12 @@
 }
 
 .legal-links a {
-  color: #5f6f82;
+  color: var(--color-text-soft-alt);
   font-size: 14px;
   font-weight: 600;
 }
 
 .legal-links a:hover,
 .legal-links a[data-status="active"] {
-  color: #a51d15;
+  color: var(--color-brand-strong);
 }

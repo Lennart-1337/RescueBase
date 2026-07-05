@@ -27,7 +27,7 @@
 .check-group-header span,
 .check-item p,
 .check-item span {
-  color: #657386;
+  color: var(--color-text-muted);
 }
 
 .check-group-header span {

@@ -4,6 +4,7 @@ import { toError } from "../app/formatters";
 import { ErrorPanel } from "../components/state-panels";
 import { StatusBadge } from "../components/status-badge";
 import { Panel } from "../components/ui";
+import { ThemeToggle } from "../app/theme";
 import { rescueBaseApi } from "../lib/api";
 import type { CompleteCheckResponse } from "../lib/types";
 import { publicQueries } from "../queries/public";
@@ -15,10 +16,24 @@ export function PublicCheck({ token }: { token: string }) {
   const mutation = useMutation({ mutationFn: (body: Parameters<typeof rescueBaseApi.completeCheck>[1]) => rescueBaseApi.completeCheck(token, body) });
 
   if (query.isError) {
-    return <main className="mobile-check"><ErrorPanel error={toError(query.error)} onRetry={() => void query.refetch()} /></main>;
+    return (
+      <main className="mobile-check">
+        <header className="mobile-check-toolbar">
+          <ThemeToggle className="public-theme-toggle" />
+        </header>
+        <ErrorPanel error={toError(query.error)} onRetry={() => void query.refetch()} />
+      </main>
+    );
   }
   if (query.isLoading || !query.data) {
-    return <div className="mobile-check loading">Rucksack wird geladen...</div>;
+    return (
+      <div className="mobile-check loading">
+        <header className="mobile-check-toolbar">
+          <ThemeToggle className="public-theme-toggle" />
+        </header>
+        <p className="mobile-check-status">Rucksack wird geladen...</p>
+      </div>
+    );
   }
   if (mutation.data) {
     return <PublicCheckSuccess result={mutation.data} />;
@@ -30,6 +45,9 @@ export function PublicCheck({ token }: { token: string }) {
 function PublicCheckSuccess({ result }: { result: CompleteCheckResponse }) {
   return (
     <main className="mobile-check">
+      <header className="mobile-check-toolbar">
+        <ThemeToggle className="public-theme-toggle" />
+      </header>
       <Panel className="success-panel">
         <CheckCircle2 />
         <h1>Check abgeschlossen</h1>

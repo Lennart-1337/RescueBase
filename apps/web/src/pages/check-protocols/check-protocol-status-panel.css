@@ -3,20 +3,20 @@
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 12px;
   padding: 18px;
-  border-top: 1px solid #edf0f4;
+  border-top: 1px solid var(--color-border-subtle);
 }
 
 .protocol-status-card {
-  border: 1px solid #e0e6ef;
+  border: 1px solid var(--color-border-default);
   border-radius: 12px;
-  background: #fbfcfe;
+  background: var(--color-surface-muted);
   padding: 12px;
   display: grid;
   gap: 4px;
 }
 
 .protocol-status-card span {
-  color: #657386;
+  color: var(--color-text-muted);
   font-size: 12px;
   font-weight: 700;
 }
@@ -26,19 +26,19 @@
 }
 
 .protocol-status-card-ready strong {
-  color: #157347;
+  color: var(--color-success-text-strong);
 }
 
 .protocol-status-card-warning strong {
-  color: #9a6700;
+  color: var(--color-warning-text-strong);
 }
 
 .protocol-status-card-danger strong {
-  color: #a51d15;
+  color: var(--color-brand-strong);
 }
 
 .protocol-status-card-info strong {
-  color: #1d4ed8;
+  color: var(--color-info-link);
 }
 
 @media (max-width: 620px) {

@@ -12,7 +12,7 @@
 }
 
 .compact-list {
-  border-top: 1px solid #edf0f4;
+  border-top: 1px solid var(--color-border-subtle);
 }
 
 .compact-list-row {
@@ -22,7 +22,7 @@
   grid-template-columns: minmax(0, 1fr) auto;
   gap: 12px;
   align-items: center;
-  border-bottom: 1px solid #edf0f4;
+  border-bottom: 1px solid var(--color-border-subtle);
 }
 
 .compact-list-row > span,
@@ -33,7 +33,7 @@
 
 .compact-list-row small,
 .compact-list-empty {
-  color: #657386;
+  color: var(--color-text-muted);
 }
 
 .compact-list-row-actions {
@@ -41,7 +41,7 @@
 }
 
 .compact-list-empty {
-  border-top: 1px solid #edf0f4;
+  border-top: 1px solid var(--color-border-subtle);
   padding: 18px;
 }
 

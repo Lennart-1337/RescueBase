@@ -6,7 +6,13 @@
   align-items: center;
   justify-content: center;
   padding: 32px;
-  background: #f6f7f9;
+  background: var(--color-canvas);
+}
+
+.auth-screen-toolbar {
+  grid-column: 1 / -1;
+  display: flex;
+  justify-content: flex-end;
 }
 
 .auth-brand {
@@ -31,13 +37,13 @@
 }
 
 .auth-brand strong {
-  color: #1f2937;
+  color: var(--color-text-strong);
   font-size: 28px;
   line-height: 1.1;
 }
 
 .auth-brand p {
-  color: #657386;
+  color: var(--color-text-muted);
   font-size: 18px;
   font-weight: 700;
 }
@@ -48,6 +54,10 @@
     gap: 24px;
     padding: 18px;
     align-content: center;
+  }
+
+  .auth-screen-toolbar {
+    justify-content: stretch;
   }
 
   .auth-brand p {

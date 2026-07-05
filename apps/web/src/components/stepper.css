@@ -7,7 +7,7 @@
 }
 
 .stepper > span {
-  color: #344054;
+  color: var(--color-text-body);
   font-size: 13px;
   font-weight: 800;
 }
@@ -17,7 +17,7 @@
   display: grid;
   grid-template-columns: 36px 1fr 36px;
   align-items: center;
-  border: 1px solid #d6dce5;
+  border: 1px solid var(--color-border-strong);
   border-radius: 8px;
   overflow: hidden;
 }
@@ -25,8 +25,8 @@
 .stepper button {
   height: 100%;
   border: 0;
-  background: #f8fafc;
-  color: #344054;
+  background: var(--color-surface-subtle);
+  color: var(--color-text-body);
   display: grid;
   place-items: center;
 }

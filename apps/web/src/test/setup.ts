@@ -1,23 +1,40 @@
 import "@testing-library/jest-dom/vitest";
 import { vi } from "vitest";
 
-let reducedMotionEnabled = false;
+const mediaQueryState = new Map<string, { listeners: Set<(event: MediaQueryListEvent) => void>; matches: boolean }>();
 
 Object.defineProperty(window, "scrollTo", {
   configurable: true,
   value: vi.fn()
 });
 
+function readMediaQueryState(query: string) {
+  const existing = mediaQueryState.get(query);
+  if (existing) return existing;
+  const created = { listeners: new Set<(event: MediaQueryListEvent) => void>(), matches: false };
+  mediaQueryState.set(query, created);
+  return created;
+}
+
 Object.defineProperty(window, "matchMedia", {
   configurable: true,
-  value: vi.fn((query: string) => ({
-    addEventListener: vi.fn(),
-    dispatchEvent: vi.fn(),
-    matches: query === "(prefers-reduced-motion: reduce)" ? reducedMotionEnabled : false,
-    media: query,
-    onchange: null,
-    removeEventListener: vi.fn()
-  }))
+  value: vi.fn((query: string) => {
+    const state = readMediaQueryState(query);
+    return {
+      addEventListener: vi.fn((eventName: string, listener: (event: MediaQueryListEvent) => void) => {
+        if (eventName === "change") state.listeners.add(listener);
+      }),
+      dispatchEvent: vi.fn(),
+      get matches() {
+        return state.matches;
+      },
+      media: query,
+      onchange: null,
+      removeEventListener: vi.fn((eventName: string, listener: (event: MediaQueryListEvent) => void) => {
+        if (eventName === "change") state.listeners.delete(listener);
+      })
+    };
+  })
 });
 
 Object.defineProperty(HTMLCanvasElement.prototype, "getContext", {
@@ -47,5 +64,16 @@ Object.defineProperty(HTMLCanvasElement.prototype, "toDataURL", {
 });
 
 export function setReducedMotionForTests(enabled: boolean) {
-  reducedMotionEnabled = enabled;
+  setMediaQueryForTests("(prefers-reduced-motion: reduce)", enabled);
+}
+
+export function setSystemDarkModeForTests(enabled: boolean) {
+  setMediaQueryForTests("(prefers-color-scheme: dark)", enabled);
+}
+
+function setMediaQueryForTests(query: string, enabled: boolean) {
+  const state = readMediaQueryState(query);
+  state.matches = enabled;
+  const event = { matches: enabled, media: query } as MediaQueryListEvent;
+  state.listeners.forEach((listener) => listener(event));
 }
