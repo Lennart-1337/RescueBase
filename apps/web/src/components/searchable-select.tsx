@@ -1,5 +1,7 @@
-import { useEffect, useId, useMemo, useRef, useState, type KeyboardEvent } from "react";
+import { useLayoutEffect, useEffect, useId, useMemo, useRef, useState, type KeyboardEvent } from "react";
+import { createPortal } from "react-dom";
 import { Check, ChevronDown } from "lucide-react";
+import { computeSearchableSelectPosition, type SearchableSelectPosition } from "./searchable-select-position";
 import { cn } from "./ui";
 import "./searchable-select.css";
 
@@ -17,8 +19,10 @@ export function SearchableSelect(props: {
 }) {
   const listboxId = useId();
   const rootRef = useRef<HTMLDivElement | null>(null);
+  const listRef = useRef<HTMLDivElement | null>(null);
   const selected = props.options.find((option) => option.value === props.value) ?? null;
   const [open, setOpen] = useState(false);
+  const [position, setPosition] = useState<SearchableSelectPosition | null>(null);
   const [search, setSearch] = useState("");
   const [activeIndex, setActiveIndex] = useState(0);
   const inputValue = open ? search : selected?.label ?? "";
@@ -34,11 +38,33 @@ export function SearchableSelect(props: {
 
   useEffect(() => {
     function handlePointerDown(event: MouseEvent) {
-      if (!rootRef.current?.contains(event.target as Node)) setOpen(false);
+      const target = event.target as Node;
+      if (!rootRef.current?.contains(target) && !listRef.current?.contains(target)) setOpen(false);
     }
     document.addEventListener("mousedown", handlePointerDown);
     return () => document.removeEventListener("mousedown", handlePointerDown);
   }, []);
+
+  useLayoutEffect(() => {
+    if (!open) return setPosition(null);
+    const updatePosition = () => {
+      if (!rootRef.current) return;
+      setPosition(computeSearchableSelectPosition({
+        listHeight: listRef.current?.scrollHeight ?? 0,
+        triggerRect: rootRef.current.getBoundingClientRect(),
+        viewportHeight: window.innerHeight,
+        viewportWidth: window.innerWidth
+      }));
+    };
+
+    updatePosition();
+    window.addEventListener("resize", updatePosition);
+    window.addEventListener("scroll", updatePosition, true);
+    return () => {
+      window.removeEventListener("resize", updatePosition);
+      window.removeEventListener("scroll", updatePosition, true);
+    };
+  }, [filteredOptions.length, open]);
 
   function commit(option: Option) {
     props.onChange(option.value);
@@ -47,6 +73,7 @@ export function SearchableSelect(props: {
   }
 
   function openWithBlankSearch() {
+    if (props.disabled) return;
     setOpen(true);
     setSearch("");
   }
@@ -101,8 +128,20 @@ export function SearchableSelect(props: {
         />
         <ChevronDown aria-hidden="true" className="searchable-select-icon" />
       </div>
-      {open && !props.disabled ? (
-        <div className="searchable-select-list" id={listboxId} role="listbox">
+      {open && !props.disabled ? createPortal(
+        <div
+          className="searchable-select-list"
+          data-placement={position?.placement ?? "bottom"}
+          id={listboxId}
+          ref={listRef}
+          role="listbox"
+          style={position ? {
+            left: `${position.left}px`,
+            maxHeight: `${position.maxHeight}px`,
+            top: `${position.top}px`,
+            width: `${position.width}px`
+          } : { visibility: "hidden" }}
+        >
           {filteredOptions.length > 0 ? filteredOptions.map((option, index) => (
             <div
               aria-selected={option.value === props.value}
@@ -118,7 +157,8 @@ export function SearchableSelect(props: {
               {option.value === props.value ? <Check aria-hidden="true" className="searchable-select-option-check" /> : null}
             </div>
           )) : <div className="searchable-select-empty">{props.noResultsLabel ?? "Keine Treffer"}</div>}
-        </div>
+        </div>,
+        document.body
       ) : null}
     </div>
   );
