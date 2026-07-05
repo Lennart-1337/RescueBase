@@ -37,8 +37,8 @@ function TemplateEditor(props: { template: NotificationTemplate; templates: Noti
       <div className="panel-header">
         <div><h2>E-Mail-Vorlagen</h2></div>
         <div className="topbar-actions">
-          <Button disabled={preview.isPending} onClick={() => preview.mutate()} type="button" variant="secondary"><Eye data-icon="inline-start" />Vorschau</Button>
-          <Button disabled={save.isPending} onClick={() => save.mutate()} type="button">Vorlage speichern</Button>
+          <Button loading={preview.isPending} onClick={() => preview.mutate()} type="button" variant="secondary"><Eye data-icon="inline-start" />Vorschau</Button>
+          <Button loading={save.isPending} onClick={() => save.mutate()} type="button">Vorlage speichern</Button>
         </div>
       </div>
       <div className="form-grid form-grid-two template-settings-grid">

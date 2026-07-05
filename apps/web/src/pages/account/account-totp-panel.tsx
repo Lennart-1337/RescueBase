@@ -36,9 +36,9 @@ export function AccountTotpPanel() {
     <Panel>
       <div className="panel-header"><div><h2>TOTP einrichten</h2></div><KeyRound /></div>
       <div className="auth-form">
-        {totpSetup ? <TotpSetupCard copiedValue={copiedValue} onCopy={setCopiedValue} qrUrl={totpQrUrl} setup={totpSetup} /> : <Button disabled={setupTotp.isPending} onClick={() => setupTotp.mutate()} type="button">TOTP vorbereiten</Button>}
+        {totpSetup ? <TotpSetupCard copiedValue={copiedValue} onCopy={setCopiedValue} qrUrl={totpQrUrl} setup={totpSetup} /> : <Button loading={setupTotp.isPending} onClick={() => setupTotp.mutate()} type="button">TOTP vorbereiten</Button>}
         {totpSetup ? <Field label="TOTP-Code"><input inputMode="numeric" value={totpCode} onChange={(event) => setTotpCode(event.target.value)} /></Field> : null}
-        {totpSetup ? <Button disabled={totpCode.trim().length < 6 || enableTotp.isPending} onClick={() => enableTotp.mutate({ code: totpCode })} type="button">TOTP aktivieren</Button> : null}
+        {totpSetup ? <Button disabled={totpCode.trim().length < 6} loading={enableTotp.isPending} onClick={() => enableTotp.mutate({ code: totpCode })} type="button">TOTP aktivieren</Button> : null}
         {setupTotp.error ? <InlineError error={setupTotp.error} /> : null}
         {enableTotp.error ? <InlineError error={enableTotp.error} /> : null}
       </div>

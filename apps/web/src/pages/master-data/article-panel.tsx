@@ -297,7 +297,8 @@ export function ArticlePanel(props: {
                 Abbrechen
               </Button>
               <Button
-                disabled={!canSubmit || props.isSubmitting}
+                disabled={!canSubmit}
+                loading={props.isSubmitting}
                 onClick={() => void submit()}
                 type="button"
               >

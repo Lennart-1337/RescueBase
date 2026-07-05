@@ -80,8 +80,8 @@ export function AccountAlertsPanel() {
       </div>
       <div className="form-actions alert-actions">
         <div className="row-actions">
-          <Button disabled={save.isPending} onClick={submit} type="button">
-            <Save data-icon="inline-start" />{save.isPending ? "Speichert..." : "Speichern"}
+          <Button loading={save.isPending} onClick={submit} type="button">
+            <Save data-icon="inline-start" />Speichern
           </Button>
         </div>
       </div>

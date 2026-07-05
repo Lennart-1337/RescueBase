@@ -37,7 +37,7 @@ export function InvitationAcceptScreen({ token }: { token: string }) {
         <Field label="Passwort"><input type="password" value={password} onChange={(event) => setPassword(event.target.value)} /></Field>
         <Field label="Passwort wiederholen"><input type="password" value={passwordRepeat} onChange={(event) => setPasswordRepeat(event.target.value)} /></Field>
         {accept.error ? <InlineError error={accept.error} /> : null}
-        <Button disabled={!displayName.trim() || password.length < 12 || password !== passwordRepeat || accept.isPending} type="submit">Konto aktivieren</Button>
+        <Button disabled={!displayName.trim() || password.length < 12 || password !== passwordRepeat} loading={accept.isPending} type="submit">Konto aktivieren</Button>
       </form>
     </Panel>
   );

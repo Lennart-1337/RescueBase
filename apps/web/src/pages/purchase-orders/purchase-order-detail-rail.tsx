@@ -10,6 +10,7 @@ export function PurchaseOrderDetailRail(props: {
   isApproving: boolean;
   isArchiving: boolean;
   isOrdering: boolean;
+  isRestoring: boolean;
   onApprove: () => void;
   onArchive: () => void;
   onEdit: () => void;
@@ -24,12 +25,12 @@ export function PurchaseOrderDetailRail(props: {
       <Panel className="purchase-order-control-panel">
         <PanelHeader title="Bestellsteuerung" />
         <div className="purchase-order-form">
-          {props.canApprove ? <Button disabled={props.isApproving} onClick={props.onApprove} type="button"><Save data-icon="inline-start" />Freigeben</Button> : null}
-          {props.order.status === "APPROVED" ? <Button disabled={props.isOrdering} onClick={props.onMarkOrdered} type="button"><Send data-icon="inline-start" />Als bestellt markieren</Button> : null}
+          {props.canApprove ? <Button loading={props.isApproving} onClick={props.onApprove} type="button"><Save data-icon="inline-start" />Freigeben</Button> : null}
+          {props.order.status === "APPROVED" ? <Button loading={props.isOrdering} onClick={props.onMarkOrdered} type="button"><Send data-icon="inline-start" />Als bestellt markieren</Button> : null}
           <Button onClick={props.onEdit} type="button" variant="secondary"><PencilLine data-icon="inline-start" />{props.order.status === "DRAFT" ? "Bestellung bearbeiten" : "Hinweise bearbeiten"}</Button>
           {props.order.archivedAt
-            ? <Button disabled={props.isArchiving} onClick={props.onRestore} type="button" variant="secondary">Wiederherstellen</Button>
-            : <Button disabled={props.isArchiving} onClick={props.onArchive} type="button" variant="secondary">Archivieren</Button>}
+            ? <Button loading={props.isRestoring} onClick={props.onRestore} type="button" variant="secondary">Wiederherstellen</Button>
+            : <Button loading={props.isArchiving} onClick={props.onArchive} type="button" variant="secondary">Archivieren</Button>}
         </div>
         <div className="purchase-order-timeline">
           <TimelineRow label="Archiv" value={props.order.archivedAt ? formatDateTime(props.order.archivedAt) : "Aktiv"} />

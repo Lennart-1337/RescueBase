@@ -133,7 +133,7 @@ export function TemplatePanel(props: {
           />
         ))}
       </div>
-      <Dialog actions={<><Button disabled={props.isSubmitting} onClick={requestClose} type="button" variant="ghost"><X data-icon="inline-start" />Abbrechen</Button><Button disabled={!canSubmit || props.isSubmitting} onClick={() => void submit()} type="button">{editingTemplateId ? <Save data-icon="inline-start" /> : <Plus data-icon="inline-start" />}{editingTemplateId ? "Neue Version speichern" : "Vorlage speichern"}</Button></>} onClose={requestClose} open={isOpen} title={editingTemplateId ? "Rucksackvorlage bearbeiten" : "Rucksackvorlage anlegen"}>
+      <Dialog actions={<><Button disabled={props.isSubmitting} onClick={requestClose} type="button" variant="ghost"><X data-icon="inline-start" />Abbrechen</Button><Button disabled={!canSubmit} loading={props.isSubmitting} onClick={() => void submit()} type="button">{editingTemplateId ? <Save data-icon="inline-start" /> : <Plus data-icon="inline-start" />}{editingTemplateId ? "Neue Version speichern" : "Vorlage speichern"}</Button></>} onClose={requestClose} open={isOpen} title={editingTemplateId ? "Rucksackvorlage bearbeiten" : "Rucksackvorlage anlegen"}>
         <div className="template-form">
           <Field label="Vorlagenname"><input autoFocus={!editingTemplateId} disabled={Boolean(editingTemplateId)} onChange={(event) => setName(event.target.value)} value={name} /></Field>
           <div className="template-position-list">
@@ -153,7 +153,7 @@ export function TemplatePanel(props: {
         {props.error ? <InlineError error={props.error} /> : null}
       </Dialog>
       <Dialog
-        actions={<><Button disabled={props.isSubmitting} onClick={() => setIsCloseConfirmOpen(false)} type="button" variant="ghost">Abbrechen</Button><Button disabled={props.isSubmitting} onClick={closeImmediately} type="button" variant="danger">Ohne Speichern schließen</Button><Button disabled={!canSubmit || props.isSubmitting} onClick={() => void submit()} type="button"><Save data-icon="inline-start" />Änderungen speichern</Button></>}
+        actions={<><Button disabled={props.isSubmitting} onClick={() => setIsCloseConfirmOpen(false)} type="button" variant="ghost">Abbrechen</Button><Button disabled={props.isSubmitting} onClick={closeImmediately} type="button" variant="danger">Ohne Speichern schließen</Button><Button disabled={!canSubmit} loading={props.isSubmitting} onClick={() => void submit()} type="button"><Save data-icon="inline-start" />Änderungen speichern</Button></>}
         bodyClassName="confirm-dialog-body"
         onClose={() => setIsCloseConfirmOpen(false)}
         open={isCloseConfirmOpen}

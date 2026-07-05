@@ -18,7 +18,7 @@ export function UserRoleDialog(props: {
 }) {
   return (
     <Dialog
-      actions={<><Button onClick={props.onClose} type="button" variant="ghost">Abbrechen</Button><Button disabled={!props.user || props.isSubmitting} onClick={props.onSave} type="button">Rolle speichern</Button></>}
+      actions={<><Button onClick={props.onClose} type="button" variant="ghost">Abbrechen</Button><Button disabled={!props.user} loading={props.isSubmitting} onClick={props.onSave} type="button">Rolle speichern</Button></>}
       description={props.user ? `${props.user.displayName} · ${props.user.email}` : undefined}
       onClose={props.onClose}
       open={props.isOpen}

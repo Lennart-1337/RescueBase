@@ -4,12 +4,12 @@ import { InlineError } from "../../components/state-panels";
 import { Button, Dialog, Field } from "../../components/ui";
 import type { Article, Location } from "../../lib/types";
 
-export function BatchCreatePanel(props: { articleId: string; articles: Article[]; createError: Error | null; expiresAt: string; isOpen: boolean; locationId: string; locations: Location[]; lotNumber: string; onArticleChange: (value: string) => void; onClose: () => void; onCreate: () => void; onExpiresAtChange: (value: string) => void; onLocationChange: (value: string) => void; onLotNumberChange: (value: string) => void; onQuantityChange: (value: number) => void; quantity: number }) {
+export function BatchCreatePanel(props: { articleId: string; articles: Article[]; createError: Error | null; expiresAt: string; isOpen: boolean; isSubmitting: boolean; locationId: string; locations: Location[]; lotNumber: string; onArticleChange: (value: string) => void; onClose: () => void; onCreate: () => void; onExpiresAtChange: (value: string) => void; onLocationChange: (value: string) => void; onLotNumberChange: (value: string) => void; onQuantityChange: (value: number) => void; quantity: number }) {
   const selectedArticleId = props.articleId || props.articles[0]?.id || "";
   const selectedLocationId = props.locationId || props.locations[0]?.id || "";
   const canCreate = Boolean(selectedArticleId && selectedLocationId && props.lotNumber.trim() && props.expiresAt && props.quantity >= 0);
   return (
-    <Dialog actions={<><Button onClick={props.onClose} type="button" variant="ghost"><X data-icon="inline-start" />Abbrechen</Button><Button disabled={!canCreate} onClick={props.onCreate} type="button"><Plus data-icon="inline-start" />Charge erfassen</Button></>} onClose={props.onClose} open={props.isOpen} title="Charge erfassen">
+    <Dialog actions={<><Button onClick={props.onClose} type="button" variant="ghost"><X data-icon="inline-start" />Abbrechen</Button><Button disabled={!canCreate} loading={props.isSubmitting} onClick={props.onCreate} type="button"><Plus data-icon="inline-start" />Charge erfassen</Button></>} onClose={props.onClose} open={props.isOpen} title="Charge erfassen">
       <div className="form-grid form-grid-five">
         <Field label="Artikel"><SearchableSelect onChange={props.onArticleChange} options={props.articles.map((article) => ({ label: article.name, value: article.id }))} value={selectedArticleId} /></Field>
         <Field label="Lagerort"><SearchableSelect onChange={props.onLocationChange} options={props.locations.map((location) => ({ label: location.name, value: location.id }))} value={selectedLocationId} /></Field>

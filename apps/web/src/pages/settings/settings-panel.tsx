@@ -16,7 +16,7 @@ export function SettingsPanel(props: PropsWithChildren<{
         <div><h2>{props.title}</h2>{props.description ? <p>{props.description}</p> : null}</div>
         <div className="topbar-actions">
           {props.extraAction}
-          <Button disabled={props.isSaving} onClick={props.onSave} type="button">Speichern</Button>
+          <Button loading={props.isSaving} onClick={props.onSave} type="button">Speichern</Button>
         </div>
       </div>
       {props.children}

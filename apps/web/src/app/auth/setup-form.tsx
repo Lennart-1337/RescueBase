@@ -30,7 +30,7 @@ export function SetupForm({ onDone }: { onDone: () => void }) {
         <Field label="E-Mail"><input type="email" value={email} onChange={(event) => setEmail(event.target.value)} /></Field>
         <Field label="Passwort"><input type="password" value={password} onChange={(event) => setPassword(event.target.value)} /></Field>
         {mutation.error ? <InlineError error={mutation.error} /> : null}
-        <Button disabled={!canSubmit || mutation.isPending} type="submit">Erstadmin erstellen</Button>
+        <Button disabled={!canSubmit} loading={mutation.isPending} type="submit">Erstadmin erstellen</Button>
       </form>
     </Panel>
   );

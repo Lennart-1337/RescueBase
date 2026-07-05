@@ -81,7 +81,7 @@ export function LoginForm({ onDone }: { onDone: () => void }) {
         {requiresTwoFactor ? <Field label="2FA-Code"><input autoFocus={usesPendingLogin} inputMode="numeric" value={twoFactorCode} onChange={(event) => setTwoFactorCode(event.target.value)} /></Field> : null}
         {debugCode ? <p className="debug-hint">Lokaler Testcode: {debugCode}</p> : null}
         {mutation.error ? <InlineError error={mutation.error} /> : null}
-        <Button disabled={!canSubmit || mutation.isPending} type="submit">Anmelden</Button>
+        <Button disabled={!canSubmit} loading={mutation.isPending} type="submit">Anmelden</Button>
         {usesPendingLogin ? <Button onClick={resetPendingStep} type="button" variant="ghost">Neu starten</Button> : null}
         <Link className="text-link" to="/password-reset">Passwort vergessen</Link>
       </form>

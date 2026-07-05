@@ -63,7 +63,7 @@ export function AdminShell({ children, user, branding }: { children: ReactNode; 
         <div className="sidebar-user">
           <span>{user.displayName}</span>
           <small>{user.role === "ADMIN" ? "Admin" : "Lagerwart"}</small>
-          <Button onClick={() => logout.mutate()} type="button" variant="ghost">
+          <Button loading={logout.isPending} onClick={() => logout.mutate()} type="button" variant="ghost">
             <LogOut data-icon="inline-start" />
             Abmelden
           </Button>
@@ -108,7 +108,7 @@ export function AdminShell({ children, user, branding }: { children: ReactNode; 
               <div className="mobile-drawer-user">
                 <span>{user.displayName}</span>
                 <small>{user.role === "ADMIN" ? "Admin" : "Lagerwart"}</small>
-                <Button onClick={() => logout.mutate()} type="button" variant="ghost">
+                <Button loading={logout.isPending} onClick={() => logout.mutate()} type="button" variant="ghost">
                   <LogOut data-icon="inline-start" />
                   Abmelden
                 </Button>

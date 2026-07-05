@@ -1,6 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { readBooleanSearch, readStringSearch, withPrunedSearch } from "../../../app/filter-utils";
+import { preloadAdminQueries } from "../../../app/route-preload";
 import { MasterDataArticlePage } from "../../../pages/master-data/article-page";
+import { catalogQueries } from "../../../queries/catalog";
 
 export type ArticleRouteSearch = {
   category?: string;
@@ -12,6 +14,12 @@ export type ArticleRouteSearch = {
 };
 
 export const Route = createFileRoute("/admin/master-data/articles")({
+  loader: ({ context }) =>
+    preloadAdminQueries(context.queryClient, () =>
+      Promise.all([
+        context.queryClient.prefetchQuery(catalogQueries.articles())
+      ])
+    ),
   validateSearch: (search: Record<string, unknown>): ArticleRouteSearch =>
     withPrunedSearch({
       category: readStringSearch(search.category),

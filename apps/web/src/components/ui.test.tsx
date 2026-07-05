@@ -1,5 +1,23 @@
 import { fireEvent, render, screen } from "@testing-library/react";
-import { Dialog } from "./ui";
+import { Save } from "lucide-react";
+import { Button, Dialog } from "./ui";
+
+describe("Button", () => {
+  it("disables itself and shows a spinner while loading", () => {
+    render(
+      <Button loading type="button">
+        <Save data-icon="inline-start" />
+        Speichern
+      </Button>,
+    );
+
+    const button = screen.getByRole("button", { name: "Speichern" });
+    expect(button).toBeDisabled();
+    expect(button).toHaveAttribute("aria-busy", "true");
+    expect(button.querySelector(".button-loading-icon")).not.toBeNull();
+    expect(button.querySelector("[data-icon=\"inline-start\"]")).not.toBeNull();
+  });
+});
 
 describe("Dialog", () => {
   it("renders a dedicated heading container and close button hook for responsive layout", () => {
