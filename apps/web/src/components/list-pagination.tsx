@@ -14,7 +14,6 @@ export function ListPagination(props: {
   const pageCount = Math.max(1, Math.ceil(props.total / props.pageSize));
   const start = props.total === 0 ? 0 : (props.page - 1) * props.pageSize + 1;
   const end = Math.min(props.page * props.pageSize, props.total);
-  if (pageCount <= 1) return null;
   return (
     <nav aria-label={props.label} className="list-pagination">
       <div className="list-pagination-meta">

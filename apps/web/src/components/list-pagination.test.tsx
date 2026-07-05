@@ -41,4 +41,22 @@ describe("ListPagination", () => {
     expect(screen.getByText("26-50 von 60")).toBeInTheDocument();
     expect(screen.queryByLabelText("Einträge pro Seite")).toBeNull();
   });
+
+  it("stays visible for a single page and disables all navigation buttons", () => {
+    render(<ListPagination label="Seitennavigation" onPageChange={() => undefined} page={1} pageSize={25} total={11} />);
+
+    expect(screen.getByText("1-11 von 11")).toBeInTheDocument();
+    expect(screen.getByText("Seite 1 von 1")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Erste Seite" })).toBeDisabled();
+    expect(screen.getByRole("button", { name: "Vorherige Seite" })).toBeDisabled();
+    expect(screen.getByRole("button", { name: "Nächste Seite" })).toBeDisabled();
+    expect(screen.getByRole("button", { name: "Letzte Seite" })).toBeDisabled();
+  });
+
+  it("shows an empty-state footer when there are no items", () => {
+    render(<ListPagination label="Seitennavigation" onPageChange={() => undefined} page={1} pageSize={10} total={0} />);
+
+    expect(screen.getByText("0-0 von 0")).toBeInTheDocument();
+    expect(screen.getByText("Seite 1 von 1")).toBeInTheDocument();
+  });
 });

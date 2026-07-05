@@ -61,6 +61,7 @@ describe("RescueBase routes", () => {
       "href",
       "/api/reports/csv/replenishment",
     );
+    expect(document.title).toBe("Nachfüllaufträge | RescueBase");
   });
 
   it("opens the mobile navigation in a drawer", async () => {
@@ -197,6 +198,7 @@ describe("RescueBase routes", () => {
       "href",
       "/admin/purchase-orders",
     );
+    expect(document.title).toBe("PO-2026-000001 | RescueBase");
   });
 
   it("renders the public check route from the token path", async () => {
@@ -249,6 +251,7 @@ describe("RescueBase routes", () => {
     ).toBeInTheDocument();
     expect(screen.getByText("Soll: 6 Stück")).toBeInTheDocument();
     expect(screen.getByText("Soll: 1 Stück · kritisch")).toBeInTheDocument();
+    expect(document.title).toBe("Rucksack Fahrzeug 1 | RescueBase");
   });
 
   it("renders the imprint page without authentication", async () => {
@@ -266,6 +269,7 @@ describe("RescueBase routes", () => {
     expect(
       screen.getByRole("link", { name: "info@neukirchen-vluyn.dlrg.de" }),
     ).toHaveAttribute("href", "mailto:info@neukirchen-vluyn.dlrg.de");
+    expect(document.title).toBe("Impressum | RescueBase");
   });
 
   it("renders the privacy page without authentication", async () => {
@@ -285,6 +289,7 @@ describe("RescueBase routes", () => {
     expect(
       screen.getByText("Recht auf Datenübertragbarkeit"),
     ).toBeInTheDocument();
+    expect(document.title).toBe("Datenschutzerklärung | RescueBase");
   });
 
   it("does not render seeded fallback data when the API is unavailable", async () => {

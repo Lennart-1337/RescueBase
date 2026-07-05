@@ -1,5 +1,6 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { CheckCircle2 } from "lucide-react";
+import { useDocumentTitle } from "../app/document-title";
 import { toError } from "../app/formatters";
 import { ErrorPanel } from "../components/state-panels";
 import { StatusBadge } from "../components/status-badge";
@@ -14,6 +15,7 @@ import "./public-check/public-check-page.css";
 export function PublicCheck({ token }: { token: string }) {
   const query = useQuery(publicQueries.publicKit(token));
   const mutation = useMutation({ mutationFn: (body: Parameters<typeof rescueBaseApi.completeCheck>[1]) => rescueBaseApi.completeCheck(token, body) });
+  useDocumentTitle(query.data?.kit.name);
 
   if (query.isError) {
     return (
