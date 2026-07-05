@@ -56,6 +56,65 @@ describe("SearchableSelect", () => {
     expect(select).toHaveClass("searchable-select-open");
     expect(screen.getByRole("option", { name: "Hauptlager" }).querySelector("svg")).not.toBeNull();
   });
+
+  it("toggles the listbox when the field is clicked repeatedly", () => {
+    render(<TestSelect initialValue="loc-main" />);
+    const input = screen.getByLabelText("Standort");
+
+    fireEvent.focus(input);
+    expect(screen.getByRole("listbox")).toBeInTheDocument();
+
+    fireEvent.mouseDown(input);
+    expect(screen.queryByRole("listbox")).not.toBeInTheDocument();
+
+    fireEvent.mouseDown(input);
+    expect(screen.getByRole("listbox")).toBeInTheDocument();
+  });
+
+  it("renders the listbox in a portal with fixed positioning", () => {
+    render(<div style={{ overflow: "hidden" }}><TestSelect /></div>);
+    const input = screen.getByLabelText("Standort");
+    const root = input.closest(".searchable-select-root") as HTMLDivElement;
+
+    vi.spyOn(root, "getBoundingClientRect").mockReturnValue(rect({
+      bottom: 146,
+      height: 46,
+      left: 40,
+      right: 340,
+      top: 100,
+      width: 300
+    }));
+
+    fireEvent.focus(input);
+
+    const listbox = screen.getByRole("listbox");
+    expect(listbox.parentElement).toBe(document.body);
+    expect(listbox).toHaveStyle({ left: "40px", top: "152px", width: "300px" });
+  });
+
+  it("flips upward when there is not enough room below", () => {
+    Object.defineProperty(window, "innerHeight", { configurable: true, value: 480 });
+    const scrollHeight = vi.spyOn(HTMLElement.prototype, "scrollHeight", "get").mockReturnValue(220);
+    render(<TestSelect />);
+    const input = screen.getByLabelText("Standort");
+    const root = input.closest(".searchable-select-root") as HTMLDivElement;
+
+    vi.spyOn(root, "getBoundingClientRect").mockReturnValue(rect({
+      bottom: 466,
+      height: 46,
+      left: 40,
+      right: 340,
+      top: 420,
+      width: 300
+    }));
+
+    fireEvent.focus(input);
+
+    const listbox = screen.getByRole("listbox");
+    expect(listbox).toHaveAttribute("data-placement", "top");
+    expect(listbox).toHaveStyle({ top: "194px" });
+    scrollHeight.mockRestore();
+  });
 });
 
 function TestSelect(props: { initialValue?: string }) {
@@ -78,4 +137,13 @@ function TestSelect(props: { initialValue?: string }) {
       <output data-testid="selected-value">{value}</output>
     </>
   );
+}
+
+function rect(props: { bottom: number; height: number; left: number; right: number; top: number; width: number }) {
+  return {
+    ...props,
+    x: props.left,
+    y: props.top,
+    toJSON: () => props
+  } as DOMRect;
 }

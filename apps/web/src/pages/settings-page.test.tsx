@@ -45,8 +45,8 @@ describe("SettingsPage", () => {
     await changeValue(within(general).getByLabelText("Untertitel"), "Bereitschaft Nord");
     const timezone = within(general).getByRole("combobox", { name: "Zeitzone" });
     await changeValue(timezone, "Madrid");
-    expect(within(general).queryByRole("option", { name: "Europe/Berlin" })).not.toBeInTheDocument();
-    await mouseDownElement(within(general).getByRole("option", { name: "Europe/Madrid" }));
+    expect(screen.queryByRole("option", { name: "Europe/Berlin" })).not.toBeInTheDocument();
+    await mouseDownElement(screen.getByRole("option", { name: "Europe/Madrid" }));
     await clickElement(within(general).getByRole("checkbox", { name: "RescueBase-Schriftzug anzeigen" }));
     expect(timezone).toHaveValue("Europe/Madrid");
     await clickElement(within(general).getByRole("button", { name: "Speichern" }));
