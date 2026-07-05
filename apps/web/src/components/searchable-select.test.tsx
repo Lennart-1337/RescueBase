@@ -57,6 +57,20 @@ describe("SearchableSelect", () => {
     expect(screen.getByRole("option", { name: "Hauptlager" }).querySelector("svg")).not.toBeNull();
   });
 
+  it("toggles the listbox when the field is clicked repeatedly", () => {
+    render(<TestSelect initialValue="loc-main" />);
+    const input = screen.getByLabelText("Standort");
+
+    fireEvent.focus(input);
+    expect(screen.getByRole("listbox")).toBeInTheDocument();
+
+    fireEvent.mouseDown(input);
+    expect(screen.queryByRole("listbox")).not.toBeInTheDocument();
+
+    fireEvent.mouseDown(input);
+    expect(screen.getByRole("listbox")).toBeInTheDocument();
+  });
+
   it("renders the listbox in a portal with fixed positioning", () => {
     render(<div style={{ overflow: "hidden" }}><TestSelect /></div>);
     const input = screen.getByLabelText("Standort");

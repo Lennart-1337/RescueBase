@@ -1,4 +1,4 @@
-import { useLayoutEffect, useEffect, useId, useMemo, useRef, useState, type KeyboardEvent } from "react";
+import { useLayoutEffect, useEffect, useId, useMemo, useRef, useState, type KeyboardEvent, type MouseEvent as ReactMouseEvent } from "react";
 import { createPortal } from "react-dom";
 import { Check, ChevronDown } from "lucide-react";
 import { computeSearchableSelectPosition, type SearchableSelectPosition } from "./searchable-select-position";
@@ -18,6 +18,7 @@ export function SearchableSelect(props: {
   value: string;
 }) {
   const listboxId = useId();
+  const inputRef = useRef<HTMLInputElement | null>(null);
   const rootRef = useRef<HTMLDivElement | null>(null);
   const listRef = useRef<HTMLDivElement | null>(null);
   const selected = props.options.find((option) => option.value === props.value) ?? null;
@@ -98,6 +99,18 @@ export function SearchableSelect(props: {
     }
   }
 
+  function handleTriggerMouseDown(event: ReactMouseEvent<HTMLInputElement>) {
+    if (props.disabled) return;
+    if (open) {
+      event.preventDefault();
+      setOpen(false);
+      return;
+    }
+    event.preventDefault();
+    inputRef.current?.focus();
+    openWithBlankSearch();
+  }
+
   return (
     <div className="searchable-select-root" ref={rootRef}>
       <div
@@ -114,6 +127,7 @@ export function SearchableSelect(props: {
           aria-controls={listboxId}
           aria-expanded={open}
           disabled={props.disabled}
+          ref={inputRef}
           onChange={(event) => {
             const nextValue = event.target.value;
             setSearch(nextValue);
@@ -122,6 +136,7 @@ export function SearchableSelect(props: {
           }}
           onFocus={openWithBlankSearch}
           onKeyDown={handleKeyDown}
+          onMouseDown={handleTriggerMouseDown}
           placeholder={props.placeholder ?? props.emptyLabel ?? "Auswählen"}
           role="combobox"
           value={inputValue}
