@@ -24,6 +24,7 @@ describe("Public auth pages", () => {
     await renderAppAt("/password-reset");
     await screen.findByRole("heading", { name: "Passwort zurücksetzen" });
     expect(document.title).toBe("Passwort zurücksetzen | RescueBase");
+    expect(screen.getByRole("group", { name: "Farbmodus" })).toBeInTheDocument();
     await changeValue(screen.getByLabelText("E-Mail"), "lager-neu@rescuebase.local");
     await clickElement(screen.getByRole("button", { name: /Reset-Link senden/ }));
     await waitFor(() => expect(postedBody("/api/auth/password-reset/request")).toEqual({ email: "lager-neu@rescuebase.local" }));
@@ -40,6 +41,7 @@ describe("Public auth pages", () => {
     const emailInput = await screen.findByLabelText("E-Mail");
     expect(emailInput).toHaveFocus();
     expect(document.title).toBe("Anmelden | RescueBase");
+    expect(screen.queryByRole("group", { name: "Farbmodus" })).toBeNull();
     expect(screen.queryByText("v0.1.0")).toBeNull();
 
     await changeValue(emailInput, "admin@rescuebase.local");
