@@ -11,6 +11,7 @@ describe("Public auth pages", () => {
     });
     await renderAppAt("/invitation/token-123");
     await screen.findByRole("heading", { name: "Einladung annehmen" });
+    expect(document.title).toBe("Einladung annehmen | RescueBase");
     await changeValue(screen.getByLabelText("Name"), "Lager Nord");
     await changeValue(screen.getByLabelText("Passwort"), "rescuebase-neu");
     await changeValue(screen.getByLabelText("Passwort wiederholen"), "rescuebase-neu");
@@ -22,6 +23,7 @@ describe("Public auth pages", () => {
     stubFetch({ "/api/auth/password-reset/request": { ok: true, debugUrl: "http://localhost:5173/password-reset/reset-123" } });
     await renderAppAt("/password-reset");
     await screen.findByRole("heading", { name: "Passwort zurücksetzen" });
+    expect(document.title).toBe("Passwort zurücksetzen | RescueBase");
     await changeValue(screen.getByLabelText("E-Mail"), "lager-neu@rescuebase.local");
     await clickElement(screen.getByRole("button", { name: /Reset-Link senden/ }));
     await waitFor(() => expect(postedBody("/api/auth/password-reset/request")).toEqual({ email: "lager-neu@rescuebase.local" }));
@@ -37,6 +39,7 @@ describe("Public auth pages", () => {
     await renderAppAt("/");
     const emailInput = await screen.findByLabelText("E-Mail");
     expect(emailInput).toHaveFocus();
+    expect(document.title).toBe("Anmelden | RescueBase");
 
     await changeValue(emailInput, "admin@rescuebase.local");
     await changeValue(screen.getByLabelText("Passwort"), "rescuebase-admin");

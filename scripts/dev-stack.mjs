@@ -5,7 +5,7 @@ process.env.RESEND_API_KEY ??= "dev-placeholder";
 
 const children = [];
 
-runShellStep("RESEND_API_KEY=${RESEND_API_KEY:-dev-placeholder} docker compose up -d mariadb");
+runStep("docker", ["compose", "up", "-d", "mariadb"]);
 runStep("npm", ["run", "prisma:deploy"]);
 
 const api = spawnProcess("npm", ["run", "dev:api"]);
@@ -20,17 +20,6 @@ function runStep(command, args, extraEnv = {}) {
   const result = spawnSync(command, args, {
     cwd: process.cwd(),
     env: { ...process.env, ...extraEnv },
-    stdio: "inherit"
-  });
-  if (result.status !== 0) {
-    process.exit(result.status ?? 1);
-  }
-}
-
-function runShellStep(script) {
-  const result = spawnSync("/bin/zsh", ["-lc", script], {
-    cwd: process.cwd(),
-    env: process.env,
     stdio: "inherit"
   });
   if (result.status !== 0) {

@@ -3,11 +3,23 @@
   min-height: 100vh;
   margin: 0 auto;
   padding: 16px 16px 120px;
-  background: #f6f7f9;
+  display: grid;
+  align-content: start;
+  gap: 16px;
+  background: var(--color-canvas);
+}
+
+.mobile-check-toolbar {
+  display: flex;
+  justify-content: flex-end;
 }
 
 .mobile-check.loading {
+  color: var(--color-text-muted);
+}
+
+.mobile-check-status {
+  min-height: 40vh;
   display: grid;
   place-items: center;
-  color: #657386;
 }

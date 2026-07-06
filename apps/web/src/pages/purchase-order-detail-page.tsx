@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link, useParams } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ArrowLeft } from "lucide-react";
+import { useDocumentTitle } from "../app/document-title";
 import { PageHeader, Workspace, WorkspaceMain, WorkspaceRail } from "../components/page-layout";
 import { toError } from "../app/formatters";
 import { ErrorPanel, InlineError, LoadingPanel } from "../components/state-panels";
@@ -34,6 +35,7 @@ export function PurchaseOrderDetailPage() {
   const approve = useMutation({ mutationFn: () => rescueBaseApi.approvePurchaseOrder(orderId), onSuccess: invalidate });
   const markOrdered = useMutation({ mutationFn: () => rescueBaseApi.markPurchaseOrderOrdered(orderId), onSuccess: invalidate });
   const receive = useMutation({ mutationFn: (draft: ReceiptDraft) => rescueBaseApi.receivePurchaseOrder(orderId, { lines: [{ lineId: draft.lineId, batches: [{ lotNumber: draft.lotNumber, expiresAt: draft.expiresAt, quantity: Number(draft.quantity) }] }] }), onSuccess: async () => { setReceiptDraft(null); await invalidate(); } });
+  useDocumentTitle(order.data?.orderNumber);
 
   if (order.isLoading) return <LoadingPanel label="Bestellung wird geladen" />;
   if (order.isError || !order.data) return <ErrorPanel error={toError(order.error)} onRetry={() => void order.refetch()} />;

@@ -13,9 +13,11 @@ export function BatchListPanel(props: {
   isSubmitting: boolean;
   onDelete: (id: string) => void;
   onPageChange: (page: number) => void;
+  onPageSizeChange: (pageSize: number) => void;
   onSelect: (id: string) => void;
   page: number;
   pageSize: number;
+  pageSizeOptions: number[];
   selectedBatchId: string | null;
   filteredCount: number;
   totalCount: number;
@@ -40,7 +42,7 @@ export function BatchListPanel(props: {
         ))}
       </div>
       {props.batches.length === 0 ? <div className="compact-list-empty">Aktuell sind keine sichtbaren Chargen vorhanden.</div> : null}
-      <ListPagination label="Chargenseiten" onPageChange={props.onPageChange} page={props.page} pageSize={props.pageSize} total={props.filteredCount} />
+      <ListPagination label="Chargenseiten" onPageChange={props.onPageChange} onPageSizeChange={props.onPageSizeChange} page={props.page} pageSize={props.pageSize} pageSizeOptions={props.pageSizeOptions} total={props.filteredCount} />
       {props.error ? <InlineError error={props.error} /> : null}
     </Panel>
   );

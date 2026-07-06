@@ -16,7 +16,7 @@
 }
 
 .purchase-order-new-section + .purchase-order-new-section {
-  border-top: 1px solid #edf0f4;
+  border-top: 1px solid var(--color-border-subtle);
   margin-top: 20px;
   padding-top: 20px;
 }
@@ -40,7 +40,7 @@
 }
 
 .purchase-order-new-section-header p {
-  color: #657386;
+  color: var(--color-text-muted);
   margin: 4px 0 0;
 }
 
@@ -54,14 +54,14 @@
 }
 
 .purchase-order-new-line {
-  border-top: 1px solid #edf0f4;
+  border-top: 1px solid var(--color-border-subtle);
   display: grid;
   gap: 10px;
   padding-top: 14px;
 }
 
 .purchase-order-package-hint {
-  color: #657386;
+  color: var(--color-text-muted);
   margin: -4px 0 0;
 }
 
@@ -75,13 +75,13 @@
 }
 
 .purchase-order-line-remove {
-  color: #a51d15;
+  color: var(--color-brand-strong);
   min-height: 32px;
   padding-inline: 10px;
 }
 
 .purchase-order-new-actions {
-  border-top: 1px solid #edf0f4;
+  border-top: 1px solid var(--color-border-subtle);
   justify-content: flex-end;
   margin-top: 6px;
   padding-top: 18px;

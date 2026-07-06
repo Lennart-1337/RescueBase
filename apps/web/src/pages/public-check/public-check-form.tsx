@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { ThemeToggle } from "../../app/theme";
 import { InlineError } from "../../components/state-panels";
 import { StatusBadge, statusLabel } from "../../components/status-badge";
 import { Button, Field, Panel } from "../../components/ui";
@@ -25,6 +26,9 @@ export function PublicCheckForm(props: {
 
   return (
     <main className="mobile-check">
+      <header className="mobile-check-toolbar">
+        <ThemeToggle className="public-theme-toggle" />
+      </header>
       <header className="check-header">
         <div><span>{props.publicKit.kit.code}</span><h1>{props.publicKit.kit.name}</h1><p>{props.publicKit.template.name} · Version {props.publicKit.template.version}</p></div>
         <StatusBadge kind="kit" status={summary.effectiveStatus} />

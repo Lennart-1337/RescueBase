@@ -18,7 +18,7 @@
 
 .topbar p {
   margin: 6px 0 0;
-  color: #657386;
+  color: var(--color-text-muted);
 }
 
 .topbar-actions {
@@ -90,7 +90,7 @@
 
 .section-header p {
   margin-top: 4px;
-  color: #657386;
+  color: var(--color-text-muted);
   font-size: 14px;
 }
 

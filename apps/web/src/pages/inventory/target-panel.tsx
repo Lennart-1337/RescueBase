@@ -13,8 +13,10 @@ export function TargetPanel(props: {
   onCreate: () => void;
   onEdit: (target: InventoryTarget) => void;
   onPageChange: (page: number) => void;
+  onPageSizeChange: (pageSize: number) => void;
   page: number;
   pageSize: number;
+  pageSizeOptions: number[];
   filteredCount: number;
   targets: InventoryTarget[];
   totalCount: number;
@@ -43,7 +45,7 @@ export function TargetPanel(props: {
         ))}
       </div>
       {props.targets.length === 0 ? <div className="compact-list-empty">Keine Sollbestände für die gesetzten Filter.</div> : null}
-      <ListPagination label="Sollbestandsseiten" onPageChange={props.onPageChange} page={props.page} pageSize={props.pageSize} total={props.filteredCount} />
+      <ListPagination label="Sollbestandsseiten" onPageChange={props.onPageChange} onPageSizeChange={props.onPageSizeChange} page={props.page} pageSize={props.pageSize} pageSizeOptions={props.pageSizeOptions} total={props.filteredCount} />
     </Panel>
   );
 }

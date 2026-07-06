@@ -19,6 +19,7 @@
     "test:e2e": "playwright test",
     "generate:openapi": "npm run generate:openapi -w @rescuebase/api",
     "generate:api-client": "npm run generate:openapi && openapi-typescript apps/api/openapi.json -o apps/web/src/lib/generated-api.d.ts",
+    "dev:db": "docker compose up -d mariadb",
     "dev:api": "npm run dev -w @rescuebase/api",
     "dev:web": "npm run dev -w @rescuebase/web",
     "dev:stack": "node scripts/dev-stack.mjs",

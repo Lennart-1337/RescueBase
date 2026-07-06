@@ -1,6 +1,6 @@
 .form-hint {
   margin: -6px 0 0;
-  color: #657386;
+  color: var(--color-text-muted);
   font-size: 13px;
 }
 
@@ -43,7 +43,7 @@
   display: flex;
   align-items: center;
   gap: 10px;
-  color: #344054;
+  color: var(--color-text-body);
   font-size: 13px;
   font-weight: 800;
 }
@@ -61,7 +61,7 @@
 
 .debug-hint,
 .text-link {
-  color: #657386;
+  color: var(--color-text-muted);
   font-size: 13px;
 }
 

@@ -15,9 +15,9 @@
   gap: 10px;
   align-items: end;
   padding: 12px;
-  border: 1px solid #edf0f4;
+  border: 1px solid var(--color-border-subtle);
   border-radius: 8px;
-  background: #fbfcfe;
+  background: var(--color-surface-muted);
 }
 
 .template-critical {

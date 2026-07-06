@@ -4,6 +4,7 @@ import { ErrorPanel, LoadingPanel } from "../components/state-panels";
 import type { AuthenticatedUser } from "../lib/types";
 import { authKeys, authQueries } from "../queries/auth";
 import type { AppBranding } from "./branding";
+import { useDocumentTitle } from "./document-title";
 import { toError } from "./formatters";
 import { AuthScreen } from "./auth/auth-screen";
 import { LoginForm } from "./auth/login-form";
@@ -15,6 +16,18 @@ export function AdminAuthGate({ children }: { children: (user: AuthenticatedUser
   const queryClient = useQueryClient();
   const setup = useQuery(authQueries.setupStatus());
   const session = useQuery(authQueries.session(setup.data?.initialized === true));
+  const pageTitle =
+    setup.isLoading || (setup.data?.initialized && session.isLoading)
+      ? "RescueBase wird geladen"
+      : setup.isError || session.isError
+        ? "Fehler"
+        : setup.data && !setup.data.initialized
+          ? "Erstadmin einrichten"
+          : !session.data?.user
+            ? "Anmelden"
+            : undefined;
+
+  useDocumentTitle(pageTitle);
 
   if (setup.isLoading || (setup.data?.initialized && session.isLoading)) return <LoadingPanel label="RescueBase wird geladen" />;
   if (setup.isError) return <ErrorPanel error={toError(setup.error)} onRetry={() => void setup.refetch()} />;

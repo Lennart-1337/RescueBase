@@ -11,8 +11,8 @@
   height: 180px;
   display: block;
   margin: 16px;
-  border: 1px dashed #98a2b3;
+  border: 1px dashed var(--color-text-faint);
   border-radius: 8px;
-  background: #ffffff;
+  background: var(--color-surface);
   touch-action: none;
 }

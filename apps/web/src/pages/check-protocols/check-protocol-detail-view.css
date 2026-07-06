@@ -30,9 +30,9 @@
 .protocol-hero,
 .protocol-position-card,
 .protocol-summary-grid {
-  border: 1px solid #e0e6ef;
+  border: 1px solid var(--color-border-default);
   border-radius: 12px;
-  background: #fbfcfe;
+  background: var(--color-surface-muted);
 }
 
 .protocol-card {
@@ -63,7 +63,7 @@
 .protocol-summary-item span,
 .protocol-hash-block code,
 .protocol-hash-block span {
-  color: #657386;
+  color: var(--color-text-muted);
   font-size: 12px;
 }
 
@@ -76,9 +76,9 @@
   display: grid;
   gap: 6px;
   padding: 14px 16px;
-  border: 1px solid #e0e6ef;
+  border: 1px solid var(--color-border-default);
   border-radius: 10px;
-  background: #ffffff;
+  background: var(--color-surface);
 }
 
 .protocol-hero {
@@ -136,28 +136,28 @@
 }
 
 .protocol-badge-state {
-  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.28);
+  box-shadow: var(--shadow-inset-contrast);
 }
 
 .protocol-badge-data {
-  border: 1px solid #e4e7ec;
-  background: #f8fafc;
-  color: #475467;
+  border: 1px solid var(--color-border-muted);
+  background: var(--color-surface-subtle);
+  color: var(--color-text-subtle);
 }
 
 .protocol-badge-issue.badge-warning {
-  background: #fef3d6;
-  color: #9a6700;
+  background: var(--color-warning-soft-strong);
+  color: var(--color-warning-text-strong);
 }
 
 .protocol-badge-issue.badge-danger {
-  background: #feeceb;
-  color: #b42318;
+  background: var(--color-danger-soft-strong);
+  color: var(--color-brand-solid);
 }
 
 .protocol-badge-issue.badge-info {
-  background: #e7efff;
-  color: #375dfb;
+  background: var(--color-info-soft-strong);
+  color: var(--color-info-text-strong);
 }
 
 .protocol-warning-list,
@@ -169,10 +169,10 @@
 
 .protocol-warning {
   padding: 14px 16px;
-  border: 1px solid #f5d7a1;
+  border: 1px solid var(--color-warning-line);
   border-radius: 10px;
-  background: #fff9ec;
-  color: #7a4a00;
+  background: var(--color-warning-tint);
+  color: var(--color-warning-text-dark);
   font-weight: 700;
 }
 
@@ -196,9 +196,9 @@
   min-height: 160px;
   max-height: 180px;
   object-fit: contain;
-  border: 1px solid #e0e6ef;
+  border: 1px solid var(--color-border-default);
   border-radius: 10px;
-  background: #ffffff;
+  background: var(--color-surface);
 }
 
 .protocol-hash-block {

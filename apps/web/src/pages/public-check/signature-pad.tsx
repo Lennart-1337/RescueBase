@@ -1,4 +1,5 @@
 import { useEffect, useRef, type PropsWithChildren } from "react";
+import { useTheme } from "../../app/theme";
 import { Button, Panel } from "../../components/ui";
 import "./signature-pad.css";
 
@@ -8,6 +9,7 @@ export function SignaturePad({
 }: PropsWithChildren<{ onChange: (signature: string) => void }>) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const isDrawingRef = useRef(false);
+  const { resolvedTheme } = useTheme();
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -16,8 +18,8 @@ export function SignaturePad({
     context.lineCap = "round";
     context.lineJoin = "round";
     context.lineWidth = 3;
-    context.strokeStyle = "#111827";
-  }, []);
+    context.strokeStyle = getComputedStyle(document.documentElement).getPropertyValue("--color-text-primary").trim();
+  }, [resolvedTheme]);
 
   return (
     <Panel className="signature-panel">

@@ -12,6 +12,7 @@ import type { AuthenticatedUser } from "../lib/types";
 import { type AppBranding } from "./branding";
 import { BrandMark } from "./brand-mark";
 import { LegalLinks } from "./legal-links";
+import { ThemeToggle } from "./theme";
 import "./admin-shell.css";
 import "./brand-mark.css";
 
@@ -119,7 +120,10 @@ export function AdminShell({ children, user, branding }: { children: ReactNode; 
       </AnimatePresence>
       <main className="dashboard">
         <div className="dashboard-content">{children}</div>
-        <LegalLinks className="dashboard-legal" />
+        <div className="dashboard-footer">
+          <LegalLinks className="dashboard-legal" />
+          <ThemeToggle className="dashboard-theme-toggle" />
+        </div>
       </main>
     </div>
   );

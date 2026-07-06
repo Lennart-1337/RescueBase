@@ -7,7 +7,7 @@
   display: grid;
   gap: 10px;
   padding-top: 18px;
-  border-top: 1px solid #dde4ee;
+  border-top: 1px solid var(--color-border-faint);
 }
 
 .legal-page h2,
@@ -17,19 +17,19 @@
 }
 
 .legal-page h2 {
-  color: #17202c;
+  color: var(--color-text-primary);
   font-size: 18px;
 }
 
 .legal-page p,
 .legal-page li,
 .legal-page a {
-  color: #526172;
+  color: var(--color-text-soft);
   line-height: 1.6;
 }
 
 .legal-page div {
-  color: #526172;
+  color: var(--color-text-soft);
   line-height: 1.6;
 }
 
