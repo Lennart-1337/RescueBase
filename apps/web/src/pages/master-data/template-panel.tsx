@@ -3,7 +3,7 @@ import { Plus, Save, X } from "lucide-react";
 import { PanelHeader } from "../../components/panel-header";
 import { SearchableSelect } from "../../components/searchable-select";
 import { InlineError } from "../../components/state-panels";
-import { Button, Dialog, Field, Panel } from "../../components/ui";
+import { Button, CheckboxField, Dialog, Field, Panel } from "../../components/ui";
 import type { Article, CreateTemplateRequest, KitTemplate, ReviseTemplateRequest } from "../../lib/types";
 import { ReorderControls } from "./reorder-controls";
 import { moveItem, type ReorderDirection } from "./reorder";
@@ -142,7 +142,7 @@ export function TemplatePanel(props: {
                 <Field label="Artikel"><SearchableSelect disabled={props.articles.length === 0} onChange={(value) => updatePosition(index, { articleId: value })} options={props.articles.map((article) => ({ label: article.name, value: article.id }))} value={position.articleId || props.articles[0]?.id || ""} /></Field>
                 <Field label="Modul"><input autoFocus={Boolean(editingTemplateId) && index === 0} onChange={(event) => updatePosition(index, { moduleName: event.target.value })} value={position.moduleName} /></Field>
                 <Field label="Sollmenge"><input min="1" onChange={(event) => updatePosition(index, { requiredQuantity: Number(event.target.value) })} type="number" value={position.requiredQuantity} /></Field>
-                <label className="check-field template-critical"><input checked={position.critical} onChange={(event) => updatePosition(index, { critical: event.target.checked })} type="checkbox" /><span>Kritisch</span></label>
+                <CheckboxField checked={position.critical} className="template-critical" label="Kritisch" onChange={(event) => updatePosition(index, { critical: event.target.checked })} />
                 <ReorderControls disabled={props.isSubmitting} isFirst={index === 0} isLast={index === positions.length - 1} label={`Position ${index + 1}`} onMove={(direction) => movePosition(index, direction)} />
                 <Button disabled={positions.length === 1} onClick={() => setPositions((current) => current.filter((_, currentIndex) => currentIndex !== index))} type="button" variant="ghost">Entfernen</Button>
               </div>

@@ -27,51 +27,22 @@
 }
 
 .alert-option {
-  min-height: 44px;
-  display: flex;
-  gap: 10px;
-  align-items: flex-start;
-  border: 1px solid var(--color-border-default);
-  border-radius: 8px;
-  padding: 10px 12px;
-  background: var(--color-surface);
-  color: var(--color-text-body);
-  cursor: pointer;
+  width: 100%;
 }
 
 .alert-option + .alert-option {
   margin-top: 8px;
 }
 
-.alert-option input {
-  margin-top: 2px;
-}
-
-.alert-option span,
-.alert-option strong,
-.alert-option small {
-  display: block;
-}
-
-.alert-option strong {
+.alert-option .checkbox-label {
   font-size: 14px;
 }
 
-.alert-option small {
-  margin-top: 2px;
-  color: var(--color-text-muted);
-  font-size: 12px;
-  font-weight: 600;
-  line-height: 1.35;
-}
-
 .alert-option-global {
-  border-color: var(--color-border-strong);
   background: var(--color-surface);
 }
 
 .alert-option-selected {
-  border-color: var(--color-brand-solid);
   background: var(--color-brand-quiet);
 }
 

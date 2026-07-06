@@ -11,7 +11,7 @@ import {
   InlineError,
   LoadingPanel,
 } from "../components/state-panels";
-import { Button, Field, Panel } from "../components/ui";
+import { Button, CheckboxField, Field, Panel } from "../components/ui";
 import { rescueBaseApi } from "../lib/api";
 import { catalogQueries } from "../queries/catalog";
 import { inventoryQueries } from "../queries/inventory";
@@ -477,20 +477,14 @@ function ShortageOption(props: {
   target: InventoryTarget;
 }) {
   return (
-    <label className="compact-list-row">
-      <span>
-        <strong>{props.target.article.name}</strong>
-        <small>
-          {props.target.location.name} · Fehlmenge{" "}
-          {props.target.shortageQuantity} {props.target.article.unit}
-        </small>
-      </span>
-      <input
-        checked={props.selected}
-        onChange={(event) => props.onToggle(event.target.checked)}
-        type="checkbox"
-      />
-    </label>
+    <CheckboxField
+      checked={props.selected}
+      className="compact-list-row"
+      description={`${props.target.location.name} · Fehlmenge ${props.target.shortageQuantity} ${props.target.article.unit}`}
+      label={props.target.article.name}
+      layout="split"
+      onChange={(event) => props.onToggle(event.target.checked)}
+    />
   );
 }
 

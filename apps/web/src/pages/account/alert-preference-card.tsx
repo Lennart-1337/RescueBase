@@ -1,5 +1,5 @@
 import { useId } from "react";
-import { Badge, cn } from "../../components/ui";
+import { Badge, CheckboxField, cn } from "../../components/ui";
 import "./alert-preference-card.css";
 
 export type AlertCategoryOption = {
@@ -59,11 +59,13 @@ export function AlertPreferenceCard({ category, locations, onToggle, selected, s
 
 function AlertOption({ checked, label, onChange, tone }: { checked: boolean; label: string; onChange: () => void; tone?: "global" }) {
   return (
-    <label className={cn("alert-option", checked && "alert-option-selected", tone === "global" && "alert-option-global")}>
-      <input checked={checked} onChange={onChange} type="checkbox" />
-      <span>
-        <strong>{label}</strong>
-      </span>
-    </label>
+    <CheckboxField
+      checked={checked}
+      className={cn("alert-option", checked && "alert-option-selected", tone === "global" && "alert-option-global")}
+      emphasis={tone === "global" ? "strong" : "default"}
+      label={label}
+      onChange={() => onChange()}
+      variant="card"
+    />
   );
 }

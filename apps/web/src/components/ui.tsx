@@ -10,6 +10,7 @@ import { LoaderCircle } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { fadeVariants, scaleFadeVariants } from "../motion/presets";
 import { useMotionMode } from "../motion/use-motion-mode";
+export { CheckboxField } from "./checkbox-field";
 import "./ui.css";
 export { Badge } from "./badge";
 

@@ -1,5 +1,5 @@
 import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from "lucide-react";
-import { Button } from "./ui";
+import { Button, Field } from "./ui";
 import "./list-pagination.css";
 
 export function ListPagination(props: {
@@ -18,12 +18,11 @@ export function ListPagination(props: {
     <nav aria-label={props.label} className="list-pagination">
       <div className="list-pagination-meta">
         {props.onPageSizeChange ? (
-          <label className="list-pagination-size">
-            <span>Einträge pro Seite</span>
+          <Field className="list-pagination-size" label="Einträge pro Seite">
             <select aria-label="Einträge pro Seite" onChange={(event) => props.onPageSizeChange?.(Number(event.target.value))} value={props.pageSize}>
               {(props.pageSizeOptions ?? [10, 25, 50]).map((option) => <option key={option} value={option}>{option}</option>)}
             </select>
-          </label>
+          </Field>
         ) : null}
         <span className="list-pagination-summary">{start}-{end} von {props.total}</span>
         <span className="list-pagination-page">Seite {props.page} von {pageCount}</span>

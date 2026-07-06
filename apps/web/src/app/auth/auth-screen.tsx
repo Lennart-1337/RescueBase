@@ -14,12 +14,22 @@ const defaultBranding: AppBranding = {
   showAppSubtitle: true
 };
 
-export function AuthScreen({ children, branding = defaultBranding }: { children: ReactNode; branding?: AppBranding }) {
+export function AuthScreen({
+  children,
+  branding = defaultBranding,
+  showThemeToggle = true
+}: {
+  children: ReactNode;
+  branding?: AppBranding;
+  showThemeToggle?: boolean;
+}) {
   return (
     <main className="auth-screen">
-      <div className="auth-screen-toolbar">
-        <ThemeToggle className="public-theme-toggle" />
-      </div>
+      {showThemeToggle ? (
+        <div className="auth-screen-toolbar">
+          <ThemeToggle className="public-theme-toggle" />
+        </div>
+      ) : null}
       <section className="auth-brand">
         {branding.showLogo ? <div className="brand-mark"><BrandMark /></div> : null}
         {branding.showAppName ? <strong>{branding.appName}</strong> : null}

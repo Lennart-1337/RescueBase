@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { InlineError } from "../../components/state-panels";
-import { Field } from "../../components/ui";
+import { CheckboxField, Field } from "../../components/ui";
 import { rescueBaseApi } from "../../lib/api";
 import { formatDateTime } from "../../app/formatters";
 import type { AlertSettings } from "../../lib/admin-settings-types";
@@ -21,7 +21,7 @@ export function AlertSettingsPanel({ initial }: { initial: AlertSettings }) {
   return (
     <SettingsPanel className="settings-panel-compact" isSaving={mutation.isPending} onSave={() => mutation.mutate({ dailyDigestEnabled: draft.dailyDigestEnabled, dailyDigestTime: draft.dailyDigestTime, warningWindowDays: draft.warningWindowDays })} title="Warnungen">
       <div className="form-grid settings-toggle-row">
-        <label className="check-field"><input checked={draft.dailyDigestEnabled} onChange={(event) => setDraft({ ...draft, dailyDigestEnabled: event.target.checked })} type="checkbox" /><span>Täglichen Digest senden</span></label>
+        <CheckboxField checked={draft.dailyDigestEnabled} label="Täglichen Digest senden" onChange={(event) => setDraft({ ...draft, dailyDigestEnabled: event.target.checked })} />
       </div>
       <div className="form-grid form-grid-two settings-fields-row">
         <Field label="Digest-Uhrzeit"><input disabled={!draft.dailyDigestEnabled} onChange={(event) => setDraft({ ...draft, dailyDigestTime: event.target.value })} type="time" value={draft.dailyDigestTime} /></Field>

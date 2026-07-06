@@ -1,0 +1,139 @@
+.checkbox-field {
+  min-height: 44px;
+  min-width: 0;
+  display: inline-flex;
+  align-items: flex-start;
+  gap: 12px;
+  color: var(--color-text-body);
+  cursor: pointer;
+}
+
+.checkbox-field-compact {
+  min-height: 32px;
+  gap: 10px;
+}
+
+.checkbox-field-split {
+  width: 100%;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+}
+
+.checkbox-field-split .checkbox-copy {
+  order: 1;
+}
+
+.checkbox-field-split .checkbox-control {
+  order: 2;
+}
+
+.checkbox-field-card {
+  padding: 10px 12px;
+  border: 1px solid var(--color-border-default);
+  border-radius: 10px;
+  background: var(--color-surface);
+  transition:
+    border-color 160ms ease,
+    background-color 160ms ease,
+    box-shadow 160ms ease;
+}
+
+.checkbox-field-strong {
+  border-color: var(--color-border-strong);
+}
+
+.checkbox-field-selected.checkbox-field-card {
+  border-color: var(--color-brand-solid);
+  background: var(--color-brand-quiet);
+  box-shadow: inset 0 0 0 1px var(--color-brand-line-soft);
+}
+
+.checkbox-field-disabled {
+  opacity: 0.64;
+  cursor: not-allowed;
+}
+
+.checkbox-control {
+  position: relative;
+  width: 18px;
+  height: 18px;
+  flex: 0 0 18px;
+  margin-top: 2px;
+}
+
+.checkbox-input {
+  position: absolute;
+  inset: 0;
+  margin: 0;
+  opacity: 0;
+  cursor: inherit;
+}
+
+.checkbox-indicator {
+  width: 18px;
+  height: 18px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--color-border-strong);
+  border-radius: 6px;
+  background: var(--color-surface);
+  color: var(--color-surface);
+  box-shadow: var(--shadow-inset-contrast);
+  transition:
+    transform 160ms ease,
+    border-color 160ms ease,
+    background-color 160ms ease,
+    box-shadow 160ms ease;
+}
+
+.checkbox-indicator svg {
+  width: 13px;
+  height: 13px;
+  opacity: 0;
+  transform: scale(0.8);
+  transition: opacity 140ms ease, transform 160ms ease;
+}
+
+.checkbox-field:hover .checkbox-indicator {
+  border-color: var(--color-focus-border);
+  background: var(--color-surface-subtle);
+}
+
+.checkbox-input:focus-visible + .checkbox-indicator {
+  outline: none;
+  border-color: var(--color-focus-border);
+  box-shadow: 0 0 0 4px var(--focus-ring);
+}
+
+.checkbox-input:checked + .checkbox-indicator {
+  border-color: var(--color-brand-solid);
+  background: var(--color-brand-solid);
+  box-shadow: var(--shadow-danger);
+}
+
+.checkbox-input:checked + .checkbox-indicator svg {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.checkbox-copy {
+  min-width: 0;
+  display: grid;
+  gap: 3px;
+}
+
+.checkbox-label {
+  min-width: 0;
+  color: var(--color-text-body);
+  font-size: 13px;
+  font-weight: 800;
+  line-height: 1.35;
+}
+
+.checkbox-description {
+  color: var(--color-text-muted);
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.4;
+}

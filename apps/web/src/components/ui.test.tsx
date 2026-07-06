@@ -1,6 +1,6 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import { Save } from "lucide-react";
-import { Button, Dialog } from "./ui";
+import { Button, CheckboxField, Dialog } from "./ui";
 
 describe("Button", () => {
   it("disables itself and shows a spinner while loading", () => {
@@ -51,5 +51,31 @@ describe("Dialog", () => {
     expect(dialog).toHaveClass("custom-modal");
     expect(dialog).toHaveAttribute("data-motion-mode", "full");
     expect(dialog.querySelector(".confirm-dialog-body")).not.toBeNull();
+  });
+});
+
+describe("CheckboxField", () => {
+  it("renders a styled checkbox with label copy and checked state hooks", () => {
+    render(<CheckboxField checked label="Kritisch" onChange={() => undefined} />);
+
+    const checkbox = screen.getByRole("checkbox", { name: "Kritisch" });
+    expect(checkbox).toBeChecked();
+    expect(checkbox.closest(".checkbox-field")).toHaveClass("checkbox-field-selected");
+    expect(checkbox.closest(".checkbox-field")?.querySelector(".checkbox-indicator")).not.toBeNull();
+  });
+
+  it("supports card presentation with secondary description copy", () => {
+    render(
+      <CheckboxField
+        description="Gilt für alle Standorte."
+        label="Alle Standorte"
+        onChange={() => undefined}
+        variant="card"
+      />,
+    );
+
+    const checkbox = screen.getByRole("checkbox", { name: "Alle StandorteGilt für alle Standorte." });
+    expect(checkbox.closest(".checkbox-field")).toHaveClass("checkbox-field-card");
+    expect(screen.getByText("Gilt für alle Standorte.")).toBeInTheDocument();
   });
 });

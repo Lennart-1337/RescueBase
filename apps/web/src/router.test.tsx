@@ -61,6 +61,7 @@ describe("RescueBase routes", () => {
       "href",
       "/api/reports/csv/replenishment",
     );
+    expect(screen.getByText("v0.1.0")).toBeInTheDocument();
     expect(document.title).toBe("Nachfüllaufträge | RescueBase");
   });
 
