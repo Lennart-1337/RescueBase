@@ -1,7 +1,7 @@
 import { Download, PencilLine, Save, Send } from "lucide-react";
 import { formatDateTime } from "../../app/formatters";
 import { PanelHeader } from "../../components/panel-header";
-import { AnchorButton, Button, Panel } from "../../components/ui";
+import { AnchorButton, Button, CheckboxField, Panel } from "../../components/ui";
 import type { PurchaseOrder } from "../../lib/types";
 
 export function PurchaseOrderDetailRail(props: {
@@ -40,10 +40,7 @@ export function PurchaseOrderDetailRail(props: {
           <TimelineRow label="Wareneingang" value={props.order.receivedAt ? formatDateTime(props.order.receivedAt) : "Noch nicht abgeschlossen"} />
         </div>
         <div className="purchase-order-documents">
-          <label className="check-field">
-            <input checked={props.includeLineNotes} onChange={(event) => props.onIncludeNotesChange(event.target.checked)} type="checkbox" />
-            <span>Positionsnotizen im PDF anzeigen</span>
-          </label>
+          <CheckboxField checked={props.includeLineNotes} label="Positionsnotizen im PDF anzeigen" onChange={(event) => props.onIncludeNotesChange(event.target.checked)} />
           <AnchorButton href={props.pdfHref} rel="noreferrer" target="_blank" variant="secondary"><Download data-icon="inline-start" />PDF exportieren</AnchorButton>
         </div>
       </Panel>

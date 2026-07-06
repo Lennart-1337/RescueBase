@@ -1,8 +1,14 @@
+import { readFileSync } from "node:fs";
 import react from "@vitejs/plugin-react";
 import { tanstackRouter } from "@tanstack/router-plugin/vite";
 import { defineConfig } from "vitest/config";
 
+const rootPackage = JSON.parse(readFileSync(new URL("../../package.json", import.meta.url), "utf8")) as { version: string };
+
 export default defineConfig({
+  define: {
+    __APP_VERSION__: JSON.stringify(rootPackage.version)
+  },
   plugins: [
     tanstackRouter({
       target: "react",

@@ -1,6 +1,6 @@
 import { Plus, Trash2 } from "lucide-react";
 import { InlineError } from "../../components/state-panels";
-import { Button, Dialog, Field } from "../../components/ui";
+import { Button, CheckboxField, Dialog, Field } from "../../components/ui";
 import type { InventoryProcurementOrder } from "../../lib/types";
 import type { ReceiptDraftItem } from "./types";
 
@@ -37,10 +37,11 @@ export function ProcurementReceiveDialog(props: {
           </div>
         ))}
       </div>
-      <label className="check-field">
-        <input checked={props.verified} onChange={(event) => props.onVerifiedChange(event.target.checked)} type="checkbox" />
-        <span>Lieferung geprüft: Artikel, Menge, Charge und Ablaufdatum stimmen mit der Lieferung überein.</span>
-      </label>
+      <CheckboxField
+        checked={props.verified}
+        label="Lieferung geprüft: Artikel, Menge, Charge und Ablaufdatum stimmen mit der Lieferung überein."
+        onChange={(event) => props.onVerifiedChange(event.target.checked)}
+      />
       {props.error ? <InlineError error={props.error} /> : null}
       <Button onClick={props.onAddItem} type="button" variant="secondary"><Plus data-icon="inline-start" />Position hinzufügen</Button>
     </Dialog>

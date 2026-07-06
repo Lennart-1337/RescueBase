@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { InlineError } from "../../components/state-panels";
 import { SearchableSelect } from "../../components/searchable-select";
-import { Field } from "../../components/ui";
+import { CheckboxField, Field } from "../../components/ui";
 import { rescueBaseApi } from "../../lib/api";
 import type { GeneralSettings } from "../../lib/admin-settings-types";
 import { authKeys } from "../../queries/auth";
@@ -47,14 +47,14 @@ export function GeneralSettingsPanel({ initial }: { initial: GeneralSettings }) 
           <div className="settings-subsection">
             <strong>Branding</strong>
             <span>Sichtbarkeit im Login und in der Navigation.</span>
-            <label className="check-field"><input checked={draft.showLogo} onChange={(event) => setDraft({ ...draft, showLogo: event.target.checked })} type="checkbox" /><span>Logo anzeigen</span></label>
-            <label className="check-field"><input checked={draft.showAppName} onChange={(event) => setDraft({ ...draft, showAppName: event.target.checked })} type="checkbox" /><span>RescueBase-Schriftzug anzeigen</span></label>
-            <label className="check-field"><input checked={draft.showAppSubtitle} onChange={(event) => setDraft({ ...draft, showAppSubtitle: event.target.checked })} type="checkbox" /><span>Sanitätslager-Schriftzug anzeigen</span></label>
+            <CheckboxField checked={draft.showLogo} label="Logo anzeigen" onChange={(event) => setDraft({ ...draft, showLogo: event.target.checked })} />
+            <CheckboxField checked={draft.showAppName} label="RescueBase-Schriftzug anzeigen" onChange={(event) => setDraft({ ...draft, showAppName: event.target.checked })} />
+            <CheckboxField checked={draft.showAppSubtitle} label="Sanitätslager-Schriftzug anzeigen" onChange={(event) => setDraft({ ...draft, showAppSubtitle: event.target.checked })} />
           </div>
           <div className="settings-subsection">
             <strong>Nachfüllaufträge</strong>
             <span>Standard für neu eingeladene Benutzer.</span>
-            <label className="check-field"><input checked={draft.newUserOrderNotificationsDefaultEnabled} onChange={(event) => setDraft({ ...draft, newUserOrderNotificationsDefaultEnabled: event.target.checked })} type="checkbox" /><span>Auftrags-E-Mails standardmäßig aktiv</span></label>
+            <CheckboxField checked={draft.newUserOrderNotificationsDefaultEnabled} label="Auftrags-E-Mails standardmäßig aktiv" onChange={(event) => setDraft({ ...draft, newUserOrderNotificationsDefaultEnabled: event.target.checked })} />
           </div>
         </div>
       </div>

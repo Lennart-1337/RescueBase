@@ -39,24 +39,11 @@
 }
 
 .check-field {
-  min-height: 43px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  color: var(--color-text-body);
-  font-size: 13px;
-  font-weight: 800;
+  min-width: 0;
 }
 
 .check-field-compact {
-  min-height: 32px;
-  gap: 8px;
-}
-
-.check-field input {
-  width: 18px;
-  height: 18px;
-  margin: 0;
+  min-width: 0;
 }
 
 .debug-hint,

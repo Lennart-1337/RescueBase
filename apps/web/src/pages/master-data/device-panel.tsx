@@ -5,7 +5,7 @@ import { PanelHeader } from "../../components/panel-header";
 import { PageToolbar } from "../../components/page-layout";
 import { SearchableSelect } from "../../components/searchable-select";
 import { InlineError } from "../../components/state-panels";
-import { Button, Dialog, Field, Panel } from "../../components/ui";
+import { Button, CheckboxField, Dialog, Field, Panel } from "../../components/ui";
 import type { Article, Kit, Location } from "../../lib/types";
 import type { MedicalDevice, MedicalDeviceWriteBody } from "../../lib/extra-api";
 import { DeviceListRow } from "./device-list-row";
@@ -127,7 +127,7 @@ export function DevicePanel(props: {
           <Field label="STK-Intervall"><input inputMode="numeric" min="1" type="number" value={draft.stkIntervalMonths ?? ""} onChange={(event) => setDraft((current) => ({ ...current, stkIntervalMonths: parseOptionalInt(event.target.value) }))} /></Field>
           <Field label="Last MTK"><input type="date" value={draft.lastMtkAt ?? ""} onChange={(event) => setDraft((current) => ({ ...current, lastMtkAt: event.target.value }))} /></Field>
           <Field label="MTK-Intervall"><input inputMode="numeric" min="1" type="number" value={draft.mtkIntervalMonths ?? ""} onChange={(event) => setDraft((current) => ({ ...current, mtkIntervalMonths: parseOptionalInt(event.target.value) }))} /></Field>
-          <label className="check-field"><input checked={draft.active} onChange={(event) => setDraft((current) => ({ ...current, active: event.target.checked }))} type="checkbox" /><span>Aktiv</span></label>
+          <CheckboxField checked={draft.active} label="Aktiv" onChange={(event) => setDraft((current) => ({ ...current, active: event.target.checked }))} />
           <Field label="Hinweise"><textarea rows={3} value={draft.notes ?? ""} onChange={(event) => setDraft((current) => ({ ...current, notes: event.target.value }))} /></Field>
         </div>
         {props.error ? <InlineError error={props.error} /> : null}

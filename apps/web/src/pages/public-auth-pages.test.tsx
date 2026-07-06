@@ -40,6 +40,7 @@ describe("Public auth pages", () => {
     const emailInput = await screen.findByLabelText("E-Mail");
     expect(emailInput).toHaveFocus();
     expect(document.title).toBe("Anmelden | RescueBase");
+    expect(screen.queryByText("v0.1.0")).toBeNull();
 
     await changeValue(emailInput, "admin@rescuebase.local");
     await changeValue(screen.getByLabelText("Passwort"), "rescuebase-admin");

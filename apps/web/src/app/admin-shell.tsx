@@ -13,6 +13,7 @@ import { type AppBranding } from "./branding";
 import { BrandMark } from "./brand-mark";
 import { LegalLinks } from "./legal-links";
 import { ThemeToggle } from "./theme";
+import { APP_VERSION } from "./version";
 import "./admin-shell.css";
 import "./brand-mark.css";
 
@@ -121,7 +122,10 @@ export function AdminShell({ children, user, branding }: { children: ReactNode; 
       <main className="dashboard">
         <div className="dashboard-content">{children}</div>
         <div className="dashboard-footer">
-          <LegalLinks className="dashboard-legal" />
+          <div className="dashboard-footer-meta">
+            <LegalLinks className="dashboard-legal" />
+            <span aria-label="Version" className="dashboard-version">{APP_VERSION}</span>
+          </div>
           <ThemeToggle className="dashboard-theme-toggle" />
         </div>
       </main>

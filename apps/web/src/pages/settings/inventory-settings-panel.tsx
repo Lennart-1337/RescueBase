@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { formatDateTime } from "../../app/formatters";
 import { InlineError } from "../../components/state-panels";
-import { Field } from "../../components/ui";
+import { CheckboxField, Field } from "../../components/ui";
 import { rescueBaseApi } from "../../lib/api";
 import type { InventorySettings } from "../../lib/admin-settings-types";
 import { settingsKeys } from "../../queries/settings";
@@ -21,7 +21,7 @@ export function InventorySettingsPanel({ initial }: { initial: InventorySettings
   return (
     <SettingsPanel className="settings-panel-compact" isSaving={mutation.isPending} onSave={() => mutation.mutate({ enabled: draft.enabled, dailyReconcileTime: draft.dailyReconcileTime })} title="Lagerautomatik">
       <div className="form-grid settings-toggle-row">
-        <label className="check-field"><input checked={draft.enabled} onChange={(event) => setDraft({ ...draft, enabled: event.target.checked })} type="checkbox" /><span>Automatische Bestandsprüfung aktiv</span></label>
+        <CheckboxField checked={draft.enabled} label="Automatische Bestandsprüfung aktiv" onChange={(event) => setDraft({ ...draft, enabled: event.target.checked })} />
       </div>
       <div className="form-grid form-grid-one settings-fields-row">
         <Field label="Prüfzeit"><input disabled={!draft.enabled} onChange={(event) => setDraft({ ...draft, dailyReconcileTime: event.target.value })} type="time" value={draft.dailyReconcileTime} /></Field>

@@ -5,7 +5,7 @@ import { rescueBaseApi } from "../../lib/api";
 import type { AuthenticatedUser } from "../../lib/types";
 import { authKeys } from "../../queries/auth";
 import { InlineError } from "../../components/state-panels";
-import { Button, Panel } from "../../components/ui";
+import { Button, CheckboxField, Panel } from "../../components/ui";
 import "../../app/auth/auth-form-layout.css";
 
 export function AccountOrderNotificationsPanel({ user }: { user: AuthenticatedUser }) {
@@ -25,10 +25,7 @@ export function AccountOrderNotificationsPanel({ user }: { user: AuthenticatedUs
     <Panel>
       <div className="panel-header"><div><h2>Auftrags-E-Mails</h2></div><Bell /></div>
       <div className="auth-form">
-        <label className="check-field">
-          <input checked={enabled} onChange={(event) => setEnabled(event.target.checked)} type="checkbox" />
-          <span>Neue Nachfüllaufträge per E-Mail senden</span>
-        </label>
+        <CheckboxField checked={enabled} label="Neue Nachfüllaufträge per E-Mail senden" onChange={(event) => setEnabled(event.target.checked)} />
         <Button disabled={enabled === Boolean(user.newOrderNotificationsEnabled)} loading={save.isPending} onClick={() => save.mutate({ enabled })} type="button">
           Speichern
         </Button>
