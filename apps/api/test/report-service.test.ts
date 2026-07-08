@@ -47,7 +47,7 @@ function normalizePdfText(text: string) {
   return text
     .toLocaleLowerCase("de-DE")
     .replace(/\s+/g, "")
-    .replace(/[^\p{L}\p{N}@.+:\/-]+/gu, "");
+    .replace(/[^\p{L}\p{N}@.+:/-]+/gu, "");
 }
 
 describe("report service", () => {
