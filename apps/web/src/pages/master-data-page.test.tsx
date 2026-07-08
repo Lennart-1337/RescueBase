@@ -620,6 +620,159 @@ describe("MasterDataPage", () => {
     );
   });
 
+  it("opens the new suppliers tab with derived supplier assignments", async () => {
+    const supplierArticle = {
+      ...article,
+      defaultSupplierName: "MediSafe Einkauf",
+    };
+    const secondArticle = {
+      ...article,
+      id: "article-gloves",
+      name: "Einmalhandschuhe Größe M",
+      barcode: "040000000003",
+      defaultSupplierName: "MediSafe Einkauf",
+    };
+    stubFetch({
+      ...baseAdminRoutes(),
+      "/api/catalog/articles": [supplierArticle, secondArticle],
+    });
+    await renderAppAt("/admin/master-data/articles");
+    await screen.findByRole("heading", { name: "Stammdaten" });
+
+    await clickElement(screen.getByRole("tab", { name: "Lieferanten" }));
+
+    const row = (await screen.findByText("MediSafe Einkauf")).closest(
+      ".compact-list-row",
+    );
+    expect(row).not.toBeNull();
+    expect(screen.getByText("2 Artikel")).toBeInTheDocument();
+    expect(row).toHaveTextContent("Verbandpäckchen mittel");
+    expect(row).toHaveTextContent("Einmalhandschuhe Größe M");
+  });
+
+  it("renames a supplier across linked articles from the dedicated suppliers tab", async () => {
+    const firstSupplierArticle = {
+      ...article,
+      defaultSupplierName: "MediSafe Einkauf",
+    };
+    const secondSupplierArticle = {
+      ...article,
+      id: "article-gloves",
+      name: "Einmalhandschuhe Größe M",
+      barcode: "040000000003",
+      defaultSupplierName: "MediSafe Einkauf",
+    };
+    stubFetch({
+      ...baseAdminRoutes(),
+      "/api/catalog/articles": [firstSupplierArticle, secondSupplierArticle],
+      "/api/catalog/articles/article-bandage": { ok: true },
+      "/api/catalog/articles/article-gloves": { ok: true },
+    });
+    await renderAppAt("/admin/master-data/suppliers");
+    await screen.findByText("MediSafe Einkauf");
+
+    await clickElement(
+      screen.getByRole("button", { name: "MediSafe Einkauf umbenennen" }),
+    );
+
+    const dialog = await screen.findByRole("dialog", {
+      name: "Lieferant umbenennen",
+    });
+    await changeValue(within(dialog).getByLabelText("Name"), "NordMed");
+    await clickElement(
+      within(dialog).getByRole("button", { name: "Lieferant speichern" }),
+    );
+
+    await waitFor(() =>
+      expect(
+        requestBody("/api/catalog/articles/article-bandage", "PATCH"),
+      ).toEqual({
+        articleUrl: firstSupplierArticle.articleUrl,
+        barcode: firstSupplierArticle.barcode,
+        category: firstSupplierArticle.category,
+        criticalDefault: firstSupplierArticle.criticalDefault,
+        defaultSupplierName: "NordMed",
+        manufacturer: firstSupplierArticle.manufacturer,
+        manufacturerPartNumber: firstSupplierArticle.manufacturerPartNumber,
+        medicalDevice: firstSupplierArticle.medicalDevice,
+        mtkIntervalMonths: firstSupplierArticle.mtkIntervalMonths,
+        mtkRequired: firstSupplierArticle.mtkRequired,
+        name: firstSupplierArticle.name,
+        notes: firstSupplierArticle.notes,
+        sterile: firstSupplierArticle.sterile,
+        stkIntervalMonths: firstSupplierArticle.stkIntervalMonths,
+        stkRequired: firstSupplierArticle.stkRequired,
+        storageNotes: firstSupplierArticle.storageNotes,
+        unit: firstSupplierArticle.unit,
+        unitsPerPackage: firstSupplierArticle.unitsPerPackage,
+      }),
+    );
+    await waitFor(() =>
+      expect(
+        requestBody("/api/catalog/articles/article-gloves", "PATCH"),
+      ).toEqual({
+        articleUrl: secondSupplierArticle.articleUrl,
+        barcode: secondSupplierArticle.barcode,
+        category: secondSupplierArticle.category,
+        criticalDefault: secondSupplierArticle.criticalDefault,
+        defaultSupplierName: "NordMed",
+        manufacturer: secondSupplierArticle.manufacturer,
+        manufacturerPartNumber: secondSupplierArticle.manufacturerPartNumber,
+        medicalDevice: secondSupplierArticle.medicalDevice,
+        mtkIntervalMonths: secondSupplierArticle.mtkIntervalMonths,
+        mtkRequired: secondSupplierArticle.mtkRequired,
+        name: secondSupplierArticle.name,
+        notes: secondSupplierArticle.notes,
+        sterile: secondSupplierArticle.sterile,
+        stkIntervalMonths: secondSupplierArticle.stkIntervalMonths,
+        stkRequired: secondSupplierArticle.stkRequired,
+        storageNotes: secondSupplierArticle.storageNotes,
+        unit: secondSupplierArticle.unit,
+        unitsPerPackage: secondSupplierArticle.unitsPerPackage,
+      }),
+    );
+  });
+
+  it("clears a supplier assignment across linked articles from the dedicated suppliers tab", async () => {
+    vi.spyOn(window, "confirm").mockReturnValue(true);
+    const firstSupplierArticle = {
+      ...article,
+      defaultSupplierName: "MediSafe Einkauf",
+    };
+    const secondSupplierArticle = {
+      ...article,
+      id: "article-gloves",
+      name: "Einmalhandschuhe Größe M",
+      barcode: "040000000003",
+      defaultSupplierName: "MediSafe Einkauf",
+    };
+    stubFetch({
+      ...baseAdminRoutes(),
+      "/api/catalog/articles": [firstSupplierArticle, secondSupplierArticle],
+      "/api/catalog/articles/article-bandage": { ok: true },
+      "/api/catalog/articles/article-gloves": { ok: true },
+    });
+    await renderAppAt("/admin/master-data/suppliers");
+    await screen.findByText("MediSafe Einkauf");
+
+    await clickElement(
+      screen.getByRole("button", {
+        name: "MediSafe Einkauf Zuweisung entfernen",
+      }),
+    );
+
+    await waitFor(() =>
+      expect(
+        requestBody("/api/catalog/articles/article-bandage", "PATCH"),
+      ).not.toHaveProperty("defaultSupplierName"),
+    );
+    await waitFor(() =>
+      expect(
+        requestBody("/api/catalog/articles/article-gloves", "PATCH"),
+      ).not.toHaveProperty("defaultSupplierName"),
+    );
+  });
+
   it("reorders articles from the master-data list", async () => {
     const secondArticle = {
       ...article,
