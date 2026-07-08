@@ -55,13 +55,14 @@ describe("Dialog", () => {
 });
 
 describe("CheckboxField", () => {
-  it("renders a styled checkbox with label copy and checked state hooks", () => {
+  it("renders a styled toggle with label copy and checked state hooks", () => {
     render(<CheckboxField checked label="Kritisch" onChange={() => undefined} />);
 
     const checkbox = screen.getByRole("checkbox", { name: "Kritisch" });
     expect(checkbox).toBeChecked();
     expect(checkbox.closest(".checkbox-field")).toHaveClass("checkbox-field-selected");
     expect(checkbox.closest(".checkbox-field")?.querySelector(".checkbox-indicator")).not.toBeNull();
+    expect(checkbox.closest(".checkbox-field")?.querySelector(".checkbox-thumb")).not.toBeNull();
   });
 
   it("supports card presentation with secondary description copy", () => {

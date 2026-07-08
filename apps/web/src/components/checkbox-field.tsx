@@ -1,5 +1,4 @@
 import type { InputHTMLAttributes, ReactNode } from "react";
-import { Check } from "lucide-react";
 import "./checkbox-field.css";
 
 function cn(...values: Array<string | false | null | undefined>) {
@@ -56,7 +55,7 @@ export function CheckboxField({
           {...props}
         />
         <span aria-hidden="true" className="checkbox-indicator">
-          <Check />
+          <span className="checkbox-thumb" />
         </span>
       </span>
       <span className="checkbox-copy">
