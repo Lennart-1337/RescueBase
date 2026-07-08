@@ -11,7 +11,10 @@ export type SupplierRouteSearch = {
 export const Route = createFileRoute("/admin/master-data/suppliers")({
   loader: ({ context }) =>
     preloadAdminQueries(context.queryClient, () =>
-      Promise.all([context.queryClient.prefetchQuery(catalogQueries.articles())]),
+      Promise.all([
+        context.queryClient.prefetchQuery(catalogQueries.articles()),
+        context.queryClient.prefetchQuery(catalogQueries.suppliers()),
+      ]),
     ),
   validateSearch: (search: Record<string, unknown>): SupplierRouteSearch =>
     withPrunedSearch({

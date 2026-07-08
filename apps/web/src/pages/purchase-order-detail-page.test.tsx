@@ -1,6 +1,6 @@
 import { screen, within } from "@testing-library/react";
-import { purchaseOrder } from "../test-support/fixtures";
-import { changeValue, clickElement, renderAppAt, requestBody, stubFetch, wasRequested } from "../test-support/app-test-helpers";
+import { purchaseOrder, supplier } from "../test-support/fixtures";
+import { changeValue, clickElement, mouseDownElement, renderAppAt, requestBody, stubFetch, wasRequested } from "../test-support/app-test-helpers";
 
 describe("Purchase order detail", () => {
   it("submits a full draft update before approval", async () => {
@@ -17,6 +17,10 @@ describe("Purchase order detail", () => {
         barcode: "040000000001",
         defaultGrossPriceCents: 249
       }],
+      "/api/catalog/suppliers": [
+        supplier,
+        { id: "supplier-nordmed", name: "Neue MediSafe GmbH" },
+      ],
       "/api/catalog/locations": [{ id: "loc-main", name: "Hauptlager" }]
     });
 
@@ -29,15 +33,16 @@ describe("Purchase order detail", () => {
     expect(within(dialog).getByText("Hinweise").closest(".purchase-order-draft-notes")).not.toBeNull();
     expect(within(dialog).getByRole("button", { name: "Position 1 entfernen" })).toHaveClass("purchase-order-line-remove-button");
     expect(within(dialog).getByRole("button", { name: "Abbrechen" })).toHaveClass("button-secondary");
-    const [supplierInput] = within(dialog).getAllByRole("textbox");
-    if (!supplierInput) throw new Error("Supplier input not found");
-    await changeValue(supplierInput, "Neue MediSafe GmbH");
+    await changeValue(within(dialog).getByLabelText("Lieferant"), "Neue Medi");
+    await mouseDownElement(
+      await screen.findByRole("option", { name: "Neue MediSafe GmbH" }),
+    );
     await changeValue(within(dialog).getByDisplayValue("4"), "6");
     await changeValue(within(dialog).getByDisplayValue("2.49"), "12,49");
     await clickElement(within(dialog).getByRole("button", { name: "Bestellung speichern" }));
 
     expect(requestBody("/api/purchase-orders/purchase-order-1", "PATCH")).toEqual({
-      supplierName: "Neue MediSafe GmbH",
+      supplierId: "supplier-nordmed",
       locationId: "loc-main",
       notes: "Bitte gesammelt liefern.",
       lines: [{

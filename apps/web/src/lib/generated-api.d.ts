@@ -484,6 +484,38 @@ export interface paths {
     patch: operations["CatalogController_updateArticle"];
     trace?: never;
   };
+  "/catalog/suppliers": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations["CatalogController_suppliers"];
+    put?: never;
+    post: operations["CatalogController_createSupplier"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/catalog/suppliers/{id}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    delete: operations["CatalogController_deleteSupplier"];
+    options?: never;
+    head?: never;
+    patch: operations["CatalogController_updateSupplier"];
+    trace?: never;
+  };
   "/catalog/locations": {
     parameters: {
       query?: never;
@@ -1393,6 +1425,20 @@ export interface components {
     SetUserRoleRequest: {
       role: components["schemas"]["UserRole"];
     };
+    Supplier: {
+      id: string;
+      name: string;
+      /** Format: date-time */
+      createdAt?: string;
+      /** Format: date-time */
+      updatedAt?: string;
+    };
+    CreateSupplierRequest: {
+      name: string;
+    };
+    UpdateSupplierRequest: {
+      name: string;
+    };
     Article: {
       id: string;
       name: string;
@@ -1403,6 +1449,7 @@ export interface components {
       barcode?: string;
       /** Format: uri */
       articleUrl?: string;
+      defaultSupplierId?: string;
       defaultSupplierName?: string;
       unitsPerPackage?: number;
       defaultGrossPriceCents?: number;
@@ -1429,7 +1476,7 @@ export interface components {
       barcode?: string;
       /** Format: uri */
       articleUrl?: string;
-      defaultSupplierName?: string;
+      defaultSupplierId?: string;
       unitsPerPackage?: number;
       defaultGrossPriceCents?: number;
       sterile: boolean;
@@ -1451,7 +1498,7 @@ export interface components {
       barcode?: string;
       /** Format: uri */
       articleUrl?: string;
-      defaultSupplierName?: string;
+      defaultSupplierId?: string;
       unitsPerPackage?: number;
       defaultGrossPriceCents?: number;
       sterile: boolean;
@@ -1760,6 +1807,7 @@ export interface components {
     PurchaseOrder: {
       id: string;
       orderNumber: string;
+      supplierId: string;
       supplierName: string;
       locationId: string;
       status: components["schemas"]["PurchaseOrderStatus"];
@@ -1790,7 +1838,7 @@ export interface components {
       supplierArticleNumber?: string;
     };
     PurchaseOrderWriteRequest: {
-      supplierName: string;
+      supplierId: string;
       locationId: string;
       notes?: string;
       lines: components["schemas"]["PurchaseOrderLineWriteRequest"][];
@@ -1800,7 +1848,7 @@ export interface components {
       note?: string;
     };
     UpdatePurchaseOrderRequest: {
-      supplierName?: string;
+      supplierId?: string;
       locationId?: string;
       notes?: string;
       lines?: components["schemas"]["PurchaseOrderLineWriteRequest"][];
@@ -1810,7 +1858,7 @@ export interface components {
       locationId: string;
       /** @enum {string} */
       groupingMode: "single" | "supplier";
-      supplierName?: string;
+      supplierId?: string;
       articleIds?: string[];
     };
     PurchaseOrderReceiptBatchRequest: {
@@ -2820,6 +2868,98 @@ export interface operations {
         };
         content: {
           "application/json": components["schemas"]["Article"];
+        };
+      };
+    };
+  };
+  CatalogController_suppliers: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Suppliers */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["Supplier"][];
+        };
+      };
+    };
+  };
+  CatalogController_createSupplier: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["CreateSupplierRequest"];
+      };
+    };
+    responses: {
+      /** @description Supplier created */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["Supplier"];
+        };
+      };
+    };
+  };
+  CatalogController_updateSupplier: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["UpdateSupplierRequest"];
+      };
+    };
+    responses: {
+      /** @description Supplier updated */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["Supplier"];
+        };
+      };
+    };
+  };
+  CatalogController_deleteSupplier: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Supplier deleted */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["OkResponse"];
         };
       };
     };

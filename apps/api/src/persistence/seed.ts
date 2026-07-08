@@ -51,6 +51,22 @@ export async function seedRescueBaseDevelopmentData(
     create: { id: "loc-rtw-1", name: "Fahrzeug 1", kind: "VEHICLE" },
   });
 
+  await prisma.supplier.upsert({
+    where: { id: "supplier-medisafe" },
+    update: {},
+    create: { id: "supplier-medisafe", name: "MediSafe Einkauf" },
+  });
+  await prisma.supplier.upsert({
+    where: { id: "supplier-rescue-tech" },
+    update: {},
+    create: { id: "supplier-rescue-tech", name: "Rescue Tech" },
+  });
+  await prisma.supplier.upsert({
+    where: { id: "supplier-safehands" },
+    update: {},
+    create: { id: "supplier-safehands", name: "SafeHands" },
+  });
+
   await prisma.article.upsert({
     where: { id: "article-bandage" },
     update: {},
@@ -64,7 +80,7 @@ export async function seedRescueBaseDevelopmentData(
       category: "Verbandmaterial",
       barcode: "040000000001",
       articleUrl: "https://shop.example.org/articles/verbandpaeckchen-mittel",
-      defaultSupplierName: "MediSafe Einkauf",
+      defaultSupplierId: "supplier-medisafe",
       unitsPerPackage: 10,
       defaultGrossPriceCents: 249,
       sterile: true,
@@ -85,7 +101,7 @@ export async function seedRescueBaseDevelopmentData(
       category: "Medizinprodukt",
       barcode: "040000000002",
       articleUrl: "https://shop.example.org/articles/tourniquet",
-      defaultSupplierName: "Rescue Tech",
+      defaultSupplierId: "supplier-rescue-tech",
       defaultGrossPriceCents: 3295,
       sterile: false,
       medicalDevice: true,
@@ -108,7 +124,7 @@ export async function seedRescueBaseDevelopmentData(
       category: "Schutzausrüstung",
       barcode: "040000000003",
       articleUrl: "https://shop.example.org/articles/einmalhandschuhe-m",
-      defaultSupplierName: "SafeHands",
+      defaultSupplierId: "supplier-safehands",
       unitsPerPackage: 5,
       defaultGrossPriceCents: 799,
       sterile: false,

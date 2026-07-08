@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Pencil, Save, Trash2, X } from "lucide-react";
+import { Pencil, Plus, Save, Trash2, X } from "lucide-react";
 import { Badge } from "../../components/badge";
 import { ListFilterBar } from "../../components/list-filter-bar";
 import { ListRow, RowActions } from "../../components/list-row";
@@ -12,37 +12,32 @@ import { summarizeArticleNames } from "./supplier-utils";
 
 export function SupplierPanel(props: {
   error: Error | null;
+  filters: { q: string };
   isSubmitting: boolean;
-  onClear: (supplierName: string) => void;
+  onCreate: (name: string) => Promise<unknown>;
+  onDelete: (supplier: SupplierSummary) => void;
   onFilterChange: (patch: { q: string }) => void;
-  onRename: (supplierName: string, nextName: string) => Promise<unknown>;
   onResetFilters: () => void;
+  onSave: (id: string, name: string) => Promise<unknown>;
   suppliers: SupplierSummary[];
   totalCount: number;
-  filters: { q: string };
 }) {
-  const [editingSupplierName, setEditingSupplierName] = useState("");
-  const [draftName, setDraftName] = useState("");
-  const isOpen = Boolean(editingSupplierName);
-  const canSubmit = Boolean(draftName.trim() && draftName.trim() !== editingSupplierName);
+  const [draft, setDraft] = useState(emptyDraft());
+  const isOpen = draft.isOpen;
+  const canSubmit = Boolean(draft.name.trim());
 
-  function openRenameDialog(supplierName: string) {
-    setEditingSupplierName(supplierName);
-    setDraftName(supplierName);
+  function openForCreate() {
+    setDraft({ id: "", isOpen: true, name: "" });
+  }
+
+  function openForEdit(supplier: SupplierSummary) {
+    setDraft({ id: supplier.id, isOpen: true, name: supplier.name });
   }
 
   async function submit() {
     if (!canSubmit) return;
-    const succeeded = await props.onRename(editingSupplierName, draftName).then(() => true).catch(() => false);
-    if (succeeded) {
-      setEditingSupplierName("");
-      setDraftName("");
-    }
-  }
-
-  function closeDialog() {
-    setEditingSupplierName("");
-    setDraftName("");
+    const succeeded = await (draft.id ? props.onSave(draft.id, draft.name) : props.onCreate(draft.name)).then(() => true).catch(() => false);
+    if (succeeded) setDraft(emptyDraft());
   }
 
   return (
@@ -51,13 +46,13 @@ export function SupplierPanel(props: {
         <Field label="Suche"><input onChange={(event) => props.onFilterChange({ q: event.target.value })} placeholder="Lieferant oder Artikel" value={props.filters.q} /></Field>
       </ListFilterBar></PageToolbar>
       <Panel>
-        <PanelHeader description="Lieferanten werden aktuell aus den Standard-Lieferanten der Artikel abgeleitet." title="Lieferanten" />
-        {props.suppliers.length === 0 ? <div className="compact-list-empty">Noch keine Lieferanten aus Artikeln abgeleitet.</div> : null}
+        <PanelHeader actions={<Button onClick={openForCreate} type="button"><Plus data-icon="inline-start" />Lieferant hinzufügen</Button>} description="Lieferanten werden zentral gepflegt und in Artikeln sowie Bestellungen referenziert." title="Lieferanten" />
+        {props.suppliers.length === 0 ? <div className="compact-list-empty">Noch keine Lieferanten angelegt.</div> : null}
         <div className="compact-list">
           {props.suppliers.map((supplier) => (
             <ListRow
-              actions={<RowActions><Button aria-label={`${supplier.name} umbenennen`} disabled={props.isSubmitting} onClick={() => openRenameDialog(supplier.name)} type="button" variant="ghost"><Pencil data-icon="inline-start" />Umbenennen</Button><Button aria-label={`${supplier.name} Zuweisung entfernen`} disabled={props.isSubmitting} onClick={() => props.onClear(supplier.name)} type="button" variant="danger"><Trash2 data-icon="inline-start" />Zuweisung entfernen</Button></RowActions>}
-              key={supplier.name}
+              actions={<RowActions><Button aria-label={`${supplier.name} bearbeiten`} disabled={props.isSubmitting} onClick={() => openForEdit(supplier)} type="button" variant="ghost"><Pencil data-icon="inline-start" />Bearbeiten</Button><Button aria-label={`${supplier.name} löschen`} disabled={props.isSubmitting} onClick={() => props.onDelete(supplier)} type="button" variant="danger"><Trash2 data-icon="inline-start" />Löschen</Button></RowActions>}
+              key={supplier.id}
             >
               <span>
                 <strong>{supplier.name}</strong>
@@ -68,15 +63,19 @@ export function SupplierPanel(props: {
           ))}
         </div>
         <Dialog
-          actions={<><Button disabled={props.isSubmitting} onClick={closeDialog} type="button" variant="ghost"><X data-icon="inline-start" />Abbrechen</Button><Button disabled={!canSubmit} loading={props.isSubmitting} onClick={() => void submit()} type="button"><Save data-icon="inline-start" />Lieferant speichern</Button></>}
-          onClose={closeDialog}
+          actions={<><Button disabled={props.isSubmitting} onClick={() => setDraft(emptyDraft())} type="button" variant="ghost"><X data-icon="inline-start" />Abbrechen</Button><Button disabled={!canSubmit} loading={props.isSubmitting} onClick={() => void submit()} type="button"><Save data-icon="inline-start" />{draft.id ? "Lieferant speichern" : "Lieferant anlegen"}</Button></>}
+          onClose={() => setDraft(emptyDraft())}
           open={isOpen}
-          title="Lieferant umbenennen"
+          title={draft.id ? "Lieferant bearbeiten" : "Lieferant anlegen"}
         >
-          <Field label="Name"><input autoFocus onChange={(event) => setDraftName(event.target.value)} value={draftName} /></Field>
+          <Field label="Name"><input autoFocus onChange={(event) => setDraft((current) => ({ ...current, name: event.target.value }))} value={draft.name} /></Field>
           {props.error ? <InlineError error={props.error} /> : null}
         </Dialog>
       </Panel>
     </>
   );
+}
+
+function emptyDraft() {
+  return { id: "", isOpen: false, name: "" };
 }

@@ -1,5 +1,5 @@
 import { screen, waitFor } from "@testing-library/react";
-import { article, inventoryTarget, location } from "../test-support/fixtures";
+import { article, inventoryTarget, location, supplier } from "../test-support/fixtures";
 import {
   changeValue,
   clickElement,
@@ -27,6 +27,7 @@ describe("PurchaseOrderNewPage", () => {
         },
       },
       "/api/catalog/articles": [article],
+      "/api/catalog/suppliers": [supplier],
       "/api/catalog/locations": [location],
       "/api/inventory/targets": [inventoryTarget],
       "/api/purchase-orders": [],
@@ -55,12 +56,14 @@ describe("PurchaseOrderNewPage", () => {
         },
       },
       "/api/catalog/articles": [article],
+      "/api/catalog/suppliers": [supplier],
       "/api/catalog/locations": [location],
       "/api/inventory/targets": [inventoryTarget],
       "/api/purchase-orders": { id: "purchase-order-created" },
       "/api/purchase-orders/purchase-order-created": {
         id: "purchase-order-created",
         orderNumber: "PO-2026-000001",
+        supplierId: supplier.id,
         supplierName: "MediSafe Einkauf",
         locationId: "loc-main",
         status: "DRAFT",
@@ -77,7 +80,10 @@ describe("PurchaseOrderNewPage", () => {
     await renderAppAt("/admin/purchase-orders/new");
     await screen.findByRole("heading", { name: "Bestellung anlegen" });
 
-    await changeValue(screen.getByLabelText("Lieferant"), "MediSafe Einkauf");
+    await changeValue(screen.getByLabelText("Lieferant"), "Medi");
+    await mouseDownElement(
+      screen.getByRole("option", { name: "MediSafe Einkauf" }),
+    );
     await changeValue(screen.getByLabelText("Artikel"), "Verband");
     await mouseDownElement(
       screen.getByRole("option", { name: "Verbandpäckchen mittel" }),
@@ -88,7 +94,7 @@ describe("PurchaseOrderNewPage", () => {
 
     await waitFor(() =>
       expect(postedBody("/api/purchase-orders")).toEqual({
-        supplierName: "MediSafe Einkauf",
+        supplierId: supplier.id,
         locationId: "loc-main",
         lines: [
           {
@@ -116,12 +122,14 @@ describe("PurchaseOrderNewPage", () => {
         },
       },
       "/api/catalog/articles": [{ ...article, unitsPerPackage: 10 }],
+      "/api/catalog/suppliers": [supplier],
       "/api/catalog/locations": [location],
       "/api/inventory/targets": [inventoryTarget],
       "/api/purchase-orders": { id: "purchase-order-created" },
       "/api/purchase-orders/purchase-order-created": {
         id: "purchase-order-created",
         orderNumber: "PO-2026-000001",
+        supplierId: supplier.id,
         supplierName: "MediSafe Einkauf",
         locationId: "loc-main",
         status: "DRAFT",
@@ -138,7 +146,10 @@ describe("PurchaseOrderNewPage", () => {
     await renderAppAt("/admin/purchase-orders/new");
     await screen.findByRole("heading", { name: "Bestellung anlegen" });
 
-    await changeValue(screen.getByLabelText("Lieferant"), "MediSafe Einkauf");
+    await changeValue(screen.getByLabelText("Lieferant"), "Medi");
+    await mouseDownElement(
+      screen.getByRole("option", { name: "MediSafe Einkauf" }),
+    );
     await changeValue(screen.getByLabelText("Artikel"), "Verband");
     await mouseDownElement(
       screen.getByRole("option", { name: "Verbandpäckchen mittel" }),
@@ -152,7 +163,7 @@ describe("PurchaseOrderNewPage", () => {
 
     await waitFor(() =>
       expect(postedBody("/api/purchase-orders")).toEqual({
-        supplierName: "MediSafe Einkauf",
+        supplierId: supplier.id,
         locationId: "loc-main",
         lines: [
           {
@@ -179,6 +190,7 @@ describe("PurchaseOrderNewPage", () => {
         },
       },
       "/api/catalog/articles": [article],
+      "/api/catalog/suppliers": [supplier],
       "/api/catalog/locations": [location],
       "/api/inventory/targets": [inventoryTarget],
       "/api/purchase-orders": [],
@@ -212,6 +224,7 @@ describe("PurchaseOrderNewPage", () => {
         },
       },
       "/api/catalog/articles": [article],
+      "/api/catalog/suppliers": [supplier],
       "/api/catalog/locations": [location],
       "/api/inventory/targets": [inventoryTarget],
       "/api/purchase-orders": [],
@@ -243,6 +256,7 @@ describe("PurchaseOrderNewPage", () => {
         },
       },
       "/api/catalog/articles": [article],
+      "/api/catalog/suppliers": [supplier],
       "/api/catalog/locations": [location],
       "/api/inventory/targets": [inventoryTarget],
       "/api/purchase-orders": [],

@@ -1,58 +1,39 @@
 import { matchesFilterText } from "../../app/filter-utils";
-import type { Article, UpdateArticleRequest } from "../../lib/types";
+import type { Article, Supplier } from "../../lib/types";
 
 export type SupplierSummary = {
   articleCount: number;
   articleNames: string[];
+  id: string;
   name: string;
 };
 
-export function buildSupplierSummaries(articles: Article[], query: string) {
-  const groups = new Map<string, SupplierSummary>();
-  for (const article of articles) {
-    const name = normalizeSupplierName(article.defaultSupplierName);
-    if (!name) continue;
-    const current = groups.get(name) ?? { articleCount: 0, articleNames: [], name };
-    current.articleCount += 1;
-    current.articleNames.push(article.name);
-    groups.set(name, current);
-  }
-  return [...groups.values()]
-    .filter((entry) => matchesFilterText(query, entry.name, ...entry.articleNames))
-    .map((entry) => ({ ...entry, articleNames: entry.articleNames.sort((left, right) => left.localeCompare(right, "de-DE")) }))
+export function buildSupplierSummaries(
+  suppliers: Supplier[],
+  articles: Article[],
+  query: string,
+) {
+  return suppliers
+    .map((supplier) => {
+      const linkedArticles = articles
+        .filter((article) => article.defaultSupplierId === supplier.id)
+        .map((article) => article.name)
+        .sort((left, right) => left.localeCompare(right, "de-DE"));
+      return {
+        articleCount: linkedArticles.length,
+        articleNames: linkedArticles,
+        id: supplier.id,
+        name: supplier.name,
+      };
+    })
+    .filter((supplier) =>
+      matchesFilterText(query, supplier.name, ...supplier.articleNames),
+    )
     .sort((left, right) => left.name.localeCompare(right.name, "de-DE"));
 }
 
-export function buildSupplierUpdate(article: Article, defaultSupplierName?: string): UpdateArticleRequest {
-  return {
-    name: article.name,
-    unit: article.unit,
-    manufacturer: article.manufacturer,
-    manufacturerPartNumber: article.manufacturerPartNumber,
-    category: article.category,
-    barcode: article.barcode,
-    articleUrl: article.articleUrl,
-    defaultSupplierName,
-    unitsPerPackage: article.unitsPerPackage,
-    defaultGrossPriceCents: article.defaultGrossPriceCents,
-    sterile: article.sterile,
-    medicalDevice: article.medicalDevice,
-    stkRequired: article.stkRequired,
-    stkIntervalMonths: article.stkIntervalMonths,
-    mtkRequired: article.mtkRequired,
-    mtkIntervalMonths: article.mtkIntervalMonths,
-    storageNotes: article.storageNotes,
-    notes: article.notes,
-    criticalDefault: article.criticalDefault,
-  };
-}
-
-export function normalizeSupplierName(value?: string) {
-  const normalized = value?.trim();
-  return normalized ? normalized : "";
-}
-
 export function summarizeArticleNames(articleNames: string[]) {
+  if (articleNames.length === 0) return "Noch keinem Artikel zugeordnet";
   if (articleNames.length <= 3) return articleNames.join(", ");
   return `${articleNames.slice(0, 3).join(", ")} +${articleNames.length - 3} weitere`;
 }

@@ -4,6 +4,7 @@ import {
   kit,
   location,
   medicalDevice,
+  supplier,
 } from "../test-support/fixtures";
 import {
   changeValue,
@@ -53,6 +54,13 @@ describe("MasterDataPage", () => {
       "https://shop.example.org/articles/rettungsdecke",
     );
     await changeValue(
+      within(dialog).getByLabelText("Standard-Lieferant"),
+      "Medi",
+    );
+    await mouseDownElement(
+      await screen.findByRole("option", { name: "MediSafe Einkauf" }),
+    );
+    await changeValue(
       within(dialog).getByLabelText("VE (Einheiten pro Packung)"),
       "10",
     );
@@ -79,6 +87,7 @@ describe("MasterDataPage", () => {
         category: "Verbrauchsmaterial",
         barcode: "040000000099",
         articleUrl: "https://shop.example.org/articles/rettungsdecke",
+        defaultSupplierId: supplier.id,
         unitsPerPackage: 10,
         sterile: true,
         medicalDevice: true,
@@ -173,6 +182,7 @@ describe("MasterDataPage", () => {
         category: "Verbandmaterial",
         barcode: "040000000099",
         articleUrl: "https://shop.example.org/articles/verbandpaeckchen-gross",
+        defaultSupplierId: supplier.id,
         unitsPerPackage: 20,
         sterile: true,
         medicalDevice: true,
@@ -620,21 +630,16 @@ describe("MasterDataPage", () => {
     );
   });
 
-  it("opens the new suppliers tab with derived supplier assignments", async () => {
-    const supplierArticle = {
-      ...article,
-      defaultSupplierName: "MediSafe Einkauf",
-    };
+  it("opens the new suppliers tab with linked article usage", async () => {
     const secondArticle = {
       ...article,
       id: "article-gloves",
       name: "Einmalhandschuhe Größe M",
       barcode: "040000000003",
-      defaultSupplierName: "MediSafe Einkauf",
     };
     stubFetch({
       ...baseAdminRoutes(),
-      "/api/catalog/articles": [supplierArticle, secondArticle],
+      "/api/catalog/articles": [article, secondArticle],
     });
     await renderAppAt("/admin/master-data/articles");
     await screen.findByRole("heading", { name: "Stammdaten" });
@@ -650,126 +655,51 @@ describe("MasterDataPage", () => {
     expect(row).toHaveTextContent("Einmalhandschuhe Größe M");
   });
 
-  it("renames a supplier across linked articles from the dedicated suppliers tab", async () => {
-    const firstSupplierArticle = {
-      ...article,
-      defaultSupplierName: "MediSafe Einkauf",
-    };
-    const secondSupplierArticle = {
-      ...article,
-      id: "article-gloves",
-      name: "Einmalhandschuhe Größe M",
-      barcode: "040000000003",
-      defaultSupplierName: "MediSafe Einkauf",
-    };
+  it("creates and renames a supplier from the dedicated suppliers tab", async () => {
     stubFetch({
       ...baseAdminRoutes(),
-      "/api/catalog/articles": [firstSupplierArticle, secondSupplierArticle],
-      "/api/catalog/articles/article-bandage": { ok: true },
-      "/api/catalog/articles/article-gloves": { ok: true },
+      "/api/catalog/suppliers": [supplier],
+      "/api/catalog/suppliers/supplier-medisafe": { ...supplier, name: "NordMed" },
     });
     await renderAppAt("/admin/master-data/suppliers");
     await screen.findByText("MediSafe Einkauf");
 
     await clickElement(
-      screen.getByRole("button", { name: "MediSafe Einkauf umbenennen" }),
+      screen.getByRole("button", { name: "Lieferant hinzufügen" }),
     );
 
     const dialog = await screen.findByRole("dialog", {
-      name: "Lieferant umbenennen",
+      name: "Lieferant anlegen",
     });
-    await changeValue(within(dialog).getByLabelText("Name"), "NordMed");
+    await changeValue(within(dialog).getByLabelText("Name"), "SafeHands");
     await clickElement(
-      within(dialog).getByRole("button", { name: "Lieferant speichern" }),
+      within(dialog).getByRole("button", { name: "Lieferant anlegen" }),
     );
 
     await waitFor(() =>
-      expect(
-        requestBody("/api/catalog/articles/article-bandage", "PATCH"),
-      ).toEqual({
-        articleUrl: firstSupplierArticle.articleUrl,
-        barcode: firstSupplierArticle.barcode,
-        category: firstSupplierArticle.category,
-        criticalDefault: firstSupplierArticle.criticalDefault,
-        defaultSupplierName: "NordMed",
-        manufacturer: firstSupplierArticle.manufacturer,
-        manufacturerPartNumber: firstSupplierArticle.manufacturerPartNumber,
-        medicalDevice: firstSupplierArticle.medicalDevice,
-        mtkIntervalMonths: firstSupplierArticle.mtkIntervalMonths,
-        mtkRequired: firstSupplierArticle.mtkRequired,
-        name: firstSupplierArticle.name,
-        notes: firstSupplierArticle.notes,
-        sterile: firstSupplierArticle.sterile,
-        stkIntervalMonths: firstSupplierArticle.stkIntervalMonths,
-        stkRequired: firstSupplierArticle.stkRequired,
-        storageNotes: firstSupplierArticle.storageNotes,
-        unit: firstSupplierArticle.unit,
-        unitsPerPackage: firstSupplierArticle.unitsPerPackage,
+      expect(postedBody("/api/catalog/suppliers")).toEqual({
+        name: "SafeHands",
       }),
     );
-    await waitFor(() =>
-      expect(
-        requestBody("/api/catalog/articles/article-gloves", "PATCH"),
-      ).toEqual({
-        articleUrl: secondSupplierArticle.articleUrl,
-        barcode: secondSupplierArticle.barcode,
-        category: secondSupplierArticle.category,
-        criticalDefault: secondSupplierArticle.criticalDefault,
-        defaultSupplierName: "NordMed",
-        manufacturer: secondSupplierArticle.manufacturer,
-        manufacturerPartNumber: secondSupplierArticle.manufacturerPartNumber,
-        medicalDevice: secondSupplierArticle.medicalDevice,
-        mtkIntervalMonths: secondSupplierArticle.mtkIntervalMonths,
-        mtkRequired: secondSupplierArticle.mtkRequired,
-        name: secondSupplierArticle.name,
-        notes: secondSupplierArticle.notes,
-        sterile: secondSupplierArticle.sterile,
-        stkIntervalMonths: secondSupplierArticle.stkIntervalMonths,
-        stkRequired: secondSupplierArticle.stkRequired,
-        storageNotes: secondSupplierArticle.storageNotes,
-        unit: secondSupplierArticle.unit,
-        unitsPerPackage: secondSupplierArticle.unitsPerPackage,
-      }),
-    );
-  });
-
-  it("clears a supplier assignment across linked articles from the dedicated suppliers tab", async () => {
-    vi.spyOn(window, "confirm").mockReturnValue(true);
-    const firstSupplierArticle = {
-      ...article,
-      defaultSupplierName: "MediSafe Einkauf",
-    };
-    const secondSupplierArticle = {
-      ...article,
-      id: "article-gloves",
-      name: "Einmalhandschuhe Größe M",
-      barcode: "040000000003",
-      defaultSupplierName: "MediSafe Einkauf",
-    };
-    stubFetch({
-      ...baseAdminRoutes(),
-      "/api/catalog/articles": [firstSupplierArticle, secondSupplierArticle],
-      "/api/catalog/articles/article-bandage": { ok: true },
-      "/api/catalog/articles/article-gloves": { ok: true },
-    });
-    await renderAppAt("/admin/master-data/suppliers");
-    await screen.findByText("MediSafe Einkauf");
 
     await clickElement(
-      screen.getByRole("button", {
-        name: "MediSafe Einkauf Zuweisung entfernen",
-      }),
+      screen.getByRole("button", { name: "MediSafe Einkauf bearbeiten" }),
+    );
+
+    const editDialog = await screen.findByRole("dialog", {
+      name: "Lieferant bearbeiten",
+    });
+    await changeValue(within(editDialog).getByLabelText("Name"), "NordMed");
+    await clickElement(
+      within(editDialog).getByRole("button", { name: "Lieferant speichern" }),
     );
 
     await waitFor(() =>
       expect(
-        requestBody("/api/catalog/articles/article-bandage", "PATCH"),
-      ).not.toHaveProperty("defaultSupplierName"),
-    );
-    await waitFor(() =>
-      expect(
-        requestBody("/api/catalog/articles/article-gloves", "PATCH"),
-      ).not.toHaveProperty("defaultSupplierName"),
+        requestBody("/api/catalog/suppliers/supplier-medisafe", "PATCH"),
+      ).toEqual({
+        name: "NordMed",
+      }),
     );
   });
 
@@ -969,6 +899,7 @@ describe("MasterDataPage", () => {
     stubFetch({
       ...baseAdminRoutes(),
       "/api/catalog/articles/article-bandage": { ok: true },
+      "/api/catalog/suppliers/supplier-medisafe": { ok: true },
       "/api/catalog/locations/loc-main": { ok: true },
       "/api/catalog/templates/template-san-a-v1": { ok: true },
       "/api/catalog/devices/device-1": { ok: true },
@@ -981,6 +912,10 @@ describe("MasterDataPage", () => {
 
     await clickElement(
       screen.getByRole("button", { name: /Verbandpäckchen mittel löschen/ }),
+    );
+    await clickElement(screen.getByRole("tab", { name: "Lieferanten" }));
+    await clickElement(
+      await screen.findByRole("button", { name: /MediSafe Einkauf löschen/ }),
     );
     await clickElement(screen.getByRole("tab", { name: "Lagerorte" }));
     await clickElement(
@@ -1001,6 +936,9 @@ describe("MasterDataPage", () => {
       expect(
         wasRequested("/api/catalog/articles/article-bandage", "DELETE"),
       ).toBe(true);
+      expect(wasRequested("/api/catalog/suppliers/supplier-medisafe", "DELETE")).toBe(
+        true,
+      );
       expect(wasRequested("/api/catalog/locations/loc-main", "DELETE")).toBe(
         true,
       );
@@ -1068,7 +1006,9 @@ describe("MasterDataPage", () => {
     expect(screen.getAllByText("Hinweise")).toHaveLength(1);
     expect(screen.getAllByText("Lagerhinweise")).toHaveLength(1);
     expect(
-      within(row as HTMLElement).getByText("Stück · VE 10 · 040000000001"),
+      within(row as HTMLElement).getByText(
+        "Stück · VE 10 · 040000000001 · MediSafe Einkauf",
+      ),
     ).toBeInTheDocument();
     expect(
       within(row as HTMLElement).getByText("Nicht fallen lassen!"),
@@ -1134,6 +1074,7 @@ function baseAdminRoutes() {
       },
     },
     "/api/catalog/articles": [article],
+    "/api/catalog/suppliers": [supplier],
     "/api/catalog/locations": [location],
     "/api/catalog/kits": [kit],
     "/api/catalog/templates": [kit.template],

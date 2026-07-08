@@ -174,6 +174,18 @@ model Location {
   @@index([deletedAt])
 }
 
+model Supplier {
+  id             String          @id @default(cuid())
+  name           String
+  articles       Article[]
+  purchaseOrders PurchaseOrder[]
+  deletedAt      DateTime?
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+
+  @@index([deletedAt])
+}
+
 model Article {
   id                    String             @id @default(cuid())
   name                  String
@@ -184,7 +196,7 @@ model Article {
   category              String?
   barcode               String?
   articleUrl            String?
-  defaultSupplierName   String?
+  defaultSupplierId     String?
   unitsPerPackage       Int?
   defaultGrossPriceCents Int?
   sterile               Boolean            @default(false)
@@ -196,6 +208,7 @@ model Article {
   storageNotes         String?            @db.Text
   notes                String?            @db.Text
   criticalDefault      Boolean            @default(false)
+  defaultSupplier      Supplier?          @relation(fields: [defaultSupplierId], references: [id])
   batches              Batch[]
   inventoryTargets     InventoryTarget[]
   procurementOrders    InventoryProcurementOrder[]
@@ -207,6 +220,7 @@ model Article {
   updatedAt            DateTime           @updatedAt
 
   @@index([deletedAt])
+  @@index([defaultSupplierId])
 }
 
 model Batch {
@@ -284,6 +298,7 @@ model InventoryProcurementReceipt {
 model PurchaseOrder {
   id               String              @id @default(cuid())
   orderNumber      String              @unique
+  supplierId       String
   supplierName     String
   locationId       String
   status           PurchaseOrderStatus @default(DRAFT)
@@ -294,6 +309,7 @@ model PurchaseOrder {
   approvedByName   String?
   orderedAt        DateTime?
   receivedAt       DateTime?
+  supplier         Supplier            @relation(fields: [supplierId], references: [id])
   location         Location            @relation(fields: [locationId], references: [id])
   approvedBy       User?               @relation("PurchaseOrderApprovedBy", fields: [approvedByUserId], references: [id])
   lines            PurchaseOrderLine[]
@@ -304,6 +320,7 @@ model PurchaseOrder {
 
   @@index([status, updatedAt])
   @@index([archivedAt, updatedAt])
+  @@index([supplierId])
   @@index([locationId])
   @@index([approvedByUserId])
 }

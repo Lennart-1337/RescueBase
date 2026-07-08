@@ -6,6 +6,8 @@ describe("RescueBase OpenAPI contract", () => {
       Object.keys(rescueBaseOpenApiDocument.components?.schemas ?? {}),
     ).toEqual(
       expect.arrayContaining([
+        "Supplier",
+        "CreateSupplierRequest",
         "Article",
         "CreateArticleRequest",
         "ReorderArticlesRequest",
@@ -14,6 +16,7 @@ describe("RescueBase OpenAPI contract", () => {
         "CreateBatchRequest",
         "CreateKitRequest",
         "UpdateArticleRequest",
+        "UpdateSupplierRequest",
         "UpdateLocationRequest",
         "ReviseTemplateRequest",
         "UpdateKitRequest",
@@ -34,6 +37,18 @@ describe("RescueBase OpenAPI contract", () => {
   });
 
   it("exposes complete admin master-data write operations", () => {
+    expect(
+      rescueBaseOpenApiDocument.paths["/catalog/suppliers"]?.post,
+    ).toMatchObject({
+      operationId: "CatalogController_createSupplier",
+      requestBody: expect.any(Object),
+    });
+    expect(
+      rescueBaseOpenApiDocument.paths["/catalog/suppliers/{id}"]?.patch,
+    ).toMatchObject({
+      operationId: "CatalogController_updateSupplier",
+      requestBody: expect.any(Object),
+    });
     expect(
       rescueBaseOpenApiDocument.paths["/catalog/locations"]?.post,
     ).toMatchObject({
