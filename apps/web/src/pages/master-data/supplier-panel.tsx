@@ -69,14 +69,13 @@ export function SupplierPanel(props: {
         <div className="compact-list">
           {props.suppliers.map((supplier) => (
             <ListRow
-              actions={<RowActions><Button aria-label={`${supplier.name} bearbeiten`} disabled={props.isSubmitting} onClick={() => openForEdit(supplier)} type="button" variant="ghost"><Pencil data-icon="inline-start" />Bearbeiten</Button><Button aria-label={`${supplier.name} löschen`} disabled={props.isSubmitting} onClick={() => props.onDelete(supplier)} type="button" variant="danger"><Trash2 data-icon="inline-start" />Löschen</Button></RowActions>}
+              actions={<RowActions><Badge tone="info">{supplier.articleCount} Artikel</Badge><Button aria-label={`${supplier.name} bearbeiten`} disabled={props.isSubmitting} onClick={() => openForEdit(supplier)} type="button" variant="ghost"><Pencil data-icon="inline-start" />Bearbeiten</Button><Button aria-label={`${supplier.name} löschen`} disabled={props.isSubmitting} onClick={() => props.onDelete(supplier)} type="button" variant="danger"><Trash2 data-icon="inline-start" />Löschen</Button></RowActions>}
               key={supplier.id}
             >
               <span className="supplier-row-main">
                 <strong>{supplier.name}</strong>
                 <small>{summarizeArticleNames(supplier.articleNames)}</small>
               </span>
-              <Badge tone="info">{supplier.articleCount} Artikel</Badge>
             </ListRow>
           ))}
         </div>

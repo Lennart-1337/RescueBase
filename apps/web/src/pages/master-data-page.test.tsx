@@ -651,6 +651,11 @@ describe("MasterDataPage", () => {
     );
     expect(row).not.toBeNull();
     expect(screen.getByText("2 Artikel")).toBeInTheDocument();
+    const actions = row?.querySelector(".row-actions");
+    expect(actions).not.toBeNull();
+    expect(actions).toHaveTextContent("2 Artikel");
+    expect(actions).toHaveTextContent("Bearbeiten");
+    expect(actions).toHaveTextContent("Löschen");
     expect(row).toHaveTextContent("Verbandpäckchen mittel");
     expect(row).toHaveTextContent("Einmalhandschuhe Größe M");
     expect(row?.querySelector(".supplier-row-main")).not.toBeNull();
