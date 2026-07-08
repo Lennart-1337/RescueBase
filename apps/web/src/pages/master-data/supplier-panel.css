@@ -1,4 +1,4 @@
-.supplier-row-main {
+.compact-list-row > .supplier-row-main {
   align-items: baseline;
   display: flex;
   gap: 8px;
@@ -6,12 +6,12 @@
   overflow: hidden;
 }
 
-.supplier-row-main strong {
+.compact-list-row .supplier-row-main strong {
   display: inline;
   flex: 0 0 auto;
 }
 
-.supplier-row-main small {
+.compact-list-row .supplier-row-main small {
   display: inline;
   flex: 1 1 auto;
   min-width: 0;
@@ -20,7 +20,7 @@
   white-space: nowrap;
 }
 
-.supplier-row-main small::before {
+.compact-list-row .supplier-row-main small::before {
   color: var(--color-text-faint);
   content: "·";
   margin-right: 8px;
