@@ -1,0 +1,1 @@
+-- No-op placeholder to preserve the historical Prisma migration ID.
