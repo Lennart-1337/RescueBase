@@ -653,6 +653,7 @@ describe("MasterDataPage", () => {
     expect(screen.getByText("2 Artikel")).toBeInTheDocument();
     expect(row).toHaveTextContent("Verbandpäckchen mittel");
     expect(row).toHaveTextContent("Einmalhandschuhe Größe M");
+    expect(row?.querySelector(".supplier-row-main")).not.toBeNull();
   });
 
   it("creates and renames a supplier from the dedicated suppliers tab", async () => {
@@ -671,6 +672,7 @@ describe("MasterDataPage", () => {
     const dialog = await screen.findByRole("dialog", {
       name: "Lieferant anlegen",
     });
+    expect(dialog.querySelector(".modal-body")).toHaveClass("dialog-form-body");
     await changeValue(within(dialog).getByLabelText("Name"), "SafeHands");
     await clickElement(
       within(dialog).getByRole("button", { name: "Lieferant anlegen" }),
@@ -689,6 +691,9 @@ describe("MasterDataPage", () => {
     const editDialog = await screen.findByRole("dialog", {
       name: "Lieferant bearbeiten",
     });
+    expect(editDialog.querySelector(".modal-body")).toHaveClass(
+      "dialog-form-body",
+    );
     await changeValue(within(editDialog).getByLabelText("Name"), "NordMed");
     await clickElement(
       within(editDialog).getByRole("button", { name: "Lieferant speichern" }),

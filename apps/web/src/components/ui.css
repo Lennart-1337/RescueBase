@@ -241,6 +241,11 @@
 
 .modal-body {
   overflow: auto;
+  padding: 20px;
+}
+
+.dialog-form-body {
+  padding: 20px;
 }
 
 .confirm-dialog-body {

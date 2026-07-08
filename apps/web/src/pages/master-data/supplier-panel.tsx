@@ -9,6 +9,7 @@ import { InlineError } from "../../components/state-panels";
 import { Button, Dialog, Field, Panel } from "../../components/ui";
 import type { SupplierSummary } from "./supplier-utils";
 import { summarizeArticleNames } from "./supplier-utils";
+import "./supplier-panel.css";
 
 export function SupplierPanel(props: {
   error: Error | null;
@@ -54,7 +55,7 @@ export function SupplierPanel(props: {
               actions={<RowActions><Button aria-label={`${supplier.name} bearbeiten`} disabled={props.isSubmitting} onClick={() => openForEdit(supplier)} type="button" variant="ghost"><Pencil data-icon="inline-start" />Bearbeiten</Button><Button aria-label={`${supplier.name} löschen`} disabled={props.isSubmitting} onClick={() => props.onDelete(supplier)} type="button" variant="danger"><Trash2 data-icon="inline-start" />Löschen</Button></RowActions>}
               key={supplier.id}
             >
-              <span>
+              <span className="supplier-row-main">
                 <strong>{supplier.name}</strong>
                 <small>{summarizeArticleNames(supplier.articleNames)}</small>
               </span>
@@ -64,6 +65,7 @@ export function SupplierPanel(props: {
         </div>
         <Dialog
           actions={<><Button disabled={props.isSubmitting} onClick={() => setDraft(emptyDraft())} type="button" variant="ghost"><X data-icon="inline-start" />Abbrechen</Button><Button disabled={!canSubmit} loading={props.isSubmitting} onClick={() => void submit()} type="button"><Save data-icon="inline-start" />{draft.id ? "Lieferant speichern" : "Lieferant anlegen"}</Button></>}
+          bodyClassName="dialog-form-body"
           onClose={() => setDraft(emptyDraft())}
           open={isOpen}
           title={draft.id ? "Lieferant bearbeiten" : "Lieferant anlegen"}
