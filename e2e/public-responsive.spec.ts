@@ -14,7 +14,11 @@ test.describe("public/auth responsive smoke", () => {
     expect(await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)).toBeLessThanOrEqual(1);
   });
 
-  test("password reset request and confirm screens stay usable", async ({ page }) => {
+  test("password reset request and confirm screens stay usable", async ({ page }, testInfo) => {
+    test.skip(
+      !["phone-small", "phone-large"].includes(testInfo.project.name),
+      "The full reset flow only needs phone coverage and otherwise exhausts the shared public rate limit across viewport projects.",
+    );
     await mockSetupStatus(page);
     await mockLoggedOutSession(page);
     await page.goto("/password-reset");
