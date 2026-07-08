@@ -41,6 +41,17 @@ type PurchaseOrderPdfRecord = {
   approvedByName: string | null;
   createdAt: Date;
   location: { name: string };
+  supplier: {
+    name: string;
+    contactPerson: string | null;
+    email: string | null;
+    phone: string | null;
+    website: string | null;
+    street: string | null;
+    postalCode: string | null;
+    city: string | null;
+    country: string | null;
+  };
   lines: Array<{
     articleNameSnapshot: string;
     supplierArticleNumberSnapshot: string | null;
@@ -226,6 +237,19 @@ export class ReportService {
       where: { id: orderId },
       include: {
         location: { select: { name: true } },
+        supplier: {
+          select: {
+            name: true,
+            contactPerson: true,
+            email: true,
+            phone: true,
+            website: true,
+            street: true,
+            postalCode: true,
+            city: true,
+            country: true
+          }
+        },
         lines: { orderBy: { createdAt: "asc" } }
       }
     });
@@ -235,10 +259,11 @@ export class ReportService {
 
     return this.renderPdf((doc) => {
       this.drawDocumentHeader(doc, "Bestellung", order.orderNumber, order.supplierName);
+      this.drawPurchaseOrderLetterBlock(doc, order);
       this.drawMetaGrid(doc, [
+        ["Bestellnummer", order.orderNumber],
+        ["Bestelldatum", formatDateTime(order.createdAt)],
         ["Status", formatPurchaseOrderStatus(order.status)],
-        ["Zielort", order.location.name],
-        ["Erstellt", formatDateTime(order.createdAt)],
         ["Freigabe", order.approvedAt ? `${order.approvedByName ?? "Unbekannt"} · ${formatDateTime(order.approvedAt)}` : "Noch nicht freigegeben"]
       ], { x: 48, width: doc.page.width - 96 });
 
@@ -252,10 +277,16 @@ export class ReportService {
         formatCents(totalGrossCents)
       ]);
 
+      const intro = `Sehr geehrte Damen und Herren, hiermit bestellen wir die folgenden Positionen für die Lieferadresse ${order.location.name}. Bitte liefern Sie unter Angabe der Bestellnummer ${order.orderNumber}.`;
+      doc.fillColor(palette.ink).font("Helvetica").fontSize(9.5).text(intro, 48, doc.y + 2, {
+        width: doc.page.width - 96
+      });
+      doc.y += 26;
+
       if (order.notes) {
         const noteTop = doc.y + 6;
         const noteHeight = doc.font("Helvetica").fontSize(9).heightOfString(order.notes, { width: doc.page.width - 96 });
-        doc.fillColor(palette.muted).font("Helvetica-Bold").fontSize(8).text("HINWEISE", 48, noteTop);
+        doc.fillColor(palette.muted).font("Helvetica-Bold").fontSize(8).text("BESTELLHINWEISE", 48, noteTop);
         doc.fillColor(palette.ink).font("Helvetica").fontSize(9).text(order.notes, 48, noteTop + 14, { width: doc.page.width - 96 });
         doc.moveTo(48, noteTop + noteHeight + 24).lineTo(doc.page.width - 48, noteTop + noteHeight + 24).strokeColor(palette.line).stroke();
         doc.y = noteTop + noteHeight + 32;
@@ -469,6 +500,60 @@ export class ReportService {
     ]);
   }
 
+  private drawPurchaseOrderLetterBlock(
+    doc: PDFKit.PDFDocument,
+    order: PurchaseOrderPdfRecord,
+  ) {
+    const leftX = 48;
+    const columnGap = 28;
+    const columnWidth = (doc.page.width - 96 - columnGap) / 2;
+    const rightX = leftX + columnWidth + columnGap;
+    const top = doc.y + 4;
+    const leftLines = [
+      "RescueBase",
+      "Sanitätslager",
+      "",
+      "Lieferadresse",
+      order.location.name,
+    ];
+    const rightLines = supplierLetterLines(order);
+
+    doc.fillColor(palette.muted).font("Helvetica-Bold").fontSize(8).text(
+      "ABSENDER",
+      leftX,
+      top,
+      { width: columnWidth },
+    );
+    doc.fillColor(palette.muted).font("Helvetica-Bold").fontSize(8).text(
+      "LIEFERANT",
+      rightX,
+      top,
+      { width: columnWidth },
+    );
+
+    const contentTop = top + 14;
+    const leftText = leftLines.join("\n");
+    const rightText = rightLines.join("\n");
+    const leftHeight = doc
+      .font("Helvetica")
+      .fontSize(10)
+      .heightOfString(leftText, { width: columnWidth });
+    const rightHeight = doc.heightOfString(rightText, { width: columnWidth });
+    const blockHeight = Math.max(leftHeight, rightHeight);
+
+    doc.fillColor(palette.ink).font("Helvetica").fontSize(10).text(
+      leftText,
+      leftX,
+      contentTop,
+      { width: columnWidth },
+    );
+    doc.text(rightText, rightX, contentTop, {
+      width: columnWidth,
+    });
+
+    doc.y = contentTop + blockHeight + 14;
+  }
+
   private measurePurchaseOrderLine(
     doc: PDFKit.PDFDocument,
     line: PurchaseOrderPdfRecord["lines"][number],
@@ -616,6 +701,36 @@ function formatCents(cents: number) {
     style: "currency",
     currency: "EUR"
   }).format(cents / 100);
+}
+
+function supplierLetterLines(order: PurchaseOrderPdfRecord) {
+  const lines = [order.supplier.name];
+  if (order.supplier.contactPerson) {
+    lines.push(order.supplier.contactPerson);
+  }
+  if (order.supplier.street) {
+    lines.push(order.supplier.street);
+  }
+  const cityLine = [order.supplier.postalCode, order.supplier.city]
+    .filter(Boolean)
+    .join(" ");
+  if (cityLine) {
+    lines.push(cityLine);
+  }
+  if (order.supplier.country) {
+    lines.push(order.supplier.country);
+  }
+  const contactLine = [order.supplier.phone, order.supplier.email]
+    .filter(Boolean)
+    .join(" · ");
+  if (contactLine) {
+    lines.push("");
+    lines.push(contactLine);
+  }
+  if (order.supplier.website) {
+    lines.push(order.supplier.website);
+  }
+  return lines;
 }
 
 function procurementDetails(order: ProcurementOrderReportRecord) {
