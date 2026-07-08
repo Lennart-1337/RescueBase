@@ -12,6 +12,7 @@ const configId = "singleton";
 type WarningInput = Parameters<typeof buildAlertWarnings>[0];
 type BatchWarningInput = WarningInput["batches"][number];
 type DeviceWarningInput = WarningInput["devices"][number];
+type TargetWarningInput = NonNullable<WarningInput["targets"]>[number];
 
 type AlertEventRecord = {
   id: string;
@@ -86,7 +87,8 @@ export class AlertsService implements OnApplicationBootstrap, OnModuleDestroy {
       summary: {
         expiry: warnings.filter((warning) => warning.category === AlertCategory.EXPIRY).length,
         stkDue: warnings.filter((warning) => warning.category === AlertCategory.STK_DUE).length,
-        mtkDue: warnings.filter((warning) => warning.category === AlertCategory.MTK_DUE).length
+        mtkDue: warnings.filter((warning) => warning.category === AlertCategory.MTK_DUE).length,
+        shortage: warnings.filter((warning) => warning.category === AlertCategory.SHORTAGE).length
       }
     };
   }
@@ -131,6 +133,11 @@ export class AlertsService implements OnApplicationBootstrap, OnModuleDestroy {
       include: { article: true, location: true },
       orderBy: [{ name: "asc" }]
     });
+    const targetRows = await this.prisma.inventoryTarget.findMany({
+      include: { article: true, location: true },
+      orderBy: [{ article: { name: "asc" } }, { location: { name: "asc" } }]
+    });
+    const usableStock = await this.usableStockMap(now);
     const warnings = buildAlertWarnings(
       {
         batches: batchRows.map((row): BatchWarningInput => ({
@@ -162,7 +169,21 @@ export class AlertsService implements OnApplicationBootstrap, OnModuleDestroy {
             stkIntervalMonths: row.article.stkIntervalMonths,
             mtkIntervalMonths: row.article.mtkIntervalMonths
           }
-        }))
+        })),
+        targets: targetRows.map((row): TargetWarningInput => {
+          const currentQuantity = usableStock.get(targetKey(row.articleId, row.locationId)) ?? 0;
+          return {
+            id: row.id,
+            articleId: row.articleId,
+            articleName: row.article.name,
+            locationId: row.locationId,
+            locationName: row.location.name,
+            targetQuantity: row.targetQuantity,
+            currentQuantity,
+            shortageQuantity: Math.max(row.targetQuantity - currentQuantity, 0),
+            unit: row.article.unit
+          };
+        })
       },
       now,
       config.warningWindowDays
@@ -411,7 +432,11 @@ export class AlertsService implements OnApplicationBootstrap, OnModuleDestroy {
 
   private publicLinkForCategory(category: AlertCategory) {
     const base = process.env.APP_PUBLIC_URL ?? "http://localhost:5173";
-    const path = category === AlertCategory.EXPIRY ? "/admin/inventory?warning=expiry" : "/admin/master-data?tab=devices";
+    const path = category === AlertCategory.EXPIRY
+      ? "/admin/inventory?warning=expiry"
+      : category === AlertCategory.SHORTAGE
+        ? "/admin/inventory"
+        : "/admin/master-data?tab=devices";
     return new URL(path, base).toString();
   }
 
@@ -426,8 +451,24 @@ export class AlertsService implements OnApplicationBootstrap, OnModuleDestroy {
   private ensureAppSettings() {
     return this.prisma.appSettings.upsert({ where: { id: configId }, update: {}, create: { id: configId, timezone: defaultTimezone() } });
   }
+
+  private async usableStockMap(now: Date) {
+    const batches = await this.prisma.batch.findMany({
+      where: { deletedAt: null, expiresAt: { gt: now }, quantity: { gt: 0 } }
+    });
+    const stock = new Map<string, number>();
+    for (const batch of batches) {
+      const key = targetKey(batch.articleId, batch.locationId);
+      stock.set(key, (stock.get(key) ?? 0) + batch.quantity);
+    }
+    return stock;
+  }
 }
 
 function warningKey(category: AlertCategory, sourceType: string, sourceId: string) {
   return `${category}:${sourceType}:${sourceId}`;
+}
+
+function targetKey(articleId: string, locationId: string) {
+  return `${articleId}:${locationId}`;
 }

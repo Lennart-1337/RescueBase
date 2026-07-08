@@ -974,6 +974,11 @@ const rescueBaseOpenApiDocumentDefinition = {
             pattern: "^(?:[01]\\d|2[0-3]):[0-5]\\d$",
           },
           warningWindowDays: { type: "integer", minimum: 1, maximum: 3650 },
+          lastDigestRunAt: {
+            type: "string",
+            format: "date-time",
+            nullable: true,
+          },
           lastDigestSentAt: {
             type: "string",
             format: "date-time",
@@ -984,6 +989,7 @@ const rescueBaseOpenApiDocumentDefinition = {
           "dailyDigestEnabled",
           "dailyDigestTime",
           "warningWindowDays",
+          "lastDigestRunAt",
           "lastDigestSentAt",
         ],
       ),

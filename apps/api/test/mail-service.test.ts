@@ -136,16 +136,23 @@ describe("MailService", () => {
           dueAt: new Date("2026-07-10T00:00:00.000Z"),
           locationName: null,
           title: "STK fällig: Defibrillator"
+        },
+        {
+          category: "SHORTAGE",
+          dueAt: null,
+          locationName: "RTW 1",
+          title: "Sollbestand unterschritten: Infusionsset"
         }
       ]
     }, "https://rescuebase.local/admin/inventory?warning=expiry");
 
     const payload = JSON.parse(String(fetchMock.mock.calls[0]?.[1]?.body));
     expect(payload).toMatchObject({
-      subject: "RescueBase Tagesdigest · 2 Warnungen",
+      subject: "RescueBase Tagesdigest · 3 Warnungen",
       text: expect.stringContaining("Hauptlager"),
       html: expect.stringContaining("Täglicher Warnungsdigest")
     });
+    expect(payload.text).toContain("[Fehlbestand] Sollbestand unterschritten: Infusionsset");
     expect(payload.html).toContain("Warnungen ansehen");
   });
 });

@@ -1,6 +1,6 @@
 import { ApiError } from "./openapi-client";
 
-export type AlertCategory = "EXPIRY" | "STK_DUE" | "MTK_DUE";
+export type AlertCategory = "EXPIRY" | "STK_DUE" | "MTK_DUE" | "SHORTAGE";
 
 export type AlertWarning = {
   id: string;
@@ -46,7 +46,7 @@ export type MedicalDevice = {
 };
 
 export async function getAlertOverview() {
-  return requestJson<{ generatedAt: string; warnings: AlertWarning[]; summary: { expiry: number; stkDue: number; mtkDue: number } }>("/alerts/warnings");
+  return requestJson<{ generatedAt: string; warnings: AlertWarning[]; summary: { expiry: number; stkDue: number; mtkDue: number; shortage: number } }>("/alerts/warnings");
 }
 
 export async function getMyAlertSubscriptions() {

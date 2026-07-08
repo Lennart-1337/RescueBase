@@ -1,7 +1,7 @@
 const warningWindowDays = 90;
 
-export type AlertCategory = "EXPIRY" | "STK_DUE" | "MTK_DUE";
-export type AlertSource = "BATCH" | "MEDICAL_DEVICE";
+export type AlertCategory = "EXPIRY" | "STK_DUE" | "MTK_DUE" | "SHORTAGE";
+export type AlertSource = "BATCH" | "MEDICAL_DEVICE" | "INVENTORY_TARGET";
 
 export type AlertWarning = {
   category: AlertCategory;
@@ -47,10 +47,23 @@ type DeviceInput = {
   };
 };
 
-export function buildAlertWarnings(input: { batches: BatchInput[]; devices: DeviceInput[] }, now = new Date(), alertDays = warningWindowDays): AlertWarning[] {
+type TargetInput = {
+  id: string;
+  articleId: string;
+  articleName: string;
+  locationId: string;
+  locationName: string;
+  targetQuantity: number;
+  currentQuantity: number;
+  shortageQuantity: number;
+  unit: string;
+};
+
+export function buildAlertWarnings(input: { batches: BatchInput[]; devices: DeviceInput[]; targets?: TargetInput[] }, now = new Date(), alertDays = warningWindowDays): AlertWarning[] {
   return [
     ...input.batches.flatMap((batch) => buildBatchWarnings(batch, now, alertDays)),
-    ...input.devices.flatMap((device) => buildDeviceWarnings(device, now, alertDays))
+    ...input.devices.flatMap((device) => buildDeviceWarnings(device, now, alertDays)),
+    ...(input.targets ?? []).flatMap((target) => buildTargetWarnings(target, now))
   ];
 }
 
@@ -110,6 +123,26 @@ function buildDeviceWarnings(device: DeviceInput, now: Date, alertDays: number):
     }
   }
   return warnings;
+}
+
+function buildTargetWarnings(target: TargetInput, now: Date): AlertWarning[] {
+  if (target.shortageQuantity <= 0) return [];
+  return [{
+    category: "SHORTAGE",
+    sourceType: "INVENTORY_TARGET",
+    sourceId: target.id,
+    locationId: target.locationId,
+    locationName: target.locationName,
+    title: `Sollbestand unterschritten: ${target.articleName}`,
+    details: `${target.currentQuantity}/${target.targetQuantity} ${target.unit} verfügbar. Es fehlen ${target.shortageQuantity} ${target.unit}.`,
+    dueAt: now.toISOString(),
+    metadata: {
+      articleId: target.articleId,
+      targetQuantity: target.targetQuantity,
+      currentQuantity: target.currentQuantity,
+      shortageQuantity: target.shortageQuantity
+    }
+  }];
 }
 
 function deviceWarning(device: DeviceInput, category: AlertCategory, titlePrefix: string, dueAt: Date, metadata: Record<string, unknown>): AlertWarning {

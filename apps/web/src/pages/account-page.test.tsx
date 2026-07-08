@@ -71,6 +71,7 @@ describe("AccountPage", () => {
     expect(within(expiryGroup).getByRole("checkbox", { name: /Alle Standorte/ })).toBeInTheDocument();
     expect(within(expiryGroup).getByRole("checkbox", { name: /Hauptlager/ })).toBeInTheDocument();
     expect(within(expiryGroup).getByRole("checkbox", { name: /zu Hause/ })).toBeInTheDocument();
+    expect(await screen.findByRole("group", { name: "Fehlbestand" })).toBeInTheDocument();
   });
 
   it("saves the order mail preference from the account page", async () => {

@@ -102,7 +102,7 @@ describe("UsersPage", () => {
       "/api/alerts/subscriptions": [
         {
           id: "subscription-expiry",
-          category: "EXPIRY",
+          category: "SHORTAGE",
           locationName: null,
           user: { id: "user-admin", displayName: "Admin", email: "admin@rescuebase.local" }
         }
@@ -124,10 +124,10 @@ describe("UsersPage", () => {
     expect(warehouseRoleBadge).not.toBeNull();
     expect(warehouseRoleBadge).toHaveClass("badge-neutral");
 
-    await screen.findByText("EXPIRY");
+    await screen.findByText("SHORTAGE");
     const alertRow = document.querySelector(".compact-list-row");
     expect(alertRow).not.toBeNull();
-    const alertBadge = within(alertRow as HTMLElement).getByText("EXPIRY").closest(".badge");
+    const alertBadge = within(alertRow as HTMLElement).getByText("SHORTAGE").closest(".badge");
     expect(alertBadge).not.toBeNull();
     expect(alertBadge).toHaveClass("badge-neutral");
   });

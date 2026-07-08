@@ -12,7 +12,7 @@ const settings = {
     timezone: "Europe/Berlin",
     newUserOrderNotificationsDefaultEnabled: true
   },
-  alerts: { dailyDigestEnabled: true, dailyDigestTime: "06:00", warningWindowDays: 90, lastDigestSentAt: null },
+  alerts: { dailyDigestEnabled: true, dailyDigestTime: "06:00", warningWindowDays: 90, lastDigestRunAt: null, lastDigestSentAt: null },
   inventory: { enabled: true, dailyReconcileTime: "02:00", lastReconciledAt: null },
   templates: [{
     key: "ALERT_DIGEST", subjectTemplate: "Tägliche Übersicht", introTemplate: "Guten Morgen", bodyTemplate: "{{alertCount}} offene Warnungen", allowedPlaceholders: ["alertCount"]

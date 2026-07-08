@@ -55,6 +55,7 @@ enum AlertCategory {
   EXPIRY
   STK_DUE
   MTK_DUE
+  SHORTAGE
 }
 
 enum NotificationTemplateKey {

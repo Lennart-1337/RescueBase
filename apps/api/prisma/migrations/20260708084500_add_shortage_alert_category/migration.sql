@@ -1,0 +1,5 @@
+ALTER TABLE `AlertSubscription`
+  MODIFY `category` ENUM('EXPIRY', 'STK_DUE', 'MTK_DUE', 'SHORTAGE') NOT NULL;
+
+ALTER TABLE `AlertEvent`
+  MODIFY `category` ENUM('EXPIRY', 'STK_DUE', 'MTK_DUE', 'SHORTAGE') NOT NULL;

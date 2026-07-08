@@ -12,7 +12,8 @@ import "./account-alerts-panel.css";
 const categories: AlertCategoryOption[] = [
   { key: "EXPIRY", label: "Ablauf" },
   { key: "STK_DUE", label: "STK" },
-  { key: "MTK_DUE", label: "MTK" }
+  { key: "MTK_DUE", label: "MTK" },
+  { key: "SHORTAGE", label: "Fehlbestand" }
 ];
 
 export function AccountAlertsPanel() {

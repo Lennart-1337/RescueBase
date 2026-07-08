@@ -1855,6 +1855,8 @@ export interface components {
       dailyDigestTime: string;
       warningWindowDays: number;
       /** Format: date-time */
+      lastDigestRunAt: string | null;
+      /** Format: date-time */
       lastDigestSentAt: string | null;
     };
     AdminInventorySettings: {

@@ -3,7 +3,7 @@ import { Badge, CheckboxField, cn } from "../../components/ui";
 import "./alert-preference-card.css";
 
 export type AlertCategoryOption = {
-  key: "EXPIRY" | "STK_DUE" | "MTK_DUE";
+  key: "EXPIRY" | "STK_DUE" | "MTK_DUE" | "SHORTAGE";
   label: string;
 };
 
