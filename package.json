@@ -1,6 +1,6 @@
 {
   "name": "rescuebase",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "private": true,
   "description": "RescueBase MVP for Sanitätslager, Sanitätsrucksack checks and replenishment orders.",
   "workspaces": [
