@@ -25,3 +25,24 @@
   content: "·";
   margin-right: 8px;
 }
+
+.supplier-form-grid {
+  display: grid;
+  gap: 14px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.supplier-form-notes {
+  grid-column: 1 / -1;
+}
+
+.supplier-form-notes textarea {
+  min-height: 112px;
+  resize: vertical;
+}
+
+@media (max-width: 980px) {
+  .supplier-form-grid {
+    grid-template-columns: 1fr;
+  }
+}

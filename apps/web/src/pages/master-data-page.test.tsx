@@ -674,6 +674,36 @@ describe("MasterDataPage", () => {
     });
     expect(dialog.querySelector(".modal-body")).toHaveClass("dialog-form-body");
     await changeValue(within(dialog).getByLabelText("Name"), "SafeHands");
+    await changeValue(
+      within(dialog).getByLabelText("Ansprechperson"),
+      "Mara Schmidt",
+    );
+    await changeValue(
+      within(dialog).getByLabelText("E-Mail"),
+      "einkauf@safehands.example",
+    );
+    await changeValue(
+      within(dialog).getByLabelText("Telefon"),
+      "+49 30 123456",
+    );
+    await changeValue(
+      within(dialog).getByLabelText("Website"),
+      "https://safehands.example",
+    );
+    await changeValue(
+      within(dialog).getByLabelText("Straße"),
+      "Beispielweg 8",
+    );
+    await changeValue(within(dialog).getByLabelText("PLZ"), "10115");
+    await changeValue(within(dialog).getByLabelText("Ort"), "Berlin");
+    await changeValue(
+      within(dialog).getByLabelText("Land"),
+      "Deutschland",
+    );
+    await changeValue(
+      within(dialog).getByLabelText("Notizen"),
+      "Nur vormittags anrufen",
+    );
     await clickElement(
       within(dialog).getByRole("button", { name: "Lieferant anlegen" }),
     );
@@ -681,6 +711,15 @@ describe("MasterDataPage", () => {
     await waitFor(() =>
       expect(postedBody("/api/catalog/suppliers")).toEqual({
         name: "SafeHands",
+        contactPerson: "Mara Schmidt",
+        email: "einkauf@safehands.example",
+        phone: "+49 30 123456",
+        website: "https://safehands.example",
+        street: "Beispielweg 8",
+        postalCode: "10115",
+        city: "Berlin",
+        country: "Deutschland",
+        notes: "Nur vormittags anrufen",
       }),
     );
 
@@ -695,6 +734,14 @@ describe("MasterDataPage", () => {
       "dialog-form-body",
     );
     await changeValue(within(editDialog).getByLabelText("Name"), "NordMed");
+    await changeValue(
+      within(editDialog).getByLabelText("E-Mail"),
+      "kontakt@nordmed.example",
+    );
+    await changeValue(
+      within(editDialog).getByLabelText("Telefon"),
+      "+49 40 654321",
+    );
     await clickElement(
       within(editDialog).getByRole("button", { name: "Lieferant speichern" }),
     );
@@ -704,6 +751,15 @@ describe("MasterDataPage", () => {
         requestBody("/api/catalog/suppliers/supplier-medisafe", "PATCH"),
       ).toEqual({
         name: "NordMed",
+        contactPerson: "Anna Meier",
+        email: "kontakt@nordmed.example",
+        phone: "+49 40 654321",
+        website: "https://medisafe.example",
+        street: "Musterstraße 5",
+        postalCode: "20095",
+        city: "Hamburg",
+        country: "Deutschland",
+        notes: "Bestellungen bevorzugt per E-Mail",
       }),
     );
   });

@@ -4,6 +4,7 @@ import { toOptionalString, withPrunedSearch } from "../../app/filter-utils";
 import { toError } from "../../app/formatters";
 import { ErrorPanel, LoadingPanel } from "../../components/state-panels";
 import { rescueBaseApi } from "../../lib/api";
+import type { CreateSupplierRequest, UpdateSupplierRequest } from "../../lib/types";
 import { catalogKeys, catalogQueries } from "../../queries/catalog";
 import { SupplierPanel } from "./supplier-panel";
 import { buildSupplierSummaries, type SupplierSummary } from "./supplier-utils";
@@ -13,8 +14,8 @@ export function MasterDataSupplierPage({ filters }: { filters: { q: string } }) 
   const queryClient = useQueryClient();
   const suppliers = useQuery(catalogQueries.suppliers());
   const articles = useQuery(catalogQueries.articles());
-  const createSupplier = useMutation({ mutationFn: (name: string) => rescueBaseApi.createSupplier({ name: name.trim() }), onSuccess: async () => queryClient.invalidateQueries({ queryKey: catalogKeys.suppliers() }) });
-  const updateSupplier = useMutation({ mutationFn: ({ id, name }: { id: string; name: string }) => rescueBaseApi.updateSupplier(id, { name: name.trim() }), onSuccess: async () => Promise.all([queryClient.invalidateQueries({ queryKey: catalogKeys.suppliers() }), queryClient.invalidateQueries({ queryKey: catalogKeys.articles() })]) });
+  const createSupplier = useMutation({ mutationFn: (body: CreateSupplierRequest) => rescueBaseApi.createSupplier(body), onSuccess: async () => queryClient.invalidateQueries({ queryKey: catalogKeys.suppliers() }) });
+  const updateSupplier = useMutation({ mutationFn: ({ body, id }: { body: UpdateSupplierRequest; id: string }) => rescueBaseApi.updateSupplier(id, body), onSuccess: async () => Promise.all([queryClient.invalidateQueries({ queryKey: catalogKeys.suppliers() }), queryClient.invalidateQueries({ queryKey: catalogKeys.articles() })]) });
   const deleteSupplier = useMutation({ mutationFn: rescueBaseApi.deleteSupplier, onSuccess: async () => Promise.all([queryClient.invalidateQueries({ queryKey: catalogKeys.suppliers() }), queryClient.invalidateQueries({ queryKey: catalogKeys.articles() })]) });
 
   if (suppliers.isLoading || articles.isLoading) return <LoadingPanel label="Lieferanten werden geladen" />;
@@ -29,5 +30,5 @@ export function MasterDataSupplierPage({ filters }: { filters: { q: string } }) 
     }
   }
 
-  return <SupplierPanel error={mutationError ? toError(mutationError) : null} filters={filters} isSubmitting={createSupplier.isPending || updateSupplier.isPending || deleteSupplier.isPending} onCreate={createSupplier.mutateAsync} onDelete={confirmDelete} onFilterChange={(patch) => void navigate({ replace: true, search: withPrunedSearch({ q: toOptionalString(patch.q ?? filters.q) }), to: "/admin/master-data/suppliers" })} onResetFilters={() => void navigate({ replace: true, search: {}, to: "/admin/master-data/suppliers" })} onSave={(id, name) => updateSupplier.mutateAsync({ id, name })} suppliers={entries} totalCount={buildSupplierSummaries(suppliers.data, articles.data, "").length} />;
+  return <SupplierPanel error={mutationError ? toError(mutationError) : null} filters={filters} isSubmitting={createSupplier.isPending || updateSupplier.isPending || deleteSupplier.isPending} onCreate={createSupplier.mutateAsync} onDelete={confirmDelete} onFilterChange={(patch) => void navigate({ replace: true, search: withPrunedSearch({ q: toOptionalString(patch.q ?? filters.q) }), to: "/admin/master-data/suppliers" })} onResetFilters={() => void navigate({ replace: true, search: {}, to: "/admin/master-data/suppliers" })} onSave={(id, body) => updateSupplier.mutateAsync({ id, body })} suppliers={entries} totalCount={buildSupplierSummaries(suppliers.data, articles.data, "").length} />;
 }

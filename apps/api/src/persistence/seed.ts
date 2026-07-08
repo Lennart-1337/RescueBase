@@ -54,17 +54,47 @@ export async function seedRescueBaseDevelopmentData(
   await prisma.supplier.upsert({
     where: { id: "supplier-medisafe" },
     update: {},
-    create: { id: "supplier-medisafe", name: "MediSafe Einkauf" },
+    create: {
+      id: "supplier-medisafe",
+      name: "MediSafe Einkauf",
+      contactPerson: "Anna Meier",
+      email: "einkauf@medisafe.example",
+      phone: "+49 40 123456",
+      website: "https://medisafe.example",
+      street: "Musterstraße 5",
+      postalCode: "20095",
+      city: "Hamburg",
+      country: "Deutschland",
+      notes: "Bestellungen bevorzugt per E-Mail",
+    },
   });
   await prisma.supplier.upsert({
     where: { id: "supplier-rescue-tech" },
     update: {},
-    create: { id: "supplier-rescue-tech", name: "Rescue Tech" },
+    create: {
+      id: "supplier-rescue-tech",
+      name: "Rescue Tech",
+      contactPerson: "Lukas Weber",
+      email: "orders@rescuetech.example",
+      phone: "+49 89 987654",
+      website: "https://rescuetech.example",
+      city: "München",
+      country: "Deutschland",
+    },
   });
   await prisma.supplier.upsert({
     where: { id: "supplier-safehands" },
     update: {},
-    create: { id: "supplier-safehands", name: "SafeHands" },
+    create: {
+      id: "supplier-safehands",
+      name: "SafeHands",
+      contactPerson: "Mara Schmidt",
+      email: "service@safehands.example",
+      phone: "+49 30 444555",
+      website: "https://safehands.example",
+      city: "Berlin",
+      country: "Deutschland",
+    },
   });
 
   await prisma.article.upsert({

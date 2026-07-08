@@ -262,4 +262,54 @@ describe("RescueBase OpenAPI contract", () => {
       ]),
     });
   });
+
+  it("includes supplier contact and address metadata", () => {
+    expect(
+      rescueBaseOpenApiDocument.components?.schemas?.Supplier,
+    ).toMatchObject({
+      properties: expect.objectContaining({
+        contactPerson: expect.any(Object),
+        email: expect.objectContaining({ format: "email" }),
+        phone: expect.any(Object),
+        website: expect.objectContaining({ format: "uri" }),
+        street: expect.any(Object),
+        postalCode: expect.any(Object),
+        city: expect.any(Object),
+        country: expect.any(Object),
+        notes: expect.any(Object),
+      }),
+    });
+    expect(
+      rescueBaseOpenApiDocument.components?.schemas?.CreateSupplierRequest,
+    ).toMatchObject({
+      properties: expect.objectContaining({
+        name: expect.any(Object),
+        contactPerson: expect.any(Object),
+        email: expect.objectContaining({ format: "email" }),
+        phone: expect.any(Object),
+        website: expect.objectContaining({ format: "uri" }),
+        street: expect.any(Object),
+        postalCode: expect.any(Object),
+        city: expect.any(Object),
+        country: expect.any(Object),
+        notes: expect.any(Object),
+      }),
+    });
+    expect(
+      rescueBaseOpenApiDocument.components?.schemas?.UpdateSupplierRequest,
+    ).toMatchObject({
+      properties: expect.objectContaining({
+        name: expect.any(Object),
+        contactPerson: expect.any(Object),
+        email: expect.objectContaining({ format: "email" }),
+        phone: expect.any(Object),
+        website: expect.objectContaining({ format: "uri" }),
+        street: expect.any(Object),
+        postalCode: expect.any(Object),
+        city: expect.any(Object),
+        country: expect.any(Object),
+        notes: expect.any(Object),
+      }),
+    });
+  });
 });

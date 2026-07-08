@@ -193,7 +193,7 @@ export class CatalogController {
   }
 
   @Post("suppliers")
-  async createSupplier(@Body() body: { name: string }) {
+  async createSupplier(@Body() body: SupplierWriteBody) {
     const name = normalizeRequiredText(
       body.name,
       "Lieferantenname ist erforderlich.",
@@ -205,9 +205,9 @@ export class CatalogController {
     const supplier = archived
       ? await this.prisma.supplier.update({
           where: { id: archived.id },
-          data: { deletedAt: null, name },
+          data: { ...toSupplierWriteData(body), deletedAt: null, name },
         })
-      : await this.prisma.supplier.create({ data: { name } });
+      : await this.prisma.supplier.create({ data: toSupplierWriteData(body) });
     await this.audit.record({
       actorType: "USER",
       actorLabel: "Admin",
@@ -220,7 +220,10 @@ export class CatalogController {
   }
 
   @Patch("suppliers/:id")
-  async updateSupplier(@Param("id") id: string, @Body() body: { name: string }) {
+  async updateSupplier(
+    @Param("id") id: string,
+    @Body() body: SupplierWriteBody,
+  ) {
     const existing = await this.prisma.supplier.findFirst({
       where: { id, deletedAt: null },
     });
@@ -236,7 +239,7 @@ export class CatalogController {
     }
     const supplier = await this.prisma.supplier.update({
       where: { id },
-      data: { name },
+      data: toSupplierWriteData(body),
     });
     await this.audit.record({
       actorType: "USER",
@@ -882,6 +885,37 @@ type ArticleWriteBody = {
   criticalDefault?: boolean;
 };
 
+type SupplierWriteBody = {
+  name: string;
+  contactPerson?: string;
+  email?: string;
+  phone?: string;
+  website?: string;
+  street?: string;
+  postalCode?: string;
+  city?: string;
+  country?: string;
+  notes?: string;
+};
+
+function toSupplierWriteData(body: SupplierWriteBody) {
+  return {
+    name: normalizeRequiredText(body.name, "Lieferantenname ist erforderlich."),
+    contactPerson: optionalText(body.contactPerson),
+    email: optionalEmail(body.email, "Lieferanten-E-Mail muss gültig sein."),
+    phone: optionalText(body.phone),
+    website: optionalUrl(
+      body.website,
+      "Lieferanten-Website muss eine gültige http- oder https-URL sein.",
+    ),
+    street: optionalText(body.street),
+    postalCode: optionalText(body.postalCode),
+    city: optionalText(body.city),
+    country: optionalText(body.country),
+    notes: optionalText(body.notes),
+  };
+}
+
 function toArticleWriteData(
   body: ArticleWriteBody,
   defaultSupplierId: string | null,
@@ -956,7 +990,17 @@ function normalizeRequiredText(value: string | undefined, message: string) {
   return normalized;
 }
 
-function optionalUrl(value?: string) {
+function optionalEmail(value: string | undefined, message: string) {
+  const normalized = optionalText(value);
+  if (!normalized) return null;
+  const email = normalized.toLowerCase();
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/u.test(email)) {
+    throw new BadRequestException(message);
+  }
+  return email;
+}
+
+function optionalUrl(value?: string, message?: string) {
   const normalized = optionalText(value);
   if (!normalized) return null;
   try {
@@ -967,7 +1011,7 @@ function optionalUrl(value?: string) {
     return parsed.toString();
   } catch {
     throw new BadRequestException(
-      "Artikel-Link muss eine gültige http- oder https-URL sein.",
+      message ?? "Artikel-Link muss eine gültige http- oder https-URL sein.",
     );
   }
 }

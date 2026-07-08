@@ -4,8 +4,17 @@ import type { Article, Supplier } from "../../lib/types";
 export type SupplierSummary = {
   articleCount: number;
   articleNames: string[];
+  city?: string | null;
+  contactPerson?: string | null;
+  country?: string | null;
+  email?: string | null;
   id: string;
   name: string;
+  notes?: string | null;
+  phone?: string | null;
+  postalCode?: string | null;
+  street?: string | null;
+  website?: string | null;
 };
 
 export function buildSupplierSummaries(
@@ -22,12 +31,34 @@ export function buildSupplierSummaries(
       return {
         articleCount: linkedArticles.length,
         articleNames: linkedArticles,
+        city: supplier.city,
+        contactPerson: supplier.contactPerson,
+        country: supplier.country,
+        email: supplier.email,
         id: supplier.id,
         name: supplier.name,
+        notes: supplier.notes,
+        phone: supplier.phone,
+        postalCode: supplier.postalCode,
+        street: supplier.street,
+        website: supplier.website,
       };
     })
     .filter((supplier) =>
-      matchesFilterText(query, supplier.name, ...supplier.articleNames),
+      matchesFilterText(
+        query,
+        supplier.name,
+        supplier.contactPerson,
+        supplier.email,
+        supplier.phone,
+        supplier.website,
+        supplier.street,
+        supplier.postalCode,
+        supplier.city,
+        supplier.country,
+        supplier.notes,
+        ...supplier.articleNames,
+      ),
     )
     .sort((left, right) => left.name.localeCompare(right.name, "de-DE"));
 }

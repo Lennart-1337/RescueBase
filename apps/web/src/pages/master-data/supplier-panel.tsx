@@ -6,7 +6,10 @@ import { ListRow, RowActions } from "../../components/list-row";
 import { PanelHeader } from "../../components/panel-header";
 import { PageToolbar } from "../../components/page-layout";
 import { InlineError } from "../../components/state-panels";
+import { toOptionalString } from "../../app/filter-utils";
 import { Button, Dialog, Field, Panel } from "../../components/ui";
+import type { CreateSupplierRequest, UpdateSupplierRequest } from "../../lib/types";
+import { SupplierForm, type SupplierFormValues } from "./supplier-form";
 import type { SupplierSummary } from "./supplier-utils";
 import { summarizeArticleNames } from "./supplier-utils";
 import "./supplier-panel.css";
@@ -15,11 +18,11 @@ export function SupplierPanel(props: {
   error: Error | null;
   filters: { q: string };
   isSubmitting: boolean;
-  onCreate: (name: string) => Promise<unknown>;
+  onCreate: (body: CreateSupplierRequest) => Promise<unknown>;
   onDelete: (supplier: SupplierSummary) => void;
   onFilterChange: (patch: { q: string }) => void;
   onResetFilters: () => void;
-  onSave: (id: string, name: string) => Promise<unknown>;
+  onSave: (id: string, body: UpdateSupplierRequest) => Promise<unknown>;
   suppliers: SupplierSummary[];
   totalCount: number;
 }) {
@@ -28,16 +31,30 @@ export function SupplierPanel(props: {
   const canSubmit = Boolean(draft.name.trim());
 
   function openForCreate() {
-    setDraft({ id: "", isOpen: true, name: "" });
+    setDraft({ ...emptyDraft(), isOpen: true });
   }
 
   function openForEdit(supplier: SupplierSummary) {
-    setDraft({ id: supplier.id, isOpen: true, name: supplier.name });
+    setDraft({
+      id: supplier.id,
+      isOpen: true,
+      name: supplier.name,
+      contactPerson: supplier.contactPerson ?? "",
+      email: supplier.email ?? "",
+      phone: supplier.phone ?? "",
+      website: supplier.website ?? "",
+      street: supplier.street ?? "",
+      postalCode: supplier.postalCode ?? "",
+      city: supplier.city ?? "",
+      country: supplier.country ?? "",
+      notes: supplier.notes ?? "",
+    });
   }
 
   async function submit() {
     if (!canSubmit) return;
-    const succeeded = await (draft.id ? props.onSave(draft.id, draft.name) : props.onCreate(draft.name)).then(() => true).catch(() => false);
+    const body = toSupplierRequest(draft);
+    const succeeded = await (draft.id ? props.onSave(draft.id, body) : props.onCreate(body)).then(() => true).catch(() => false);
     if (succeeded) setDraft(emptyDraft());
   }
 
@@ -70,7 +87,7 @@ export function SupplierPanel(props: {
           open={isOpen}
           title={draft.id ? "Lieferant bearbeiten" : "Lieferant anlegen"}
         >
-          <Field label="Name"><input autoFocus onChange={(event) => setDraft((current) => ({ ...current, name: event.target.value }))} value={draft.name} /></Field>
+          <SupplierForm autoFocus onChange={(patch) => setDraft((current) => ({ ...current, ...patch }))} value={draft} />
           {props.error ? <InlineError error={props.error} /> : null}
         </Dialog>
       </Panel>
@@ -78,6 +95,39 @@ export function SupplierPanel(props: {
   );
 }
 
-function emptyDraft() {
-  return { id: "", isOpen: false, name: "" };
+function emptyDraft(): SupplierDraft {
+  return {
+    id: "",
+    isOpen: false,
+    name: "",
+    contactPerson: "",
+    email: "",
+    phone: "",
+    website: "",
+    street: "",
+    postalCode: "",
+    city: "",
+    country: "",
+    notes: "",
+  };
+}
+
+type SupplierDraft = SupplierFormValues & {
+  id: string;
+  isOpen: boolean;
+};
+
+function toSupplierRequest(draft: SupplierFormValues): CreateSupplierRequest {
+  return {
+    name: draft.name.trim(),
+    contactPerson: toOptionalString(draft.contactPerson),
+    email: toOptionalString(draft.email),
+    phone: toOptionalString(draft.phone),
+    website: toOptionalString(draft.website),
+    street: toOptionalString(draft.street),
+    postalCode: toOptionalString(draft.postalCode),
+    city: toOptionalString(draft.city),
+    country: toOptionalString(draft.country),
+    notes: toOptionalString(draft.notes),
+  };
 }

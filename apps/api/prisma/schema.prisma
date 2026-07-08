@@ -177,6 +177,15 @@ model Location {
 model Supplier {
   id             String          @id @default(cuid())
   name           String
+  contactPerson  String?
+  email          String?
+  phone          String?
+  website        String?
+  street         String?
+  postalCode     String?
+  city           String?
+  country        String?
+  notes          String?         @db.Text
   articles       Article[]
   purchaseOrders PurchaseOrder[]
   deletedAt      DateTime?
