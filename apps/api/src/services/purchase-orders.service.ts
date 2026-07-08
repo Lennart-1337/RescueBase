@@ -649,11 +649,6 @@ function normalizeRequiredText(value: string | undefined, message: string) {
   return normalized;
 }
 
-function optionalPatchText(value: string | undefined) {
-  return value === undefined
-    ? undefined
-    : normalizeRequiredText(value, "Feld darf nicht leer sein.");
-}
 
 function optionalNullableText(value: string | undefined) {
   if (value === undefined) return undefined;
