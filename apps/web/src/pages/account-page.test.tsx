@@ -17,6 +17,22 @@ describe("AccountPage", () => {
     await clickElement(await screen.findByRole("button", { name: /TOTP vorbereiten/ }));
     expect(await screen.findByAltText("TOTP-QR-Code")).toBeInTheDocument();
     expect(screen.getByText("ABCDEF123456")).toBeInTheDocument();
+    expect(screen.getByLabelText("TOTP-Code")).toHaveAttribute("autocomplete", "one-time-code");
+  });
+
+  it("marks the mail challenge field as a one-time code input", async () => {
+    stubFetch({
+      "/api/auth/setup/status": { initialized: true },
+      "/api/auth/session": { user: { id: "user-admin", email: "admin@rescuebase.local", displayName: "Admin", role: "ADMIN", twoFactorEnabled: false } },
+      "/api/auth/2fa/email/start": { challengeId: "email-challenge-1", debugCode: "654321" },
+      "/api/catalog/locations": [],
+      "/api/alerts/subscriptions/me": []
+    });
+
+    await renderAppAt("/admin/account");
+    await clickElement(await screen.findByRole("button", { name: "Code senden" }));
+
+    expect(await screen.findByLabelText("E-Mail-Code")).toHaveAttribute("autocomplete", "one-time-code");
   });
 
   it("uses the dedicated status action layout for the 2FA disable button", async () => {

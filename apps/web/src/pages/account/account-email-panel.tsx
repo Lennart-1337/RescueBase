@@ -31,7 +31,7 @@ export function AccountEmailPanel() {
       <div className="panel-header"><div><h2>E-Mail-Code einrichten</h2></div><Mail /></div>
       <div className="auth-form">
         {!emailChallengeId ? <Button loading={startEmail.isPending} onClick={() => startEmail.mutate()} type="button">Code senden</Button> : null}
-        {emailChallengeId ? <Field label="E-Mail-Code"><input inputMode="numeric" value={emailCode} onChange={(event) => setEmailCode(event.target.value)} /></Field> : null}
+        {emailChallengeId ? <Field label="E-Mail-Code"><input autoComplete="one-time-code" inputMode="numeric" value={emailCode} onChange={(event) => setEmailCode(event.target.value)} /></Field> : null}
         {debugCode ? <p className="debug-hint">Lokaler Testcode: {debugCode}</p> : null}
         {emailChallengeId ? <Button disabled={emailCode.trim().length < 6} loading={enableEmail.isPending} onClick={() => enableEmail.mutate({ challengeId: emailChallengeId, code: emailCode })} type="button">E-Mail-2FA aktivieren</Button> : null}
         {startEmail.error ? <InlineError error={startEmail.error} /> : null}

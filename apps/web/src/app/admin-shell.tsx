@@ -7,8 +7,8 @@ import { Button } from "../components/ui";
 import { fadeVariants, slideLeftVariants } from "../motion/presets";
 import { useMotionMode } from "../motion/use-motion-mode";
 import { rescueBaseApi } from "../lib/api";
-import { authKeys } from "../queries/auth";
 import type { AuthenticatedUser } from "../lib/types";
+import { clearAccountQueries, setSignedOutSession } from "./auth-cache";
 import { type AppBranding } from "./branding";
 import { BrandMark } from "./brand-mark";
 import { LegalLinks } from "./legal-links";
@@ -31,7 +31,8 @@ export function AdminShell({ children, user, branding }: { children: ReactNode; 
   const logout = useMutation({
     mutationFn: rescueBaseApi.logout,
     onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: authKeys.session() });
+      await clearAccountQueries(queryClient);
+      setSignedOutSession(queryClient);
     }
   });
   const navigationItems = [
