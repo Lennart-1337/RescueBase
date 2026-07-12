@@ -1,5 +1,5 @@
 import { BadRequestException, Injectable, Logger, NotFoundException, OnApplicationBootstrap, OnModuleDestroy } from "@nestjs/common";
-import { InventoryProcurementStatus } from "@prisma/client";
+import { InventoryProcurementStatus, Prisma } from "@prisma/client";
 import { AuditService } from "./audit.service.js";
 import { PrismaService } from "../persistence/prisma.service.js";
 import { toIsoDate, toIsoDateTime } from "../persistence/mappers.js";
@@ -133,14 +133,17 @@ export class InventoryProcurementService implements OnApplicationBootstrap, OnMo
   }
 
   async reconcile(reason = "manual") {
-    return this.withReconcileLock(async () => this.reconcileTargets(reason));
+    return this.withReconcileLock((tx) => this.reconcileTargets(reason, tx));
   }
 
-  private async reconcileTargets(reason = "manual") {
+  private async reconcileTargets(
+    reason = "manual",
+    prisma: Prisma.TransactionClient | PrismaService = this.prisma
+  ) {
     const now = new Date();
-    const targets = await this.prisma.inventoryTarget.findMany({ include: { article: true } });
-    const stock = await this.usableStockMap(now);
-    const activeOrders = await this.prisma.inventoryProcurementOrder.findMany({
+    const targets = await prisma.inventoryTarget.findMany({ include: { article: true } });
+    const stock = await this.usableStockMap(now, prisma);
+    const activeOrders = await prisma.inventoryProcurementOrder.findMany({
       where: { status: { in: activeOrderStatuses } },
       orderBy: { createdAt: "asc" }
     });
@@ -157,7 +160,7 @@ export class InventoryProcurementService implements OnApplicationBootstrap, OnMo
       const open = openOrders[0];
 
       for (const duplicate of openOrders.slice(1)) {
-        await this.prisma.inventoryProcurementOrder.update({
+        await prisma.inventoryProcurementOrder.update({
           where: { id: duplicate.id },
           data: { activeKey: null, status: InventoryProcurementStatus.CANCELLED }
         });
@@ -166,7 +169,7 @@ export class InventoryProcurementService implements OnApplicationBootstrap, OnMo
       if (inProgress) continue;
 
       if (deficit === 0 && open) {
-        await this.prisma.inventoryProcurementOrder.update({
+        await prisma.inventoryProcurementOrder.update({
           where: { id: open.id },
           data: { activeKey: null, status: InventoryProcurementStatus.CANCELLED }
         });
@@ -174,7 +177,7 @@ export class InventoryProcurementService implements OnApplicationBootstrap, OnMo
         continue;
       }
       if (deficit > 0 && open && open.requestedQuantity !== deficit) {
-        await this.prisma.inventoryProcurementOrder.update({
+        await prisma.inventoryProcurementOrder.update({
           where: { id: open.id },
           data: { requestedQuantity: deficit }
         });
@@ -182,7 +185,7 @@ export class InventoryProcurementService implements OnApplicationBootstrap, OnMo
         continue;
       }
       if (deficit > 0 && !open) {
-        await this.prisma.inventoryProcurementOrder.create({
+        await prisma.inventoryProcurementOrder.create({
           data: {
             articleId: target.articleId,
             locationId: target.locationId,
@@ -195,7 +198,7 @@ export class InventoryProcurementService implements OnApplicationBootstrap, OnMo
       }
     }
 
-    await this.prisma.inventoryAutomationConfig.upsert({
+    await prisma.inventoryAutomationConfig.upsert({
       where: { id: configId },
       update: { lastReconciledAt: now },
       create: { id: configId, lastReconciledAt: now }
@@ -382,16 +385,18 @@ export class InventoryProcurementService implements OnApplicationBootstrap, OnMo
     });
   }
 
-  private async withReconcileLock<T>(callback: () => Promise<T>): Promise<T> {
-    const [lock] = await this.prisma.$queryRaw<Array<{ acquired: number | bigint | null }>>`SELECT GET_LOCK('rescuebase_inventory_reconcile', 0) AS acquired`;
-    if (Number(lock?.acquired ?? 0) !== 1) {
-      throw new BadRequestException("Sollprüfung läuft bereits.");
-    }
-    try {
-      return await callback();
-    } finally {
-      await this.prisma.$queryRaw`SELECT RELEASE_LOCK('rescuebase_inventory_reconcile')`;
-    }
+  private async withReconcileLock<T>(callback: (tx: Prisma.TransactionClient) => Promise<T>): Promise<T> {
+    return this.prisma.$transaction(async (tx) => {
+      const [lock] = await tx.$queryRaw<Array<{ acquired: number | bigint | null }>>`SELECT GET_LOCK('rescuebase_inventory_reconcile', 0) AS acquired`;
+      if (Number(lock?.acquired ?? 0) !== 1) {
+        throw new BadRequestException("Sollprüfung läuft bereits.");
+      }
+      try {
+        return await callback(tx);
+      } finally {
+        await tx.$queryRaw`SELECT RELEASE_LOCK('rescuebase_inventory_reconcile')`;
+      }
+    });
   }
 
   private async assertReferences(articleId: string, locationId: string) {
@@ -412,8 +417,8 @@ export class InventoryProcurementService implements OnApplicationBootstrap, OnMo
     return order;
   }
 
-  private async usableStockMap(now: Date) {
-    const batches = await this.prisma.batch.findMany({
+  private async usableStockMap(now: Date, prisma: Prisma.TransactionClient | PrismaService = this.prisma) {
+    const batches = await prisma.batch.findMany({
       where: { deletedAt: null, expiresAt: { gt: now }, quantity: { gt: 0 } }
     });
     const stock = new Map<string, number>();
