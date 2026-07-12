@@ -48,6 +48,7 @@ describe("configureApp", () => {
 function testApp(): INestApplication {
   return {
     use: jest.fn(),
-    enableCors: jest.fn()
+    enableCors: jest.fn(),
+    useGlobalPipes: jest.fn()
   } as unknown as INestApplication;
 }
