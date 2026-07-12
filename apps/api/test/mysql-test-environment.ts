@@ -38,9 +38,9 @@ async function createGithubActionsEnvironment(databaseName: string) {
 }
 
 function executeSql(url: string, sql: string) {
-  execFileSync("npx", ["prisma", "db", "execute", "--stdin", "--url", url], {
+  execFileSync("npx", ["prisma", "db", "execute", "--stdin"], {
     cwd: process.cwd(),
-    env: process.env,
+    env: { ...process.env, DATABASE_URL: url },
     input: sql,
     stdio: ["pipe", "inherit", "inherit"]
   });
