@@ -21,7 +21,7 @@ export async function bootstrapTestApp(options: BootstrapOptions) {
     env: { ...process.env, DATABASE_URL: process.env.DATABASE_URL },
     stdio: "inherit"
   });
-  execFileSync("npm", ["run", "prisma:seed:dev"], {
+  execFileSync("node", ["--loader", "ts-node/esm", "prisma/seed.ts"], {
     cwd: process.cwd(),
     env: { ...process.env, DATABASE_URL: process.env.DATABASE_URL },
     stdio: "inherit"

@@ -11,6 +11,7 @@ RUN npm ci
 
 FROM deps AS build
 COPY . .
+ENV DATABASE_URL=mysql://rescuebase:rescuebase@127.0.0.1:3306/rescuebase
 RUN npm run prisma:generate -w @rescuebase/api
 RUN npm run build -w @rescuebase/domain
 RUN npm run build -w @rescuebase/api
