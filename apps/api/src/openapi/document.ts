@@ -26,6 +26,7 @@ const rescueBaseOpenApiDocumentDefinition = {
     { name: "Reports" },
     { name: "Audit" },
     { name: "Admin-Einstellungen" },
+    { name: "Push" },
   ],
   components: {
     securitySchemes: {
@@ -158,7 +159,6 @@ const rescueBaseOpenApiDocumentDefinition = {
           twoFactorMethod: ref("TwoFactorMethod"),
           loginChallengeId: { type: "string" },
           emailChallengeId: { type: "string" },
-          debugCode: { type: "string" },
           user: ref("AuthenticatedUser"),
         },
         ["requiresTwoFactor"],
@@ -170,6 +170,10 @@ const rescueBaseOpenApiDocumentDefinition = {
         },
         ["secret", "otpauthUrl"],
       ),
+      CurrentPasswordRequest: objectSchema(
+        { currentPassword: { type: "string", minLength: 1 } },
+        ["currentPassword"],
+      ),
       EnableTotpRequest: objectSchema(
         {
           code: { type: "string" },
@@ -179,7 +183,6 @@ const rescueBaseOpenApiDocumentDefinition = {
       EmailTwoFactorStartResponse: objectSchema(
         {
           challengeId: { type: "string" },
-          debugCode: { type: "string" },
         },
         ["challengeId"],
       ),
@@ -203,6 +206,19 @@ const rescueBaseOpenApiDocumentDefinition = {
         },
         ["ok", "user"],
       ),
+      PushConfiguration: objectSchema({
+        enabled: { type: "boolean" },
+        publicKey: { type: "string" },
+      }, ["enabled"]),
+      PushSubscriptionRequest: objectSchema({
+        endpoint: { type: "string", format: "uri" },
+        expirationTime: { type: "number", nullable: true },
+        keys: objectSchema({ auth: { type: "string" }, p256dh: { type: "string" } }, ["auth", "p256dh"]),
+      }, ["endpoint", "keys"]),
+      PushSubscriptionEndpoints: objectSchema({
+        endpoints: { type: "array", items: { type: "string", format: "uri" } },
+      }, ["endpoints"]),
+      PushSubscriptionRemovalRequest: objectSchema({ endpoint: { type: "string", format: "uri" } }, ["endpoint"]),
       InviteUserRequest: objectSchema(
         {
           email: { type: "string", format: "email" },
@@ -215,7 +231,6 @@ const rescueBaseOpenApiDocumentDefinition = {
         {
           id: { type: "string" },
           invitationUrl: { type: "string", format: "uri" },
-          debugUrl: { type: "string", format: "uri" },
         },
         ["id", "invitationUrl"],
       ),
@@ -251,7 +266,6 @@ const rescueBaseOpenApiDocumentDefinition = {
       PasswordResetRequestResponse: objectSchema(
         {
           ok: { type: "boolean", enum: [true] },
-          debugUrl: { type: "string", format: "uri" },
         },
         ["ok"],
       ),
@@ -293,6 +307,54 @@ const rescueBaseOpenApiDocumentDefinition = {
         },
         ["role"],
       ),
+      Supplier: objectSchema(
+        {
+          id: { type: "string" },
+          name: { type: "string" },
+          contactPerson: { type: "string" },
+          email: { type: "string", format: "email" },
+          phone: { type: "string" },
+          website: { type: "string", format: "uri" },
+          street: { type: "string" },
+          postalCode: { type: "string" },
+          city: { type: "string" },
+          country: { type: "string" },
+          notes: { type: "string" },
+          createdAt: { type: "string", format: "date-time" },
+          updatedAt: { type: "string", format: "date-time" },
+        },
+        ["id", "name"],
+      ),
+      CreateSupplierRequest: objectSchema(
+        {
+          name: { type: "string" },
+          contactPerson: { type: "string" },
+          email: { type: "string", format: "email" },
+          phone: { type: "string" },
+          website: { type: "string", format: "uri" },
+          street: { type: "string" },
+          postalCode: { type: "string" },
+          city: { type: "string" },
+          country: { type: "string" },
+          notes: { type: "string" },
+        },
+        ["name"],
+      ),
+      UpdateSupplierRequest: objectSchema(
+        {
+          name: { type: "string" },
+          contactPerson: { type: "string" },
+          email: { type: "string", format: "email" },
+          phone: { type: "string" },
+          website: { type: "string", format: "uri" },
+          street: { type: "string" },
+          postalCode: { type: "string" },
+          city: { type: "string" },
+          country: { type: "string" },
+          notes: { type: "string" },
+        },
+        ["name"],
+      ),
       Article: objectSchema(
         {
           id: { type: "string" },
@@ -303,6 +365,7 @@ const rescueBaseOpenApiDocumentDefinition = {
           category: { type: "string" },
           barcode: { type: "string" },
           articleUrl: { type: "string", format: "uri" },
+          defaultSupplierId: { type: "string" },
           defaultSupplierName: { type: "string" },
           unitsPerPackage: { type: "integer", minimum: 1 },
           defaultGrossPriceCents: { type: "integer", minimum: 0 },
@@ -329,7 +392,7 @@ const rescueBaseOpenApiDocumentDefinition = {
           category: { type: "string" },
           barcode: { type: "string" },
           articleUrl: { type: "string", format: "uri" },
-          defaultSupplierName: { type: "string" },
+          defaultSupplierId: { type: "string" },
           unitsPerPackage: { type: "integer", minimum: 1 },
           defaultGrossPriceCents: { type: "integer", minimum: 0 },
           sterile: { type: "boolean" },
@@ -353,7 +416,7 @@ const rescueBaseOpenApiDocumentDefinition = {
           category: { type: "string" },
           barcode: { type: "string" },
           articleUrl: { type: "string", format: "uri" },
-          defaultSupplierName: { type: "string" },
+          defaultSupplierId: { type: "string" },
           unitsPerPackage: { type: "integer", minimum: 1 },
           defaultGrossPriceCents: { type: "integer", minimum: 0 },
           sterile: { type: "boolean" },
@@ -835,6 +898,7 @@ const rescueBaseOpenApiDocumentDefinition = {
         {
           id: { type: "string" },
           orderNumber: { type: "string" },
+          supplierId: { type: "string" },
           supplierName: { type: "string" },
           locationId: { type: "string" },
           status: ref("PurchaseOrderStatus"),
@@ -854,6 +918,7 @@ const rescueBaseOpenApiDocumentDefinition = {
         [
           "id",
           "orderNumber",
+          "supplierId",
           "supplierName",
           "locationId",
           "status",
@@ -877,12 +942,12 @@ const rescueBaseOpenApiDocumentDefinition = {
       ),
       PurchaseOrderWriteRequest: objectSchema(
         {
-          supplierName: { type: "string" },
+          supplierId: { type: "string" },
           locationId: { type: "string" },
           notes: { type: "string" },
           lines: arrayOf(ref("PurchaseOrderLineWriteRequest")),
         },
-        ["supplierName", "locationId", "lines"],
+        ["supplierId", "locationId", "lines"],
       ),
       PurchaseOrderLineNoteRequest: objectSchema(
         {
@@ -892,7 +957,7 @@ const rescueBaseOpenApiDocumentDefinition = {
         ["lineId"],
       ),
       UpdatePurchaseOrderRequest: objectSchema({
-        supplierName: { type: "string" },
+        supplierId: { type: "string" },
         locationId: { type: "string" },
         notes: { type: "string" },
         lines: arrayOf(ref("PurchaseOrderLineWriteRequest")),
@@ -902,7 +967,7 @@ const rescueBaseOpenApiDocumentDefinition = {
         {
           locationId: { type: "string" },
           groupingMode: stringEnum(["single", "supplier"]),
-          supplierName: { type: "string" },
+          supplierId: { type: "string" },
           articleIds: arrayOf({ type: "string" }),
         },
         ["locationId", "groupingMode"],
@@ -974,6 +1039,11 @@ const rescueBaseOpenApiDocumentDefinition = {
             pattern: "^(?:[01]\\d|2[0-3]):[0-5]\\d$",
           },
           warningWindowDays: { type: "integer", minimum: 1, maximum: 3650 },
+          lastDigestRunAt: {
+            type: "string",
+            format: "date-time",
+            nullable: true,
+          },
           lastDigestSentAt: {
             type: "string",
             format: "date-time",
@@ -984,6 +1054,7 @@ const rescueBaseOpenApiDocumentDefinition = {
           "dailyDigestEnabled",
           "dailyDigestTime",
           "warningWindowDays",
+          "lastDigestRunAt",
           "lastDigestSentAt",
         ],
       ),
@@ -1525,7 +1596,7 @@ const rescueBaseOpenApiDocumentDefinition = {
       post: operation(
         "Auth",
         "AuthController_setupTotp",
-        {},
+        request("CurrentPasswordRequest"),
         response(201, "TOTP setup", ref("TotpSetupResponse")),
       ),
     },
@@ -1541,7 +1612,7 @@ const rescueBaseOpenApiDocumentDefinition = {
       post: operation(
         "Auth",
         "AuthController_startEmailTwoFactor",
-        {},
+        request("CurrentPasswordRequest"),
         response(
           201,
           "Email 2FA challenge started",
@@ -1569,11 +1640,21 @@ const rescueBaseOpenApiDocumentDefinition = {
         ),
       ),
     },
+    "/push/config": {
+      get: operation("Push", "PushController_configuration", {}, response(200, "Push configuration", ref("PushConfiguration"))),
+    },
+    "/push/subscriptions/me": {
+      get: operation("Push", "PushController_subscriptions", {}, response(200, "Current user push subscriptions", ref("PushSubscriptionEndpoints"))),
+    },
+    "/push/subscriptions": {
+      post: operation("Push", "PushController_register", request("PushSubscriptionRequest"), response(201, "Push subscription saved", ref("OkResponse"))),
+      delete: operation("Push", "PushController_remove", request("PushSubscriptionRemovalRequest"), response(200, "Push subscription removed", ref("OkResponse"))),
+    },
     "/auth/2fa/disable": {
       post: operation(
         "Auth",
         "AuthController_disableTwoFactor",
-        {},
+        request("CurrentPasswordRequest"),
         response(201, "2FA disabled", ref("OkResponse")),
       ),
     },
@@ -1651,6 +1732,34 @@ const rescueBaseOpenApiDocumentDefinition = {
         "CatalogController_deleteArticle",
         pathParam("id"),
         response(200, "Article deleted", ref("OkResponse")),
+      ),
+    },
+    "/catalog/suppliers": {
+      get: operation(
+        "Stammdaten",
+        "CatalogController_suppliers",
+        {},
+        response(200, "Suppliers", arrayOf(ref("Supplier"))),
+      ),
+      post: operation(
+        "Stammdaten",
+        "CatalogController_createSupplier",
+        request("CreateSupplierRequest"),
+        response(201, "Supplier created", ref("Supplier")),
+      ),
+    },
+    "/catalog/suppliers/{id}": {
+      patch: operation(
+        "Stammdaten",
+        "CatalogController_updateSupplier",
+        { ...pathParam("id"), ...request("UpdateSupplierRequest") },
+        response(200, "Supplier updated", ref("Supplier")),
+      ),
+      delete: operation(
+        "Stammdaten",
+        "CatalogController_deleteSupplier",
+        pathParam("id"),
+        response(200, "Supplier deleted", ref("OkResponse")),
       ),
     },
     "/catalog/locations": {

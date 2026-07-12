@@ -33,7 +33,7 @@ describe("admin settings", () => {
         timezone: defaultTimezone(),
         newUserOrderNotificationsDefaultEnabled: false
       },
-      alerts: { dailyDigestEnabled: true, dailyDigestTime: "06:00", warningWindowDays: 90, lastDigestSentAt: null },
+      alerts: { dailyDigestEnabled: true, dailyDigestTime: "06:00", warningWindowDays: 90, lastDigestRunAt: null, lastDigestSentAt: null },
       inventory: { enabled: true, dailyReconcileTime: "02:00", lastReconciledAt: null }
     });
     expect(response.body.templates.map((template: { key: string }) => template.key)).toEqual([
@@ -116,6 +116,39 @@ describe("admin settings", () => {
     const invitation = await admin.post("/auth/invite").send({ email: "default-on@example.org", displayName: "Neu", role: "WAREHOUSE" }).expect(201);
     expect((await prisma.user.findUniqueOrThrow({ where: { id: invitation.body.id } })).newOrderNotificationsEnabled).toBe(true);
     expect((await prisma.user.findUniqueOrThrow({ where: { id: "user-lager" } })).newOrderNotificationsEnabled).toBe(false);
+  });
+
+  it("separates the last digest run from the last successful delivery timestamp", async () => {
+    const admin = await login("admin@rescuebase.local", "rescuebase-admin");
+    const prisma = app.get(PrismaService);
+    const runAt = new Date("2026-07-08T04:00:00.000Z");
+    const sentAt = new Date("2026-07-07T04:00:00.000Z");
+
+    await prisma.alertAutomationConfig.update({
+      where: { id: "singleton" },
+      data: { lastDigestSentAt: runAt }
+    });
+    await prisma.alertEvent.create({
+      data: {
+        category: "EXPIRY",
+        sourceType: "BATCH",
+        sourceId: "digest-settings-test",
+        locationId: "loc-main",
+        title: "Ablaufwarnung",
+        details: "Testwarnung",
+        dueAt: new Date("2026-07-10T00:00:00.000Z"),
+        firstSeenAt: sentAt,
+        lastSeenAt: sentAt,
+        lastDigestSentAt: sentAt
+      }
+    });
+
+    await admin.get("/admin/settings").expect(200).expect(({ body }) => {
+      expect(body.alerts).toMatchObject({
+        lastDigestRunAt: runAt.toISOString(),
+        lastDigestSentAt: sentAt.toISOString()
+      });
+    });
   });
 
   async function login(email: string, password: string) {

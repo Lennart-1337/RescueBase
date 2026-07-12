@@ -4,6 +4,7 @@ import {
   kit,
   location,
   medicalDevice,
+  supplier,
 } from "../test-support/fixtures";
 import {
   changeValue,
@@ -53,6 +54,13 @@ describe("MasterDataPage", () => {
       "https://shop.example.org/articles/rettungsdecke",
     );
     await changeValue(
+      within(dialog).getByLabelText("Standard-Lieferant"),
+      "Medi",
+    );
+    await mouseDownElement(
+      await screen.findByRole("option", { name: "MediSafe Einkauf" }),
+    );
+    await changeValue(
       within(dialog).getByLabelText("VE (Einheiten pro Packung)"),
       "10",
     );
@@ -79,6 +87,7 @@ describe("MasterDataPage", () => {
         category: "Verbrauchsmaterial",
         barcode: "040000000099",
         articleUrl: "https://shop.example.org/articles/rettungsdecke",
+        defaultSupplierId: supplier.id,
         unitsPerPackage: 10,
         sterile: true,
         medicalDevice: true,
@@ -173,6 +182,7 @@ describe("MasterDataPage", () => {
         category: "Verbandmaterial",
         barcode: "040000000099",
         articleUrl: "https://shop.example.org/articles/verbandpaeckchen-gross",
+        defaultSupplierId: supplier.id,
         unitsPerPackage: 20,
         sterile: true,
         medicalDevice: true,
@@ -620,6 +630,145 @@ describe("MasterDataPage", () => {
     );
   });
 
+  it("opens the new suppliers tab with linked article usage", async () => {
+    const secondArticle = {
+      ...article,
+      id: "article-gloves",
+      name: "Einmalhandschuhe Größe M",
+      barcode: "040000000003",
+    };
+    stubFetch({
+      ...baseAdminRoutes(),
+      "/api/catalog/articles": [article, secondArticle],
+    });
+    await renderAppAt("/admin/master-data/articles");
+    await screen.findByRole("heading", { name: "Stammdaten" });
+
+    await clickElement(screen.getByRole("tab", { name: "Lieferanten" }));
+
+    const row = (await screen.findByText("MediSafe Einkauf")).closest(
+      ".compact-list-row",
+    );
+    expect(row).not.toBeNull();
+    expect(screen.getByText("2 Artikel")).toBeInTheDocument();
+    const actions = row?.querySelector(".row-actions");
+    expect(actions).not.toBeNull();
+    expect(actions).toHaveTextContent("2 Artikel");
+    expect(actions).toHaveTextContent("Bearbeiten");
+    expect(actions).toHaveTextContent("Löschen");
+    expect(row).toHaveTextContent("Verbandpäckchen mittel");
+    expect(row).toHaveTextContent("Einmalhandschuhe Größe M");
+    expect(row?.querySelector(".supplier-row-main")).not.toBeNull();
+  });
+
+  it("creates and renames a supplier from the dedicated suppliers tab", async () => {
+    stubFetch({
+      ...baseAdminRoutes(),
+      "/api/catalog/suppliers": [supplier],
+      "/api/catalog/suppliers/supplier-medisafe": { ...supplier, name: "NordMed" },
+    });
+    await renderAppAt("/admin/master-data/suppliers");
+    await screen.findByText("MediSafe Einkauf");
+
+    await clickElement(
+      screen.getByRole("button", { name: "Lieferant hinzufügen" }),
+    );
+
+    const dialog = await screen.findByRole("dialog", {
+      name: "Lieferant anlegen",
+    });
+    expect(dialog.querySelector(".modal-body")).toHaveClass("dialog-form-body");
+    await changeValue(within(dialog).getByLabelText("Name"), "SafeHands");
+    await changeValue(
+      within(dialog).getByLabelText("Ansprechperson"),
+      "Mara Schmidt",
+    );
+    await changeValue(
+      within(dialog).getByLabelText("E-Mail"),
+      "einkauf@safehands.example",
+    );
+    await changeValue(
+      within(dialog).getByLabelText("Telefon"),
+      "+49 30 123456",
+    );
+    await changeValue(
+      within(dialog).getByLabelText("Website"),
+      "https://safehands.example",
+    );
+    await changeValue(
+      within(dialog).getByLabelText("Straße"),
+      "Beispielweg 8",
+    );
+    await changeValue(within(dialog).getByLabelText("PLZ"), "10115");
+    await changeValue(within(dialog).getByLabelText("Ort"), "Berlin");
+    await changeValue(
+      within(dialog).getByLabelText("Land"),
+      "Deutschland",
+    );
+    await changeValue(
+      within(dialog).getByLabelText("Notizen"),
+      "Nur vormittags anrufen",
+    );
+    await clickElement(
+      within(dialog).getByRole("button", { name: "Lieferant anlegen" }),
+    );
+
+    await waitFor(() =>
+      expect(postedBody("/api/catalog/suppliers")).toEqual({
+        name: "SafeHands",
+        contactPerson: "Mara Schmidt",
+        email: "einkauf@safehands.example",
+        phone: "+49 30 123456",
+        website: "https://safehands.example",
+        street: "Beispielweg 8",
+        postalCode: "10115",
+        city: "Berlin",
+        country: "Deutschland",
+        notes: "Nur vormittags anrufen",
+      }),
+    );
+
+    await clickElement(
+      screen.getByRole("button", { name: "MediSafe Einkauf bearbeiten" }),
+    );
+
+    const editDialog = await screen.findByRole("dialog", {
+      name: "Lieferant bearbeiten",
+    });
+    expect(editDialog.querySelector(".modal-body")).toHaveClass(
+      "dialog-form-body",
+    );
+    await changeValue(within(editDialog).getByLabelText("Name"), "NordMed");
+    await changeValue(
+      within(editDialog).getByLabelText("E-Mail"),
+      "kontakt@nordmed.example",
+    );
+    await changeValue(
+      within(editDialog).getByLabelText("Telefon"),
+      "+49 40 654321",
+    );
+    await clickElement(
+      within(editDialog).getByRole("button", { name: "Lieferant speichern" }),
+    );
+
+    await waitFor(() =>
+      expect(
+        requestBody("/api/catalog/suppliers/supplier-medisafe", "PATCH"),
+      ).toEqual({
+        name: "NordMed",
+        contactPerson: "Anna Meier",
+        email: "kontakt@nordmed.example",
+        phone: "+49 40 654321",
+        website: "https://medisafe.example",
+        street: "Musterstraße 5",
+        postalCode: "20095",
+        city: "Hamburg",
+        country: "Deutschland",
+        notes: "Bestellungen bevorzugt per E-Mail",
+      }),
+    );
+  });
+
   it("reorders articles from the master-data list", async () => {
     const secondArticle = {
       ...article,
@@ -816,6 +965,7 @@ describe("MasterDataPage", () => {
     stubFetch({
       ...baseAdminRoutes(),
       "/api/catalog/articles/article-bandage": { ok: true },
+      "/api/catalog/suppliers/supplier-medisafe": { ok: true },
       "/api/catalog/locations/loc-main": { ok: true },
       "/api/catalog/templates/template-san-a-v1": { ok: true },
       "/api/catalog/devices/device-1": { ok: true },
@@ -828,6 +978,10 @@ describe("MasterDataPage", () => {
 
     await clickElement(
       screen.getByRole("button", { name: /Verbandpäckchen mittel löschen/ }),
+    );
+    await clickElement(screen.getByRole("tab", { name: "Lieferanten" }));
+    await clickElement(
+      await screen.findByRole("button", { name: /MediSafe Einkauf löschen/ }),
     );
     await clickElement(screen.getByRole("tab", { name: "Lagerorte" }));
     await clickElement(
@@ -848,6 +1002,9 @@ describe("MasterDataPage", () => {
       expect(
         wasRequested("/api/catalog/articles/article-bandage", "DELETE"),
       ).toBe(true);
+      expect(wasRequested("/api/catalog/suppliers/supplier-medisafe", "DELETE")).toBe(
+        true,
+      );
       expect(wasRequested("/api/catalog/locations/loc-main", "DELETE")).toBe(
         true,
       );
@@ -915,7 +1072,9 @@ describe("MasterDataPage", () => {
     expect(screen.getAllByText("Hinweise")).toHaveLength(1);
     expect(screen.getAllByText("Lagerhinweise")).toHaveLength(1);
     expect(
-      within(row as HTMLElement).getByText("Stück · VE 10 · 040000000001"),
+      within(row as HTMLElement).getByText(
+        "Stück · VE 10 · 040000000001 · MediSafe Einkauf",
+      ),
     ).toBeInTheDocument();
     expect(
       within(row as HTMLElement).getByText("Nicht fallen lassen!"),
@@ -981,6 +1140,7 @@ function baseAdminRoutes() {
       },
     },
     "/api/catalog/articles": [article],
+    "/api/catalog/suppliers": [supplier],
     "/api/catalog/locations": [location],
     "/api/catalog/kits": [kit],
     "/api/catalog/templates": [kit.template],

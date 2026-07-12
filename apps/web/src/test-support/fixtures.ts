@@ -31,6 +31,20 @@ export const batch = {
   location: { id: "loc-main", name: "Hauptlager" },
 };
 
+export const supplier = {
+  id: "supplier-medisafe",
+  name: "MediSafe Einkauf",
+  contactPerson: "Anna Meier",
+  email: "einkauf@medisafe.example",
+  phone: "+49 40 123456",
+  website: "https://medisafe.example",
+  street: "Musterstraße 5",
+  postalCode: "20095",
+  city: "Hamburg",
+  country: "Deutschland",
+  notes: "Bestellungen bevorzugt per E-Mail",
+};
+
 export const article = {
   id: "article-bandage",
   name: "Verbandpäckchen mittel",
@@ -40,6 +54,8 @@ export const article = {
   category: "Verbandmaterial",
   barcode: "040000000001",
   articleUrl: "https://shop.example.org/articles/verbandpaeckchen-mittel",
+  defaultSupplierId: supplier.id,
+  defaultSupplierName: supplier.name,
   unitsPerPackage: 10,
   sterile: true,
   medicalDevice: false,
@@ -135,6 +151,7 @@ export const procurementOrder = {
 export const purchaseOrder = {
   id: "purchase-order-1",
   orderNumber: "PO-2026-000001",
+  supplierId: supplier.id,
   supplierName: "MediSafe Einkauf",
   locationId: "loc-main",
   status: "DRAFT",

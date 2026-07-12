@@ -32,7 +32,7 @@ describe("purchase orders", () => {
     const created = await agent
       .post("/purchase-orders")
       .send({
-        supplierName: "MediSafe Einkauf",
+        supplierId: "supplier-medisafe",
         locationId: "loc-main",
         notes: "Bitte gesammelt liefern.",
         lines: [
@@ -80,7 +80,7 @@ describe("purchase orders", () => {
     const created = await warehouse
       .post("/purchase-orders")
       .send({
-        supplierName: "Rescue Tech",
+        supplierId: "supplier-rescue-tech",
         locationId: "loc-main",
         lines: [{ articleId: "article-tourniquet", orderedQuantity: 2 }],
       })
@@ -111,7 +111,7 @@ describe("purchase orders", () => {
     const annotated = await warehouse
       .patch(`/purchase-orders/${created.body.id}`)
       .send({
-        supplierName: "Rescue Tech GmbH",
+        supplierId: "supplier-rescue-tech",
         notes: "Freigegeben, telefonisch angekündigt.",
         lineNotes: [
           { lineId: approved.body.lines[0].id, note: "Priorität hoch" },
@@ -119,7 +119,7 @@ describe("purchase orders", () => {
       })
       .expect(200);
     expect(annotated.body).toMatchObject({
-      supplierName: "Rescue Tech GmbH",
+      supplierName: "Rescue Tech",
       notes: "Freigegeben, telefonisch angekündigt.",
       lines: [
         expect.objectContaining({ note: "Priorität hoch", orderedQuantity: 2 }),
@@ -185,7 +185,7 @@ describe("purchase orders", () => {
     const created = await agent
       .post("/purchase-orders")
       .send({
-        supplierName: "SafeHands",
+        supplierId: "supplier-safehands",
         locationId: "loc-main",
         lines: [{ articleId: "article-gloves", orderedQuantity: 10 }],
       })
@@ -273,7 +273,7 @@ describe("purchase orders", () => {
     const created = await agent
       .post("/purchase-orders")
       .send({
-        supplierName: "MediSafe Einkauf",
+        supplierId: "supplier-medisafe",
         locationId: "loc-main",
         lines: [
           {
@@ -303,7 +303,7 @@ describe("purchase orders", () => {
     const created = await agent
       .post("/purchase-orders")
       .send({
-        supplierName: "Archiv Test",
+        supplierId: "supplier-medisafe",
         locationId: "loc-main",
         lines: [{ articleId: "article-bandage", orderedQuantity: 1 }],
       })

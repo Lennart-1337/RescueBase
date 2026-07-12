@@ -63,6 +63,46 @@ describe("alert engine", () => {
     expect(warnings.find((warning) => warning.category === "STK_DUE")?.dueAt).toBe("2026-07-01T00:00:00.000Z");
   });
 
+  it("creates shortage warnings for uncovered inventory targets", () => {
+    const warnings = buildAlertWarnings(
+      {
+        batches: [],
+        devices: [],
+        targets: [
+          {
+            id: "target-1",
+            articleId: "article-3",
+            articleName: "Infusionsset",
+            locationId: "loc-3",
+            locationName: "RTW 1",
+            targetQuantity: 12,
+            currentQuantity: 5,
+            shortageQuantity: 7,
+            unit: "Stück"
+          }
+        ]
+      },
+      new Date("2026-06-15T00:00:00.000Z"),
+      90
+    );
+
+    expect(warnings).toEqual([
+      expect.objectContaining({
+        category: "SHORTAGE",
+        sourceType: "INVENTORY_TARGET" satisfies AlertSource,
+        sourceId: "target-1",
+        title: "Sollbestand unterschritten: Infusionsset",
+        locationId: "loc-3"
+      })
+    ]);
+    expect(warnings[0]?.metadata).toMatchObject({
+      articleId: "article-3",
+      targetQuantity: 12,
+      currentQuantity: 5,
+      shortageQuantity: 7
+    });
+  });
+
   it("calculates due dates by month with a missing control date falling back to now", () => {
     expect(computeControlDueDate(null, 12, new Date("2026-06-15T00:00:00.000Z"))).toBe("2026-06-15T00:00:00.000Z");
     expect(computeControlDueDate(new Date("2026-01-31T00:00:00.000Z"), 1, new Date("2026-06-15T00:00:00.000Z"))).toBe("2026-02-28T00:00:00.000Z");

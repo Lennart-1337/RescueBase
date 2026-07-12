@@ -2,7 +2,6 @@ const STORAGE_KEY = "rescuebase.pending-login";
 
 export type PendingLoginState = {
   email: string;
-  debugCode: string;
   loginChallengeId: string;
   twoFactorMethod: "TOTP" | "EMAIL";
 };
@@ -15,7 +14,7 @@ export function loadPendingLogin(): PendingLoginState | null {
     const state = JSON.parse(value) as Partial<PendingLoginState>;
     if (!state.email || !state.loginChallengeId || !state.twoFactorMethod) return null;
     if (state.twoFactorMethod !== "TOTP" && state.twoFactorMethod !== "EMAIL") return null;
-    return { email: state.email, debugCode: state.debugCode ?? "", loginChallengeId: state.loginChallengeId, twoFactorMethod: state.twoFactorMethod };
+    return { email: state.email, loginChallengeId: state.loginChallengeId, twoFactorMethod: state.twoFactorMethod };
   } catch {
     return null;
   }

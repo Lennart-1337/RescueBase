@@ -17,7 +17,8 @@ export const Route = createFileRoute("/admin/master-data/articles")({
   loader: ({ context }) =>
     preloadAdminQueries(context.queryClient, () =>
       Promise.all([
-        context.queryClient.prefetchQuery(catalogQueries.articles())
+        context.queryClient.prefetchQuery(catalogQueries.articles()),
+        context.queryClient.prefetchQuery(catalogQueries.suppliers())
       ])
     ),
   validateSearch: (search: Record<string, unknown>): ArticleRouteSearch =>

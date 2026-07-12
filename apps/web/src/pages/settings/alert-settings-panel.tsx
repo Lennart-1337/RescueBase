@@ -27,7 +27,8 @@ export function AlertSettingsPanel({ initial }: { initial: AlertSettings }) {
         <Field label="Digest-Uhrzeit"><input disabled={!draft.dailyDigestEnabled} onChange={(event) => setDraft({ ...draft, dailyDigestTime: event.target.value })} type="time" value={draft.dailyDigestTime} /></Field>
         <Field label="Warnvorlauf in Tagen"><input min="1" onChange={(event) => setDraft({ ...draft, warningWindowDays: Number(event.target.value) })} type="number" value={draft.warningWindowDays} /></Field>
       </div>
-      <p className="settings-meta">Letzter Digest: {draft.lastDigestSentAt ? formatDateTime(draft.lastDigestSentAt) : "noch nicht gesendet"}</p>
+      <p className="settings-meta">Letzter Digest-Lauf: {draft.lastDigestRunAt ? formatDateTime(draft.lastDigestRunAt) : "noch nicht ausgeführt"}</p>
+      <p className="settings-meta">Letzte erfolgreiche Zustellung: {draft.lastDigestSentAt ? formatDateTime(draft.lastDigestSentAt) : "noch nicht gesendet"}</p>
       {mutation.error ? <InlineError error={mutation.error} /> : null}
     </SettingsPanel>
   );

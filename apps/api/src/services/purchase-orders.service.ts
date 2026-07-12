@@ -20,7 +20,7 @@ type PurchaseOrderLineInput = {
   supplierArticleNumber?: string;
 };
 type CreatePurchaseOrderBody = {
-  supplierName: string;
+  supplierId: string;
   locationId: string;
   notes?: string;
   lines: PurchaseOrderLineInput[];
@@ -37,11 +37,12 @@ type ReceivePurchaseOrderBody = {
 type ShortageBody = {
   locationId: string;
   groupingMode: "single" | "supplier";
-  supplierName?: string;
+  supplierId?: string;
   articleIds?: string[];
 };
 
 const orderInclude = {
+  supplier: { select: { id: true, name: true } },
   location: { select: { id: true, name: true } },
   lines: { orderBy: { createdAt: "asc" as const } },
   receipts: { orderBy: { createdAt: "asc" as const } },
@@ -109,6 +110,7 @@ export class PurchaseOrdersService {
     const order = await this.prisma.purchaseOrder.create({
       data: {
         orderNumber: await this.nextOrderNumber(),
+        supplierId: payload.supplierId,
         supplierName: payload.supplierName,
         locationId: payload.locationId,
         notes: payload.notes,
@@ -135,25 +137,26 @@ export class PurchaseOrdersService {
       );
     const groups =
       body.groupingMode === "supplier"
-        ? groupBy(
-            shortages,
-            (entry) => entry.article.defaultSupplierName ?? "Ohne Lieferant",
-          )
+        ? groupBy(shortages, (entry) => {
+            if (!entry.article.defaultSupplierId) {
+              throw new BadRequestException(
+                "Mindestens ein ausgewählter Artikel hat keinen Standard-Lieferanten.",
+              );
+            }
+            return entry.article.defaultSupplierId;
+          })
         : new Map([
             [
-              normalizeRequiredText(
-                body.supplierName,
-                "Lieferant ist erforderlich.",
-              ),
+              normalizeRequiredText(body.supplierId, "Lieferant ist erforderlich."),
               shortages,
             ],
           ]);
 
     const orders = [];
-    for (const [supplierName, entries] of groups) {
+    for (const [supplierId, entries] of groups) {
       orders.push(
         await this.createDraft({
-          supplierName,
+          supplierId,
           locationId: body.locationId,
           lines: entries.map((entry) => ({
             articleId: entry.articleId,
@@ -328,18 +331,21 @@ export class PurchaseOrdersService {
       await tx.purchaseOrder.update({
         where: { id },
         data: {
-          ...(payload
-            ? {
-                supplierName: payload.supplierName,
-                locationId: payload.locationId,
-                notes: payload.notes,
-                lines: { create: payload.lines },
-              }
-            : {
-                supplierName: optionalPatchText(body.supplierName),
-                locationId: body.locationId
-                  ? await this.normalizeLocationId(body.locationId)
-                  : undefined,
+              ...(payload
+                ? {
+                    supplierId: payload.supplierId,
+                    supplierName: payload.supplierName,
+                    locationId: payload.locationId,
+                    notes: payload.notes,
+                    lines: { create: payload.lines },
+                  }
+                : {
+                    ...(body.supplierId
+                      ? await this.normalizeSupplierSelection(body.supplierId)
+                      : {}),
+                    locationId: body.locationId
+                      ? await this.normalizeLocationId(body.locationId)
+                      : undefined,
                 notes: optionalNullableText(body.notes),
               }),
         },
@@ -365,7 +371,9 @@ export class PurchaseOrdersService {
       await tx.purchaseOrder.update({
         where: { id: order.id },
         data: {
-          supplierName: optionalPatchText(body.supplierName),
+          ...(body.supplierId
+            ? await this.normalizeSupplierSelection(body.supplierId)
+            : {}),
           notes: optionalNullableText(body.notes),
         },
       });
@@ -387,8 +395,8 @@ export class PurchaseOrdersService {
   }
 
   private async normalizeDraftPayload(body: CreatePurchaseOrderBody) {
-    const supplierName = normalizeRequiredText(
-      body.supplierName,
+    const supplier = await this.normalizeSupplier(
+      body.supplierId,
       "Lieferant ist erforderlich.",
     );
     const locationId = normalizeRequiredText(
@@ -433,7 +441,8 @@ export class PurchaseOrdersService {
       };
     });
     return {
-      supplierName,
+      supplierId: supplier.id,
+      supplierName: supplier.name,
       locationId,
       notes: optionalNullableText(body.notes),
       lines,
@@ -446,7 +455,12 @@ export class PurchaseOrdersService {
         locationId,
         ...(articleIds?.length ? { articleId: { in: articleIds } } : {}),
       },
-      include: { article: true, location: true },
+      include: {
+        article: {
+          include: { defaultSupplier: { select: { id: true, name: true } } },
+        },
+        location: true,
+      },
     });
     const now = new Date();
     const batches = await this.prisma.batch.findMany({
@@ -503,6 +517,27 @@ export class PurchaseOrdersService {
     if (!location) throw new BadRequestException("Zielort nicht gefunden.");
     return normalized;
   }
+
+  private async normalizeSupplier(
+    supplierId: string | undefined,
+    message: string,
+  ) {
+    const normalized = normalizeRequiredText(supplierId, message);
+    const supplier = await this.prisma.supplier.findFirst({
+      where: { id: normalized, deletedAt: null },
+      select: { id: true, name: true },
+    });
+    if (!supplier) throw new BadRequestException("Lieferant nicht gefunden.");
+    return supplier;
+  }
+
+  private async normalizeSupplierSelection(supplierId: string) {
+    const supplier = await this.normalizeSupplier(
+      supplierId,
+      "Lieferant ist erforderlich.",
+    );
+    return { supplierId: supplier.id, supplierName: supplier.name };
+  }
 }
 
 function mapPurchaseOrder(order: NonNullable<PurchaseOrderRecord>) {
@@ -513,7 +548,8 @@ function mapPurchaseOrder(order: NonNullable<PurchaseOrderRecord>) {
   return {
     id: order.id,
     orderNumber: order.orderNumber,
-    supplierName: order.supplierName,
+    supplierId: order.supplierId,
+    supplierName: order.supplier?.name ?? order.supplierName,
     locationId: order.locationId,
     status: order.status,
     notes: order.notes ?? undefined,
@@ -613,11 +649,6 @@ function normalizeRequiredText(value: string | undefined, message: string) {
   return normalized;
 }
 
-function optionalPatchText(value: string | undefined) {
-  return value === undefined
-    ? undefined
-    : normalizeRequiredText(value, "Feld darf nicht leer sein.");
-}
 
 function optionalNullableText(value: string | undefined) {
   if (value === undefined) return undefined;

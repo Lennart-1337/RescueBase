@@ -24,7 +24,7 @@ export class SettingsService {
     ]);
     return {
       general: this.generalView(general),
-      alerts: this.alertsView(alerts),
+      alerts: await this.alertsView(alerts),
       inventory: this.inventoryView(inventory),
       templates
     };
@@ -122,8 +122,17 @@ export class SettingsService {
     };
   }
 
-  private alertsView(row: { dailyDigestEnabled: boolean; dailyDigestTime: string; warningWindowDays: number; lastDigestSentAt: Date | null }) {
-    return { dailyDigestEnabled: row.dailyDigestEnabled, dailyDigestTime: row.dailyDigestTime, warningWindowDays: row.warningWindowDays, lastDigestSentAt: row.lastDigestSentAt?.toISOString() ?? null };
+  private async alertsView(row: { dailyDigestEnabled: boolean; dailyDigestTime: string; warningWindowDays: number; lastDigestSentAt: Date | null }) {
+    const latestDigestDelivery = await this.prisma.alertEvent.aggregate({
+      _max: { lastDigestSentAt: true }
+    });
+    return {
+      dailyDigestEnabled: row.dailyDigestEnabled,
+      dailyDigestTime: row.dailyDigestTime,
+      warningWindowDays: row.warningWindowDays,
+      lastDigestRunAt: row.lastDigestSentAt?.toISOString() ?? null,
+      lastDigestSentAt: latestDigestDelivery._max.lastDigestSentAt?.toISOString() ?? null
+    };
   }
 
   private inventoryView(row: { enabled: boolean; dailyReconcileTime: string; lastReconciledAt: Date | null }) {

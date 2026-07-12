@@ -1,5 +1,6 @@
 .protocol-row {
-  grid-template-columns: minmax(220px, 1.15fr) minmax(180px, 0.95fr) minmax(220px, 1.1fr) 88px;
+  grid-template-columns: minmax(220px, 1.15fr) minmax(180px, 0.95fr) minmax(220px, 1.1fr) max-content;
+  column-gap: 18px;
 }
 
 .protocol-row-timestamp {
@@ -20,8 +21,9 @@
 }
 
 .protocol-row-actions {
-  flex: 0 0 88px;
+  flex: 0 0 auto;
   justify-content: flex-end;
+  padding-left: 6px;
 }
 
 @media (max-width: 1200px) {

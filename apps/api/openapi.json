@@ -41,6 +41,9 @@
     },
     {
       "name": "Admin-Einstellungen"
+    },
+    {
+      "name": "Push"
     }
   ],
   "components": {
@@ -54,23 +57,42 @@
     "schemas": {
       "UserRole": {
         "type": "string",
-        "enum": ["ADMIN", "WAREHOUSE"]
+        "enum": [
+          "ADMIN",
+          "WAREHOUSE"
+        ]
       },
       "TwoFactorMethod": {
         "type": "string",
-        "enum": ["TOTP", "EMAIL"]
+        "enum": [
+          "TOTP",
+          "EMAIL"
+        ]
       },
       "KitOperationalStatus": {
         "type": "string",
-        "enum": ["READY", "CONDITIONAL", "NOT_READY"]
+        "enum": [
+          "READY",
+          "CONDITIONAL",
+          "NOT_READY"
+        ]
       },
       "ReplenishmentStatus": {
         "type": "string",
-        "enum": ["OPEN", "DONE", "CANCELLED"]
+        "enum": [
+          "OPEN",
+          "DONE",
+          "CANCELLED"
+        ]
       },
       "InventoryProcurementStatus": {
         "type": "string",
-        "enum": ["OPEN", "IN_PROGRESS", "DONE", "CANCELLED"]
+        "enum": [
+          "OPEN",
+          "IN_PROGRESS",
+          "DONE",
+          "CANCELLED"
+        ]
       },
       "PurchaseOrderStatus": {
         "type": "string",
@@ -248,7 +270,11 @@
             "minLength": 12
           }
         },
-        "required": ["email", "displayName", "password"],
+        "required": [
+          "email",
+          "displayName",
+          "password"
+        ],
         "additionalProperties": false
       },
       "FirstAdminResponse": {
@@ -256,7 +282,9 @@
         "properties": {
           "ok": {
             "type": "boolean",
-            "enum": [true]
+            "enum": [
+              true
+            ]
           },
           "userId": {
             "type": "string"
@@ -265,7 +293,11 @@
             "$ref": "#/components/schemas/AuthenticatedUser"
           }
         },
-        "required": ["ok", "userId", "user"],
+        "required": [
+          "ok",
+          "userId",
+          "user"
+        ],
         "additionalProperties": false
       },
       "LoginRequest": {
@@ -306,14 +338,13 @@
           "emailChallengeId": {
             "type": "string"
           },
-          "debugCode": {
-            "type": "string"
-          },
           "user": {
             "$ref": "#/components/schemas/AuthenticatedUser"
           }
         },
-        "required": ["requiresTwoFactor"],
+        "required": [
+          "requiresTwoFactor"
+        ],
         "additionalProperties": false
       },
       "TotpSetupResponse": {
@@ -326,7 +357,23 @@
             "type": "string"
           }
         },
-        "required": ["secret", "otpauthUrl"],
+        "required": [
+          "secret",
+          "otpauthUrl"
+        ],
+        "additionalProperties": false
+      },
+      "CurrentPasswordRequest": {
+        "type": "object",
+        "properties": {
+          "currentPassword": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "currentPassword"
+        ],
         "additionalProperties": false
       },
       "EnableTotpRequest": {
@@ -336,7 +383,9 @@
             "type": "string"
           }
         },
-        "required": ["code"],
+        "required": [
+          "code"
+        ],
         "additionalProperties": false
       },
       "EmailTwoFactorStartResponse": {
@@ -344,12 +393,11 @@
         "properties": {
           "challengeId": {
             "type": "string"
-          },
-          "debugCode": {
-            "type": "string"
           }
         },
-        "required": ["challengeId"],
+        "required": [
+          "challengeId"
+        ],
         "additionalProperties": false
       },
       "EnableEmailTwoFactorRequest": {
@@ -362,7 +410,10 @@
             "type": "string"
           }
         },
-        "required": ["challengeId", "code"],
+        "required": [
+          "challengeId",
+          "code"
+        ],
         "additionalProperties": false
       },
       "UpdateOrderNotificationsRequest": {
@@ -372,7 +423,9 @@
             "type": "boolean"
           }
         },
-        "required": ["enabled"],
+        "required": [
+          "enabled"
+        ],
         "additionalProperties": false
       },
       "UpdateOrderNotificationsResponse": {
@@ -380,13 +433,96 @@
         "properties": {
           "ok": {
             "type": "boolean",
-            "enum": [true]
+            "enum": [
+              true
+            ]
           },
           "user": {
             "$ref": "#/components/schemas/AuthenticatedUser"
           }
         },
-        "required": ["ok", "user"],
+        "required": [
+          "ok",
+          "user"
+        ],
+        "additionalProperties": false
+      },
+      "PushConfiguration": {
+        "type": "object",
+        "properties": {
+          "enabled": {
+            "type": "boolean"
+          },
+          "publicKey": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "enabled"
+        ],
+        "additionalProperties": false
+      },
+      "PushSubscriptionRequest": {
+        "type": "object",
+        "properties": {
+          "endpoint": {
+            "type": "string",
+            "format": "uri"
+          },
+          "expirationTime": {
+            "type": "number",
+            "nullable": true
+          },
+          "keys": {
+            "type": "object",
+            "properties": {
+              "auth": {
+                "type": "string"
+              },
+              "p256dh": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "auth",
+              "p256dh"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "endpoint",
+          "keys"
+        ],
+        "additionalProperties": false
+      },
+      "PushSubscriptionEndpoints": {
+        "type": "object",
+        "properties": {
+          "endpoints": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uri"
+            }
+          }
+        },
+        "required": [
+          "endpoints"
+        ],
+        "additionalProperties": false
+      },
+      "PushSubscriptionRemovalRequest": {
+        "type": "object",
+        "properties": {
+          "endpoint": {
+            "type": "string",
+            "format": "uri"
+          }
+        },
+        "required": [
+          "endpoint"
+        ],
         "additionalProperties": false
       },
       "InviteUserRequest": {
@@ -403,7 +539,11 @@
             "$ref": "#/components/schemas/UserRole"
           }
         },
-        "required": ["email", "displayName", "role"],
+        "required": [
+          "email",
+          "displayName",
+          "role"
+        ],
         "additionalProperties": false
       },
       "InviteUserResponse": {
@@ -415,13 +555,12 @@
           "invitationUrl": {
             "type": "string",
             "format": "uri"
-          },
-          "debugUrl": {
-            "type": "string",
-            "format": "uri"
           }
         },
-        "required": ["id", "invitationUrl"],
+        "required": [
+          "id",
+          "invitationUrl"
+        ],
         "additionalProperties": false
       },
       "InvitationPreview": {
@@ -438,7 +577,11 @@
             "$ref": "#/components/schemas/UserRole"
           }
         },
-        "required": ["email", "displayName", "role"],
+        "required": [
+          "email",
+          "displayName",
+          "role"
+        ],
         "additionalProperties": false
       },
       "AcceptInvitationRequest": {
@@ -455,7 +598,10 @@
             "type": "string"
           }
         },
-        "required": ["token", "password"],
+        "required": [
+          "token",
+          "password"
+        ],
         "additionalProperties": false
       },
       "AcceptInvitationResponse": {
@@ -463,13 +609,18 @@
         "properties": {
           "ok": {
             "type": "boolean",
-            "enum": [true]
+            "enum": [
+              true
+            ]
           },
           "user": {
             "$ref": "#/components/schemas/AuthenticatedUser"
           }
         },
-        "required": ["ok", "user"],
+        "required": [
+          "ok",
+          "user"
+        ],
         "additionalProperties": false
       },
       "PasswordResetRequest": {
@@ -480,7 +631,9 @@
             "format": "email"
           }
         },
-        "required": ["email"],
+        "required": [
+          "email"
+        ],
         "additionalProperties": false
       },
       "PasswordResetRequestResponse": {
@@ -488,14 +641,14 @@
         "properties": {
           "ok": {
             "type": "boolean",
-            "enum": [true]
-          },
-          "debugUrl": {
-            "type": "string",
-            "format": "uri"
+            "enum": [
+              true
+            ]
           }
         },
-        "required": ["ok"],
+        "required": [
+          "ok"
+        ],
         "additionalProperties": false
       },
       "PasswordResetPreview": {
@@ -509,7 +662,10 @@
             "type": "string"
           }
         },
-        "required": ["email", "displayName"],
+        "required": [
+          "email",
+          "displayName"
+        ],
         "additionalProperties": false
       },
       "PasswordResetConfirmRequest": {
@@ -523,7 +679,10 @@
             "minLength": 12
           }
         },
-        "required": ["token", "password"],
+        "required": [
+          "token",
+          "password"
+        ],
         "additionalProperties": false
       },
       "UserSummary": {
@@ -569,7 +728,9 @@
             "type": "boolean"
           }
         },
-        "required": ["active"],
+        "required": [
+          "active"
+        ],
         "additionalProperties": false
       },
       "SetUserRoleRequest": {
@@ -579,7 +740,144 @@
             "$ref": "#/components/schemas/UserRole"
           }
         },
-        "required": ["role"],
+        "required": [
+          "role"
+        ],
+        "additionalProperties": false
+      },
+      "Supplier": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "contactPerson": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string",
+            "format": "email"
+          },
+          "phone": {
+            "type": "string"
+          },
+          "website": {
+            "type": "string",
+            "format": "uri"
+          },
+          "street": {
+            "type": "string"
+          },
+          "postalCode": {
+            "type": "string"
+          },
+          "city": {
+            "type": "string"
+          },
+          "country": {
+            "type": "string"
+          },
+          "notes": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "name"
+        ],
+        "additionalProperties": false
+      },
+      "CreateSupplierRequest": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "contactPerson": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string",
+            "format": "email"
+          },
+          "phone": {
+            "type": "string"
+          },
+          "website": {
+            "type": "string",
+            "format": "uri"
+          },
+          "street": {
+            "type": "string"
+          },
+          "postalCode": {
+            "type": "string"
+          },
+          "city": {
+            "type": "string"
+          },
+          "country": {
+            "type": "string"
+          },
+          "notes": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "name"
+        ],
+        "additionalProperties": false
+      },
+      "UpdateSupplierRequest": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "contactPerson": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string",
+            "format": "email"
+          },
+          "phone": {
+            "type": "string"
+          },
+          "website": {
+            "type": "string",
+            "format": "uri"
+          },
+          "street": {
+            "type": "string"
+          },
+          "postalCode": {
+            "type": "string"
+          },
+          "city": {
+            "type": "string"
+          },
+          "country": {
+            "type": "string"
+          },
+          "notes": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "name"
+        ],
         "additionalProperties": false
       },
       "Article": {
@@ -610,6 +908,9 @@
             "type": "string",
             "format": "uri"
           },
+          "defaultSupplierId": {
+            "type": "string"
+          },
           "defaultSupplierName": {
             "type": "string"
           },
@@ -657,7 +958,13 @@
             "format": "date-time"
           }
         },
-        "required": ["id", "name", "unit", "sterile", "criticalDefault"],
+        "required": [
+          "id",
+          "name",
+          "unit",
+          "sterile",
+          "criticalDefault"
+        ],
         "additionalProperties": false
       },
       "CreateArticleRequest": {
@@ -685,7 +992,7 @@
             "type": "string",
             "format": "uri"
           },
-          "defaultSupplierName": {
+          "defaultSupplierId": {
             "type": "string"
           },
           "unitsPerPackage": {
@@ -724,7 +1031,12 @@
             "type": "boolean"
           }
         },
-        "required": ["name", "unit", "sterile", "criticalDefault"],
+        "required": [
+          "name",
+          "unit",
+          "sterile",
+          "criticalDefault"
+        ],
         "additionalProperties": false
       },
       "UpdateArticleRequest": {
@@ -752,7 +1064,7 @@
             "type": "string",
             "format": "uri"
           },
-          "defaultSupplierName": {
+          "defaultSupplierId": {
             "type": "string"
           },
           "unitsPerPackage": {
@@ -791,7 +1103,12 @@
             "type": "boolean"
           }
         },
-        "required": ["name", "unit", "sterile", "criticalDefault"],
+        "required": [
+          "name",
+          "unit",
+          "sterile",
+          "criticalDefault"
+        ],
         "additionalProperties": false
       },
       "ReorderArticlesRequest": {
@@ -804,7 +1121,9 @@
             }
           }
         },
-        "required": ["articleIds"],
+        "required": [
+          "articleIds"
+        ],
         "additionalProperties": false
       },
       "Location": {
@@ -828,7 +1147,11 @@
             "format": "date-time"
           }
         },
-        "required": ["id", "name", "kind"],
+        "required": [
+          "id",
+          "name",
+          "kind"
+        ],
         "additionalProperties": false
       },
       "CreateLocationRequest": {
@@ -841,7 +1164,10 @@
             "type": "string"
           }
         },
-        "required": ["name", "kind"],
+        "required": [
+          "name",
+          "kind"
+        ],
         "additionalProperties": false
       },
       "UpdateLocationRequest": {
@@ -854,7 +1180,10 @@
             "type": "string"
           }
         },
-        "required": ["name", "kind"],
+        "required": [
+          "name",
+          "kind"
+        ],
         "additionalProperties": false
       },
       "MedicalDeviceArticle": {
@@ -879,7 +1208,12 @@
             "type": "integer"
           }
         },
-        "required": ["id", "name", "stkRequired", "mtkRequired"],
+        "required": [
+          "id",
+          "name",
+          "stkRequired",
+          "mtkRequired"
+        ],
         "additionalProperties": false
       },
       "MedicalDeviceLocation": {
@@ -892,7 +1226,10 @@
             "type": "string"
           }
         },
-        "required": ["id", "name"],
+        "required": [
+          "id",
+          "name"
+        ],
         "additionalProperties": false
       },
       "MedicalDeviceKit": {
@@ -914,7 +1251,13 @@
             "type": "string"
           }
         },
-        "required": ["id", "name", "code", "locationId", "locationName"],
+        "required": [
+          "id",
+          "name",
+          "code",
+          "locationId",
+          "locationName"
+        ],
         "additionalProperties": false
       },
       "MedicalDevice": {
@@ -1024,7 +1367,10 @@
             "type": "string"
           }
         },
-        "required": ["name", "articleId"],
+        "required": [
+          "name",
+          "articleId"
+        ],
         "additionalProperties": false
       },
       "TemplatePosition": {
@@ -1083,7 +1429,12 @@
             }
           }
         },
-        "required": ["id", "name", "version", "positions"],
+        "required": [
+          "id",
+          "name",
+          "version",
+          "positions"
+        ],
         "additionalProperties": false
       },
       "CreateTemplatePositionRequest": {
@@ -1103,7 +1454,11 @@
             "type": "boolean"
           }
         },
-        "required": ["articleId", "requiredQuantity", "critical"],
+        "required": [
+          "articleId",
+          "requiredQuantity",
+          "critical"
+        ],
         "additionalProperties": false
       },
       "CreateTemplateRequest": {
@@ -1123,7 +1478,10 @@
             }
           }
         },
-        "required": ["name", "positions"],
+        "required": [
+          "name",
+          "positions"
+        ],
         "additionalProperties": false
       },
       "ReviseTemplateRequest": {
@@ -1136,7 +1494,9 @@
             }
           }
         },
-        "required": ["positions"],
+        "required": [
+          "positions"
+        ],
         "additionalProperties": false
       },
       "Kit": {
@@ -1177,7 +1537,10 @@
                 "type": "string"
               }
             },
-            "required": ["id", "name"],
+            "required": [
+              "id",
+              "name"
+            ],
             "additionalProperties": false
           },
           "template": {
@@ -1215,7 +1578,13 @@
             "type": "string"
           }
         },
-        "required": ["id", "name", "code", "status", "publicToken"],
+        "required": [
+          "id",
+          "name",
+          "code",
+          "status",
+          "publicToken"
+        ],
         "additionalProperties": false
       },
       "CreateKitRequest": {
@@ -1234,7 +1603,12 @@
             "type": "string"
           }
         },
-        "required": ["name", "code", "locationId", "templateId"],
+        "required": [
+          "name",
+          "code",
+          "locationId",
+          "templateId"
+        ],
         "additionalProperties": false
       },
       "UpdateKitRequest": {
@@ -1253,7 +1627,12 @@
             "type": "string"
           }
         },
-        "required": ["name", "code", "locationId", "templateId"],
+        "required": [
+          "name",
+          "code",
+          "locationId",
+          "templateId"
+        ],
         "additionalProperties": false
       },
       "Batch": {
@@ -1292,7 +1671,11 @@
                 "type": "string"
               }
             },
-            "required": ["id", "name", "unit"],
+            "required": [
+              "id",
+              "name",
+              "unit"
+            ],
             "additionalProperties": false
           },
           "location": {
@@ -1305,7 +1688,10 @@
                 "type": "string"
               }
             },
-            "required": ["id", "name"],
+            "required": [
+              "id",
+              "name"
+            ],
             "additionalProperties": false
           }
         },
@@ -1372,7 +1758,9 @@
             "type": "string"
           }
         },
-        "required": ["reason"],
+        "required": [
+          "reason"
+        ],
         "additionalProperties": false
       },
       "InventoryMovement": {
@@ -1449,7 +1837,11 @@
             "format": "uri"
           }
         },
-        "required": ["id", "name", "unit"],
+        "required": [
+          "id",
+          "name",
+          "unit"
+        ],
         "additionalProperties": false
       },
       "InventoryTargetLocation": {
@@ -1462,7 +1854,10 @@
             "type": "string"
           }
         },
-        "required": ["id", "name"],
+        "required": [
+          "id",
+          "name"
+        ],
         "additionalProperties": false
       },
       "InventoryProcurementReceipt": {
@@ -1631,7 +2026,9 @@
             "minimum": 1
           }
         },
-        "required": ["targetQuantity"],
+        "required": [
+          "targetQuantity"
+        ],
         "additionalProperties": false
       },
       "InventoryReconcileResponse": {
@@ -1654,7 +2051,12 @@
             "minimum": 0
           }
         },
-        "required": ["checked", "created", "updated", "cancelled"],
+        "required": [
+          "checked",
+          "created",
+          "updated",
+          "cancelled"
+        ],
         "additionalProperties": false
       },
       "ReceiveProcurementOrderItemRequest": {
@@ -1672,7 +2074,11 @@
             "minimum": 1
           }
         },
-        "required": ["lotNumber", "expiresAt", "quantity"],
+        "required": [
+          "lotNumber",
+          "expiresAt",
+          "quantity"
+        ],
         "additionalProperties": false
       },
       "ReceiveProcurementOrderRequest": {
@@ -1688,7 +2094,10 @@
             "type": "boolean"
           }
         },
-        "required": ["items", "verified"],
+        "required": [
+          "items",
+          "verified"
+        ],
         "additionalProperties": false
       },
       "PurchaseOrderLine": {
@@ -1810,6 +2219,9 @@
           "orderNumber": {
             "type": "string"
           },
+          "supplierId": {
+            "type": "string"
+          },
           "supplierName": {
             "type": "string"
           },
@@ -1872,6 +2284,7 @@
         "required": [
           "id",
           "orderNumber",
+          "supplierId",
           "supplierName",
           "locationId",
           "status",
@@ -1905,13 +2318,16 @@
             "type": "string"
           }
         },
-        "required": ["articleId", "orderedQuantity"],
+        "required": [
+          "articleId",
+          "orderedQuantity"
+        ],
         "additionalProperties": false
       },
       "PurchaseOrderWriteRequest": {
         "type": "object",
         "properties": {
-          "supplierName": {
+          "supplierId": {
             "type": "string"
           },
           "locationId": {
@@ -1927,7 +2343,11 @@
             }
           }
         },
-        "required": ["supplierName", "locationId", "lines"],
+        "required": [
+          "supplierId",
+          "locationId",
+          "lines"
+        ],
         "additionalProperties": false
       },
       "PurchaseOrderLineNoteRequest": {
@@ -1940,13 +2360,15 @@
             "type": "string"
           }
         },
-        "required": ["lineId"],
+        "required": [
+          "lineId"
+        ],
         "additionalProperties": false
       },
       "UpdatePurchaseOrderRequest": {
         "type": "object",
         "properties": {
-          "supplierName": {
+          "supplierId": {
             "type": "string"
           },
           "locationId": {
@@ -1979,9 +2401,12 @@
           },
           "groupingMode": {
             "type": "string",
-            "enum": ["single", "supplier"]
+            "enum": [
+              "single",
+              "supplier"
+            ]
           },
-          "supplierName": {
+          "supplierId": {
             "type": "string"
           },
           "articleIds": {
@@ -1991,7 +2416,10 @@
             }
           }
         },
-        "required": ["locationId", "groupingMode"],
+        "required": [
+          "locationId",
+          "groupingMode"
+        ],
         "additionalProperties": false
       },
       "PurchaseOrderReceiptBatchRequest": {
@@ -2009,7 +2437,11 @@
             "minimum": 1
           }
         },
-        "required": ["lotNumber", "expiresAt", "quantity"],
+        "required": [
+          "lotNumber",
+          "expiresAt",
+          "quantity"
+        ],
         "additionalProperties": false
       },
       "PurchaseOrderReceiveLineRequest": {
@@ -2025,7 +2457,10 @@
             }
           }
         },
-        "required": ["lineId", "batches"],
+        "required": [
+          "lineId",
+          "batches"
+        ],
         "additionalProperties": false
       },
       "ReceivePurchaseOrderRequest": {
@@ -2038,7 +2473,9 @@
             }
           }
         },
-        "required": ["lines"],
+        "required": [
+          "lines"
+        ],
         "additionalProperties": false
       },
       "InventoryAutomationConfig": {
@@ -2056,7 +2493,10 @@
             "nullable": true
           }
         },
-        "required": ["enabled", "dailyReconcileTime"],
+        "required": [
+          "enabled",
+          "dailyReconcileTime"
+        ],
         "additionalProperties": false
       },
       "UpdateInventoryAutomationConfigRequest": {
@@ -2066,7 +2506,9 @@
             "type": "string"
           }
         },
-        "required": ["dailyReconcileTime"],
+        "required": [
+          "dailyReconcileTime"
+        ],
         "additionalProperties": false
       },
       "GeneralSettings": {
@@ -2126,6 +2568,11 @@
             "minimum": 1,
             "maximum": 3650
           },
+          "lastDigestRunAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
           "lastDigestSentAt": {
             "type": "string",
             "format": "date-time",
@@ -2136,6 +2583,7 @@
           "dailyDigestEnabled",
           "dailyDigestTime",
           "warningWindowDays",
+          "lastDigestRunAt",
           "lastDigestSentAt"
         ],
         "additionalProperties": false
@@ -2156,12 +2604,20 @@
             "nullable": true
           }
         },
-        "required": ["enabled", "dailyReconcileTime", "lastReconciledAt"],
+        "required": [
+          "enabled",
+          "dailyReconcileTime",
+          "lastReconciledAt"
+        ],
         "additionalProperties": false
       },
       "NotificationTemplateKey": {
         "type": "string",
-        "enum": ["ALERT_IMMEDIATE", "ALERT_DIGEST", "NEW_ORDER"]
+        "enum": [
+          "ALERT_IMMEDIATE",
+          "ALERT_DIGEST",
+          "NEW_ORDER"
+        ]
       },
       "NotificationTemplate": {
         "type": "object",
@@ -2213,7 +2669,12 @@
             }
           }
         },
-        "required": ["general", "alerts", "inventory", "templates"],
+        "required": [
+          "general",
+          "alerts",
+          "inventory",
+          "templates"
+        ],
         "additionalProperties": false
       },
       "UpdateGeneralSettingsRequest": {
@@ -2304,7 +2765,11 @@
             "type": "string"
           }
         },
-        "required": ["subject", "text", "html"],
+        "required": [
+          "subject",
+          "text",
+          "html"
+        ],
         "additionalProperties": false
       },
       "ExpiryWarning": {
@@ -2342,7 +2807,11 @@
                 "type": "string"
               }
             },
-            "required": ["id", "name", "unit"],
+            "required": [
+              "id",
+              "name",
+              "unit"
+            ],
             "additionalProperties": false
           },
           "location": {
@@ -2355,12 +2824,18 @@
                 "type": "string"
               }
             },
-            "required": ["id", "name"],
+            "required": [
+              "id",
+              "name"
+            ],
             "additionalProperties": false
           },
           "severity": {
             "type": "string",
-            "enum": ["EXPIRED", "EXPIRING_SOON"]
+            "enum": [
+              "EXPIRED",
+              "EXPIRING_SOON"
+            ]
           }
         },
         "required": [
@@ -2395,14 +2870,22 @@
                 "$ref": "#/components/schemas/KitOperationalStatus"
               }
             },
-            "required": ["id", "name", "code", "status"],
+            "required": [
+              "id",
+              "name",
+              "code",
+              "status"
+            ],
             "additionalProperties": false
           },
           "template": {
             "$ref": "#/components/schemas/KitTemplate"
           }
         },
-        "required": ["kit", "template"],
+        "required": [
+          "kit",
+          "template"
+        ],
         "additionalProperties": false
       },
       "CheckPositionInput": {
@@ -2446,7 +2929,11 @@
             }
           }
         },
-        "required": ["checkerName", "signaturePngDataUrl", "positions"],
+        "required": [
+          "checkerName",
+          "signaturePngDataUrl",
+          "positions"
+        ],
         "additionalProperties": false
       },
       "CheckEvaluation": {
@@ -2459,7 +2946,9 @@
             }
           }
         },
-        "required": ["warnings"],
+        "required": [
+          "warnings"
+        ],
         "additionalProperties": false
       },
       "CheckResponse": {
@@ -2519,7 +3008,11 @@
             "type": "string"
           }
         },
-        "required": ["id", "name", "code"],
+        "required": [
+          "id",
+          "name",
+          "code"
+        ],
         "additionalProperties": false
       },
       "CheckProtocolOrder": {
@@ -2532,7 +3025,10 @@
             "$ref": "#/components/schemas/ReplenishmentStatus"
           }
         },
-        "required": ["id", "status"],
+        "required": [
+          "id",
+          "status"
+        ],
         "additionalProperties": false
       },
       "CheckProtocolSummary": {
@@ -2747,7 +3243,12 @@
             "minimum": 0
           }
         },
-        "required": ["items", "page", "pageSize", "total"],
+        "required": [
+          "items",
+          "page",
+          "pageSize",
+          "total"
+        ],
         "additionalProperties": false
       },
       "ReplenishmentOrderItem": {
@@ -2848,7 +3349,10 @@
             "$ref": "#/components/schemas/ReplenishmentOrder"
           }
         },
-        "required": ["check", "evaluation"],
+        "required": [
+          "check",
+          "evaluation"
+        ],
         "additionalProperties": false
       },
       "FulfillOrderItemRequest": {
@@ -2865,7 +3369,11 @@
             "minimum": 0
           }
         },
-        "required": ["itemId", "batchId", "quantity"],
+        "required": [
+          "itemId",
+          "batchId",
+          "quantity"
+        ],
         "additionalProperties": false
       },
       "FulfillOrderRequest": {
@@ -2878,7 +3386,9 @@
             }
           }
         },
-        "required": ["items"],
+        "required": [
+          "items"
+        ],
         "additionalProperties": false
       },
       "FulfillOrderResponse": {
@@ -2895,7 +3405,11 @@
             "minimum": 0
           }
         },
-        "required": ["order", "completed", "remainingQuantity"],
+        "required": [
+          "order",
+          "completed",
+          "remainingQuantity"
+        ],
         "additionalProperties": false
       },
       "AuditEvent": {
@@ -2906,7 +3420,11 @@
           },
           "actorType": {
             "type": "string",
-            "enum": ["SYSTEM", "USER", "PUBLIC_CHECKER"]
+            "enum": [
+              "SYSTEM",
+              "USER",
+              "PUBLIC_CHECKER"
+            ]
           },
           "actorLabel": {
             "type": "string"
@@ -2946,10 +3464,14 @@
         "properties": {
           "ok": {
             "type": "boolean",
-            "enum": [true]
+            "enum": [
+              true
+            ]
           }
         },
-        "required": ["ok"],
+        "required": [
+          "ok"
+        ],
         "additionalProperties": false
       }
     }
@@ -2962,7 +3484,9 @@
   "paths": {
     "/admin/settings": {
       "get": {
-        "tags": ["Admin-Einstellungen"],
+        "tags": [
+          "Admin-Einstellungen"
+        ],
         "operationId": "AdminSettingsController_getAll",
         "responses": {
           "200": {
@@ -2980,7 +3504,9 @@
     },
     "/admin/settings/general": {
       "post": {
-        "tags": ["Admin-Einstellungen"],
+        "tags": [
+          "Admin-Einstellungen"
+        ],
         "operationId": "AdminSettingsController_updateGeneral",
         "requestBody": {
           "required": true,
@@ -3008,7 +3534,9 @@
     },
     "/admin/settings/alerts": {
       "post": {
-        "tags": ["Admin-Einstellungen"],
+        "tags": [
+          "Admin-Einstellungen"
+        ],
         "operationId": "AdminSettingsController_updateAlerts",
         "requestBody": {
           "required": true,
@@ -3036,7 +3564,9 @@
     },
     "/admin/settings/inventory": {
       "post": {
-        "tags": ["Admin-Einstellungen"],
+        "tags": [
+          "Admin-Einstellungen"
+        ],
         "operationId": "AdminSettingsController_updateInventory",
         "requestBody": {
           "required": true,
@@ -3064,7 +3594,9 @@
     },
     "/admin/settings/templates/{key}": {
       "post": {
-        "tags": ["Admin-Einstellungen"],
+        "tags": [
+          "Admin-Einstellungen"
+        ],
         "operationId": "AdminSettingsController_updateTemplate",
         "parameters": [
           {
@@ -3102,7 +3634,9 @@
     },
     "/admin/settings/templates/{key}/preview": {
       "post": {
-        "tags": ["Admin-Einstellungen"],
+        "tags": [
+          "Admin-Einstellungen"
+        ],
         "operationId": "AdminSettingsController_previewTemplate",
         "parameters": [
           {
@@ -3140,7 +3674,9 @@
     },
     "/auth/setup/status": {
       "get": {
-        "tags": ["Auth"],
+        "tags": [
+          "Auth"
+        ],
         "operationId": "AuthController_setupStatus",
         "security": [],
         "responses": {
@@ -3159,7 +3695,9 @@
     },
     "/auth/setup/first-admin": {
       "post": {
-        "tags": ["Auth"],
+        "tags": [
+          "Auth"
+        ],
         "operationId": "AuthController_createFirstAdmin",
         "security": [],
         "requestBody": {
@@ -3188,7 +3726,9 @@
     },
     "/auth/login": {
       "post": {
-        "tags": ["Auth"],
+        "tags": [
+          "Auth"
+        ],
         "operationId": "AuthController_login",
         "security": [],
         "requestBody": {
@@ -3217,7 +3757,9 @@
     },
     "/auth/invitations/{token}": {
       "get": {
-        "tags": ["Auth"],
+        "tags": [
+          "Auth"
+        ],
         "operationId": "AuthController_invitation",
         "security": [],
         "parameters": [
@@ -3246,7 +3788,9 @@
     },
     "/auth/invitations/accept": {
       "post": {
-        "tags": ["Auth"],
+        "tags": [
+          "Auth"
+        ],
         "operationId": "AuthController_acceptInvitation",
         "security": [],
         "requestBody": {
@@ -3275,7 +3819,9 @@
     },
     "/auth/password-reset/request": {
       "post": {
-        "tags": ["Auth"],
+        "tags": [
+          "Auth"
+        ],
         "operationId": "AuthController_requestPasswordReset",
         "security": [],
         "requestBody": {
@@ -3304,7 +3850,9 @@
     },
     "/auth/password-reset/{token}": {
       "get": {
-        "tags": ["Auth"],
+        "tags": [
+          "Auth"
+        ],
         "operationId": "AuthController_passwordReset",
         "security": [],
         "parameters": [
@@ -3333,7 +3881,9 @@
     },
     "/auth/password-reset/confirm": {
       "post": {
-        "tags": ["Auth"],
+        "tags": [
+          "Auth"
+        ],
         "operationId": "AuthController_confirmPasswordReset",
         "security": [],
         "requestBody": {
@@ -3362,7 +3912,9 @@
     },
     "/auth/session": {
       "get": {
-        "tags": ["Auth"],
+        "tags": [
+          "Auth"
+        ],
         "operationId": "AuthController_session",
         "responses": {
           "200": {
@@ -3380,7 +3932,9 @@
     },
     "/auth/logout": {
       "post": {
-        "tags": ["Auth"],
+        "tags": [
+          "Auth"
+        ],
         "operationId": "AuthController_logout",
         "responses": {
           "201": {
@@ -3398,8 +3952,20 @@
     },
     "/auth/2fa/totp/setup": {
       "post": {
-        "tags": ["Auth"],
+        "tags": [
+          "Auth"
+        ],
         "operationId": "AuthController_setupTotp",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CurrentPasswordRequest"
+              }
+            }
+          }
+        },
         "responses": {
           "201": {
             "description": "TOTP setup",
@@ -3416,7 +3982,9 @@
     },
     "/auth/2fa/totp/enable": {
       "post": {
-        "tags": ["Auth"],
+        "tags": [
+          "Auth"
+        ],
         "operationId": "AuthController_enableTotp",
         "requestBody": {
           "required": true,
@@ -3444,8 +4012,20 @@
     },
     "/auth/2fa/email/start": {
       "post": {
-        "tags": ["Auth"],
+        "tags": [
+          "Auth"
+        ],
         "operationId": "AuthController_startEmailTwoFactor",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CurrentPasswordRequest"
+              }
+            }
+          }
+        },
         "responses": {
           "201": {
             "description": "Email 2FA challenge started",
@@ -3462,7 +4042,9 @@
     },
     "/auth/2fa/email/enable": {
       "post": {
-        "tags": ["Auth"],
+        "tags": [
+          "Auth"
+        ],
         "operationId": "AuthController_enableEmailTwoFactor",
         "requestBody": {
           "required": true,
@@ -3490,7 +4072,9 @@
     },
     "/auth/preferences/order-notifications": {
       "post": {
-        "tags": ["Auth"],
+        "tags": [
+          "Auth"
+        ],
         "operationId": "AuthController_updateOrderNotifications",
         "requestBody": {
           "required": true,
@@ -3516,10 +4100,120 @@
         }
       }
     },
+    "/push/config": {
+      "get": {
+        "tags": [
+          "Push"
+        ],
+        "operationId": "PushController_configuration",
+        "responses": {
+          "200": {
+            "description": "Push configuration",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PushConfiguration"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/push/subscriptions/me": {
+      "get": {
+        "tags": [
+          "Push"
+        ],
+        "operationId": "PushController_subscriptions",
+        "responses": {
+          "200": {
+            "description": "Current user push subscriptions",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PushSubscriptionEndpoints"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/push/subscriptions": {
+      "post": {
+        "tags": [
+          "Push"
+        ],
+        "operationId": "PushController_register",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PushSubscriptionRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Push subscription saved",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OkResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Push"
+        ],
+        "operationId": "PushController_remove",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PushSubscriptionRemovalRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Push subscription removed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OkResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/auth/2fa/disable": {
       "post": {
-        "tags": ["Auth"],
+        "tags": [
+          "Auth"
+        ],
         "operationId": "AuthController_disableTwoFactor",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CurrentPasswordRequest"
+              }
+            }
+          }
+        },
         "responses": {
           "201": {
             "description": "2FA disabled",
@@ -3536,7 +4230,9 @@
     },
     "/auth/invite": {
       "post": {
-        "tags": ["Auth"],
+        "tags": [
+          "Auth"
+        ],
         "operationId": "AuthController_invite",
         "requestBody": {
           "required": true,
@@ -3564,7 +4260,9 @@
     },
     "/auth/users": {
       "get": {
-        "tags": ["Auth"],
+        "tags": [
+          "Auth"
+        ],
         "operationId": "AuthController_users",
         "responses": {
           "200": {
@@ -3585,7 +4283,9 @@
     },
     "/auth/users/{id}/active": {
       "post": {
-        "tags": ["Auth"],
+        "tags": [
+          "Auth"
+        ],
         "operationId": "AuthController_setUserActive",
         "parameters": [
           {
@@ -3623,7 +4323,9 @@
     },
     "/auth/users/{id}/role": {
       "post": {
-        "tags": ["Auth"],
+        "tags": [
+          "Auth"
+        ],
         "operationId": "AuthController_setUserRole",
         "parameters": [
           {
@@ -3661,7 +4363,9 @@
     },
     "/auth/users/{id}": {
       "delete": {
-        "tags": ["Auth"],
+        "tags": [
+          "Auth"
+        ],
         "operationId": "AuthController_deleteUser",
         "parameters": [
           {
@@ -3689,7 +4393,9 @@
     },
     "/catalog/articles": {
       "get": {
-        "tags": ["Stammdaten"],
+        "tags": [
+          "Stammdaten"
+        ],
         "operationId": "CatalogController_articles",
         "responses": {
           "200": {
@@ -3708,7 +4414,9 @@
         }
       },
       "post": {
-        "tags": ["Stammdaten"],
+        "tags": [
+          "Stammdaten"
+        ],
         "operationId": "CatalogController_createArticle",
         "requestBody": {
           "required": true,
@@ -3736,7 +4444,9 @@
     },
     "/catalog/articles/reorder": {
       "post": {
-        "tags": ["Stammdaten"],
+        "tags": [
+          "Stammdaten"
+        ],
         "operationId": "CatalogController_reorderArticles",
         "requestBody": {
           "required": true,
@@ -3764,7 +4474,9 @@
     },
     "/catalog/articles/{id}": {
       "patch": {
-        "tags": ["Stammdaten"],
+        "tags": [
+          "Stammdaten"
+        ],
         "operationId": "CatalogController_updateArticle",
         "parameters": [
           {
@@ -3800,7 +4512,9 @@
         }
       },
       "delete": {
-        "tags": ["Stammdaten"],
+        "tags": [
+          "Stammdaten"
+        ],
         "operationId": "CatalogController_deleteArticle",
         "parameters": [
           {
@@ -3826,9 +4540,130 @@
         }
       }
     },
+    "/catalog/suppliers": {
+      "get": {
+        "tags": [
+          "Stammdaten"
+        ],
+        "operationId": "CatalogController_suppliers",
+        "responses": {
+          "200": {
+            "description": "Suppliers",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Supplier"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Stammdaten"
+        ],
+        "operationId": "CatalogController_createSupplier",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateSupplierRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Supplier created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Supplier"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/catalog/suppliers/{id}": {
+      "patch": {
+        "tags": [
+          "Stammdaten"
+        ],
+        "operationId": "CatalogController_updateSupplier",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateSupplierRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Supplier updated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Supplier"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Stammdaten"
+        ],
+        "operationId": "CatalogController_deleteSupplier",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Supplier deleted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OkResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/catalog/locations": {
       "get": {
-        "tags": ["Stammdaten"],
+        "tags": [
+          "Stammdaten"
+        ],
         "operationId": "CatalogController_locations",
         "responses": {
           "200": {
@@ -3847,7 +4682,9 @@
         }
       },
       "post": {
-        "tags": ["Stammdaten"],
+        "tags": [
+          "Stammdaten"
+        ],
         "operationId": "CatalogController_createLocation",
         "requestBody": {
           "required": true,
@@ -3875,7 +4712,9 @@
     },
     "/catalog/locations/{id}": {
       "patch": {
-        "tags": ["Stammdaten"],
+        "tags": [
+          "Stammdaten"
+        ],
         "operationId": "CatalogController_updateLocation",
         "parameters": [
           {
@@ -3911,7 +4750,9 @@
         }
       },
       "delete": {
-        "tags": ["Stammdaten"],
+        "tags": [
+          "Stammdaten"
+        ],
         "operationId": "CatalogController_deleteLocation",
         "parameters": [
           {
@@ -3939,7 +4780,9 @@
     },
     "/catalog/devices": {
       "get": {
-        "tags": ["Stammdaten"],
+        "tags": [
+          "Stammdaten"
+        ],
         "operationId": "MedicalDevicesController_list",
         "responses": {
           "200": {
@@ -3958,7 +4801,9 @@
         }
       },
       "post": {
-        "tags": ["Stammdaten"],
+        "tags": [
+          "Stammdaten"
+        ],
         "operationId": "MedicalDevicesController_create",
         "requestBody": {
           "required": true,
@@ -3986,7 +4831,9 @@
     },
     "/catalog/devices/{id}": {
       "patch": {
-        "tags": ["Stammdaten"],
+        "tags": [
+          "Stammdaten"
+        ],
         "operationId": "MedicalDevicesController_update",
         "parameters": [
           {
@@ -4022,7 +4869,9 @@
         }
       },
       "delete": {
-        "tags": ["Stammdaten"],
+        "tags": [
+          "Stammdaten"
+        ],
         "operationId": "MedicalDevicesController_delete",
         "parameters": [
           {
@@ -4050,7 +4899,9 @@
     },
     "/catalog/templates": {
       "get": {
-        "tags": ["Stammdaten"],
+        "tags": [
+          "Stammdaten"
+        ],
         "operationId": "CatalogController_templates",
         "responses": {
           "200": {
@@ -4069,7 +4920,9 @@
         }
       },
       "post": {
-        "tags": ["Stammdaten"],
+        "tags": [
+          "Stammdaten"
+        ],
         "operationId": "CatalogController_createTemplate",
         "requestBody": {
           "required": true,
@@ -4097,7 +4950,9 @@
     },
     "/catalog/templates/{id}/revise": {
       "post": {
-        "tags": ["Stammdaten"],
+        "tags": [
+          "Stammdaten"
+        ],
         "operationId": "CatalogController_reviseTemplate",
         "parameters": [
           {
@@ -4135,7 +4990,9 @@
     },
     "/catalog/templates/{id}": {
       "delete": {
-        "tags": ["Stammdaten"],
+        "tags": [
+          "Stammdaten"
+        ],
         "operationId": "CatalogController_deleteTemplate",
         "parameters": [
           {
@@ -4163,7 +5020,9 @@
     },
     "/catalog/kits": {
       "get": {
-        "tags": ["Stammdaten"],
+        "tags": [
+          "Stammdaten"
+        ],
         "operationId": "CatalogController_kits",
         "responses": {
           "200": {
@@ -4182,7 +5041,9 @@
         }
       },
       "post": {
-        "tags": ["Stammdaten"],
+        "tags": [
+          "Stammdaten"
+        ],
         "operationId": "CatalogController_createKit",
         "requestBody": {
           "required": true,
@@ -4210,7 +5071,9 @@
     },
     "/catalog/kits/{id}": {
       "patch": {
-        "tags": ["Stammdaten"],
+        "tags": [
+          "Stammdaten"
+        ],
         "operationId": "CatalogController_updateKit",
         "parameters": [
           {
@@ -4246,7 +5109,9 @@
         }
       },
       "delete": {
-        "tags": ["Stammdaten"],
+        "tags": [
+          "Stammdaten"
+        ],
         "operationId": "CatalogController_deleteKit",
         "parameters": [
           {
@@ -4274,7 +5139,9 @@
     },
     "/catalog/kits/{id}/rotate-token": {
       "post": {
-        "tags": ["Stammdaten"],
+        "tags": [
+          "Stammdaten"
+        ],
         "operationId": "CatalogController_rotateToken",
         "parameters": [
           {
@@ -4302,7 +5169,9 @@
     },
     "/inventory/batches": {
       "get": {
-        "tags": ["Lager"],
+        "tags": [
+          "Lager"
+        ],
         "operationId": "InventoryController_batches",
         "responses": {
           "200": {
@@ -4321,7 +5190,9 @@
         }
       },
       "post": {
-        "tags": ["Lager"],
+        "tags": [
+          "Lager"
+        ],
         "operationId": "InventoryController_createBatch",
         "requestBody": {
           "required": true,
@@ -4349,7 +5220,9 @@
     },
     "/inventory/targets": {
       "get": {
-        "tags": ["Lager"],
+        "tags": [
+          "Lager"
+        ],
         "operationId": "InventoryController_targets",
         "responses": {
           "200": {
@@ -4370,7 +5243,9 @@
     },
     "/inventory/targets/reconcile": {
       "post": {
-        "tags": ["Lager"],
+        "tags": [
+          "Lager"
+        ],
         "operationId": "InventoryController_reconcileTargets",
         "responses": {
           "201": {
@@ -4388,7 +5263,9 @@
     },
     "/inventory/targets/{articleId}/{locationId}": {
       "put": {
-        "tags": ["Lager"],
+        "tags": [
+          "Lager"
+        ],
         "operationId": "InventoryController_upsertTarget",
         "parameters": [
           {
@@ -4432,7 +5309,9 @@
         }
       },
       "delete": {
-        "tags": ["Lager"],
+        "tags": [
+          "Lager"
+        ],
         "operationId": "InventoryController_clearTarget",
         "parameters": [
           {
@@ -4468,7 +5347,9 @@
     },
     "/inventory/procurement-orders": {
       "get": {
-        "tags": ["Lager"],
+        "tags": [
+          "Lager"
+        ],
         "operationId": "InventoryController_procurementOrders",
         "responses": {
           "200": {
@@ -4489,7 +5370,9 @@
     },
     "/inventory/procurement-orders/{id}/start": {
       "post": {
-        "tags": ["Lager"],
+        "tags": [
+          "Lager"
+        ],
         "operationId": "InventoryController_startProcurementOrder",
         "parameters": [
           {
@@ -4517,7 +5400,9 @@
     },
     "/inventory/procurement-orders/{id}/receive": {
       "post": {
-        "tags": ["Lager"],
+        "tags": [
+          "Lager"
+        ],
         "operationId": "InventoryController_receiveProcurementOrder",
         "parameters": [
           {
@@ -4555,7 +5440,9 @@
     },
     "/inventory/procurement-orders/{id}/cancel": {
       "post": {
-        "tags": ["Lager"],
+        "tags": [
+          "Lager"
+        ],
         "operationId": "InventoryController_cancelProcurementOrder",
         "parameters": [
           {
@@ -4583,7 +5470,9 @@
     },
     "/inventory/automation-config": {
       "get": {
-        "tags": ["Lager"],
+        "tags": [
+          "Lager"
+        ],
         "operationId": "InventoryController_automationConfig",
         "responses": {
           "200": {
@@ -4599,7 +5488,9 @@
         }
       },
       "post": {
-        "tags": ["Lager"],
+        "tags": [
+          "Lager"
+        ],
         "operationId": "InventoryController_updateAutomationConfig",
         "requestBody": {
           "required": true,
@@ -4627,7 +5518,9 @@
     },
     "/inventory/batches/{id}/movements": {
       "get": {
-        "tags": ["Lager"],
+        "tags": [
+          "Lager"
+        ],
         "operationId": "InventoryController_movements",
         "parameters": [
           {
@@ -4658,7 +5551,9 @@
     },
     "/inventory/batches/{id}": {
       "delete": {
-        "tags": ["Lager"],
+        "tags": [
+          "Lager"
+        ],
         "operationId": "InventoryController_deleteBatch",
         "parameters": [
           {
@@ -4686,7 +5581,9 @@
     },
     "/inventory/batches/{id}/corrections": {
       "post": {
-        "tags": ["Lager"],
+        "tags": [
+          "Lager"
+        ],
         "operationId": "InventoryController_correctBatch",
         "parameters": [
           {
@@ -4724,7 +5621,9 @@
     },
     "/inventory/expiry-warnings": {
       "get": {
-        "tags": ["Lager"],
+        "tags": [
+          "Lager"
+        ],
         "operationId": "InventoryController_expiryWarnings",
         "responses": {
           "200": {
@@ -4745,7 +5644,9 @@
     },
     "/purchase-orders": {
       "get": {
-        "tags": ["Bestellungen"],
+        "tags": [
+          "Bestellungen"
+        ],
         "operationId": "PurchaseOrdersController_list",
         "responses": {
           "200": {
@@ -4764,7 +5665,9 @@
         }
       },
       "post": {
-        "tags": ["Bestellungen"],
+        "tags": [
+          "Bestellungen"
+        ],
         "operationId": "PurchaseOrdersController_create",
         "requestBody": {
           "required": true,
@@ -4792,7 +5695,9 @@
     },
     "/purchase-orders/from-shortages": {
       "post": {
-        "tags": ["Bestellungen"],
+        "tags": [
+          "Bestellungen"
+        ],
         "operationId": "PurchaseOrdersController_createFromShortages",
         "requestBody": {
           "required": true,
@@ -4823,7 +5728,9 @@
     },
     "/purchase-orders/{id}": {
       "get": {
-        "tags": ["Bestellungen"],
+        "tags": [
+          "Bestellungen"
+        ],
         "operationId": "PurchaseOrdersController_get",
         "parameters": [
           {
@@ -4849,7 +5756,9 @@
         }
       },
       "patch": {
-        "tags": ["Bestellungen"],
+        "tags": [
+          "Bestellungen"
+        ],
         "operationId": "PurchaseOrdersController_update",
         "parameters": [
           {
@@ -4887,7 +5796,9 @@
     },
     "/purchase-orders/{id}/archive": {
       "post": {
-        "tags": ["Bestellungen"],
+        "tags": [
+          "Bestellungen"
+        ],
         "operationId": "PurchaseOrdersController_archive",
         "parameters": [
           {
@@ -4915,7 +5826,9 @@
     },
     "/purchase-orders/{id}/restore": {
       "post": {
-        "tags": ["Bestellungen"],
+        "tags": [
+          "Bestellungen"
+        ],
         "operationId": "PurchaseOrdersController_restore",
         "parameters": [
           {
@@ -4943,7 +5856,9 @@
     },
     "/purchase-orders/{id}/approve": {
       "post": {
-        "tags": ["Bestellungen"],
+        "tags": [
+          "Bestellungen"
+        ],
         "operationId": "PurchaseOrdersController_approve",
         "parameters": [
           {
@@ -4971,7 +5886,9 @@
     },
     "/purchase-orders/{id}/order": {
       "post": {
-        "tags": ["Bestellungen"],
+        "tags": [
+          "Bestellungen"
+        ],
         "operationId": "PurchaseOrdersController_markOrdered",
         "parameters": [
           {
@@ -4999,7 +5916,9 @@
     },
     "/purchase-orders/{id}/receive": {
       "post": {
-        "tags": ["Bestellungen"],
+        "tags": [
+          "Bestellungen"
+        ],
         "operationId": "PurchaseOrdersController_receive",
         "parameters": [
           {
@@ -5037,7 +5956,9 @@
     },
     "/public/kits/{token}": {
       "get": {
-        "tags": ["Öffentliche Checks"],
+        "tags": [
+          "Öffentliche Checks"
+        ],
         "operationId": "PublicChecksController_getPublicKit",
         "security": [],
         "parameters": [
@@ -5066,7 +5987,9 @@
     },
     "/public/kits/{token}/checks": {
       "post": {
-        "tags": ["Öffentliche Checks"],
+        "tags": [
+          "Öffentliche Checks"
+        ],
         "operationId": "PublicChecksController_completeCheck",
         "security": [],
         "parameters": [
@@ -5105,7 +6028,9 @@
     },
     "/checks": {
       "get": {
-        "tags": ["Check-Protokolle"],
+        "tags": [
+          "Check-Protokolle"
+        ],
         "operationId": "CheckRecordsController_list",
         "parameters": [
           {
@@ -5157,7 +6082,9 @@
     },
     "/checks/{id}": {
       "get": {
-        "tags": ["Check-Protokolle"],
+        "tags": [
+          "Check-Protokolle"
+        ],
         "operationId": "CheckRecordsController_detail",
         "parameters": [
           {
@@ -5185,7 +6112,9 @@
     },
     "/replenishment-orders": {
       "get": {
-        "tags": ["Nachfüllaufträge"],
+        "tags": [
+          "Nachfüllaufträge"
+        ],
         "operationId": "ReplenishmentController_list",
         "responses": {
           "200": {
@@ -5206,7 +6135,9 @@
     },
     "/replenishment-orders/{id}/fulfill": {
       "post": {
-        "tags": ["Nachfüllaufträge"],
+        "tags": [
+          "Nachfüllaufträge"
+        ],
         "operationId": "ReplenishmentController_fulfill",
         "parameters": [
           {
@@ -5244,7 +6175,9 @@
     },
     "/replenishment-orders/{id}/cancel": {
       "post": {
-        "tags": ["Nachfüllaufträge"],
+        "tags": [
+          "Nachfüllaufträge"
+        ],
         "operationId": "ReplenishmentController_cancel",
         "parameters": [
           {
@@ -5272,7 +6205,9 @@
     },
     "/audit": {
       "get": {
-        "tags": ["Audit"],
+        "tags": [
+          "Audit"
+        ],
         "operationId": "AuditController_list",
         "responses": {
           "200": {
@@ -5293,7 +6228,9 @@
     },
     "/reports/csv/inventory": {
       "get": {
-        "tags": ["Reports"],
+        "tags": [
+          "Reports"
+        ],
         "operationId": "ReportsController_inventoryCsv",
         "responses": {
           "200": {
@@ -5312,7 +6249,9 @@
     },
     "/reports/csv/replenishment": {
       "get": {
-        "tags": ["Reports"],
+        "tags": [
+          "Reports"
+        ],
         "operationId": "ReportsController_replenishmentCsv",
         "responses": {
           "200": {
@@ -5331,7 +6270,9 @@
     },
     "/reports/procurement.pdf": {
       "get": {
-        "tags": ["Reports"],
+        "tags": [
+          "Reports"
+        ],
         "operationId": "ReportsController_procurement",
         "parameters": [
           {
@@ -5376,7 +6317,9 @@
     },
     "/reports/qr-label/{kitId}.pdf": {
       "get": {
-        "tags": ["Reports"],
+        "tags": [
+          "Reports"
+        ],
         "operationId": "ReportsController_qrLabel",
         "parameters": [
           {
@@ -5393,7 +6336,10 @@
             "required": false,
             "schema": {
               "type": "string",
-              "enum": ["a4", "label"]
+              "enum": [
+                "a4",
+                "label"
+              ]
             }
           }
         ],
@@ -5414,7 +6360,9 @@
     },
     "/reports/replenishment/{orderId}.pdf": {
       "get": {
-        "tags": ["Reports"],
+        "tags": [
+          "Reports"
+        ],
         "operationId": "ReportsController_replenishment",
         "parameters": [
           {
@@ -5443,7 +6391,9 @@
     },
     "/reports/purchase-orders/{orderId}.pdf": {
       "get": {
-        "tags": ["Reports"],
+        "tags": [
+          "Reports"
+        ],
         "operationId": "ReportsController_purchaseOrder",
         "parameters": [
           {
@@ -5460,7 +6410,10 @@
             "required": false,
             "schema": {
               "type": "string",
-              "enum": ["true", "false"]
+              "enum": [
+                "true",
+                "false"
+              ]
             }
           }
         ],

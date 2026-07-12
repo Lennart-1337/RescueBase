@@ -16,7 +16,7 @@ import { rescueBaseApi } from "../lib/api";
 import { catalogQueries } from "../queries/catalog";
 import { inventoryQueries } from "../queries/inventory";
 import { orderKeys } from "../queries/orders";
-import type { Article, InventoryTarget } from "../lib/types";
+import type { Article, InventoryTarget, Supplier } from "../lib/types";
 import type { PurchaseOrderMode } from "./purchase-order-mode-selector";
 import { centsInput, parseCents } from "./purchase-orders/format";
 import { PurchaseOrderModeSelector } from "./purchase-order-mode-selector";
@@ -41,7 +41,7 @@ export function PurchaseOrderNewPage() {
   const [mode, setMode] = useState<PurchaseOrderMode>(
     search.mode === "shortages" ? "shortages" : "manual",
   );
-  const [supplierName, setSupplierName] = useState("");
+  const [supplierId, setSupplierId] = useState("");
   const [locationId, setLocationId] = useState("");
   const [notes, setNotes] = useState("");
   const [lines, setLines] = useState<DraftLine[]>([emptyLine()]);
@@ -50,6 +50,7 @@ export function PurchaseOrderNewPage() {
   );
   const [shortageArticleIds, setShortageArticleIds] = useState<string[]>([]);
   const articles = useQuery(catalogQueries.articles());
+  const suppliers = useQuery(catalogQueries.suppliers());
   const locations = useQuery(catalogQueries.locations());
   const targets = useQuery(inventoryQueries.targets());
   const createManual = useMutation({
@@ -61,22 +62,25 @@ export function PurchaseOrderNewPage() {
     onSuccess: (orders) => onCreated(orders[0]),
   });
 
-  if (articles.isLoading || locations.isLoading || targets.isLoading)
+  if (articles.isLoading || suppliers.isLoading || locations.isLoading || targets.isLoading)
     return <LoadingPanel label="Bestellung wird vorbereitet" />;
   if (
     articles.isError ||
+    suppliers.isError ||
     locations.isError ||
     targets.isError ||
     !articles.data ||
+    !suppliers.data ||
     !locations.data ||
     !targets.data
   ) {
     return (
       <ErrorPanel
-        error={toError(articles.error ?? locations.error ?? targets.error)}
+        error={toError(articles.error ?? suppliers.error ?? locations.error ?? targets.error)}
         onRetry={() =>
           void Promise.all([
             articles.refetch(),
+            suppliers.refetch(),
             locations.refetch(),
             targets.refetch(),
           ])
@@ -91,13 +95,13 @@ export function PurchaseOrderNewPage() {
       target.locationId === selectedLocationId && target.shortageQuantity > 0,
   );
   const canSubmitManual =
-    supplierName.trim() &&
+    supplierId &&
     selectedLocationId &&
     lines.some((line) => line.articleId && Number(line.quantity) > 0);
   const canSubmitShortages =
     selectedLocationId &&
     shortageArticleIds.length > 0 &&
-    (groupingMode === "supplier" || supplierName.trim());
+    (groupingMode === "supplier" || supplierId);
 
   async function onCreated(order: { id: string } | undefined) {
     await queryClient.invalidateQueries({ queryKey: orderKeys.purchaseList() });
@@ -111,7 +115,7 @@ export function PurchaseOrderNewPage() {
   function submitManual() {
     if (!canSubmitManual) return;
     createManual.mutate({
-      supplierName,
+      supplierId,
       locationId: selectedLocationId,
       notes: notes.trim() || undefined,
       lines: lines
@@ -132,7 +136,7 @@ export function PurchaseOrderNewPage() {
       articleIds: shortageArticleIds,
       groupingMode,
       locationId: selectedLocationId,
-      supplierName: groupingMode === "single" ? supplierName : undefined,
+      supplierId: groupingMode === "single" ? supplierId : undefined,
     });
   }
 
@@ -164,8 +168,9 @@ export function PurchaseOrderNewPage() {
                 notes={notes}
                 onLocationChange={setLocationId}
                 onNotesChange={setNotes}
-                onSupplierChange={setSupplierName}
-                supplierName={supplierName}
+                onSupplierChange={setSupplierId}
+                supplierId={supplierId}
+                suppliers={suppliers.data}
               />
               <section
                 aria-label="Bestellpositionen"
@@ -234,8 +239,9 @@ export function PurchaseOrderNewPage() {
                   setShortageArticleIds([]);
                 }}
                 onNotesChange={() => undefined}
-                onSupplierChange={setSupplierName}
-                supplierName={supplierName}
+                onSupplierChange={setSupplierId}
+                supplierId={supplierId}
+                suppliers={suppliers.data}
               />
               <section
                 aria-label="Fehlmengen"
@@ -312,7 +318,8 @@ function OrderHeaderFields(props: {
   onLocationChange: (value: string) => void;
   onNotesChange: (value: string) => void;
   onSupplierChange: (value: string) => void;
-  supplierName: string;
+  supplierId: string;
+  suppliers: Supplier[];
 }) {
   return (
     <section aria-label="Bestellkopf" className="purchase-order-new-section">
@@ -324,9 +331,14 @@ function OrderHeaderFields(props: {
       </div>
       <div className="form-grid form-grid-three purchase-order-header-grid">
         <Field label="Lieferant">
-          <input
-            onChange={(event) => props.onSupplierChange(event.target.value)}
-            value={props.supplierName}
+          <SearchableSelect
+            emptyLabel="Lieferant wählen"
+            onChange={props.onSupplierChange}
+            options={props.suppliers.map((supplier) => ({
+              label: supplier.name,
+              value: supplier.id,
+            }))}
+            value={props.supplierId}
           />
         </Field>
         <Field label="Zielort">

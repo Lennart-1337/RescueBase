@@ -1,0 +1,48 @@
+.compact-list-row > .supplier-row-main {
+  align-items: baseline;
+  display: flex;
+  gap: 8px;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.compact-list-row .supplier-row-main strong {
+  display: inline;
+  flex: 0 0 auto;
+}
+
+.compact-list-row .supplier-row-main small {
+  display: inline;
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.compact-list-row .supplier-row-main small::before {
+  color: var(--color-text-faint);
+  content: "·";
+  margin-right: 8px;
+}
+
+.supplier-form-grid {
+  display: grid;
+  gap: 14px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.supplier-form-notes {
+  grid-column: 1 / -1;
+}
+
+.supplier-form-notes textarea {
+  min-height: 112px;
+  resize: vertical;
+}
+
+@media (max-width: 980px) {
+  .supplier-form-grid {
+    grid-template-columns: 1fr;
+  }
+}

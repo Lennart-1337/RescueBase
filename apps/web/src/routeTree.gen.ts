@@ -29,6 +29,7 @@ import { Route as AdminMasterDataIndexRouteImport } from './routes/admin/master-
 import { Route as AdminPurchaseOrdersNewRouteImport } from './routes/admin/purchase-orders/new'
 import { Route as AdminPurchaseOrdersOrderIdRouteImport } from './routes/admin/purchase-orders/$orderId'
 import { Route as AdminMasterDataTemplatesRouteImport } from './routes/admin/master-data/templates'
+import { Route as AdminMasterDataSuppliersRouteImport } from './routes/admin/master-data/suppliers'
 import { Route as AdminMasterDataLocationsRouteImport } from './routes/admin/master-data/locations'
 import { Route as AdminMasterDataDevicesRouteImport } from './routes/admin/master-data/devices'
 import { Route as AdminMasterDataArticlesRouteImport } from './routes/admin/master-data/articles'
@@ -136,6 +137,12 @@ const AdminMasterDataTemplatesRoute =
     path: '/templates',
     getParentRoute: () => AdminMasterDataRoute,
   } as any)
+const AdminMasterDataSuppliersRoute =
+  AdminMasterDataSuppliersRouteImport.update({
+    id: '/suppliers',
+    path: '/suppliers',
+    getParentRoute: () => AdminMasterDataRoute,
+  } as any)
 const AdminMasterDataLocationsRoute =
   AdminMasterDataLocationsRouteImport.update({
     id: '/locations',
@@ -172,6 +179,7 @@ export interface FileRoutesByFullPath {
   '/admin/master-data/articles': typeof AdminMasterDataArticlesRoute
   '/admin/master-data/devices': typeof AdminMasterDataDevicesRoute
   '/admin/master-data/locations': typeof AdminMasterDataLocationsRoute
+  '/admin/master-data/suppliers': typeof AdminMasterDataSuppliersRoute
   '/admin/master-data/templates': typeof AdminMasterDataTemplatesRoute
   '/admin/purchase-orders/$orderId': typeof AdminPurchaseOrdersOrderIdRoute
   '/admin/purchase-orders/new': typeof AdminPurchaseOrdersNewRoute
@@ -195,6 +203,7 @@ export interface FileRoutesByTo {
   '/admin/master-data/articles': typeof AdminMasterDataArticlesRoute
   '/admin/master-data/devices': typeof AdminMasterDataDevicesRoute
   '/admin/master-data/locations': typeof AdminMasterDataLocationsRoute
+  '/admin/master-data/suppliers': typeof AdminMasterDataSuppliersRoute
   '/admin/master-data/templates': typeof AdminMasterDataTemplatesRoute
   '/admin/purchase-orders/$orderId': typeof AdminPurchaseOrdersOrderIdRoute
   '/admin/purchase-orders/new': typeof AdminPurchaseOrdersNewRoute
@@ -221,6 +230,7 @@ export interface FileRoutesById {
   '/admin/master-data/articles': typeof AdminMasterDataArticlesRoute
   '/admin/master-data/devices': typeof AdminMasterDataDevicesRoute
   '/admin/master-data/locations': typeof AdminMasterDataLocationsRoute
+  '/admin/master-data/suppliers': typeof AdminMasterDataSuppliersRoute
   '/admin/master-data/templates': typeof AdminMasterDataTemplatesRoute
   '/admin/purchase-orders/$orderId': typeof AdminPurchaseOrdersOrderIdRoute
   '/admin/purchase-orders/new': typeof AdminPurchaseOrdersNewRoute
@@ -248,6 +258,7 @@ export interface FileRouteTypes {
     | '/admin/master-data/articles'
     | '/admin/master-data/devices'
     | '/admin/master-data/locations'
+    | '/admin/master-data/suppliers'
     | '/admin/master-data/templates'
     | '/admin/purchase-orders/$orderId'
     | '/admin/purchase-orders/new'
@@ -271,6 +282,7 @@ export interface FileRouteTypes {
     | '/admin/master-data/articles'
     | '/admin/master-data/devices'
     | '/admin/master-data/locations'
+    | '/admin/master-data/suppliers'
     | '/admin/master-data/templates'
     | '/admin/purchase-orders/$orderId'
     | '/admin/purchase-orders/new'
@@ -296,6 +308,7 @@ export interface FileRouteTypes {
     | '/admin/master-data/articles'
     | '/admin/master-data/devices'
     | '/admin/master-data/locations'
+    | '/admin/master-data/suppliers'
     | '/admin/master-data/templates'
     | '/admin/purchase-orders/$orderId'
     | '/admin/purchase-orders/new'
@@ -463,6 +476,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminMasterDataTemplatesRouteImport
       parentRoute: typeof AdminMasterDataRoute
     }
+    '/admin/master-data/suppliers': {
+      id: '/admin/master-data/suppliers'
+      path: '/suppliers'
+      fullPath: '/admin/master-data/suppliers'
+      preLoaderRoute: typeof AdminMasterDataSuppliersRouteImport
+      parentRoute: typeof AdminMasterDataRoute
+    }
     '/admin/master-data/locations': {
       id: '/admin/master-data/locations'
       path: '/locations'
@@ -491,6 +511,7 @@ interface AdminMasterDataRouteChildren {
   AdminMasterDataArticlesRoute: typeof AdminMasterDataArticlesRoute
   AdminMasterDataDevicesRoute: typeof AdminMasterDataDevicesRoute
   AdminMasterDataLocationsRoute: typeof AdminMasterDataLocationsRoute
+  AdminMasterDataSuppliersRoute: typeof AdminMasterDataSuppliersRoute
   AdminMasterDataTemplatesRoute: typeof AdminMasterDataTemplatesRoute
   AdminMasterDataIndexRoute: typeof AdminMasterDataIndexRoute
 }
@@ -499,6 +520,7 @@ const AdminMasterDataRouteChildren: AdminMasterDataRouteChildren = {
   AdminMasterDataArticlesRoute: AdminMasterDataArticlesRoute,
   AdminMasterDataDevicesRoute: AdminMasterDataDevicesRoute,
   AdminMasterDataLocationsRoute: AdminMasterDataLocationsRoute,
+  AdminMasterDataSuppliersRoute: AdminMasterDataSuppliersRoute,
   AdminMasterDataTemplatesRoute: AdminMasterDataTemplatesRoute,
   AdminMasterDataIndexRoute: AdminMasterDataIndexRoute,
 }

@@ -7,6 +7,7 @@ import { SearchableSelect } from "../../components/searchable-select";
 import type {
   Article,
   CreateArticleRequest,
+  Supplier,
   UpdateArticleRequest,
 } from "../../lib/types";
 import { InlineError } from "../../components/state-panels";
@@ -26,7 +27,7 @@ type ArticleDraft = {
   category: string;
   barcode: string;
   articleUrl: string;
-  defaultSupplierName: string;
+  defaultSupplierId: string;
   unitsPerPackage: string;
   defaultGrossPrice: string;
   sterile: boolean;
@@ -67,6 +68,7 @@ export function ArticlePanel(props: {
   onDelete: (id: string) => void;
   onMoveArticle: (id: string, direction: ReorderDirection) => Promise<unknown>;
   onSave: (id: string, body: UpdateArticleRequest) => Promise<unknown>;
+  suppliers: Supplier[];
   totalCount: number;
 }) {
   const [draft, setDraft] = useState(emptyDraft());
@@ -101,7 +103,7 @@ export function ArticlePanel(props: {
       category: article.category ?? "",
       barcode: article.barcode ?? "",
       articleUrl: article.articleUrl ?? "",
-      defaultSupplierName: article.defaultSupplierName ?? "",
+      defaultSupplierId: article.defaultSupplierId ?? "",
       unitsPerPackage: article.unitsPerPackage?.toString() ?? "",
       defaultGrossPrice: centsInput(article.defaultGrossPriceCents),
       sterile: article.sterile,
@@ -126,7 +128,7 @@ export function ArticlePanel(props: {
       category: optionalText(draft.category),
       barcode: optionalText(draft.barcode),
       articleUrl: optionalText(draft.articleUrl),
-      defaultSupplierName: optionalText(draft.defaultSupplierName),
+      defaultSupplierId: optionalText(draft.defaultSupplierId),
       unitsPerPackage: optionalPositiveInteger(draft.unitsPerPackage),
       defaultGrossPriceCents: optionalCents(draft.defaultGrossPrice),
       sterile: draft.sterile,
@@ -361,14 +363,22 @@ export function ArticlePanel(props: {
                 />
               </Field>
               <Field label="Standard-Lieferant">
-                <input
-                  onChange={(event) =>
+                <SearchableSelect
+                  emptyLabel="Kein Standard-Lieferant"
+                  onChange={(value) =>
                     setDraft((current) => ({
                       ...current,
-                      defaultSupplierName: event.target.value,
+                      defaultSupplierId: value,
                     }))
                   }
-                  value={draft.defaultSupplierName}
+                  options={[
+                    { label: "Kein Standard-Lieferant", value: "" },
+                    ...props.suppliers.map((supplier) => ({
+                      label: supplier.name,
+                      value: supplier.id,
+                    })),
+                  ]}
+                  value={draft.defaultSupplierId}
                 />
               </Field>
               <Field label="VE (Einheiten pro Packung)">
@@ -497,7 +507,7 @@ function emptyDraft(): ArticleDraft {
     category: "",
     barcode: "",
     articleUrl: "",
-    defaultSupplierName: "",
+    defaultSupplierId: "",
     unitsPerPackage: "",
     defaultGrossPrice: "",
     sterile: false,

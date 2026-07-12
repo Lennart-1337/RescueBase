@@ -190,6 +190,7 @@ function formatCategory(category: string) {
   if (category === "EXPIRY") return "Ablauf";
   if (category === "STK_DUE") return "STK";
   if (category === "MTK_DUE") return "MTK";
+  if (category === "SHORTAGE") return "Fehlbestand";
   return category;
 }
 

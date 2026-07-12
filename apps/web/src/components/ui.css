@@ -156,6 +156,12 @@
 }
 
 @supports (-webkit-touch-callout: none) {
+  .field input,
+  .field select,
+  .field textarea {
+    font-size: 16px;
+  }
+
   .field input:is([type="date"], [type="time"]) {
     appearance: none;
     -webkit-appearance: none;
@@ -241,6 +247,11 @@
 
 .modal-body {
   overflow: auto;
+  padding: 20px;
+}
+
+.dialog-form-body {
+  padding: 20px;
 }
 
 .confirm-dialog-body {

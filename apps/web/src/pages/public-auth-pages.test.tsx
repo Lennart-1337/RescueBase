@@ -28,7 +28,7 @@ describe("Public auth pages", () => {
     await changeValue(screen.getByLabelText("E-Mail"), "lager-neu@rescuebase.local");
     await clickElement(screen.getByRole("button", { name: /Reset-Link senden/ }));
     await waitFor(() => expect(postedBody("/api/auth/password-reset/request")).toEqual({ email: "lager-neu@rescuebase.local" }));
-    expect(screen.getByText(/Lokaler Reset-Link/)).toBeInTheDocument();
+    expect(screen.queryByText(/Lokaler Reset-Link/)).not.toBeInTheDocument();
   });
 
   it("autofocuses login and submits it through the form", async () => {
@@ -39,13 +39,16 @@ describe("Public auth pages", () => {
     });
     await renderAppAt("/");
     const emailInput = await screen.findByLabelText("E-Mail");
+    const passwordInput = screen.getByLabelText("Passwort");
     expect(emailInput).toHaveFocus();
     expect(document.title).toBe("Anmelden | RescueBase");
     expect(screen.queryByRole("group", { name: "Farbmodus" })).toBeNull();
     expect(screen.queryByText("v0.1.0")).toBeNull();
+    expect(emailInput).toHaveAttribute("autocomplete", "email");
+    expect(passwordInput).toHaveAttribute("autocomplete", "current-password");
 
     await changeValue(emailInput, "admin@rescuebase.local");
-    await changeValue(screen.getByLabelText("Passwort"), "rescuebase-admin");
+    await changeValue(passwordInput, "rescuebase-admin");
     fireEvent.submit(screen.getByRole("button", { name: "Anmelden" }).closest("form") as HTMLFormElement);
 
     await waitFor(() => expect(postedBody("/api/auth/login")).toEqual({
@@ -90,6 +93,7 @@ describe("Public auth pages", () => {
     expect(await screen.findByLabelText("2FA-Code")).toHaveFocus();
     expect(screen.queryByLabelText("Passwort")).not.toBeInTheDocument();
     expect(screen.getByLabelText("E-Mail")).toHaveValue("lager-neu@rescuebase.local");
+    expect(screen.getByLabelText("2FA-Code")).toHaveAttribute("autocomplete", "one-time-code");
   });
 
   it("shows legal links in the admin content footer", async () => {

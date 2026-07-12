@@ -6,6 +6,8 @@ describe("RescueBase OpenAPI contract", () => {
       Object.keys(rescueBaseOpenApiDocument.components?.schemas ?? {}),
     ).toEqual(
       expect.arrayContaining([
+        "Supplier",
+        "CreateSupplierRequest",
         "Article",
         "CreateArticleRequest",
         "ReorderArticlesRequest",
@@ -14,6 +16,7 @@ describe("RescueBase OpenAPI contract", () => {
         "CreateBatchRequest",
         "CreateKitRequest",
         "UpdateArticleRequest",
+        "UpdateSupplierRequest",
         "UpdateLocationRequest",
         "ReviseTemplateRequest",
         "UpdateKitRequest",
@@ -34,6 +37,18 @@ describe("RescueBase OpenAPI contract", () => {
   });
 
   it("exposes complete admin master-data write operations", () => {
+    expect(
+      rescueBaseOpenApiDocument.paths["/catalog/suppliers"]?.post,
+    ).toMatchObject({
+      operationId: "CatalogController_createSupplier",
+      requestBody: expect.any(Object),
+    });
+    expect(
+      rescueBaseOpenApiDocument.paths["/catalog/suppliers/{id}"]?.patch,
+    ).toMatchObject({
+      operationId: "CatalogController_updateSupplier",
+      requestBody: expect.any(Object),
+    });
     expect(
       rescueBaseOpenApiDocument.paths["/catalog/locations"]?.post,
     ).toMatchObject({
@@ -245,6 +260,56 @@ describe("RescueBase OpenAPI contract", () => {
         expect.objectContaining({ name: "locationId", in: "query" }),
         expect.objectContaining({ name: "q", in: "query" }),
       ]),
+    });
+  });
+
+  it("includes supplier contact and address metadata", () => {
+    expect(
+      rescueBaseOpenApiDocument.components?.schemas?.Supplier,
+    ).toMatchObject({
+      properties: expect.objectContaining({
+        contactPerson: expect.any(Object),
+        email: expect.objectContaining({ format: "email" }),
+        phone: expect.any(Object),
+        website: expect.objectContaining({ format: "uri" }),
+        street: expect.any(Object),
+        postalCode: expect.any(Object),
+        city: expect.any(Object),
+        country: expect.any(Object),
+        notes: expect.any(Object),
+      }),
+    });
+    expect(
+      rescueBaseOpenApiDocument.components?.schemas?.CreateSupplierRequest,
+    ).toMatchObject({
+      properties: expect.objectContaining({
+        name: expect.any(Object),
+        contactPerson: expect.any(Object),
+        email: expect.objectContaining({ format: "email" }),
+        phone: expect.any(Object),
+        website: expect.objectContaining({ format: "uri" }),
+        street: expect.any(Object),
+        postalCode: expect.any(Object),
+        city: expect.any(Object),
+        country: expect.any(Object),
+        notes: expect.any(Object),
+      }),
+    });
+    expect(
+      rescueBaseOpenApiDocument.components?.schemas?.UpdateSupplierRequest,
+    ).toMatchObject({
+      properties: expect.objectContaining({
+        name: expect.any(Object),
+        contactPerson: expect.any(Object),
+        email: expect.objectContaining({ format: "email" }),
+        phone: expect.any(Object),
+        website: expect.objectContaining({ format: "uri" }),
+        street: expect.any(Object),
+        postalCode: expect.any(Object),
+        city: expect.any(Object),
+        country: expect.any(Object),
+        notes: expect.any(Object),
+      }),
     });
   });
 });

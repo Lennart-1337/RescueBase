@@ -21,6 +21,10 @@ const templatePositionsInclude = {
   orderBy: { sortOrder: "asc" as const },
 };
 
+const articleInclude = {
+  defaultSupplier: { select: { id: true, name: true } },
+};
+
 @ApiTags("Stammdaten")
 @Roles("ADMIN")
 @Controller("catalog")
@@ -32,11 +36,13 @@ export class CatalogController {
 
   @Roles("ADMIN", "WAREHOUSE")
   @Get("articles")
-  articles() {
-    return this.prisma.article.findMany({
+  async articles() {
+    const articles = await this.prisma.article.findMany({
       where: { deletedAt: null },
+      include: articleInclude,
       orderBy: [{ sortOrder: "asc" }, { name: "asc" }],
     });
+    return articles.map(mapArticle);
   }
 
   @Post("articles")
@@ -48,9 +54,13 @@ export class CatalogController {
     }
     const article = await this.prisma.article.create({
       data: {
-        ...toArticleWriteData(body),
+        ...toArticleWriteData(
+          body,
+          await this.normalizeOptionalSupplierId(body.defaultSupplierId),
+        ),
         sortOrder: await this.nextArticleSortOrder(),
       },
+      include: articleInclude,
     });
     await this.audit.record({
       actorType: "USER",
@@ -58,9 +68,9 @@ export class CatalogController {
       action: "ARTICLE_CREATED",
       entityType: "Article",
       entityId: article.id,
-      payload: article,
+      payload: mapArticle(article),
     });
-    return article;
+    return mapArticle(article);
   }
 
   @Post("articles/reorder")
@@ -116,13 +126,18 @@ export class CatalogController {
     }
     const existing = await this.prisma.article.findFirst({
       where: { id, deletedAt: null },
+      include: articleInclude,
     });
     if (!existing) {
       throw new NotFoundException("Artikel nicht gefunden.");
     }
     const article = await this.prisma.article.update({
       where: { id },
-      data: toArticleWriteData(body),
+      data: toArticleWriteData(
+        body,
+        await this.normalizeOptionalSupplierId(body.defaultSupplierId),
+      ),
+      include: articleInclude,
     });
     await this.audit.record({
       actorType: "USER",
@@ -130,9 +145,9 @@ export class CatalogController {
       action: "ARTICLE_UPDATED",
       entityType: "Article",
       entityId: article.id,
-      payload: { previous: existing, next: article },
+      payload: { previous: mapArticle(existing), next: mapArticle(article) },
     });
-    return article;
+    return mapArticle(article);
   }
 
   @Delete("articles/:id")
@@ -164,6 +179,104 @@ export class CatalogController {
       entityType: "Article",
       entityId: id,
       payload: { name: article.name, deletedAt: deletedAt.toISOString() },
+    });
+    return { ok: true };
+  }
+
+  @Roles("ADMIN", "WAREHOUSE")
+  @Get("suppliers")
+  suppliers() {
+    return this.prisma.supplier.findMany({
+      where: { deletedAt: null },
+      orderBy: { name: "asc" },
+    });
+  }
+
+  @Post("suppliers")
+  async createSupplier(@Body() body: SupplierWriteBody) {
+    const name = normalizeRequiredText(
+      body.name,
+      "Lieferantenname ist erforderlich.",
+    );
+    await this.assertUniqueActiveSupplierName(name);
+    const archived = await this.prisma.supplier.findFirst({
+      where: { name, deletedAt: { not: null } },
+    });
+    const supplier = archived
+      ? await this.prisma.supplier.update({
+          where: { id: archived.id },
+          data: { ...toSupplierWriteData(body), deletedAt: null, name },
+        })
+      : await this.prisma.supplier.create({ data: toSupplierWriteData(body) });
+    await this.audit.record({
+      actorType: "USER",
+      actorLabel: "Admin",
+      action: archived ? "SUPPLIER_RESTORED" : "SUPPLIER_CREATED",
+      entityType: "Supplier",
+      entityId: supplier.id,
+      payload: supplier,
+    });
+    return supplier;
+  }
+
+  @Patch("suppliers/:id")
+  async updateSupplier(
+    @Param("id") id: string,
+    @Body() body: SupplierWriteBody,
+  ) {
+    const existing = await this.prisma.supplier.findFirst({
+      where: { id, deletedAt: null },
+    });
+    if (!existing) {
+      throw new NotFoundException("Lieferant nicht gefunden.");
+    }
+    const name = normalizeRequiredText(
+      body.name,
+      "Lieferantenname ist erforderlich.",
+    );
+    if (name !== existing.name) {
+      await this.assertUniqueActiveSupplierName(name, id);
+    }
+    const supplier = await this.prisma.supplier.update({
+      where: { id },
+      data: toSupplierWriteData(body),
+    });
+    await this.audit.record({
+      actorType: "USER",
+      actorLabel: "Admin",
+      action: "SUPPLIER_UPDATED",
+      entityType: "Supplier",
+      entityId: supplier.id,
+      payload: { previous: existing, next: supplier },
+    });
+    return supplier;
+  }
+
+  @Delete("suppliers/:id")
+  async deleteSupplier(@Param("id") id: string): Promise<{ ok: true }> {
+    const supplier = await this.prisma.supplier.findFirst({
+      where: { id, deletedAt: null },
+    });
+    if (!supplier) {
+      throw new NotFoundException("Lieferant nicht gefunden.");
+    }
+    const linkedArticleCount = await this.prisma.article.count({
+      where: { defaultSupplierId: id, deletedAt: null },
+    });
+    if (linkedArticleCount > 0) {
+      throw new BadRequestException(
+        "Lieferant kann erst gelöscht werden, wenn kein aktiver Artikel mehr darauf verweist.",
+      );
+    }
+    const deletedAt = new Date();
+    await this.prisma.supplier.update({ where: { id }, data: { deletedAt } });
+    await this.audit.record({
+      actorType: "USER",
+      actorLabel: "Admin",
+      action: "SUPPLIER_DELETED",
+      entityType: "Supplier",
+      entityId: id,
+      payload: { name: supplier.name, deletedAt: deletedAt.toISOString() },
     });
     return { ok: true };
   }
@@ -657,6 +770,33 @@ export class CatalogController {
     return (latest?.sortOrder ?? 0) + 1;
   }
 
+  private async normalizeOptionalSupplierId(supplierId?: string) {
+    const normalized = supplierId?.trim();
+    if (!normalized) return null;
+    const supplier = await this.prisma.supplier.findFirst({
+      where: { id: normalized, deletedAt: null },
+      select: { id: true },
+    });
+    if (!supplier) {
+      throw new BadRequestException("Lieferant nicht gefunden.");
+    }
+    return normalized;
+  }
+
+  private async assertUniqueActiveSupplierName(name: string, ignoreId?: string) {
+    const existing = await this.prisma.supplier.findFirst({
+      where: {
+        name,
+        deletedAt: null,
+        ...(ignoreId ? { id: { not: ignoreId } } : {}),
+      },
+      select: { id: true },
+    });
+    if (existing) {
+      throw new BadRequestException("Lieferant existiert bereits.");
+    }
+  }
+
   private async validateTemplatePositions(
     positions: Array<{
       articleId: string;
@@ -731,7 +871,7 @@ type ArticleWriteBody = {
   category?: string;
   barcode?: string;
   articleUrl?: string;
-  defaultSupplierName?: string;
+  defaultSupplierId?: string;
   unitsPerPackage?: number | string;
   defaultGrossPriceCents?: number | string;
   sterile?: boolean;
@@ -745,7 +885,41 @@ type ArticleWriteBody = {
   criticalDefault?: boolean;
 };
 
-function toArticleWriteData(body: ArticleWriteBody) {
+type SupplierWriteBody = {
+  name: string;
+  contactPerson?: string;
+  email?: string;
+  phone?: string;
+  website?: string;
+  street?: string;
+  postalCode?: string;
+  city?: string;
+  country?: string;
+  notes?: string;
+};
+
+function toSupplierWriteData(body: SupplierWriteBody) {
+  return {
+    name: normalizeRequiredText(body.name, "Lieferantenname ist erforderlich."),
+    contactPerson: optionalText(body.contactPerson),
+    email: optionalEmail(body.email, "Lieferanten-E-Mail muss gültig sein."),
+    phone: optionalText(body.phone),
+    website: optionalUrl(
+      body.website,
+      "Lieferanten-Website muss eine gültige http- oder https-URL sein.",
+    ),
+    street: optionalText(body.street),
+    postalCode: optionalText(body.postalCode),
+    city: optionalText(body.city),
+    country: optionalText(body.country),
+    notes: optionalText(body.notes),
+  };
+}
+
+function toArticleWriteData(
+  body: ArticleWriteBody,
+  defaultSupplierId: string | null,
+) {
   const stkRequired = Boolean(body.stkRequired);
   const mtkRequired = Boolean(body.mtkRequired);
   return {
@@ -756,7 +930,7 @@ function toArticleWriteData(body: ArticleWriteBody) {
     category: optionalText(body.category),
     barcode: optionalText(body.barcode),
     articleUrl: optionalUrl(body.articleUrl),
-    defaultSupplierName: optionalText(body.defaultSupplierName),
+    defaultSupplierId,
     unitsPerPackage: normalizeOptionalPositiveInteger(
       body.unitsPerPackage,
       "VE muss als positive ganze Zahl angegeben werden.",
@@ -810,7 +984,23 @@ function optionalText(value?: string) {
   return normalized ? normalized : null;
 }
 
-function optionalUrl(value?: string) {
+function normalizeRequiredText(value: string | undefined, message: string) {
+  const normalized = value?.trim();
+  if (!normalized) throw new BadRequestException(message);
+  return normalized;
+}
+
+function optionalEmail(value: string | undefined, message: string) {
+  const normalized = optionalText(value);
+  if (!normalized) return null;
+  const email = normalized.toLowerCase();
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/u.test(email)) {
+    throw new BadRequestException(message);
+  }
+  return email;
+}
+
+function optionalUrl(value?: string, message?: string) {
   const normalized = optionalText(value);
   if (!normalized) return null;
   try {
@@ -821,7 +1011,7 @@ function optionalUrl(value?: string) {
     return parsed.toString();
   } catch {
     throw new BadRequestException(
-      "Artikel-Link muss eine gültige http- oder https-URL sein.",
+      message ?? "Artikel-Link muss eine gültige http- oder https-URL sein.",
     );
   }
 }
@@ -856,4 +1046,41 @@ function isPrismaUniqueError(error: unknown): boolean {
     "code" in error &&
     error.code === "P2002"
   );
+}
+
+function mapArticle(
+  article: Awaited<
+    ReturnType<
+      PrismaService["article"]["findFirst"]
+    >
+  > & { defaultSupplier?: { id: string; name: string } | null },
+) {
+  if (!article) {
+    throw new Error("Article is required.");
+  }
+  return {
+    id: article.id,
+    name: article.name,
+    unit: article.unit,
+    manufacturer: article.manufacturer ?? undefined,
+    manufacturerPartNumber: article.manufacturerPartNumber ?? undefined,
+    category: article.category ?? undefined,
+    barcode: article.barcode ?? undefined,
+    articleUrl: article.articleUrl ?? undefined,
+    defaultSupplierId: article.defaultSupplierId ?? undefined,
+    defaultSupplierName: article.defaultSupplier?.name ?? undefined,
+    unitsPerPackage: article.unitsPerPackage ?? undefined,
+    defaultGrossPriceCents: article.defaultGrossPriceCents ?? undefined,
+    sterile: article.sterile,
+    medicalDevice: article.medicalDevice,
+    stkRequired: article.stkRequired,
+    stkIntervalMonths: article.stkIntervalMonths ?? undefined,
+    mtkRequired: article.mtkRequired,
+    mtkIntervalMonths: article.mtkIntervalMonths ?? undefined,
+    storageNotes: article.storageNotes ?? undefined,
+    notes: article.notes ?? undefined,
+    criticalDefault: article.criticalDefault,
+    createdAt: article.createdAt.toISOString(),
+    updatedAt: article.updatedAt.toISOString(),
+  };
 }

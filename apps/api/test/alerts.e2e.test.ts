@@ -3,6 +3,7 @@ import { jest } from "@jest/globals";
 // @ts-expect-error supertest ships export= typings; default import is correct with ts-jest runtime.
 import request from "supertest";
 import { MailService } from "../src/services/mail.service.js";
+import { PushService } from "../src/services/push.service.js";
 import { bootstrapTestApp } from "./bootstrap-test-app.js";
 
 jest.setTimeout(45_000);
@@ -28,6 +29,8 @@ describe("alerts pipeline", () => {
 
     const mailService = app.get(MailService);
     const sendSpy = jest.spyOn(mailService, "sendImmediateAlert").mockResolvedValue({});
+    const pushService = app.get(PushService);
+    const pushSpy = jest.spyOn(pushService, "sendToUsers").mockResolvedValue(undefined);
 
     await agent
       .put("/alerts/subscriptions/me")
@@ -59,6 +62,10 @@ describe("alerts pipeline", () => {
       "admin@rescuebase.local",
       expect.objectContaining({ category: "EXPIRY" }),
       expect.any(String)
+    );
+    expect(pushSpy).toHaveBeenCalledWith(
+      ["user-admin"],
+      expect.objectContaining({ title: expect.any(String), url: expect.stringContaining("/admin/inventory") })
     );
 
     const deviceDate = daysAgo(330);

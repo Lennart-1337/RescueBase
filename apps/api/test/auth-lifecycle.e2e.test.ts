@@ -5,8 +5,13 @@ import { authenticator } from "otplib";
 import request from "supertest";
 import { bootstrapTestApp } from "./bootstrap-test-app.js";
 import { PrismaService } from "../src/persistence/prisma.service.js";
+import { MailService } from "../src/services/mail.service.js";
 
 jest.setTimeout(30_000);
+
+let latestEmailCode = "";
+let latestResetUrl = "";
+const emailCodes = new Map<string, string>();
 
 describe("auth lifecycle", () => {
   let app: INestApplication;
@@ -19,6 +24,9 @@ describe("auth lifecycle", () => {
     });
     app = harness.app;
     closeApp = harness.close;
+    const mail = app.get(MailService);
+    jest.spyOn(mail, "sendEmailTwoFactorCode").mockImplementation(async (email, code) => { latestEmailCode = code; emailCodes.set(email, code); return {}; });
+    jest.spyOn(mail, "sendPasswordReset").mockImplementation(async (_email, url) => { latestResetUrl = url; return {}; });
   });
 
   afterAll(async () => {
@@ -59,11 +67,11 @@ describe("auth lifecycle", () => {
       expect(body.user.newOrderNotificationsEnabled).toBe(true);
     });
 
-    const reset = await request(server)
+    await request(server)
       .post("/auth/password-reset/request")
       .send({ email: "lager-neu@rescuebase.local" })
       .expect(201);
-    const resetToken = reset.body.debugUrl.split("/").pop();
+    const resetToken = latestResetUrl.split("/").pop();
     expect(resetToken).toBeTruthy();
     await request(server).get(`/auth/password-reset/${resetToken}`).expect(200);
     await request(server)
@@ -79,10 +87,11 @@ describe("auth lifecycle", () => {
     const warehouse = request.agent(server);
     await warehouse.post("/auth/login").send({ email: "lager-neu@rescuebase.local", password: "rescuebase-neu-2" }).expect(201);
 
-    const emailChallenge = await warehouse.post("/auth/2fa/email/start").send({}).expect(201);
+    const emailChallenge = await warehouse.post("/auth/2fa/email/start").send({ currentPassword: "rescuebase-neu-2" }).expect(201);
     await warehouse.post("/auth/2fa/email/enable").send({
       challengeId: emailChallenge.body.challengeId,
-      code: emailChallenge.body.debugCode
+      code: latestEmailCode,
+      currentPassword: "rescuebase-neu-2"
     }).expect(201);
     await warehouse.post("/auth/logout").expect(201);
 
@@ -95,10 +104,10 @@ describe("auth lifecycle", () => {
     expect(emailLoginStart.body.loginChallengeId).toBeTruthy();
     await request(server).post("/auth/login").send({
       loginChallengeId: emailLoginStart.body.loginChallengeId,
-      twoFactorCode: emailLoginStart.body.debugCode
+      twoFactorCode: latestEmailCode
     }).expect(201);
 
-    const totpSetup = await admin.post("/auth/2fa/totp/setup").send({}).expect(201);
+    const totpSetup = await admin.post("/auth/2fa/totp/setup").send({ currentPassword: "rescuebase-admin" }).expect(201);
     const totpCode = authenticator.generate(totpSetup.body.secret);
     await admin.post("/auth/2fa/totp/enable").send({ code: totpCode }).expect(201);
     await admin.post("/auth/logout").expect(201);
@@ -177,22 +186,24 @@ describe("auth lifecycle", () => {
       email: first.email,
       password: first.password
     }).expect(201);
+    const firstCode = emailCodes.get(first.email);
 
     const secondLogin = await request(server).post("/auth/login").send({
       email: second.email,
       password: second.password
     }).expect(201);
+    const secondCode = emailCodes.get(second.email);
 
     await request(server).post("/auth/login").send({
       email: first.email,
       password: first.password,
       emailChallengeId: secondLogin.body.emailChallengeId,
-      twoFactorCode: secondLogin.body.debugCode
+      twoFactorCode: secondCode
     }).expect(401);
 
     await request(server).post("/auth/login").send({
       loginChallengeId: firstLogin.body.loginChallengeId,
-      twoFactorCode: firstLogin.body.debugCode
+      twoFactorCode: firstCode
     }).expect(201);
   });
 
@@ -225,10 +236,11 @@ async function inviteAndEnableEmailTwoFactor(
   const token = invitation.body.invitationUrl.split("/").pop();
   const user = request.agent(server);
   await user.post("/auth/invitations/accept").send({ token, password }).expect(201);
-  const challenge = await user.post("/auth/2fa/email/start").send({}).expect(201);
+  const challenge = await user.post("/auth/2fa/email/start").send({ currentPassword: password }).expect(201);
   await user.post("/auth/2fa/email/enable").send({
     challengeId: challenge.body.challengeId,
-    code: challenge.body.debugCode
+    code: latestEmailCode,
+    currentPassword: password
   }).expect(201);
   await user.post("/auth/logout").expect(201);
   return { email, password };
@@ -264,7 +276,7 @@ async function loginAs(
       .post("/auth/login")
       .send({
         loginChallengeId: response.body.loginChallengeId,
-        twoFactorCode: response.body.debugCode
+        twoFactorCode: latestEmailCode
       })
       .expect(201);
   }

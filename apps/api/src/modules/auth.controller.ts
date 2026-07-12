@@ -22,6 +22,20 @@ import { AuthService } from "../auth/auth.service.js";
 import type { AuthenticatedRequest } from "../auth/auth.guard.js";
 import { defaultTimezone } from "../settings/default-timezone.js";
 import {
+  CurrentPasswordDto,
+  EmailTwoFactorEnableDto,
+  FirstAdminDto,
+  InviteUserDto,
+  InvitationAcceptDto,
+  LoginDto,
+  OrderNotificationsDto,
+  PasswordResetConfirmDto,
+  PasswordResetRequestDto,
+  TotpEnableDto,
+  UserActiveDto,
+  UserRoleDto
+} from "./auth.dto.js";
+import {
   defaultAppName,
   defaultAppSubtitle,
   defaultShowAppName,
@@ -72,7 +86,7 @@ export class AuthController {
   @RateLimit({ limit: 5, windowMs: 10 * 60 * 1000 })
   @Post("setup/first-admin")
   async createFirstAdmin(
-    @Body() body: { email: string; displayName: string; password: string },
+    @Body() body: FirstAdminDto,
     @Res({ passthrough: true }) response: Response
   ): Promise<{ ok: true; userId: string; user: ReturnType<AuthService["toAuthenticatedUser"]> extends infer U ? U : never }> {
     const existingAdmin = await this.prisma.user.findFirst({ where: { role: "ADMIN", deletedAt: null } });
@@ -112,14 +126,13 @@ export class AuthController {
   @RateLimit({ limit: 10, windowMs: 10 * 60 * 1000 })
   @Post("login")
   async login(
-    @Body() body: { email?: string; password?: string; twoFactorCode?: string; emailChallengeId?: string; loginChallengeId?: string },
+    @Body() body: LoginDto,
     @Res({ passthrough: true }) response: Response
   ): Promise<{
     requiresTwoFactor: boolean;
     twoFactorMethod?: TwoFactorMethod;
     loginChallengeId?: string;
     emailChallengeId?: string;
-    debugCode?: string;
     user?: ReturnType<AuthService["toAuthenticatedUser"]> extends infer U ? U : never;
   }> {
     if (body.loginChallengeId?.trim()) {
@@ -138,7 +151,9 @@ export class AuthController {
           throw new UnauthorizedException("2FA-Code ist ungültig.");
         }
       }
-      await this.auth.consumePendingLoginChallenge(challenge.id);
+      if (!(await this.auth.consumePendingLoginChallenge(challenge.id))) {
+        throw new UnauthorizedException("Die Anmeldung ist abgelaufen. Bitte melden Sie sich erneut an.");
+      }
       await this.auth.createSession(response, challenge.user.id);
       return { requiresTwoFactor: false, user: this.auth.toAuthenticatedUser(challenge.user) };
     }
@@ -170,14 +185,13 @@ export class AuthController {
         }
       } else {
         const challenge = await this.auth.createEmailTwoFactorChallenge(user.id);
-        const delivery = await this.mail.sendEmailTwoFactorCode(user.email, challenge.code);
+        await this.mail.sendEmailTwoFactorCode(user.email, challenge.code);
         const loginChallenge = await this.auth.createPendingLoginChallenge(user.id, "EMAIL", challenge.challengeId);
         return {
           requiresTwoFactor: true,
           twoFactorMethod: "EMAIL",
           loginChallengeId: loginChallenge.challengeId,
-          emailChallengeId: challenge.challengeId,
-          debugCode: delivery.debugCode
+          emailChallengeId: challenge.challengeId
         };
       }
     }
@@ -212,12 +226,15 @@ export class AuthController {
   @RateLimit({ limit: 10, windowMs: 10 * 60 * 1000 })
   @Post("invitations/accept")
   async acceptInvitation(
-    @Body() body: { token: string; password: string; displayName?: string },
+    @Body() body: InvitationAcceptDto,
     @Res({ passthrough: true }) response: Response
   ): Promise<{ ok: true; user: ReturnType<AuthService["toAuthenticatedUser"]> extends infer U ? U : never }> {
     this.assertPassword(body.password);
     const invitation = await this.auth.consumeInvitation(body.token);
     if (!invitation) {
+      throw new UnauthorizedException("Einladung ist ungültig oder abgelaufen.");
+    }
+    if (!(await this.auth.markInvitationAccepted(invitation.invitationId))) {
       throw new UnauthorizedException("Einladung ist ungültig oder abgelaufen.");
     }
 
@@ -229,7 +246,6 @@ export class AuthController {
         active: true
       }
     });
-    await this.auth.markInvitationAccepted(invitation.invitationId);
     await this.auth.createSession(response, user.id);
     await this.audit.record({
       actorType: "PUBLIC_CHECKER",
@@ -248,7 +264,7 @@ export class AuthController {
   @PublicRoute()
   @RateLimit({ limit: 5, windowMs: 15 * 60 * 1000 })
   @Post("password-reset/request")
-  async requestPasswordReset(@Body() body: { email: string }): Promise<{ ok: true; debugUrl?: string }> {
+  async requestPasswordReset(@Body() body: PasswordResetRequestDto): Promise<{ ok: true }> {
     const user = await this.prisma.user.findFirst({
       where: { email: body.email.trim(), active: true, passwordHash: { not: null }, deletedAt: null }
     });
@@ -258,7 +274,7 @@ export class AuthController {
 
     const reset = await this.auth.createPasswordResetToken(user.id);
     const resetUrl = `${process.env.APP_PUBLIC_URL ?? "http://localhost:5173"}/password-reset/${reset.token}`;
-    const delivery = await this.mail.sendPasswordReset(user.email, resetUrl);
+    await this.mail.sendPasswordReset(user.email, resetUrl);
     await this.audit.record({
       actorType: "SYSTEM",
       actorLabel: "RescueBase",
@@ -266,7 +282,7 @@ export class AuthController {
       entityType: "User",
       entityId: user.id
     });
-    return { ok: true, debugUrl: delivery.debugUrl };
+    return { ok: true };
   }
 
   @PublicRoute()
@@ -283,18 +299,20 @@ export class AuthController {
   @PublicRoute()
   @RateLimit({ limit: 10, windowMs: 10 * 60 * 1000 })
   @Post("password-reset/confirm")
-  async confirmPasswordReset(@Body() body: { token: string; password: string }): Promise<{ ok: true }> {
+  async confirmPasswordReset(@Body() body: PasswordResetConfirmDto): Promise<{ ok: true }> {
     this.assertPassword(body.password);
     const reset = await this.auth.getPasswordReset(body.token);
     if (!reset) {
       throw new UnauthorizedException("Passwort-Reset ist ungültig oder abgelaufen.");
     }
 
+    if (!(await this.auth.consumePasswordReset(reset.resetId))) {
+      throw new UnauthorizedException("Passwort-Reset ist ungültig oder abgelaufen.");
+    }
     await this.prisma.user.update({
       where: { id: reset.id },
       data: { passwordHash: await this.auth.hashPassword(body.password) }
     });
-    await this.auth.consumePasswordReset(reset.resetId);
     await this.auth.destroyUserSessions(reset.id);
     await this.audit.record({
       actorType: "SYSTEM",
@@ -328,7 +346,8 @@ export class AuthController {
   }
 
   @Post("2fa/totp/setup")
-  async setupTotp(@Req() request: AuthenticatedRequest): Promise<{ secret: string; otpauthUrl: string }> {
+  async setupTotp(@Req() request: AuthenticatedRequest, @Body() body: CurrentPasswordDto): Promise<{ secret: string; otpauthUrl: string }> {
+    await this.assertCurrentPassword(request, body.currentPassword);
     const user = await this.prisma.user.findUniqueOrThrow({ where: { id: request.user?.id } });
     const setup = this.auth.createTwoFactorSetup(user);
     await this.prisma.user.update({
@@ -340,7 +359,7 @@ export class AuthController {
 
   @Post("2fa/totp/enable")
   @RateLimit({ limit: 10, windowMs: 10 * 60 * 1000 })
-  async enableTotp(@Req() request: AuthenticatedRequest, @Body() body: { code: string }): Promise<{ ok: true }> {
+  async enableTotp(@Req() request: AuthenticatedRequest, @Body() body: TotpEnableDto): Promise<{ ok: true }> {
     const user = await this.prisma.user.findUniqueOrThrow({ where: { id: request.user?.id } });
     if (!this.auth.verifyTotp(body.code, user.twoFactorSecret)) {
       throw new UnauthorizedException("2FA-Code ist ungültig.");
@@ -353,18 +372,19 @@ export class AuthController {
   }
 
   @Post("2fa/email/start")
-  async startEmailTwoFactor(@Req() request: AuthenticatedRequest): Promise<{ challengeId: string; debugCode?: string }> {
+  async startEmailTwoFactor(@Req() request: AuthenticatedRequest, @Body() body: CurrentPasswordDto): Promise<{ challengeId: string }> {
+    await this.assertCurrentPassword(request, body.currentPassword);
     const user = await this.prisma.user.findUniqueOrThrow({ where: { id: request.user?.id } });
     const challenge = await this.auth.createEmailTwoFactorChallenge(user.id);
-    const delivery = await this.mail.sendEmailTwoFactorCode(user.email, challenge.code);
-    return { challengeId: challenge.challengeId, debugCode: delivery.debugCode };
+    await this.mail.sendEmailTwoFactorCode(user.email, challenge.code);
+    return { challengeId: challenge.challengeId };
   }
 
   @Post("2fa/email/enable")
   @RateLimit({ limit: 10, windowMs: 10 * 60 * 1000 })
   async enableEmailTwoFactor(
     @Req() request: AuthenticatedRequest,
-    @Body() body: { challengeId: string; code: string }
+    @Body() body: EmailTwoFactorEnableDto
   ): Promise<{ ok: true }> {
     const user = await this.prisma.user.findUniqueOrThrow({ where: { id: request.user?.id } });
     const valid = await this.auth.verifyEmailTwoFactorChallenge(user.id, body.challengeId, body.code);
@@ -379,7 +399,8 @@ export class AuthController {
   }
 
   @Post("2fa/disable")
-  async disableTwoFactor(@Req() request: AuthenticatedRequest): Promise<{ ok: true }> {
+  async disableTwoFactor(@Req() request: AuthenticatedRequest, @Body() body: CurrentPasswordDto): Promise<{ ok: true }> {
+    await this.assertCurrentPassword(request, body.currentPassword);
     await this.prisma.user.update({
       where: { id: request.user?.id },
       data: { twoFactorEnabled: false, twoFactorMethod: null, twoFactorSecret: null }
@@ -390,7 +411,7 @@ export class AuthController {
   @Post("preferences/order-notifications")
   async updateOrderNotifications(
     @Req() request: AuthenticatedRequest,
-    @Body() body: { enabled: boolean }
+    @Body() body: OrderNotificationsDto
   ): Promise<{ ok: true; user: ReturnType<AuthService["toAuthenticatedUser"]> extends infer U ? U : never }> {
     if (typeof body.enabled !== "boolean") {
       throw new BadRequestException("Benachrichtigungsstatus muss gesetzt sein.");
@@ -430,7 +451,7 @@ export class AuthController {
 
   @Roles("ADMIN")
   @Post("users/:id/active")
-  async setUserActive(@Param("id") id: string, @Body() body: { active: boolean }): Promise<{ ok: true }> {
+  async setUserActive(@Param("id") id: string, @Body() body: UserActiveDto): Promise<{ ok: true }> {
     if (typeof body.active !== "boolean") {
       throw new BadRequestException("Aktiv-Status muss gesetzt sein.");
     }
@@ -457,7 +478,7 @@ export class AuthController {
 
   @Roles("ADMIN")
   @Post("users/:id/role")
-  async setUserRole(@Param("id") id: string, @Body() body: { role: UserRole }, @Req() request: AuthenticatedRequest): Promise<{ ok: true }> {
+  async setUserRole(@Param("id") id: string, @Body() body: UserRoleDto, @Req() request: AuthenticatedRequest): Promise<{ ok: true }> {
     if (!body.role || !["ADMIN", "WAREHOUSE"].includes(body.role)) {
       throw new BadRequestException("Rolle muss ADMIN oder WAREHOUSE sein.");
     }
@@ -526,10 +547,9 @@ export class AuthController {
 
   @Roles("ADMIN")
   @Post("invite")
-  async invite(@Body() body: { email: string; role: UserRole; displayName: string }): Promise<{
+  async invite(@Body() body: InviteUserDto): Promise<{
     id: string;
     invitationUrl: string;
-    debugUrl?: string;
   }> {
     const email = body.email.trim();
     const displayName = body.displayName.trim();
@@ -556,7 +576,7 @@ export class AuthController {
     });
     const invitation = await this.auth.createInvitation(user.id);
     const invitationUrl = `${process.env.APP_PUBLIC_URL ?? "http://localhost:5173"}/invitation/${invitation.token}`;
-    const delivery = await this.mail.sendInvitation(user.email, invitationUrl);
+    await this.mail.sendInvitation(user.email, invitationUrl);
     await this.audit.record({
       actorType: "USER",
       actorLabel: "Admin",
@@ -564,11 +584,14 @@ export class AuthController {
       entityType: "User",
       entityId: user.id
     });
-    return {
-      id: user.id,
-      invitationUrl,
-      debugUrl: delivery.debugUrl
-    };
+    return { id: user.id, invitationUrl };
+  }
+
+  private async assertCurrentPassword(request: AuthenticatedRequest, password: string): Promise<void> {
+    const user = await this.prisma.user.findUnique({ where: { id: request.user?.id } });
+    if (!user || !(await this.auth.verifyPassword(password, user.passwordHash))) {
+      throw new UnauthorizedException("Aktuelles Passwort ist ungültig.");
+    }
   }
 
   private assertPassword(password: string): void {

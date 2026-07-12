@@ -15,6 +15,7 @@ export function AccountTotpPanel() {
   const [totpSetup, setTotpSetup] = useState<{ secret: string; otpauthUrl: string } | null>(null);
   const [totpQrUrl, setTotpQrUrl] = useState("");
   const [totpCode, setTotpCode] = useState("");
+  const [currentPassword, setCurrentPassword] = useState("");
   const [copiedValue, setCopiedValue] = useState("");
   const setupTotp = useMutation({ mutationFn: rescueBaseApi.setupTotp, onSuccess: (result) => { setTotpSetup(result); setTotpQrUrl(""); setTotpCode(""); } });
   const enableTotp = useMutation({
@@ -36,8 +37,9 @@ export function AccountTotpPanel() {
     <Panel>
       <div className="panel-header"><div><h2>TOTP einrichten</h2></div><KeyRound /></div>
       <div className="auth-form">
-        {totpSetup ? <TotpSetupCard copiedValue={copiedValue} onCopy={setCopiedValue} qrUrl={totpQrUrl} setup={totpSetup} /> : <Button loading={setupTotp.isPending} onClick={() => setupTotp.mutate()} type="button">TOTP vorbereiten</Button>}
-        {totpSetup ? <Field label="TOTP-Code"><input inputMode="numeric" value={totpCode} onChange={(event) => setTotpCode(event.target.value)} /></Field> : null}
+        {!totpSetup ? <Field label="Aktuelles Passwort"><input type="password" value={currentPassword} onChange={(event) => setCurrentPassword(event.target.value)} /></Field> : null}
+        {totpSetup ? <TotpSetupCard copiedValue={copiedValue} onCopy={setCopiedValue} qrUrl={totpQrUrl} setup={totpSetup} /> : <Button disabled={!currentPassword} loading={setupTotp.isPending} onClick={() => setupTotp.mutate({ currentPassword })} type="button">TOTP vorbereiten</Button>}
+        {totpSetup ? <Field label="TOTP-Code"><input autoComplete="one-time-code" inputMode="numeric" value={totpCode} onChange={(event) => setTotpCode(event.target.value)} /></Field> : null}
         {totpSetup ? <Button disabled={totpCode.trim().length < 6} loading={enableTotp.isPending} onClick={() => enableTotp.mutate({ code: totpCode })} type="button">TOTP aktivieren</Button> : null}
         {setupTotp.error ? <InlineError error={setupTotp.error} /> : null}
         {enableTotp.error ? <InlineError error={enableTotp.error} /> : null}

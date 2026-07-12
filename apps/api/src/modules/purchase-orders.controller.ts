@@ -17,7 +17,7 @@ export class PurchaseOrdersController {
 
   @Post()
   create(@Body() body: {
-    supplierName: string;
+    supplierId: string;
     locationId: string;
     notes?: string;
     lines: Array<{ articleId: string; orderedQuantity: number; grossUnitPriceCents?: number; note?: string; supplierArticleNumber?: string }>;
@@ -29,7 +29,7 @@ export class PurchaseOrdersController {
   createFromShortages(@Body() body: {
     locationId: string;
     groupingMode: "single" | "supplier";
-    supplierName?: string;
+    supplierId?: string;
     articleIds?: string[];
   }) {
     return this.purchaseOrders.createFromShortages(body);
@@ -52,7 +52,7 @@ export class PurchaseOrdersController {
 
   @Patch(":id")
   update(@Param("id") id: string, @Body() body: {
-    supplierName?: string;
+    supplierId?: string;
     locationId?: string;
     notes?: string;
     lines?: Array<{ articleId: string; orderedQuantity: number; grossUnitPriceCents?: number; note?: string; supplierArticleNumber?: string }>;

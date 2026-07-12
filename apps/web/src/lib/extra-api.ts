@@ -1,6 +1,6 @@
 import { ApiError } from "./openapi-client";
 
-export type AlertCategory = "EXPIRY" | "STK_DUE" | "MTK_DUE";
+export type AlertCategory = "EXPIRY" | "STK_DUE" | "MTK_DUE" | "SHORTAGE";
 
 export type AlertWarning = {
   id: string;
@@ -46,7 +46,7 @@ export type MedicalDevice = {
 };
 
 export async function getAlertOverview() {
-  return requestJson<{ generatedAt: string; warnings: AlertWarning[]; summary: { expiry: number; stkDue: number; mtkDue: number } }>("/alerts/warnings");
+  return requestJson<{ generatedAt: string; warnings: AlertWarning[]; summary: { expiry: number; stkDue: number; mtkDue: number; shortage: number } }>("/alerts/warnings");
 }
 
 export async function getMyAlertSubscriptions() {
@@ -63,6 +63,25 @@ export async function saveMyAlertSubscriptions(subscriptions: Array<{ category: 
 
 export async function getAlertSubscriptions() {
   return requestJson<AlertSubscription[]>("/alerts/subscriptions");
+}
+
+export type PushConfiguration = { enabled: boolean; publicKey?: string };
+export type BrowserPushSubscription = { endpoint: string; expirationTime?: number | null; keys: { auth: string; p256dh: string } };
+
+export function getPushConfiguration() {
+  return requestJson<PushConfiguration>("/push/config");
+}
+
+export function getMyPushSubscriptions() {
+  return requestJson<{ endpoints: string[] }>("/push/subscriptions/me");
+}
+
+export function savePushSubscription(subscription: BrowserPushSubscription) {
+  return requestJson<unknown>("/push/subscriptions", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(subscription) });
+}
+
+export function deletePushSubscription(endpoint: string) {
+  return requestJson<{ ok: true }>("/push/subscriptions", { method: "DELETE", headers: { "content-type": "application/json" }, body: JSON.stringify({ endpoint }) });
 }
 
 export async function listMedicalDevices() {
