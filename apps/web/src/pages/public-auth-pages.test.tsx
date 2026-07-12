@@ -28,7 +28,7 @@ describe("Public auth pages", () => {
     await changeValue(screen.getByLabelText("E-Mail"), "lager-neu@rescuebase.local");
     await clickElement(screen.getByRole("button", { name: /Reset-Link senden/ }));
     await waitFor(() => expect(postedBody("/api/auth/password-reset/request")).toEqual({ email: "lager-neu@rescuebase.local" }));
-    expect(screen.getByText(/Lokaler Reset-Link/)).toBeInTheDocument();
+    expect(screen.queryByText(/Lokaler Reset-Link/)).not.toBeInTheDocument();
   });
 
   it("autofocuses login and submits it through the form", async () => {

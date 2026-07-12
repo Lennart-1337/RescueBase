@@ -9,6 +9,7 @@ import { CheckRecordsController } from "./check-records.controller.js";
 import { MedicalDevicesController } from "./medical-devices.controller.js";
 import { InventoryController } from "./inventory.controller.js";
 import { PublicChecksController } from "./public-checks.controller.js";
+import { PushController } from "./push.controller.js";
 import { PurchaseOrdersController } from "./purchase-orders.controller.js";
 import { ReplenishmentController } from "./replenishment.controller.js";
 import { ReportsController } from "./reports.controller.js";
@@ -20,6 +21,7 @@ import { OrderNotificationsService } from "../services/order-notifications.servi
 import { InventoryProcurementService } from "../services/inventory-procurement.service.js";
 import { PurchaseOrdersService } from "../services/purchase-orders.service.js";
 import { ReportService } from "../services/report.service.js";
+import { PushService } from "../services/push.service.js";
 import { PrismaService } from "../persistence/prisma.service.js";
 import { AuthGuard } from "../auth/auth.guard.js";
 import { RateLimitGuard } from "../auth/rate-limit.guard.js";
@@ -39,6 +41,7 @@ import { NotificationTemplatesService } from "../settings/notification-templates
     MedicalDevicesController,
     InventoryController,
     PublicChecksController,
+    PushController,
     PurchaseOrdersController,
     ReplenishmentController,
     ReportsController
@@ -54,6 +57,7 @@ import { NotificationTemplatesService } from "../settings/notification-templates
     MailService,
     OrderNotificationsService,
     ReportService,
+    PushService,
     SettingsService,
     NotificationTemplatesService,
     RateLimitService,

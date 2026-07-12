@@ -340,6 +340,54 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/push/config": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["PushController_configuration"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/push/subscriptions/me": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["PushController_subscriptions"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/push/subscriptions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["PushController_register"];
+        delete: operations["PushController_remove"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/auth/2fa/disable": {
         parameters: {
             query?: never;
@@ -1327,19 +1375,20 @@ export interface components {
             twoFactorMethod?: components["schemas"]["TwoFactorMethod"];
             loginChallengeId?: string;
             emailChallengeId?: string;
-            debugCode?: string;
             user?: components["schemas"]["AuthenticatedUser"];
         };
         TotpSetupResponse: {
             secret: string;
             otpauthUrl: string;
         };
+        CurrentPasswordRequest: {
+            currentPassword: string;
+        };
         EnableTotpRequest: {
             code: string;
         };
         EmailTwoFactorStartResponse: {
             challengeId: string;
-            debugCode?: string;
         };
         EnableEmailTwoFactorRequest: {
             challengeId: string;
@@ -1353,6 +1402,26 @@ export interface components {
             ok: true;
             user: components["schemas"]["AuthenticatedUser"];
         };
+        PushConfiguration: {
+            enabled: boolean;
+            publicKey?: string;
+        };
+        PushSubscriptionRequest: {
+            /** Format: uri */
+            endpoint: string;
+            expirationTime?: number | null;
+            keys: {
+                auth: string;
+                p256dh: string;
+            };
+        };
+        PushSubscriptionEndpoints: {
+            endpoints: string[];
+        };
+        PushSubscriptionRemovalRequest: {
+            /** Format: uri */
+            endpoint: string;
+        };
         InviteUserRequest: {
             /** Format: email */
             email: string;
@@ -1363,8 +1432,6 @@ export interface components {
             id: string;
             /** Format: uri */
             invitationUrl: string;
-            /** Format: uri */
-            debugUrl?: string;
         };
         InvitationPreview: {
             /** Format: email */
@@ -1389,8 +1456,6 @@ export interface components {
         PasswordResetRequestResponse: {
             /** @enum {boolean} */
             ok: true;
-            /** Format: uri */
-            debugUrl?: string;
         };
         PasswordResetPreview: {
             /** Format: email */
@@ -2538,7 +2603,11 @@ export interface operations {
             path?: never;
             cookie?: never;
         };
-        requestBody?: never;
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CurrentPasswordRequest"];
+            };
+        };
         responses: {
             /** @description TOTP setup */
             201: {
@@ -2582,7 +2651,11 @@ export interface operations {
             path?: never;
             cookie?: never;
         };
-        requestBody?: never;
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CurrentPasswordRequest"];
+            };
+        };
         responses: {
             /** @description Email 2FA challenge started */
             201: {
@@ -2643,7 +2716,7 @@ export interface operations {
             };
         };
     };
-    AuthController_disableTwoFactor: {
+    PushController_configuration: {
         parameters: {
             query?: never;
             header?: never;
@@ -2651,6 +2724,98 @@ export interface operations {
             cookie?: never;
         };
         requestBody?: never;
+        responses: {
+            /** @description Push configuration */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PushConfiguration"];
+                };
+            };
+        };
+    };
+    PushController_subscriptions: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Current user push subscriptions */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PushSubscriptionEndpoints"];
+                };
+            };
+        };
+    };
+    PushController_register: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PushSubscriptionRequest"];
+            };
+        };
+        responses: {
+            /** @description Push subscription saved */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OkResponse"];
+                };
+            };
+        };
+    };
+    PushController_remove: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PushSubscriptionRemovalRequest"];
+            };
+        };
+        responses: {
+            /** @description Push subscription removed */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OkResponse"];
+                };
+            };
+        };
+    };
+    AuthController_disableTwoFactor: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CurrentPasswordRequest"];
+            };
+        };
         responses: {
             /** @description 2FA disabled */
             201: {

@@ -3,6 +3,7 @@ import { AlertCategory, Prisma } from "@prisma/client";
 import { buildAlertWarnings, type AlertWarning } from "../alerts/alert-engine.js";
 import { AuditService } from "./audit.service.js";
 import { MailService } from "./mail.service.js";
+import { PushService } from "./push.service.js";
 import { PrismaService } from "../persistence/prisma.service.js";
 import { isScheduleDue } from "../settings/settings-schedule.js";
 import { defaultTimezone } from "../settings/default-timezone.js";
@@ -53,7 +54,8 @@ export class AlertsService implements OnApplicationBootstrap, OnModuleDestroy {
   constructor(
     private readonly prisma: PrismaService,
     private readonly mail: MailService,
-    private readonly audit: AuditService
+    private readonly audit: AuditService,
+    private readonly push: PushService
   ) {}
 
   async onApplicationBootstrap() {
@@ -319,17 +321,10 @@ export class AlertsService implements OnApplicationBootstrap, OnModuleDestroy {
     for (const event of events) {
       const recipients = this.resolveRecipients([event], subscriptions);
       for (const recipient of recipients) {
-        await this.mail.sendImmediateAlert(
-          recipient.user.email,
-          {
-            category: event.category,
-            details: event.details,
-            dueAt: event.dueAt,
-            recipientName: recipient.user.displayName,
-            title: event.title
-          },
-          this.publicLinkForCategory(event.category)
-        );
+        await Promise.all([
+          this.mail.sendImmediateAlert(recipient.user.email, { category: event.category, details: event.details, dueAt: event.dueAt, recipientName: recipient.user.displayName, title: event.title }, this.publicLinkForCategory(event.category)),
+          this.push.sendToUsers([recipient.user.id], { title: event.title, body: event.details, tag: `alert-${event.id}`, url: this.publicPathForCategory(event.category) })
+        ]);
         await this.audit.record({
           actorType: "SYSTEM",
           actorLabel: "Alert pipeline",
@@ -432,12 +427,15 @@ export class AlertsService implements OnApplicationBootstrap, OnModuleDestroy {
 
   private publicLinkForCategory(category: AlertCategory) {
     const base = process.env.APP_PUBLIC_URL ?? "http://localhost:5173";
-    const path = category === AlertCategory.EXPIRY
+    return new URL(this.publicPathForCategory(category), base).toString();
+  }
+
+  private publicPathForCategory(category: AlertCategory) {
+    return category === AlertCategory.EXPIRY
       ? "/admin/inventory?warning=expiry"
       : category === AlertCategory.SHORTAGE
         ? "/admin/inventory"
         : "/admin/master-data?tab=devices";
-    return new URL(path, base).toString();
   }
 
   private publicLinkForDigest(category: AlertCategory) {

@@ -22,7 +22,6 @@ export function PasswordResetRequestScreen() {
         }}
       >
         <Field label="E-Mail"><input autoFocus type="email" value={email} onChange={(event) => setEmail(event.target.value)} /></Field>
-        {mutation.data?.debugUrl ? <p className="debug-hint">Lokaler Reset-Link: {mutation.data.debugUrl}</p> : null}
         {mutation.error ? <InlineError error={mutation.error} /> : null}
         <Button disabled={!email.trim()} loading={mutation.isPending} type="submit">Reset-Link senden</Button>
         <Link className="text-link" search={{}} to="/">Zur Anmeldung</Link>

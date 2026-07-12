@@ -41,6 +41,9 @@
     },
     {
       "name": "Admin-Einstellungen"
+    },
+    {
+      "name": "Push"
     }
   ],
   "components": {
@@ -335,9 +338,6 @@
           "emailChallengeId": {
             "type": "string"
           },
-          "debugCode": {
-            "type": "string"
-          },
           "user": {
             "$ref": "#/components/schemas/AuthenticatedUser"
           }
@@ -363,6 +363,19 @@
         ],
         "additionalProperties": false
       },
+      "CurrentPasswordRequest": {
+        "type": "object",
+        "properties": {
+          "currentPassword": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "currentPassword"
+        ],
+        "additionalProperties": false
+      },
       "EnableTotpRequest": {
         "type": "object",
         "properties": {
@@ -379,9 +392,6 @@
         "type": "object",
         "properties": {
           "challengeId": {
-            "type": "string"
-          },
-          "debugCode": {
             "type": "string"
           }
         },
@@ -437,6 +447,84 @@
         ],
         "additionalProperties": false
       },
+      "PushConfiguration": {
+        "type": "object",
+        "properties": {
+          "enabled": {
+            "type": "boolean"
+          },
+          "publicKey": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "enabled"
+        ],
+        "additionalProperties": false
+      },
+      "PushSubscriptionRequest": {
+        "type": "object",
+        "properties": {
+          "endpoint": {
+            "type": "string",
+            "format": "uri"
+          },
+          "expirationTime": {
+            "type": "number",
+            "nullable": true
+          },
+          "keys": {
+            "type": "object",
+            "properties": {
+              "auth": {
+                "type": "string"
+              },
+              "p256dh": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "auth",
+              "p256dh"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "endpoint",
+          "keys"
+        ],
+        "additionalProperties": false
+      },
+      "PushSubscriptionEndpoints": {
+        "type": "object",
+        "properties": {
+          "endpoints": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uri"
+            }
+          }
+        },
+        "required": [
+          "endpoints"
+        ],
+        "additionalProperties": false
+      },
+      "PushSubscriptionRemovalRequest": {
+        "type": "object",
+        "properties": {
+          "endpoint": {
+            "type": "string",
+            "format": "uri"
+          }
+        },
+        "required": [
+          "endpoint"
+        ],
+        "additionalProperties": false
+      },
       "InviteUserRequest": {
         "type": "object",
         "properties": {
@@ -465,10 +553,6 @@
             "type": "string"
           },
           "invitationUrl": {
-            "type": "string",
-            "format": "uri"
-          },
-          "debugUrl": {
             "type": "string",
             "format": "uri"
           }
@@ -560,10 +644,6 @@
             "enum": [
               true
             ]
-          },
-          "debugUrl": {
-            "type": "string",
-            "format": "uri"
           }
         },
         "required": [
@@ -3876,6 +3956,16 @@
           "Auth"
         ],
         "operationId": "AuthController_setupTotp",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CurrentPasswordRequest"
+              }
+            }
+          }
+        },
         "responses": {
           "201": {
             "description": "TOTP setup",
@@ -3926,6 +4016,16 @@
           "Auth"
         ],
         "operationId": "AuthController_startEmailTwoFactor",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CurrentPasswordRequest"
+              }
+            }
+          }
+        },
         "responses": {
           "201": {
             "description": "Email 2FA challenge started",
@@ -4000,12 +4100,120 @@
         }
       }
     },
+    "/push/config": {
+      "get": {
+        "tags": [
+          "Push"
+        ],
+        "operationId": "PushController_configuration",
+        "responses": {
+          "200": {
+            "description": "Push configuration",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PushConfiguration"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/push/subscriptions/me": {
+      "get": {
+        "tags": [
+          "Push"
+        ],
+        "operationId": "PushController_subscriptions",
+        "responses": {
+          "200": {
+            "description": "Current user push subscriptions",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PushSubscriptionEndpoints"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/push/subscriptions": {
+      "post": {
+        "tags": [
+          "Push"
+        ],
+        "operationId": "PushController_register",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PushSubscriptionRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Push subscription saved",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OkResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Push"
+        ],
+        "operationId": "PushController_remove",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PushSubscriptionRemovalRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Push subscription removed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OkResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/auth/2fa/disable": {
       "post": {
         "tags": [
           "Auth"
         ],
         "operationId": "AuthController_disableTwoFactor",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CurrentPasswordRequest"
+              }
+            }
+          }
+        },
         "responses": {
           "201": {
             "description": "2FA disabled",

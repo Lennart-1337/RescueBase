@@ -1,5 +1,9 @@
 # RescueBase
 
+## Web Push
+
+Generate a VAPID key pair with `npm run push:keys` and set `VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY`, and `VAPID_SUBJECT` in the staging or production environment. Until all three values are set, the Push toggle remains disabled. On iPhone and iPad, RescueBase must be added to the Home Screen before notifications can be enabled.
+
 RescueBase is a web-based MVP for managing Sanitätslager, Sanitätsrucksäcke, chargenbasierte Bestände, Ablaufdaten and public QR/NFC backpack checks.
 
 ## Stack
@@ -40,7 +44,7 @@ Development seed credentials are only created when seed data is explicitly loade
 - `lager@rescuebase.local` / `rescuebase-lager`
 
 Override them with `RESCUEBASE_DEV_ADMIN_PASSWORD` and `RESCUEBASE_DEV_WAREHOUSE_PASSWORD` before seeding. Emergency admin
-reset is available through `npm run admin:reset -- admin@example.org 'new-long-password'`; it updates the database, clears
+ reset is available through `npm run admin:reset -- admin@example.org 'new-long-password'`; it updates the database, clears
 active sessions, disables 2FA for that admin, and writes an audit event.
 
 API integration tests use Testcontainers with MariaDB 11.4. When Docker is unavailable locally, those tests log a skip

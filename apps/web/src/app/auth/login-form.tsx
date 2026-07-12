@@ -13,7 +13,6 @@ export function LoginForm({ onDone }: { onDone: () => void }) {
   const [email, setEmail] = useState(pendingLogin?.email ?? "");
   const [password, setPassword] = useState("");
   const [twoFactorCode, setTwoFactorCode] = useState("");
-  const [debugCode, setDebugCode] = useState(pendingLogin?.debugCode ?? "");
   const [loginChallengeId, setLoginChallengeId] = useState(pendingLogin?.loginChallengeId ?? "");
   const [requiresTwoFactor, setRequiresTwoFactor] = useState(Boolean(pendingLogin));
   const usesPendingLogin = requiresTwoFactor && loginChallengeId.trim().length > 0;
@@ -30,7 +29,6 @@ export function LoginForm({ onDone }: { onDone: () => void }) {
     setPendingLogin(null);
     setRequiresTwoFactor(false);
     setTwoFactorCode("");
-    setDebugCode("");
     setLoginChallengeId("");
     clearPendingLogin();
   }
@@ -48,11 +46,9 @@ export function LoginForm({ onDone }: { onDone: () => void }) {
     onSuccess: (result) => {
       if (result.requiresTwoFactor) {
         setRequiresTwoFactor(true);
-        setDebugCode(result.debugCode ?? "");
         setLoginChallengeId(result.loginChallengeId ?? "");
         setPendingLogin(result.loginChallengeId && result.twoFactorMethod ? {
           email,
-          debugCode: result.debugCode ?? "",
           loginChallengeId: result.loginChallengeId,
           twoFactorMethod: result.twoFactorMethod
         } : null);
@@ -79,7 +75,6 @@ export function LoginForm({ onDone }: { onDone: () => void }) {
         <Field label="E-Mail"><input autoComplete="email" autoFocus={!usesPendingLogin} disabled={usesPendingLogin} type="email" value={email} onChange={(event) => setEmail(event.target.value)} /></Field>
         {!usesPendingLogin ? <Field label="Passwort"><input autoComplete="current-password" type="password" value={password} onChange={(event) => setPassword(event.target.value)} /></Field> : null}
         {requiresTwoFactor ? <Field label="2FA-Code"><input autoComplete="one-time-code" autoFocus={usesPendingLogin} inputMode="numeric" value={twoFactorCode} onChange={(event) => setTwoFactorCode(event.target.value)} /></Field> : null}
-        {debugCode ? <p className="debug-hint">Lokaler Testcode: {debugCode}</p> : null}
         {mutation.error ? <InlineError error={mutation.error} /> : null}
         <Button disabled={!canSubmit} loading={mutation.isPending} type="submit">Anmelden</Button>
         {usesPendingLogin ? <Button onClick={resetPendingStep} type="button" variant="ghost">Neu starten</Button> : null}

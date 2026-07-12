@@ -1,5 +1,4 @@
 import { Injectable } from "@nestjs/common";
-
 type Bucket = {
   count: number;
   resetAt: number;

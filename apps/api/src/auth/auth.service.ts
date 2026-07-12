@@ -1,6 +1,6 @@
 import { Injectable, UnauthorizedException } from "@nestjs/common";
 import { compare, hash } from "bcryptjs";
-import { randomBytes, createHash } from "node:crypto";
+import { randomBytes, randomInt, createHash } from "node:crypto";
 import { authenticator } from "otplib";
 import type { TwoFactorMethod, UserRole } from "@rescuebase/domain";
 import type { Response } from "express";
@@ -148,11 +148,12 @@ export class AuthService {
     };
   }
 
-  async markInvitationAccepted(invitationId: string): Promise<void> {
-    await this.prisma.userInvitation.update({
-      where: { id: invitationId },
+  async markInvitationAccepted(invitationId: string): Promise<boolean> {
+    const accepted = await this.prisma.userInvitation.updateMany({
+      where: { id: invitationId, acceptedAt: null, expiresAt: { gt: new Date() } },
       data: { acceptedAt: new Date() }
     });
+    return accepted.count === 1;
   }
 
   async createPasswordResetToken(userId: string): Promise<{ token: string; expiresAt: Date }> {
@@ -184,15 +185,16 @@ export class AuthService {
     };
   }
 
-  async consumePasswordReset(resetId: string): Promise<void> {
-    await this.prisma.passwordResetToken.update({
-      where: { id: resetId },
+  async consumePasswordReset(resetId: string): Promise<boolean> {
+    const consumed = await this.prisma.passwordResetToken.updateMany({
+      where: { id: resetId, consumedAt: null, expiresAt: { gt: new Date() } },
       data: { consumedAt: new Date() }
     });
+    return consumed.count === 1;
   }
 
   async createEmailTwoFactorChallenge(userId: string): Promise<{ challengeId: string; code: string; expiresAt: Date }> {
-    const code = `${Math.floor(100000 + Math.random() * 900000)}`;
+    const code = `${randomInt(100000, 1000000)}`;
     const expiresAt = new Date(Date.now() + EMAIL_2FA_TTL_MS);
     await this.prisma.emailTwoFactorChallenge.updateMany({
       where: { userId, consumedAt: null, expiresAt: { gt: new Date() } },
@@ -210,18 +212,22 @@ export class AuthService {
 
   async verifyEmailTwoFactorChallenge(userId: string, challengeId: string, code: string): Promise<boolean> {
     const challenge = await this.prisma.emailTwoFactorChallenge.findUnique({ where: { id: challengeId } });
-    if (!challenge || challenge.userId !== userId || challenge.consumedAt || challenge.expiresAt <= new Date()) {
+    if (!challenge || challenge.userId !== userId || challenge.consumedAt || challenge.expiresAt <= new Date() || challenge.failedAttempts >= 5) {
       return false;
     }
     const valid = challenge.codeHash === this.hashOpaqueToken(code);
     if (!valid) {
+      await this.prisma.emailTwoFactorChallenge.updateMany({
+        where: { id: challenge.id, userId, consumedAt: null, expiresAt: { gt: new Date() }, failedAttempts: { lt: 5 } },
+        data: { failedAttempts: { increment: 1 } }
+      });
       return false;
     }
-    await this.prisma.emailTwoFactorChallenge.update({
-      where: { id: challenge.id },
+    const consumed = await this.prisma.emailTwoFactorChallenge.updateMany({
+      where: { id: challenge.id, userId, consumedAt: null, expiresAt: { gt: new Date() } },
       data: { consumedAt: new Date() }
     });
-    return true;
+    return consumed.count === 1;
   }
 
   async createPendingLoginChallenge(userId: string, method: TwoFactorMethod, emailChallengeId?: string): Promise<{ challengeId: string }> {
@@ -254,11 +260,12 @@ export class AuthService {
     return challenge;
   }
 
-  async consumePendingLoginChallenge(id: string): Promise<void> {
-    await this.prisma.pendingLoginChallenge.update({
-      where: { id },
+  async consumePendingLoginChallenge(id: string): Promise<boolean> {
+    const consumed = await this.prisma.pendingLoginChallenge.updateMany({
+      where: { id, consumedAt: null, expiresAt: { gt: new Date() } },
       data: { consumedAt: new Date() }
     });
+    return consumed.count === 1;
   }
 
   async destroyUserSessions(userId: string): Promise<void> {

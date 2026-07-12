@@ -26,7 +26,8 @@
     "admin:reset": "node scripts/reset-admin.mjs",
     "prisma:generate": "npm run prisma:generate -w @rescuebase/api",
     "prisma:deploy": "prisma migrate deploy --schema apps/api/prisma/schema.prisma",
-    "prisma:seed": "npm run prisma:seed -w @rescuebase/api"
+    "prisma:seed": "npm run prisma:seed -w @rescuebase/api",
+    "push:keys": "npm run vapid:generate -w @rescuebase/api"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.1",

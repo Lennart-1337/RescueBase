@@ -1,5 +1,5 @@
 import { screen, within } from "@testing-library/react";
-import { clickElement, renderAppAt, resetTestBrowser, stubFetch } from "../test-support/app-test-helpers";
+import { changeValue, clickElement, renderAppAt, requestBody, resetTestBrowser, stubFetch } from "../test-support/app-test-helpers";
 
 describe("AccountPage", () => {
   afterEach(resetTestBrowser);
@@ -13,6 +13,7 @@ describe("AccountPage", () => {
       "/api/alerts/subscriptions/me": []
     });
     await renderAppAt("/admin/account");
+    await changeValue((await screen.findAllByLabelText("Aktuelles Passwort"))[0]!, "rescuebase-admin");
     expect((await screen.findByRole("heading", { name: "Zugriffsschutz" })).closest(".page-section")?.querySelector(".account-access-grid")).not.toBeNull();
     await clickElement(await screen.findByRole("button", { name: /TOTP vorbereiten/ }));
     expect(await screen.findByAltText("TOTP-QR-Code")).toBeInTheDocument();
@@ -30,6 +31,7 @@ describe("AccountPage", () => {
     });
 
     await renderAppAt("/admin/account");
+    await changeValue((await screen.findAllByLabelText("Aktuelles Passwort"))[1]!, "rescuebase-admin");
     await clickElement(await screen.findByRole("button", { name: "Code senden" }));
 
     expect(await screen.findByLabelText("E-Mail-Code")).toHaveAttribute("autocomplete", "one-time-code");
@@ -104,5 +106,28 @@ describe("AccountPage", () => {
     expect(panel.closest(".account-notification-grid")).not.toBeNull();
     await clickElement(within(panel).getByRole("checkbox", { name: /Neue Nachfüllaufträge per E-Mail senden/ }));
     await clickElement(within(panel).getByRole("button", { name: "Speichern" }));
+  });
+
+  it("enables all push notifications for the current browser", async () => {
+    const subscription = { endpoint: "https://push.example.org/subscriptions/device-1", expirationTime: null, toJSON: () => ({ keys: { auth: "auth-key", p256dh: "p256dh-key" } }), unsubscribe: vi.fn().mockResolvedValue(true) };
+    const pushManager = { getSubscription: vi.fn().mockResolvedValueOnce(null).mockResolvedValue(subscription), subscribe: vi.fn().mockResolvedValue(subscription) };
+    Object.defineProperty(window, "isSecureContext", { configurable: true, value: true });
+    Object.defineProperty(window, "PushManager", { configurable: true, value: class PushManager {} });
+    Object.defineProperty(window, "Notification", { configurable: true, value: { requestPermission: vi.fn().mockResolvedValue("granted") } });
+    Object.defineProperty(navigator, "serviceWorker", { configurable: true, value: { register: vi.fn().mockResolvedValue({ pushManager }) } });
+    stubFetch({
+      "/api/auth/setup/status": { initialized: true },
+      "/api/auth/session": { user: { id: "user-admin", email: "admin@rescuebase.local", displayName: "Admin", role: "ADMIN", twoFactorEnabled: false } },
+      "/api/catalog/locations": [],
+      "/api/alerts/subscriptions/me": [],
+      "/api/push/config": { enabled: true, publicKey: "BEl6sGe2zCNxzyu2WQwo5XBmhGuVJ9By0DxwYhucPzQdV0aQJ42T7e1zNPp5PvYx6N6WmXv3mM4aN5bQv4rKxY" },
+      "/api/push/subscriptions/me": { endpoints: [] },
+      "/api/push/subscriptions": { ok: true }
+    });
+
+    await renderAppAt("/admin/account");
+    await clickElement(await screen.findByRole("button", { name: "Push-Benachrichtigungen aktivieren" }));
+
+    expect(requestBody("/api/push/subscriptions", "POST")).toEqual({ endpoint: subscription.endpoint, expirationTime: null, keys: { auth: "auth-key", p256dh: "p256dh-key" } });
   });
 });

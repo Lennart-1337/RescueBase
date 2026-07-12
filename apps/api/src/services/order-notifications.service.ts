@@ -1,6 +1,7 @@
 import { Injectable, Logger } from "@nestjs/common";
 import { PrismaService } from "../persistence/prisma.service.js";
 import { MailService } from "./mail.service.js";
+import { PushService } from "./push.service.js";
 
 @Injectable()
 export class OrderNotificationsService {
@@ -8,7 +9,8 @@ export class OrderNotificationsService {
 
   constructor(
     private readonly prisma: PrismaService,
-    private readonly mail: MailService
+    private readonly mail: MailService,
+    private readonly push: PushService
   ) {}
 
   async notifyNewOrder(orderId: string) {
@@ -30,7 +32,8 @@ export class OrderNotificationsService {
     const detailsUrl = `${process.env.APP_PUBLIC_URL ?? "http://localhost:5173"}/`;
     await Promise.all(recipients.map(async (recipient) => {
       try {
-        await this.mail.sendNewOrderNotification(recipient.email, {
+        await Promise.all([
+          this.mail.sendNewOrderNotification(recipient.email, {
           id: order.id,
           createdAt: order.createdAt,
           items: order.items.map((item) => ({
@@ -42,7 +45,9 @@ export class OrderNotificationsService {
           kitCode: order.kit.code,
           kitName: order.kit.name,
           locationName: order.kit.location.name
-        }, detailsUrl);
+          }, detailsUrl),
+          this.push.sendToUsers([recipient.id], { title: "Neuer Nachfüllauftrag", body: `${order.kit.name} · ${order.items.length} Positionen`, tag: `order-${order.id}`, url: "/admin" })
+        ]);
       } catch (error) {
         this.logger.error(`Order notification mail failed for ${recipient.email}`, error instanceof Error ? error.stack : undefined);
       }

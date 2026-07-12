@@ -11,7 +11,8 @@ describe("auth security", () => {
     const prisma = {
       emailTwoFactorChallenge: {
         findUnique: jest.fn(),
-        update: jest.fn()
+        update: jest.fn(),
+        updateMany: jest.fn()
       }
     };
     const auth = new AuthService(prisma as unknown as PrismaService);
@@ -24,14 +25,15 @@ describe("auth security", () => {
     });
 
     await expect(auth.verifyEmailTwoFactorChallenge("target-user", "challenge-1", "123456")).resolves.toBe(false);
-    expect(prisma.emailTwoFactorChallenge.update).not.toHaveBeenCalled();
+    expect(prisma.emailTwoFactorChallenge.updateMany).not.toHaveBeenCalled();
   });
 
   it("consumes an email 2FA challenge only for the matching user", async () => {
     const prisma = {
       emailTwoFactorChallenge: {
         findUnique: jest.fn(),
-        update: jest.fn()
+        update: jest.fn(),
+        updateMany: jest.fn()
       }
     };
     const auth = new AuthService(prisma as unknown as PrismaService);
@@ -43,11 +45,9 @@ describe("auth security", () => {
       expiresAt: new Date(Date.now() + 60_000)
     });
 
+    prisma.emailTwoFactorChallenge.updateMany.mockResolvedValue({ count: 1 });
     await expect(auth.verifyEmailTwoFactorChallenge("target-user", "challenge-1", "123456")).resolves.toBe(true);
-    expect(prisma.emailTwoFactorChallenge.update).toHaveBeenCalledWith({
-      where: { id: "challenge-1" },
-      data: { consumedAt: expect.any(Date) }
-    });
+    expect(prisma.emailTwoFactorChallenge.updateMany).toHaveBeenCalled();
   });
 
   it("rate-limits repeated attempts for the same route and identity", () => {

@@ -26,6 +26,7 @@ const rescueBaseOpenApiDocumentDefinition = {
     { name: "Reports" },
     { name: "Audit" },
     { name: "Admin-Einstellungen" },
+    { name: "Push" },
   ],
   components: {
     securitySchemes: {
@@ -158,7 +159,6 @@ const rescueBaseOpenApiDocumentDefinition = {
           twoFactorMethod: ref("TwoFactorMethod"),
           loginChallengeId: { type: "string" },
           emailChallengeId: { type: "string" },
-          debugCode: { type: "string" },
           user: ref("AuthenticatedUser"),
         },
         ["requiresTwoFactor"],
@@ -170,6 +170,10 @@ const rescueBaseOpenApiDocumentDefinition = {
         },
         ["secret", "otpauthUrl"],
       ),
+      CurrentPasswordRequest: objectSchema(
+        { currentPassword: { type: "string", minLength: 1 } },
+        ["currentPassword"],
+      ),
       EnableTotpRequest: objectSchema(
         {
           code: { type: "string" },
@@ -179,7 +183,6 @@ const rescueBaseOpenApiDocumentDefinition = {
       EmailTwoFactorStartResponse: objectSchema(
         {
           challengeId: { type: "string" },
-          debugCode: { type: "string" },
         },
         ["challengeId"],
       ),
@@ -203,6 +206,19 @@ const rescueBaseOpenApiDocumentDefinition = {
         },
         ["ok", "user"],
       ),
+      PushConfiguration: objectSchema({
+        enabled: { type: "boolean" },
+        publicKey: { type: "string" },
+      }, ["enabled"]),
+      PushSubscriptionRequest: objectSchema({
+        endpoint: { type: "string", format: "uri" },
+        expirationTime: { type: "number", nullable: true },
+        keys: objectSchema({ auth: { type: "string" }, p256dh: { type: "string" } }, ["auth", "p256dh"]),
+      }, ["endpoint", "keys"]),
+      PushSubscriptionEndpoints: objectSchema({
+        endpoints: { type: "array", items: { type: "string", format: "uri" } },
+      }, ["endpoints"]),
+      PushSubscriptionRemovalRequest: objectSchema({ endpoint: { type: "string", format: "uri" } }, ["endpoint"]),
       InviteUserRequest: objectSchema(
         {
           email: { type: "string", format: "email" },
@@ -215,7 +231,6 @@ const rescueBaseOpenApiDocumentDefinition = {
         {
           id: { type: "string" },
           invitationUrl: { type: "string", format: "uri" },
-          debugUrl: { type: "string", format: "uri" },
         },
         ["id", "invitationUrl"],
       ),
@@ -251,7 +266,6 @@ const rescueBaseOpenApiDocumentDefinition = {
       PasswordResetRequestResponse: objectSchema(
         {
           ok: { type: "boolean", enum: [true] },
-          debugUrl: { type: "string", format: "uri" },
         },
         ["ok"],
       ),
@@ -1582,7 +1596,7 @@ const rescueBaseOpenApiDocumentDefinition = {
       post: operation(
         "Auth",
         "AuthController_setupTotp",
-        {},
+        request("CurrentPasswordRequest"),
         response(201, "TOTP setup", ref("TotpSetupResponse")),
       ),
     },
@@ -1598,7 +1612,7 @@ const rescueBaseOpenApiDocumentDefinition = {
       post: operation(
         "Auth",
         "AuthController_startEmailTwoFactor",
-        {},
+        request("CurrentPasswordRequest"),
         response(
           201,
           "Email 2FA challenge started",
@@ -1626,11 +1640,21 @@ const rescueBaseOpenApiDocumentDefinition = {
         ),
       ),
     },
+    "/push/config": {
+      get: operation("Push", "PushController_configuration", {}, response(200, "Push configuration", ref("PushConfiguration"))),
+    },
+    "/push/subscriptions/me": {
+      get: operation("Push", "PushController_subscriptions", {}, response(200, "Current user push subscriptions", ref("PushSubscriptionEndpoints"))),
+    },
+    "/push/subscriptions": {
+      post: operation("Push", "PushController_register", request("PushSubscriptionRequest"), response(201, "Push subscription saved", ref("OkResponse"))),
+      delete: operation("Push", "PushController_remove", request("PushSubscriptionRemovalRequest"), response(200, "Push subscription removed", ref("OkResponse"))),
+    },
     "/auth/2fa/disable": {
       post: operation(
         "Auth",
         "AuthController_disableTwoFactor",
-        {},
+        request("CurrentPasswordRequest"),
         response(201, "2FA disabled", ref("OkResponse")),
       ),
     },

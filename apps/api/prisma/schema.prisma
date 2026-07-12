@@ -81,6 +81,7 @@ model User {
   emailChallenges  EmailTwoFactorChallenge[]
   pendingLogins    PendingLoginChallenge[]
   alertSubscriptions AlertSubscription[]
+  pushSubscriptions  PushSubscription[]
   approvedPurchaseOrders PurchaseOrder[] @relation("PurchaseOrderApprovedBy")
   deletedAt        DateTime?
   createdAt        DateTime @default(now())
@@ -131,6 +132,7 @@ model EmailTwoFactorChallenge {
   id         String   @id @default(cuid())
   userId      String
   codeHash    String
+  failedAttempts Int @default(0)
   expiresAt   DateTime
   consumedAt  DateTime?
   createdAt   DateTime @default(now())
@@ -603,6 +605,21 @@ model AlertSubscription {
 
   @@index([userId])
   @@index([category, locationId])
+}
+
+model PushSubscription {
+  id             String   @id @default(cuid())
+  userId         String
+  endpoint       String   @db.Text
+  endpointHash   String   @unique
+  p256dh         String
+  auth           String
+  expirationTime DateTime?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
 }
 
 model AlertEvent {
