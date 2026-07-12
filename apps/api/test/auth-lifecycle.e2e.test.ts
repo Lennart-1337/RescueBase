@@ -11,6 +11,7 @@ jest.setTimeout(30_000);
 
 let latestEmailCode = "";
 let latestResetUrl = "";
+const emailCodes = new Map<string, string>();
 
 describe("auth lifecycle", () => {
   let app: INestApplication;
@@ -24,7 +25,7 @@ describe("auth lifecycle", () => {
     app = harness.app;
     closeApp = harness.close;
     const mail = app.get(MailService);
-    jest.spyOn(mail, "sendEmailTwoFactorCode").mockImplementation(async (_email, code) => { latestEmailCode = code; return {}; });
+    jest.spyOn(mail, "sendEmailTwoFactorCode").mockImplementation(async (email, code) => { latestEmailCode = code; emailCodes.set(email, code); return {}; });
     jest.spyOn(mail, "sendPasswordReset").mockImplementation(async (_email, url) => { latestResetUrl = url; return {}; });
   });
 
@@ -185,22 +186,24 @@ describe("auth lifecycle", () => {
       email: first.email,
       password: first.password
     }).expect(201);
+    const firstCode = emailCodes.get(first.email);
 
     const secondLogin = await request(server).post("/auth/login").send({
       email: second.email,
       password: second.password
     }).expect(201);
+    const secondCode = emailCodes.get(second.email);
 
     await request(server).post("/auth/login").send({
       email: first.email,
       password: first.password,
       emailChallengeId: secondLogin.body.emailChallengeId,
-      twoFactorCode: latestEmailCode
+      twoFactorCode: secondCode
     }).expect(401);
 
     await request(server).post("/auth/login").send({
       loginChallengeId: firstLogin.body.loginChallengeId,
-      twoFactorCode: latestEmailCode
+      twoFactorCode: firstCode
     }).expect(201);
   });
 
