@@ -50,6 +50,8 @@ jobs:
           platforms: linux/amd64
           push: true
           provenance: false
+          cache-from: type=gha,scope=rescuebase-api-staging
+          cache-to: type=gha,mode=max,scope=rescuebase-api-staging
           tags: |
             ghcr.io/${{ steps.meta.outputs.owner }}/rescuebase-api:${{ steps.meta.outputs.release_tag }}
             ghcr.io/${{ steps.meta.outputs.owner }}/rescuebase-api:staging-latest
@@ -61,6 +63,8 @@ jobs:
           platforms: linux/amd64
           push: true
           provenance: false
+          cache-from: type=gha,scope=rescuebase-web-staging
+          cache-to: type=gha,mode=max,scope=rescuebase-web-staging
           tags: |
             ghcr.io/${{ steps.meta.outputs.owner }}/rescuebase-web:${{ steps.meta.outputs.release_tag }}
             ghcr.io/${{ steps.meta.outputs.owner }}/rescuebase-web:staging-latest

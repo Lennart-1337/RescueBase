@@ -4,7 +4,7 @@ COPY package.json package-lock.json* ./
 COPY apps/api/package.json apps/api/package.json
 COPY apps/web/package.json apps/web/package.json
 COPY packages/domain/package.json packages/domain/package.json
-RUN npm install
+RUN npm ci
 
 FROM deps AS build
 COPY . .
