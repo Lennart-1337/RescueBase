@@ -1,4 +1,4 @@
-FROM node:24.10.0-bookworm-slim AS deps
+FROM node:24.18.0-bookworm-slim AS deps
 WORKDIR /app
 RUN apt-get update \
   && apt-get install -y --no-install-recommends openssl \
@@ -7,15 +7,16 @@ COPY package.json package-lock.json* ./
 COPY apps/api/package.json apps/api/package.json
 COPY apps/web/package.json apps/web/package.json
 COPY packages/domain/package.json packages/domain/package.json
-RUN npm install
+RUN npm ci
 
 FROM deps AS build
 COPY . .
+ENV DATABASE_URL=mysql://rescuebase:rescuebase@127.0.0.1:3306/rescuebase
 RUN npm run prisma:generate -w @rescuebase/api
 RUN npm run build -w @rescuebase/domain
 RUN npm run build -w @rescuebase/api
 
-FROM node:24.10.0-bookworm-slim AS runtime
+FROM node:24.18.0-bookworm-slim AS runtime
 WORKDIR /app
 ENV NODE_ENV=production
 RUN apt-get update \
@@ -27,6 +28,7 @@ COPY --from=build /app/packages/domain/dist /app/packages/domain/dist
 COPY --from=build /app/packages/domain/package.json /app/packages/domain/package.json
 COPY --from=build /app/apps/api/dist /app/apps/api/dist
 COPY --from=build /app/apps/api/prisma /app/apps/api/prisma
+COPY --from=build /app/apps/api/prisma.config.ts /app/apps/api/prisma.config.ts
 COPY --from=build /app/apps/api/package.json /app/apps/api/package.json
 COPY --from=build /app/infra/backups /app/infra/backups
 EXPOSE 3000

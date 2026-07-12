@@ -9,7 +9,7 @@
     "packages/domain"
   ],
   "engines": {
-    "node": ">=24.10.0 <25"
+    "node": ">=24.18.0 <25"
   },
   "scripts": {
     "build": "npm run build -w @rescuebase/domain && npm run build -w @rescuebase/api && npm run build -w @rescuebase/web",
@@ -25,12 +25,12 @@
     "dev:stack": "node scripts/dev-stack.mjs",
     "admin:reset": "node scripts/reset-admin.mjs",
     "prisma:generate": "npm run prisma:generate -w @rescuebase/api",
-    "prisma:deploy": "prisma migrate deploy --schema apps/api/prisma/schema.prisma",
+    "prisma:deploy": "prisma migrate deploy --config apps/api/prisma.config.ts",
     "prisma:seed": "npm run prisma:seed -w @rescuebase/api",
     "push:keys": "npm run vapid:generate -w @rescuebase/api"
   },
   "devDependencies": {
-    "@eslint/js": "^9.39.1",
+    "@eslint/js": "^10.0.1",
     "@playwright/test": "^1.60.0",
     "eslint": "^10.6.0",
     "openapi-typescript": "^7.13.0",

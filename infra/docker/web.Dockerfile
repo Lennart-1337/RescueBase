@@ -1,10 +1,10 @@
-FROM node:24.10.0-bookworm-slim AS deps
+FROM node:24.18.0-bookworm-slim AS deps
 WORKDIR /app
 COPY package.json package-lock.json* ./
 COPY apps/api/package.json apps/api/package.json
 COPY apps/web/package.json apps/web/package.json
 COPY packages/domain/package.json packages/domain/package.json
-RUN npm install
+RUN npm ci
 
 FROM deps AS build
 COPY . .

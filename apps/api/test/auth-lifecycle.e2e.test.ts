@@ -1,6 +1,6 @@
 import type { INestApplication } from "@nestjs/common";
 import { jest } from "@jest/globals";
-import { authenticator } from "otplib";
+import { generateSync } from "otplib";
 // @ts-expect-error supertest ships export= typings; default import is correct with ts-jest runtime.
 import request from "supertest";
 import { bootstrapTestApp } from "./bootstrap-test-app.js";
@@ -108,7 +108,7 @@ describe("auth lifecycle", () => {
     }).expect(201);
 
     const totpSetup = await admin.post("/auth/2fa/totp/setup").send({ currentPassword: "rescuebase-admin" }).expect(201);
-    const totpCode = authenticator.generate(totpSetup.body.secret);
+    const totpCode = generateSync({ secret: totpSetup.body.secret });
     await admin.post("/auth/2fa/totp/enable").send({ code: totpCode }).expect(201);
     await admin.post("/auth/logout").expect(201);
 
@@ -121,7 +121,7 @@ describe("auth lifecycle", () => {
     expect(totpStart.body.loginChallengeId).toBeTruthy();
     await request(server).post("/auth/login").send({
       loginChallengeId: totpStart.body.loginChallengeId,
-      twoFactorCode: authenticator.generate(totpSetup.body.secret)
+      twoFactorCode: generateSync({ secret: totpSetup.body.secret })
     }).expect(201);
   });
 
@@ -266,7 +266,7 @@ async function loginAs(
       .post("/auth/login")
       .send({
         loginChallengeId: response.body.loginChallengeId,
-        twoFactorCode: authenticator.generate(secret)
+        twoFactorCode: generateSync({ secret })
       })
       .expect(201);
   }

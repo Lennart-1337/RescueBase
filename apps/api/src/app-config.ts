@@ -12,7 +12,7 @@ export function configureApp(app: INestApplication, options: AppConfigOptions = 
   assertProductionConfig();
   app.use(helmet());
   app.use(cookieParser());
-  app.useGlobalPipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true, transform: true }));
+  app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
   app.enableCors({
     origin: process.env.APP_PUBLIC_URL ?? "http://localhost:5173",
     credentials: true

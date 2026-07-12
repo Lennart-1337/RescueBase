@@ -1,7 +1,7 @@
 import { Injectable, UnauthorizedException } from "@nestjs/common";
 import { compare, hash } from "bcryptjs";
 import { randomBytes, randomInt, createHash } from "node:crypto";
-import { authenticator } from "otplib";
+import { generateSecret, generateURI, verifySync } from "otplib";
 import type { TwoFactorMethod, UserRole } from "@rescuebase/domain";
 import type { Response } from "express";
 import { EMAIL_2FA_TTL_MS, INVITATION_TTL_MS, PASSWORD_RESET_TTL_MS, SESSION_COOKIE_NAME, SESSION_TTL_MS } from "./auth.constants.js";
@@ -104,10 +104,10 @@ export class AuthService {
   }
 
   createTwoFactorSetup(user: UserEmail): { secret: string; otpauthUrl: string } {
-    const secret = authenticator.generateSecret();
+    const secret = generateSecret();
     return {
       secret,
-      otpauthUrl: authenticator.keyuri(user.email, "RescueBase", secret)
+      otpauthUrl: generateURI({ issuer: "RescueBase", label: user.email, secret })
     };
   }
 
@@ -115,7 +115,11 @@ export class AuthService {
     if (!secret) {
       throw new UnauthorizedException("2FA ist nicht eingerichtet.");
     }
-    return authenticator.check(code, secret);
+    try {
+      return verifySync({ token: code, secret }).valid;
+    } catch {
+      return false;
+    }
   }
 
   async createInvitation(userId: string): Promise<{ token: string; expiresAt: Date }> {
