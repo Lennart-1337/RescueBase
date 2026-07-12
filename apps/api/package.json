@@ -25,6 +25,7 @@
     "@nestjs/core": "^11.1.27",
     "@nestjs/platform-express": "^11.1.27",
     "@nestjs/swagger": "^11.4.5",
+    "@prisma/adapter-mariadb": "^7.8.0",
     "@prisma/client": "^7.8.0",
     "@rescuebase/domain": "file:../../packages/domain",
     "bcryptjs": "^3.0.3",
