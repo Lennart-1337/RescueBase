@@ -1,7 +1,7 @@
 module.exports = {
   preset: "ts-jest/presets/default-esm",
   testEnvironment: "node",
-  maxWorkers: 1,
+  maxWorkers: process.env.CI ? "50%" : 1,
   extensionsToTreatAsEsm: [".ts"],
   transform: {
     "^.+\\.ts$": ["ts-jest", { useESM: true, tsconfig: "tsconfig.json" }]

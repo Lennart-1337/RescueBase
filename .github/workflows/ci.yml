@@ -66,10 +66,7 @@ jobs:
 
       - run: npm ci
       - run: npm run lint -w @rescuebase/api
-      - run: npm run build -w @rescuebase/domain
-      - run: npm run prisma:generate -w @rescuebase/api
-      - run: node --experimental-vm-modules ../../node_modules/jest/bin/jest.js --config jest.config.cjs
-        working-directory: apps/api
+      - run: npm test -w @rescuebase/api
         env:
           REQUIRE_TESTCONTAINERS: "true"
       - run: npm run build -w @rescuebase/api
