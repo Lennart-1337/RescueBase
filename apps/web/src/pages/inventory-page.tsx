@@ -5,7 +5,7 @@ import { matchesFilterText, toOptionalBoolean, toOptionalString, withPrunedSearc
 import { AlertTriangle, Archive, Download, Plus, ShoppingCart } from "lucide-react";
 import { daysUntil, toError } from "../app/formatters";
 import { ErrorPanel, LoadingPanel, MetricGrid } from "../components/state-panels";
-import { PageHeader, PageToolbar, Workspace, WorkspaceMain, WorkspaceRail } from "../components/page-layout";
+import { PageHeader, PageToolbar, Workspace, WorkspaceMain } from "../components/page-layout";
 import { AnchorButton, Button, Tabs } from "../components/ui";
 import { rescueBaseApi } from "../lib/api";
 import type { AuthenticatedUser, InventoryTarget } from "../lib/types";
