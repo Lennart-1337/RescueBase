@@ -45,6 +45,8 @@ type PendingLoginChallengeView = {
   user: PendingLoginUser;
 };
 
+const TOTP_EPOCH_TOLERANCE_STEPS = 1;
+
 @Injectable()
 export class AuthService {
   constructor(private readonly prisma: PrismaService) {}
@@ -116,7 +118,7 @@ export class AuthService {
       throw new UnauthorizedException("2FA ist nicht eingerichtet.");
     }
     try {
-      return verifySync({ token: code, secret }).valid;
+      return verifySync({ token: code, secret, epochTolerance: TOTP_EPOCH_TOLERANCE_STEPS }).valid;
     } catch {
       return false;
     }
