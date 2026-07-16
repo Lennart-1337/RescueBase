@@ -1,7 +1,7 @@
 import { Injectable, UnauthorizedException } from "@nestjs/common";
 import { compare, hash } from "bcryptjs";
 import { randomBytes, randomInt, createHash } from "node:crypto";
-import { createGuardrails, generateSecret, generateURI, verifySync } from "otplib";
+import { generateSecret, generateURI, verifySync } from "otplib";
 import type { TwoFactorMethod, UserRole } from "@rescuebase/domain";
 import type { Response } from "express";
 import { EMAIL_2FA_TTL_MS, INVITATION_TTL_MS, PASSWORD_RESET_TTL_MS, SESSION_COOKIE_NAME, SESSION_TTL_MS } from "./auth.constants.js";
@@ -46,7 +46,6 @@ type PendingLoginChallengeView = {
 };
 
 const TOTP_EPOCH_TOLERANCE_SECONDS = 30;
-const TOTP_GUARDRAILS = createGuardrails({ MIN_SECRET_BYTES: 10 });
 
 @Injectable()
 export class AuthService {
@@ -119,7 +118,7 @@ export class AuthService {
       throw new UnauthorizedException("2FA ist nicht eingerichtet.");
     }
     try {
-      return verifySync({ token: code, secret, epochTolerance: TOTP_EPOCH_TOLERANCE_SECONDS, guardrails: TOTP_GUARDRAILS }).valid;
+      return verifySync({ token: code, secret, epochTolerance: TOTP_EPOCH_TOLERANCE_SECONDS }).valid;
     } catch {
       return false;
     }

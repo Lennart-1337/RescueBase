@@ -1,7 +1,7 @@
 import type { ExecutionContext } from "@nestjs/common";
 import { HttpException } from "@nestjs/common";
 import { jest } from "@jest/globals";
-import { createGuardrails, generateSecret, generateSync } from "otplib";
+import { generateSecret, generateSync } from "otplib";
 import { AuthService } from "../src/auth/auth.service";
 import { RateLimitGuard } from "../src/auth/rate-limit.guard";
 import { RateLimitService } from "../src/auth/rate-limit.service";
@@ -14,18 +14,6 @@ describe("auth security", () => {
     const code = generateSync({ secret, epoch: 1_800_000_000 });
 
     const nowSpy = jest.spyOn(Date, "now").mockReturnValue(1_800_000_030_000);
-    try {
-      expect(auth.verifyTotp(code, secret)).toBe(true);
-    } finally {
-      nowSpy.mockRestore();
-    }
-  });
-
-  it("accepts legacy 10-byte Base32 secrets", () => {
-    const auth = new AuthService({} as PrismaService);
-    const secret = "JBSWY3DPEHPK3PXP";
-    const code = generateSync({ secret, epoch: 1_800_000_000, guardrails: createGuardrails({ MIN_SECRET_BYTES: 10 }) });
-    const nowSpy = jest.spyOn(Date, "now").mockReturnValue(1_800_000_000_000);
     try {
       expect(auth.verifyTotp(code, secret)).toBe(true);
     } finally {
