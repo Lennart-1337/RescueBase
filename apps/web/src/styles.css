@@ -40,6 +40,8 @@
   --color-brand-quiet: #fff7f6;
   --color-brand-line: #f2b8b5;
   --color-brand-line-soft: #f0d5d2;
+  --color-selection-background: #fee4e2;
+  --color-selection-text: #17202c;
   --color-success-soft: #ecfdf3;
   --color-success-soft-strong: #dcfae6;
   --color-success-text: #067647;
@@ -120,6 +122,8 @@
   --color-brand-quiet: #341b1f;
   --color-brand-line: #7d2d2a;
   --color-brand-line-soft: #613537;
+  --color-selection-background: #58a6ff;
+  --color-selection-text: #0d1117;
   --color-success-soft: #12261e;
   --color-success-soft-strong: #163127;
   --color-success-text: #3fb950;
@@ -186,8 +190,8 @@ textarea::placeholder {
 }
 
 ::selection {
-  background: var(--color-brand-soft-strong);
-  color: var(--color-text-primary);
+  background: var(--color-selection-background);
+  color: var(--color-selection-text);
 }
 
 .warning-panel svg {
