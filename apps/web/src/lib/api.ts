@@ -14,7 +14,6 @@ import type {
   InviteUserRequest,
   CreatePurchaseOrdersFromShortagesRequest,
   PurchaseOrderWriteRequest,
-  ReceiveProcurementOrderRequest,
   ReceivePurchaseOrderRequest,
   ReviseTemplateRequest,
   UpdateArticleRequest,
@@ -81,11 +80,6 @@ export const rescueBaseApi = {
   clearInventoryTarget: (articleId: string, locationId: string) =>
     openApiClient.delete("/inventory/targets/{articleId}/{locationId}", { params: { articleId, locationId } }),
   reconcileInventoryTargets: () => openApiClient.post("/inventory/targets/reconcile"),
-  procurementOrders: () => openApiClient.get("/inventory/procurement-orders"),
-  startProcurementOrder: (id: string) => openApiClient.post("/inventory/procurement-orders/{id}/start", { params: { id } }),
-  receiveProcurementOrder: (id: string, body: ReceiveProcurementOrderRequest) =>
-    openApiClient.post("/inventory/procurement-orders/{id}/receive", body, { params: { id } }),
-  cancelProcurementOrder: (id: string) => openApiClient.post("/inventory/procurement-orders/{id}/cancel", { params: { id } }),
   inventoryAutomationConfig: () => openApiClient.get("/inventory/automation-config"),
   updateInventoryAutomationConfig: (body: UpdateInventoryAutomationConfigRequest) => openApiClient.post("/inventory/automation-config", body),
   purchaseOrders: () => openApiClient.get("/purchase-orders"),

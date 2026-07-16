@@ -11,6 +11,7 @@ type InventorySearch = {
   locationId?: string;
   q?: string;
   showEmpty?: true;
+  view?: "stock" | "targets";
 };
 
 export const Route = createFileRoute("/admin/inventory")({
@@ -20,7 +21,6 @@ export const Route = createFileRoute("/admin/inventory")({
         context.queryClient.prefetchQuery(catalogQueries.articles()),
         context.queryClient.prefetchQuery(catalogQueries.locations()),
         context.queryClient.prefetchQuery(inventoryQueries.batches()),
-        context.queryClient.prefetchQuery(inventoryQueries.procurementOrders()),
         context.queryClient.prefetchQuery(inventoryQueries.targets())
       ])
     ),
@@ -30,6 +30,7 @@ export const Route = createFileRoute("/admin/inventory")({
       locationId: readStringSearch(search.locationId),
       q: readStringSearch(search.q),
       showEmpty: readBooleanSearch(search.showEmpty) ? true : undefined
+      ,view: search.view === "targets" ? "targets" : undefined
     }),
   component: InventoryRoute
 });

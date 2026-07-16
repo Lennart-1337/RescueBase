@@ -124,6 +124,7 @@ describe("PurchaseOrdersPage", () => {
       "href",
       "/admin/purchase-orders/purchase-order-1",
     );
+    expect(screen.getByRole("link", { name: "Bearbeiten" })).toHaveClass("purchase-order-detail-button");
     expect(screen.queryByRole("link", { name: /PO-2026-000001/ })).toBeNull();
   });
 

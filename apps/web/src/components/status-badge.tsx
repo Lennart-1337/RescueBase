@@ -1,20 +1,14 @@
 import type { BadgeTone } from "./badge";
 import { Badge } from "./badge";
-import type { InventoryProcurementOrder, KitOperationalStatus, PurchaseOrderStatus, ReplenishmentStatus } from "../lib/types";
+import type { KitOperationalStatus, PurchaseOrderStatus, ReplenishmentStatus } from "../lib/types";
 
-type StatusKind = "kit" | "procurementOrder" | "purchaseOrder" | "replenishment";
+type StatusKind = "kit" | "purchaseOrder" | "replenishment";
 
 const labels = {
   kit: {
     CONDITIONAL: "Bedingt einsatzbereit",
     NOT_READY: "Nicht einsatzbereit",
     READY: "Bereit"
-  },
-  procurementOrder: {
-    CANCELLED: "Storniert",
-    DONE: "Erledigt",
-    IN_PROGRESS: "In Bearbeitung",
-    OPEN: "Offen"
   },
   purchaseOrder: {
     APPROVED: "Freigegeben",
@@ -32,14 +26,12 @@ const labels = {
 
 const tones = {
   kit: { CONDITIONAL: "warning", NOT_READY: "danger", READY: "ready" },
-  procurementOrder: { CANCELLED: "neutral", DONE: "ready", IN_PROGRESS: "info", OPEN: "warning" },
   purchaseOrder: { APPROVED: "info", DRAFT: "neutral", ORDERED: "info", PARTIALLY_RECEIVED: "info", RECEIVED: "ready" },
   replenishment: { CANCELLED: "neutral", DONE: "ready", OPEN: "warning" }
 } satisfies Record<StatusKind, Record<string, BadgeTone>>;
 
 type StatusByKind = {
   kit: KitOperationalStatus;
-  procurementOrder: InventoryProcurementOrder["status"];
   purchaseOrder: PurchaseOrderStatus;
   replenishment: ReplenishmentStatus;
 };

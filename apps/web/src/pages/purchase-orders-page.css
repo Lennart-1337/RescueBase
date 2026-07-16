@@ -66,6 +66,11 @@
   min-width: 0;
 }
 
+.purchase-order-detail-button {
+  justify-content: center;
+  width: 104px;
+}
+
 .purchase-order-row-main {
   color: inherit;
   display: grid;
