@@ -126,28 +126,6 @@ export const inventoryTarget = {
   location: { id: "loc-main", name: "Hauptlager" },
 };
 
-export const procurementOrder = {
-  id: "proc-order-1",
-  articleId: "article-bandage",
-  locationId: "loc-main",
-  status: "OPEN",
-  requestedQuantity: 30,
-  receivedQuantity: 0,
-  remainingQuantity: 30,
-  articleUrlSnapshot:
-    "https://shop.example.org/articles/verbandpaeckchen-mittel",
-  createdAt: "2026-06-18T02:00:00.000Z",
-  updatedAt: "2026-06-18T02:00:00.000Z",
-  article: {
-    id: "article-bandage",
-    name: "Verbandpäckchen mittel",
-    unit: "Stück",
-    articleUrl: "https://shop.example.org/articles/verbandpaeckchen-mittel",
-  },
-  location: { id: "loc-main", name: "Hauptlager" },
-  receipts: [],
-};
-
 export const purchaseOrder = {
   id: "purchase-order-1",
   orderNumber: "PO-2026-000001",

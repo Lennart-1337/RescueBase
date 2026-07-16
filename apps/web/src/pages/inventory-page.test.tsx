@@ -1,9 +1,21 @@
 import { screen, waitFor, within } from "@testing-library/react";
-import { article, batch, inventoryTarget, location, procurementOrder } from "../test-support/fixtures";
+import { article, batch, inventoryTarget, location } from "../test-support/fixtures";
 import { changeValue, clickElement, getActiveRouter, postedBody, renderAppAt, requestBody, resetTestBrowser, stubFetch, wasRequested } from "../test-support/app-test-helpers";
 
 describe("InventoryPage", () => {
   afterEach(resetTestBrowser);
+
+  it("switches between stock and target views", async () => {
+    stubFetch(baseInventoryRoutes());
+    await renderAppAt("/admin/inventory");
+    await screen.findByRole("heading", { name: "Lager" });
+
+    await clickElement(screen.getByRole("tab", { name: "Sollbestände" }));
+
+    expect(screen.getByRole("region", { name: "Sollbestände" })).toBeInTheDocument();
+    expect(screen.queryByRole("region", { name: "Bestandschargen" })).toBeNull();
+    expect(getActiveRouter()?.state.location.search).toMatchObject({ view: "targets" });
+  });
 
   it("submits new inventory batches with article, location, lot and expiry data", async () => {
     stubFetch(baseInventoryRoutes());
@@ -11,7 +23,7 @@ describe("InventoryPage", () => {
     await screen.findByRole("heading", { name: "Lager" });
     expect(screen.getByRole("search", { name: "Bestand filtern" })).toBeInTheDocument();
     expect(screen.getByRole("region", { name: "Bestandschargen" })).toBeInTheDocument();
-    expect(screen.getByRole("complementary", { name: "Bestandsplanung" })).toHaveClass("inventory-planning-grid");
+    expect(screen.getByRole("tab", { name: "Sollbestände" })).toBeInTheDocument();
     await clickElement(screen.getByRole("button", { name: /Charge hinzufügen/ }));
     const dialog = await screen.findByRole("dialog", { name: "Charge erfassen" });
     await changeValue(within(dialog).getByLabelText("Chargennummer"), "RD-2028-02");
@@ -37,6 +49,7 @@ describe("InventoryPage", () => {
     stubFetch(baseInventoryRoutes());
     await renderAppAt("/admin/inventory");
     await screen.findByRole("heading", { name: "Lager" });
+    await clickElement(screen.getByRole("tab", { name: "Sollbestände" }));
 
     await clickElement(screen.getByRole("button", { name: /Soll hinzufügen/ }));
     const dialog = await screen.findByRole("dialog", { name: "Sollbestand" });
@@ -171,6 +184,7 @@ describe("InventoryPage", () => {
     stubFetch(baseInventoryRoutes());
     await renderAppAt("/admin/inventory");
     await screen.findByRole("heading", { name: "Lager" });
+    await clickElement(screen.getByRole("tab", { name: "Sollbestände" }));
 
     await clickElement(screen.getByRole("button", { name: /Soll hinzufügen/ }));
     const dialog = await screen.findByRole("dialog", { name: "Sollbestand" });
@@ -180,89 +194,6 @@ describe("InventoryPage", () => {
 
     await clickElement(screen.getByRole("button", { name: /Löschen/ }));
     await waitFor(() => expect(wasRequested("/api/inventory/targets/article-bandage/loc-main", "DELETE")).toBe(true));
-  });
-
-  it("starts and receives procurement orders into batches", async () => {
-    stubFetch(baseInventoryRoutes({
-      "/api/inventory/procurement-orders": [{ ...procurementOrder, status: "IN_PROGRESS" }]
-    }));
-    await renderAppAt("/admin/inventory");
-    await screen.findByRole("heading", { name: "Lager" });
-
-    await clickElement(screen.getByRole("button", { name: /Wareneingang/ }));
-    const dialog = await screen.findByRole("dialog", { name: "Wareneingang" });
-    await changeValue(within(dialog).getByLabelText("Chargennummer"), "VB-2030-01");
-    await changeValue(within(dialog).getByLabelText("Ablaufdatum"), "2030-01-31");
-    await changeValue(within(dialog).getByLabelText("Menge"), "12");
-    expect(within(dialog).getByRole("button", { name: /Wareneingang buchen/ })).toBeDisabled();
-    await clickElement(within(dialog).getByLabelText(/Lieferung geprüft/));
-    await clickElement(within(dialog).getByRole("button", { name: /Wareneingang buchen/ }));
-
-    await waitFor(() => expect(postedBody("/api/inventory/procurement-orders/proc-order-1/receive")).toEqual({
-      verified: true,
-      items: [{ lotNumber: "VB-2030-01", expiresAt: "2030-01-31", quantity: 12 }]
-    }));
-  });
-
-  it("filters targets and procurement orders from the URL", async () => {
-    stubFetch(baseInventoryRoutes({
-      "/api/inventory/targets": [
-        inventoryTarget,
-        { ...inventoryTarget, id: "target-alt", articleId: "article-alt", article: { ...inventoryTarget.article, id: "article-alt", name: "Reserveartikel" } }
-      ],
-      "/api/inventory/procurement-orders": [
-        procurementOrder,
-        { ...procurementOrder, id: "proc-alt", articleId: "article-alt", article: { ...procurementOrder.article, id: "article-alt", name: "Reserveartikel" } }
-      ]
-    }));
-    await renderAppAt("/admin/inventory?q=Verband");
-    await screen.findByRole("heading", { name: "Lager" });
-
-    expect(screen.getAllByText("Verbandpäckchen mittel").length).toBeGreaterThan(0);
-    expect(screen.queryByText("Reserveartikel")).toBeNull();
-    expect(screen.getAllByRole("link", { name: "Link" })[0]).toHaveAttribute("href", "https://shop.example.org/articles/verbandpaeckchen-mittel");
-    expect(screen.getByRole("link", { name: /PDF Einkaufsliste/ }).getAttribute("href")).toMatch(/^\/api\/reports\/procurement\.pdf\?q=Verband&rev=/);
-  });
-
-  it("paginates batches, targets and procurement orders independently", async () => {
-    stubFetch(baseInventoryRoutes({
-      "/api/inventory/batches": Array.from({ length: 11 }, (_, index) => ({
-        ...batch,
-        id: `batch-${index + 1}`,
-        lotNumber: `LOT-${index + 1}`,
-        article: { ...batch.article, id: `batch-article-${index + 1}`, name: `Chargeartikel ${index + 1}` }
-      })),
-      "/api/inventory/targets": Array.from({ length: 11 }, (_, index) => ({
-        ...inventoryTarget,
-        id: `target-${index + 1}`,
-        articleId: `target-article-${index + 1}`,
-        article: { ...inventoryTarget.article, id: `target-article-${index + 1}`, name: `Sollartikel ${index + 1}` }
-      })),
-      "/api/inventory/procurement-orders": Array.from({ length: 11 }, (_, index) => ({
-        ...procurementOrder,
-        id: `proc-order-${index + 1}`,
-        articleId: `proc-article-${index + 1}`,
-        article: { ...procurementOrder.article, id: `proc-article-${index + 1}`, name: `Bestellartikel ${index + 1}` }
-      }))
-    }));
-    await renderAppAt("/admin/inventory");
-    await screen.findByRole("heading", { name: "Lager" });
-
-    expect(screen.queryByText(/LOT-11/)).toBeNull();
-    expect(screen.queryByText("Sollartikel 11")).toBeNull();
-    expect(screen.queryByText("Bestellartikel 11")).toBeNull();
-
-    await clickElement(within(screen.getByLabelText("Chargenseiten")).getByRole("button", { name: "Nächste Seite" }));
-    expect(screen.getByText(/LOT-11/)).toBeInTheDocument();
-    expect(screen.queryByText("Sollartikel 11")).toBeNull();
-    expect(screen.queryByText("Bestellartikel 11")).toBeNull();
-
-    await clickElement(within(screen.getByLabelText("Sollbestandsseiten")).getByRole("button", { name: "Nächste Seite" }));
-    expect(screen.getByText("Sollartikel 11")).toBeInTheDocument();
-    expect(screen.queryByText("Bestellartikel 11")).toBeNull();
-
-    await clickElement(within(screen.getByLabelText("Beschaffungsseiten")).getByRole("button", { name: "Nächste Seite" }));
-    expect(screen.getByText("Bestellartikel 11")).toBeInTheDocument();
   });
 
   it("does not show the automation panel in Lager", async () => {
@@ -283,10 +214,6 @@ function baseInventoryRoutes(extraRoutes: Record<string, unknown> = {}) {
     "/api/inventory/targets": [inventoryTarget],
     "/api/inventory/targets/article-bandage/loc-main": inventoryTarget,
     "/api/inventory/targets/reconcile": { checked: 1, created: 0, updated: 0, cancelled: 0 },
-    "/api/inventory/procurement-orders": [procurementOrder],
-    "/api/inventory/procurement-orders/proc-order-1/start": { ...procurementOrder, status: "IN_PROGRESS" },
-    "/api/inventory/procurement-orders/proc-order-1/receive": { ...procurementOrder, status: "DONE", receivedQuantity: 30, remainingQuantity: 0 },
-    "/api/inventory/procurement-orders/proc-order-1/cancel": { ...procurementOrder, status: "CANCELLED" },
     "/api/inventory/automation-config": { dailyReconcileTime: "02:00" },
     "/api/catalog/articles": [article],
     "/api/catalog/locations": [location],
