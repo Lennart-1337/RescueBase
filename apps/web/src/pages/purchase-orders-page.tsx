@@ -97,7 +97,7 @@ function PurchaseOrderRow(props: { isArchiving: boolean; isRestoring: boolean; o
   return (
     <ListRow className="purchase-order-row" actions={(
       <RowActions className="purchase-order-row-buttons">
-        <Link className="button button-secondary" params={{ orderId: order.id }} to="/admin/purchase-orders/$orderId"><Pencil data-icon="inline-start" />{detailLabel}</Link>
+        <Link className="button button-secondary purchase-order-detail-button" params={{ orderId: order.id }} to="/admin/purchase-orders/$orderId"><Pencil data-icon="inline-start" />{detailLabel}</Link>
         <AnchorButton href={rescueBaseApi.reportUrl(`/reports/purchase-orders/${order.id}.pdf`)} rel="noreferrer" target="_blank" variant="secondary"><Download data-icon="inline-start" />PDF</AnchorButton>
         {order.archivedAt
           ? <Button loading={props.isRestoring} onClick={props.onRestore} type="button" variant="secondary"><RotateCcw data-icon="inline-start" />Wiederherstellen</Button>
