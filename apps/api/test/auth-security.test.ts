@@ -8,7 +8,7 @@ import { RateLimitService } from "../src/auth/rate-limit.service";
 import type { PrismaService } from "../src/persistence/prisma.service";
 
 describe("auth security", () => {
-  it("accepts a TOTP generated in the adjacent 30-second time step", () => {
+  it("accepts a TOTP generated at the previous 30-second boundary", () => {
     const auth = new AuthService({} as PrismaService);
     const secret = generateSecret();
     const code = generateSync({ secret, epoch: 1_800_000_000 });
