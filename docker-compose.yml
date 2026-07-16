@@ -30,6 +30,9 @@ services:
       JWT_SECRET: ${JWT_SECRET:-change-me}
       RESEND_API_KEY: ${RESEND_API_KEY:?RESEND_API_KEY is required}
       RESEND_FROM: ${RESEND_FROM:-RescueBase <noreply@example.org>}
+      VAPID_PUBLIC_KEY: ${VAPID_PUBLIC_KEY:-}
+      VAPID_PRIVATE_KEY: ${VAPID_PRIVATE_KEY:-}
+      VAPID_SUBJECT: ${VAPID_SUBJECT:-}
       RESCUEBASE_SEED_DEV_DATA: ${RESCUEBASE_SEED_DEV_DATA:-false}
     depends_on:
       mariadb:
