@@ -45,7 +45,7 @@ type PendingLoginChallengeView = {
   user: PendingLoginUser;
 };
 
-const TOTP_EPOCH_TOLERANCE_STEPS = 1;
+const TOTP_EPOCH_TOLERANCE_SECONDS = 30;
 
 @Injectable()
 export class AuthService {
@@ -118,7 +118,7 @@ export class AuthService {
       throw new UnauthorizedException("2FA ist nicht eingerichtet.");
     }
     try {
-      return verifySync({ token: code, secret, epochTolerance: TOTP_EPOCH_TOLERANCE_STEPS }).valid;
+      return verifySync({ token: code, secret, epochTolerance: TOTP_EPOCH_TOLERANCE_SECONDS }).valid;
     } catch {
       return false;
     }
