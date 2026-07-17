@@ -159,8 +159,8 @@ describe("public check flow", () => {
       ])
     );
 
-    const inventoryCsv = await agent.get("/reports/csv/inventory").expect(200);
-    expect(inventoryCsv.text).toContain('"Verbandpäckchen mittel","Hauptlager","VB-2026-04","2027-04-30","119"');
+    await agent.get("/reports/csv/inventory").expect(404);
+    await agent.get("/reports/csv/replenishment").expect(404);
 
     await agent
       .get(`/reports/replenishment/${orderId}.pdf`)

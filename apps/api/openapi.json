@@ -6226,48 +6226,6 @@
         }
       }
     },
-    "/reports/csv/inventory": {
-      "get": {
-        "tags": [
-          "Reports"
-        ],
-        "operationId": "ReportsController_inventoryCsv",
-        "responses": {
-          "200": {
-            "description": "Binary report",
-            "content": {
-              "text/csv": {
-                "schema": {
-                  "type": "string",
-                  "format": "binary"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/reports/csv/replenishment": {
-      "get": {
-        "tags": [
-          "Reports"
-        ],
-        "operationId": "ReportsController_replenishmentCsv",
-        "responses": {
-          "200": {
-            "description": "Binary report",
-            "content": {
-              "text/csv": {
-                "schema": {
-                  "type": "string",
-                  "format": "binary"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "/reports/procurement.pdf": {
       "get": {
         "tags": [

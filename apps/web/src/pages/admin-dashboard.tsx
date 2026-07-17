@@ -9,7 +9,7 @@ import { PanelHeader } from "../components/panel-header";
 import { PageHeader, PageToolbar, Workspace, WorkspaceMain, WorkspaceRail } from "../components/page-layout";
 import { EmptyState, ErrorPanel, LoadingPanel, MetricGrid } from "../components/state-panels";
 import { StatusBadge } from "../components/status-badge";
-import { AnchorButton, Panel } from "../components/ui";
+import { Panel } from "../components/ui";
 import { rescueBaseApi } from "../lib/api";
 import { catalogKeys } from "../queries/catalog";
 import { inventoryKeys } from "../queries/inventory";
@@ -88,7 +88,7 @@ export function AdminDashboard() {
 
   return (
     <>
-      <PageHeader actions={<AnchorButton href={rescueBaseApi.reportUrl("/reports/csv/replenishment")} variant="secondary">CSV Aufträge</AnchorButton>} title="Nachfüllaufträge" />
+      <PageHeader title="Nachfüllaufträge" />
       <MetricGrid items={[
         { icon: <ClipboardList />, label: "Offene Aufträge", tone: "warning", value: String(openOrders) },
         { icon: <PackageCheck />, label: "Rucksäcke bereit", tone: "ready", value: `${kits.filter((kit) => kit.status === "READY").length}/${kits.length}` },

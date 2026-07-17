@@ -1,4 +1,4 @@
-import { BadRequestException, Controller, Get, Header, Param, Query, Res } from "@nestjs/common";
+import { BadRequestException, Controller, Get, Param, Query, Res } from "@nestjs/common";
 import { ApiTags } from "@nestjs/swagger";
 import type { Response } from "express";
 import { ReportService } from "../services/report.service.js";
@@ -9,18 +9,6 @@ import { Roles } from "../auth/auth.decorators.js";
 @Controller("reports")
 export class ReportsController {
   constructor(private readonly reports: ReportService) {}
-
-  @Get("csv/inventory")
-  @Header("content-type", "text/csv; charset=utf-8")
-  inventoryCsv(): Promise<string> {
-    return this.reports.inventoryCsv();
-  }
-
-  @Get("csv/replenishment")
-  @Header("content-type", "text/csv; charset=utf-8")
-  replenishmentCsv(): Promise<string> {
-    return this.reports.replenishmentCsv();
-  }
 
   @Get("procurement.pdf")
   async procurement(
