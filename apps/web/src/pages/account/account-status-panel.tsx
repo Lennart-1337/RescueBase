@@ -22,7 +22,7 @@ export function AccountStatusPanel({ user }: { user: AuthenticatedUser }) {
       <div className="account-status-body">
         <div className="compact-list"><div className="compact-list-row"><span><strong>{user.displayName}</strong><small>{user.email}</small></span><Badge tone={user.twoFactorEnabled ? "ready" : "neutral"}>{user.twoFactorEnabled ? `2FA ${user.twoFactorMethod}` : "Nur Passwort"}</Badge></div></div>
         {disable.error ? <InlineError error={disable.error} /> : null}
-        {user.twoFactorEnabled ? <Field label="Aktuelles Passwort"><input type="password" value={currentPassword} onChange={(event) => setCurrentPassword(event.target.value)} /></Field> : null}
+        {user.twoFactorEnabled ? <Field className="account-status-password-field" label="Aktuelles Passwort"><input type="password" value={currentPassword} onChange={(event) => setCurrentPassword(event.target.value)} /></Field> : null}
         <div className="form-actions account-status-actions"><Button disabled={!user.twoFactorEnabled || !currentPassword} loading={disable.isPending} onClick={() => disable.mutate({ currentPassword })} type="button" variant="danger">2FA deaktivieren</Button></div>
       </div>
     </Panel>
