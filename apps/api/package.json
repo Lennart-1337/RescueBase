@@ -24,7 +24,7 @@
     "@nestjs/common": "^11.1.27",
     "@nestjs/core": "^11.1.27",
     "@nestjs/platform-express": "^11.1.27",
-    "@nestjs/swagger": "^11.4.5",
+    "@nestjs/swagger": "^11.4.6",
     "@prisma/adapter-mariadb": "^7.8.0",
     "@prisma/client": "^7.8.0",
     "@rescuebase/domain": "file:../../packages/domain",
@@ -44,7 +44,7 @@
     "web-push": "^3.6.7"
   },
   "devDependencies": {
-    "@nestjs/cli": "^11.0.12",
+    "@nestjs/cli": "^11.0.24",
     "@nestjs/testing": "^11.1.27",
     "@testcontainers/mysql": "^12.0.4",
     "@types/cookie-parser": "^1.4.10",
@@ -54,7 +54,7 @@
     "@types/node": "^26.1.1",
     "@types/pdfkit": "^0.17.3",
     "@types/qrcode": "^1.5.6",
-    "@types/supertest": "^7.2.0",
+    "@types/supertest": "^7.2.1",
     "@types/web-push": "^3.6.4",
     "jest": "^30.2.0",
     "prisma": "^7.8.0",

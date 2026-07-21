@@ -2,11 +2,11 @@ import { useEffect, useState } from "react";
 import { Link, useNavigate, useSearch } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { matchesFilterText, toOptionalBoolean, toOptionalString, withPrunedSearch } from "../app/filter-utils";
-import { AlertTriangle, Archive, Download, Plus, ShoppingCart } from "lucide-react";
+import { AlertTriangle, Archive, Plus, ShoppingCart } from "lucide-react";
 import { daysUntil, toError } from "../app/formatters";
 import { ErrorPanel, LoadingPanel, MetricGrid } from "../components/state-panels";
 import { PageHeader, PageToolbar, Workspace, WorkspaceMain } from "../components/page-layout";
-import { AnchorButton, Button, Tabs } from "../components/ui";
+import { Button, Tabs } from "../components/ui";
 import { rescueBaseApi } from "../lib/api";
 import type { AuthenticatedUser, InventoryTarget } from "../lib/types";
 import { catalogQueries } from "../queries/catalog";
@@ -154,7 +154,7 @@ export function InventoryPage({ user: _user }: { user: AuthenticatedUser }) {
 
   return (
     <>
-      <PageHeader actions={<><Link className="button button-secondary" search={{ mode: "shortages" }} to="/admin/purchase-orders/new"><ShoppingCart data-icon="inline-start" />Bestellung aus Fehlmengen</Link><AnchorButton href={rescueBaseApi.reportUrl("/reports/csv/inventory")} variant="secondary"><Download data-icon="inline-start" />CSV Bestand</AnchorButton><Button onClick={() => setCreateOpen(true)} type="button"><Plus data-icon="inline-start" />Charge hinzufügen</Button></>} className="inventory-page-header" title="Lager" />
+      <PageHeader actions={<><Link className="button button-secondary" search={{ mode: "shortages" }} to="/admin/purchase-orders/new"><ShoppingCart data-icon="inline-start" />Bestellung aus Fehlmengen</Link><Button onClick={() => setCreateOpen(true)} type="button"><Plus data-icon="inline-start" />Charge hinzufügen</Button></>} className="inventory-page-header" title="Lager" />
       <Tabs items={[{ label: "Bestand", value: "stock" }, { label: "Sollbestände", value: "targets" }]} label="Lageransichten" onChange={changeView} value={currentView} />
       <MetricGrid compact items={[
         { icon: <Archive />, label: "Chargen", tone: "info", value: String(batches.data.length) },

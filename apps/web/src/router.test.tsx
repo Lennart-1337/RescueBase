@@ -57,10 +57,7 @@ describe("RescueBase routes", () => {
       await screen.findByRole("button", { name: /Rucksack Fahrzeug 1/ }),
     ).toBeInTheDocument();
     expect(screen.getByText("1 Positionen · Offen")).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: /CSV Aufträge/ })).toHaveAttribute(
-      "href",
-      "/api/reports/csv/replenishment",
-    );
+    expect(screen.queryByText(/CSV/)).not.toBeInTheDocument();
     expect(screen.getByText("v0.1.1")).toBeInTheDocument();
     expect(document.title).toBe("Nachfüllaufträge | RescueBase");
   });

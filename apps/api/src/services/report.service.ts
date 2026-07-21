@@ -3,7 +3,7 @@ import { InventoryProcurementStatus, PurchaseOrderStatus } from "@prisma/client"
 import PDFDocument from "pdfkit";
 import QRCode from "qrcode";
 import { PrismaService } from "../persistence/prisma.service.js";
-import type { BatchRecord, OrderRecord } from "../persistence/mappers.js";
+import type { OrderRecord } from "../persistence/mappers.js";
 import { createQrLabelLayout, createQrSheetLayout, needsPageBreak } from "./report-layout.js";
 import {
   drawContinuationHeader,
@@ -67,37 +67,6 @@ type PurchaseOrderPdfRecord = {
 @Injectable()
 export class ReportService {
   constructor(private readonly prisma: PrismaService) {}
-
-  async inventoryCsv(): Promise<string> {
-    const header = "Artikel,Lagerort,Charge,Ablaufdatum,Menge\n";
-    const batches: BatchRecord[] = await this.prisma.batch.findMany({
-      where: { deletedAt: null },
-      include: { article: true, location: true },
-      orderBy: [{ article: { name: "asc" } }, { expiresAt: "asc" }]
-    });
-    const rows = batches.map((batch: BatchRecord) =>
-      [batch.article.name, batch.location.name, batch.lotNumber, batch.expiresAt.toISOString().slice(0, 10), batch.quantity]
-        .map((value) => `"${String(value ?? "").replaceAll('"', '""')}"`)
-        .join(",")
-    );
-    return `${header}${rows.join("\n")}\n`;
-  }
-
-  async replenishmentCsv(): Promise<string> {
-    const header = "Auftrag,Rucksack,Status,Artikel,Soll,Erfüllt,Einheit,Grund\n";
-    const orders: Array<OrderRecord & { kit: { name: string } }> = await this.prisma.replenishmentOrder.findMany({
-      include: { kit: true, items: true },
-      orderBy: { createdAt: "desc" }
-    });
-    const rows = orders.flatMap((order: OrderRecord & { kit: { name: string } }) =>
-      order.items.map((item: OrderRecord["items"][number]) =>
-        [order.id, order.kit.name, order.status, item.articleName, item.requestedQuantity, item.fulfilledQuantity, item.unit, item.reason]
-          .map((value) => `"${String(value ?? "").replaceAll('"', '""')}"`)
-          .join(",")
-      )
-    );
-    return `${header}${rows.join("\n")}\n`;
-  }
 
   async procurementPdf(filters: ProcurementPdfFilters): Promise<Buffer> {
     const orders: ProcurementOrderReportRecord[] = await this.prisma.inventoryProcurementOrder.findMany({

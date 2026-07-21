@@ -3,7 +3,6 @@ import type { OpenAPIObject } from "@nestjs/swagger";
 type OpenApiFragment = Record<string, unknown>;
 
 const json = "application/json";
-const csv = "text/csv";
 const pdf = "application/pdf";
 
 const rescueBaseOpenApiDocumentDefinition = {
@@ -2189,12 +2188,6 @@ const rescueBaseOpenApiDocumentDefinition = {
         {},
         response(200, "Audit events", arrayOf(ref("AuditEvent"))),
       ),
-    },
-    "/reports/csv/inventory": {
-      get: fileOperation("Reports", "ReportsController_inventoryCsv", csv),
-    },
-    "/reports/csv/replenishment": {
-      get: fileOperation("Reports", "ReportsController_replenishmentCsv", csv),
     },
     "/reports/procurement.pdf": {
       get: fileOperation(

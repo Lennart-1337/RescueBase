@@ -2,7 +2,7 @@ import { expect, test } from "@playwright/test";
 import { mockSetupStatus } from "./support/auth-route-mocks";
 
 const routes = [
-  { path: "/", heading: "Nachfüllaufträge", action: "CSV Aufträge", actionRole: "link", hasToolbar: true },
+  { path: "/", heading: "Nachfüllaufträge", action: "Aufträge filtern", actionRole: "search", hasToolbar: true },
   { path: "/admin/kits", heading: "Rucksäcke", action: "Rucksack hinzufügen", actionRole: "button", hasToolbar: true },
   { path: "/admin/inventory", heading: "Lager", action: "Charge hinzufügen", actionRole: "button", hasToolbar: true },
   { path: "/admin/purchase-orders", heading: "Bestellungen", action: "Bestellung anlegen", actionRole: "link", hasToolbar: true },

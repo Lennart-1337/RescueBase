@@ -50,6 +50,8 @@ describe("AccountPage", () => {
     const button = await screen.findByRole("button", { name: "2FA deaktivieren" });
     expect(button.closest(".account-status-actions")).not.toBeNull();
     expect(button.closest(".account-status-body")).not.toBeNull();
+    const statusPanel = button.closest(".account-status-panel") as HTMLElement;
+    expect(within(statusPanel).getByLabelText("Aktuelles Passwort").closest(".account-status-password-field")).not.toBeNull();
     expect(screen.getByText("2FA EMAIL").closest(".badge")).toHaveClass("badge-ready");
   });
 
