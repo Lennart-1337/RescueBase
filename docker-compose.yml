@@ -47,7 +47,7 @@ services:
       - api
 
   caddy:
-    image: caddy:2.10
+    image: caddy:2.11
     command: ["caddy", "run", "--config", "/srv/caddy-config/Caddyfile", "--adapter", "caddyfile"]
     restart: unless-stopped
     ports:
