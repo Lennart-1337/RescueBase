@@ -4,6 +4,8 @@ import {
   buildAlertDigestMail,
   buildAlertMail,
   buildEmailTwoFactorCodeMail,
+  buildEmailChangeCompletedMail,
+  buildEmailChangeConfirmationMail,
   buildImmediateAlertMail,
   buildInvitationMail,
   buildNewOrderMail,
@@ -31,6 +33,14 @@ export class MailService {
 
   async sendPasswordReset(email: string, resetUrl: string): Promise<MailDeliveryResult> {
     return this.send({ email, ...buildPasswordResetMail(resetUrl) });
+  }
+
+  async sendEmailChangeConfirmation(email: string, changeUrl: string): Promise<MailDeliveryResult> {
+    return this.send({ email, ...buildEmailChangeConfirmationMail(changeUrl) });
+  }
+
+  async sendEmailChangeCompleted(email: string, newEmail: string): Promise<MailDeliveryResult> {
+    return this.send({ email, ...buildEmailChangeCompletedMail(newEmail) });
   }
 
   async sendEmailTwoFactorCode(email: string, code: string): Promise<MailDeliveryResult> {

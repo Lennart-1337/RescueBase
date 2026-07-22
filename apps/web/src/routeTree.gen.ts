@@ -15,6 +15,7 @@ import { Route as PasswordResetTokenRouteImport } from './routes/password-reset/
 import { Route as LegalPrivacyRouteImport } from './routes/legal/privacy'
 import { Route as LegalImprintRouteImport } from './routes/legal/imprint'
 import { Route as InvitationTokenRouteImport } from './routes/invitation/$token'
+import { Route as EmailChangeTokenRouteImport } from './routes/email-change/$token'
 import { Route as CheckTokenRouteImport } from './routes/check/$token'
 import { Route as AdminUsersRouteImport } from './routes/admin/users'
 import { Route as AdminSettingsRouteImport } from './routes/admin/settings'
@@ -62,6 +63,11 @@ const LegalImprintRoute = LegalImprintRouteImport.update({
 const InvitationTokenRoute = InvitationTokenRouteImport.update({
   id: '/invitation/$token',
   path: '/invitation/$token',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EmailChangeTokenRoute = EmailChangeTokenRouteImport.update({
+  id: '/email-change/$token',
+  path: '/email-change/$token',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CheckTokenRoute = CheckTokenRouteImport.update({
@@ -171,6 +177,7 @@ export interface FileRoutesByFullPath {
   '/admin/settings': typeof AdminSettingsRoute
   '/admin/users': typeof AdminUsersRoute
   '/check/$token': typeof CheckTokenRoute
+  '/email-change/$token': typeof EmailChangeTokenRoute
   '/invitation/$token': typeof InvitationTokenRoute
   '/legal/imprint': typeof LegalImprintRoute
   '/legal/privacy': typeof LegalPrivacyRoute
@@ -195,6 +202,7 @@ export interface FileRoutesByTo {
   '/admin/settings': typeof AdminSettingsRoute
   '/admin/users': typeof AdminUsersRoute
   '/check/$token': typeof CheckTokenRoute
+  '/email-change/$token': typeof EmailChangeTokenRoute
   '/invitation/$token': typeof InvitationTokenRoute
   '/legal/imprint': typeof LegalImprintRoute
   '/legal/privacy': typeof LegalPrivacyRoute
@@ -222,6 +230,7 @@ export interface FileRoutesById {
   '/admin/settings': typeof AdminSettingsRoute
   '/admin/users': typeof AdminUsersRoute
   '/check/$token': typeof CheckTokenRoute
+  '/email-change/$token': typeof EmailChangeTokenRoute
   '/invitation/$token': typeof InvitationTokenRoute
   '/legal/imprint': typeof LegalImprintRoute
   '/legal/privacy': typeof LegalPrivacyRoute
@@ -250,6 +259,7 @@ export interface FileRouteTypes {
     | '/admin/settings'
     | '/admin/users'
     | '/check/$token'
+    | '/email-change/$token'
     | '/invitation/$token'
     | '/legal/imprint'
     | '/legal/privacy'
@@ -274,6 +284,7 @@ export interface FileRouteTypes {
     | '/admin/settings'
     | '/admin/users'
     | '/check/$token'
+    | '/email-change/$token'
     | '/invitation/$token'
     | '/legal/imprint'
     | '/legal/privacy'
@@ -300,6 +311,7 @@ export interface FileRouteTypes {
     | '/admin/settings'
     | '/admin/users'
     | '/check/$token'
+    | '/email-change/$token'
     | '/invitation/$token'
     | '/legal/imprint'
     | '/legal/privacy'
@@ -327,6 +339,7 @@ export interface RootRouteChildren {
   AdminSettingsRoute: typeof AdminSettingsRoute
   AdminUsersRoute: typeof AdminUsersRoute
   CheckTokenRoute: typeof CheckTokenRoute
+  EmailChangeTokenRoute: typeof EmailChangeTokenRoute
   InvitationTokenRoute: typeof InvitationTokenRoute
   LegalImprintRoute: typeof LegalImprintRoute
   LegalPrivacyRoute: typeof LegalPrivacyRoute
@@ -376,6 +389,13 @@ declare module '@tanstack/react-router' {
       path: '/invitation/$token'
       fullPath: '/invitation/$token'
       preLoaderRoute: typeof InvitationTokenRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/email-change/$token': {
+      id: '/email-change/$token'
+      path: '/email-change/$token'
+      fullPath: '/email-change/$token'
+      preLoaderRoute: typeof EmailChangeTokenRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/check/$token': {
@@ -555,6 +575,7 @@ const rootRouteChildren: RootRouteChildren = {
   AdminSettingsRoute: AdminSettingsRoute,
   AdminUsersRoute: AdminUsersRoute,
   CheckTokenRoute: CheckTokenRoute,
+  EmailChangeTokenRoute: EmailChangeTokenRoute,
   InvitationTokenRoute: InvitationTokenRoute,
   LegalImprintRoute: LegalImprintRoute,
   LegalPrivacyRoute: LegalPrivacyRoute,

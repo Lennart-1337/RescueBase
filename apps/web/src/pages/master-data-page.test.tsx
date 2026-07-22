@@ -672,6 +672,7 @@ describe("MasterDataPage", () => {
     });
     await renderAppAt("/admin/master-data/suppliers");
     await screen.findByText("MediSafe Einkauf");
+    expect(document.title).toBe("Stammdaten · Lieferanten | RescueBase");
 
     await clickElement(
       screen.getByRole("button", { name: "Lieferant hinzufügen" }),

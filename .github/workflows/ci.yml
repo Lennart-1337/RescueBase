@@ -49,7 +49,7 @@ jobs:
 
   frontend:
     name: Frontend
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     env:
       DATABASE_URL: mysql://rescuebase:rescuebase@127.0.0.1:3306/rescuebase
     steps:

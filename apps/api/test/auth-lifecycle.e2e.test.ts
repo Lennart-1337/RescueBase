@@ -11,6 +11,8 @@ jest.setTimeout(30_000);
 
 let latestEmailCode = "";
 let latestResetUrl = "";
+let latestEmailChangeUrl = "";
+let latestInvitationUrl = "";
 const emailCodes = new Map<string, string>();
 
 describe("auth lifecycle", () => {
@@ -27,6 +29,8 @@ describe("auth lifecycle", () => {
     const mail = app.get(MailService);
     jest.spyOn(mail, "sendEmailTwoFactorCode").mockImplementation(async (email, code) => { latestEmailCode = code; emailCodes.set(email, code); return {}; });
     jest.spyOn(mail, "sendPasswordReset").mockImplementation(async (_email, url) => { latestResetUrl = url; return {}; });
+    jest.spyOn(mail, "sendEmailChangeConfirmation").mockImplementation(async (_email, url) => { latestEmailChangeUrl = url; return {}; });
+    jest.spyOn(mail, "sendInvitation").mockImplementation(async (_email, url) => { latestInvitationUrl = url; return {}; });
   });
 
   afterAll(async () => {
@@ -171,6 +175,45 @@ describe("auth lifecycle", () => {
     const server = app.getHttpServer();
     const status = await request(server).get("/auth/setup/status").expect(200);
     expect(status.body).toMatchObject({ initialized: true, appName: "RescueBase", appSubtitle: "Sanitätslager" });
+  });
+
+  it("manages invitation lifecycle and admin account security", async () => {
+    const server = app.getHttpServer();
+    const prisma = app.get(PrismaService);
+    const admin = request.agent(server);
+    await loginAs(admin, prisma, { email: "admin@rescuebase.local", password: "rescuebase-admin" });
+
+    const invitation = await admin.post("/auth/invite").send({ email: "managed-user@rescuebase.local", displayName: "Managed User", role: "WAREHOUSE" }).expect(201);
+    const firstToken = invitation.body.invitationUrl.split("/").pop();
+    await admin.get("/auth/users").expect(200).expect(({ body }) => {
+      expect(body).toEqual(expect.arrayContaining([expect.objectContaining({ id: invitation.body.id, invitationStatus: "OPEN", sessionCount: 0 })]));
+    });
+
+    await admin.post(`/auth/users/${invitation.body.id}/invitation/resend`).expect(201);
+    await request(server).get(`/auth/invitations/${firstToken}`).expect(401);
+    await admin.delete(`/auth/users/${invitation.body.id}/invitation`).expect(200);
+    await admin.post(`/auth/users/${invitation.body.id}/invitation/resend`).expect(201);
+
+    const accepted = request.agent(server);
+    const invitationToken = latestInvitationUrl.split("/").pop();
+    expect(invitationToken).toBeTruthy();
+    await accepted.post("/auth/invitations/accept").send({ token: invitationToken, password: "managed-user-password" }).expect(201);
+    await accepted.get("/auth/session").expect(200);
+
+    await admin.post(`/auth/users/${invitation.body.id}/profile`).send({ displayName: "Managed User", email: "managed-new@rescuebase.local" }).expect(201);
+    const emailToken = latestEmailChangeUrl.split("/").pop();
+    expect(emailToken).toBeTruthy();
+    await request(server).get(`/auth/email-changes/${emailToken}`).expect(200).expect(({ body }) => expect(body.email).toBe("managed-new@rescuebase.local"));
+    await request(server).post(`/auth/email-changes/${emailToken}/confirm`).expect(201);
+    await request(server).get(`/auth/email-changes/${emailToken}`).expect(401);
+    await prisma.user.findUniqueOrThrow({ where: { id: invitation.body.id } }).then((user) => expect(user.email).toBe("managed-new@rescuebase.local"));
+    await accepted.get("/auth/session").expect(401);
+
+    await admin.post(`/auth/users/${invitation.body.id}/2fa/reset`).expect(201);
+    await admin.post(`/auth/users/${invitation.body.id}/sessions/revoke`).expect(201);
+    await admin.post(`/auth/users/${invitation.body.id}/password-reset`).expect(201);
+    expect(latestResetUrl).toContain("/password-reset/");
+    await admin.post(`/auth/users/${(await prisma.user.findFirstOrThrow({ where: { email: "admin@rescuebase.local" } })).id}/active`).send({ active: false }).expect(400);
   });
 
   it("rejects email 2FA challenges that belong to another user", async () => {

@@ -1,6 +1,7 @@
 import { Link, Outlet, useRouterState } from "@tanstack/react-router";
 import { PageHeader } from "../../components/page-layout";
 import { cn } from "../../components/ui";
+import { MasterDataTransferActions } from "./master-data-transfer-actions";
 import "./master-data-layout.css";
 
 const tabs = [
@@ -16,7 +17,7 @@ export function MasterDataLayout() {
 
   return (
     <div className="master-data-layout">
-      <PageHeader title="Stammdaten" />
+      <PageHeader actions={<MasterDataTransferActions />} title="Stammdaten" />
       <div aria-label="Stammdatenbereiche" className="tab-list" role="tablist">
         {tabs.map((tab) => (
           <Link

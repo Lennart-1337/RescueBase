@@ -57,6 +57,33 @@ export function buildPasswordResetMail(resetUrl: string): MailContent {
   };
 }
 
+export function buildEmailChangeConfirmationMail(changeUrl: string): MailContent {
+  return {
+    subject: "RescueBase E-Mail-Adresse bestätigen",
+    text: `Bestätigen Sie die neue E-Mail-Adresse für Ihr RescueBase-Konto.\n\nLink: ${changeUrl}\n`,
+    html: renderMailLayout({
+      title: "Neue E-Mail-Adresse bestätigen",
+      intro: "Ein Admin hat für Ihr RescueBase-Konto eine neue E-Mail-Adresse hinterlegt.",
+      bodyHtml: "<p style=\"margin:0;color:#657386;line-height:1.6;\">Bestätigen Sie die Adresse, damit sie künftig für die Anmeldung verwendet wird. Der Link ist 24 Stunden gültig.</p>",
+      ctaLabel: "E-Mail-Adresse bestätigen",
+      ctaUrl: changeUrl
+    }),
+    debugUrl: changeUrl
+  };
+}
+
+export function buildEmailChangeCompletedMail(newEmail: string): MailContent {
+  return {
+    subject: "RescueBase E-Mail-Adresse geändert",
+    text: `Die E-Mail-Adresse Ihres RescueBase-Kontos wurde in ${newEmail} geändert. Falls Sie diese Änderung nicht erwarten, wenden Sie sich bitte an einen Admin.\n`,
+    html: renderMailLayout({
+      title: "E-Mail-Adresse geändert",
+      intro: "Die E-Mail-Adresse Ihres RescueBase-Kontos wurde geändert.",
+      bodyHtml: `<p style="margin:0;color:#657386;line-height:1.6;">Die neue Anmeldeadresse lautet <strong>${newEmail}</strong>. Falls Sie diese Änderung nicht erwarten, wenden Sie sich bitte an einen Admin.</p>`
+    })
+  };
+}
+
 export function buildEmailTwoFactorCodeMail(code: string): MailContent {
   return {
     subject: "RescueBase Sicherheitscode",
