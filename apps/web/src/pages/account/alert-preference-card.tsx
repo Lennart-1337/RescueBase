@@ -1,9 +1,10 @@
 import { useId } from "react";
 import { Badge, CheckboxField, cn } from "../../components/ui";
+import type { AlertCategory } from "../../lib/extra-api";
 import "./alert-preference-card.css";
 
 export type AlertCategoryOption = {
-  key: "EXPIRY" | "STK_DUE" | "MTK_DUE" | "SHORTAGE";
+  key: AlertCategory;
   label: string;
 };
 

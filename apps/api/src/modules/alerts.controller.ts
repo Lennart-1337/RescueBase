@@ -27,7 +27,7 @@ export class AlertsController {
   @Put("subscriptions/me")
   async replaceMySubscriptions(
     @Req() request: AuthenticatedRequest,
-    @Body() body: { subscriptions: Array<{ category: "EXPIRY" | "STK_DUE" | "MTK_DUE" | "SHORTAGE"; locationId?: string | null }> }
+    @Body() body: { subscriptions: Array<{ category: "EXPIRY" | "STK_DUE" | "MTK_DUE" | "SHORTAGE" | "KIT_CHECK_DUE"; locationId?: string | null }> }
   ) {
     if (!request.user) {
       throw new BadRequestException("Kein angemeldeter Benutzer gefunden.");
@@ -45,7 +45,7 @@ export class AlertsController {
   @Post("subscriptions/:userId")
   async replaceUserSubscriptions(
     @Param("userId") userId: string,
-    @Body() body: { subscriptions: Array<{ category: "EXPIRY" | "STK_DUE" | "MTK_DUE" | "SHORTAGE"; locationId?: string | null }> }
+    @Body() body: { subscriptions: Array<{ category: "EXPIRY" | "STK_DUE" | "MTK_DUE" | "SHORTAGE" | "KIT_CHECK_DUE"; locationId?: string | null }> }
   ) {
     const user = await this.prisma.user.findUnique({ where: { id: userId } });
     if (!user) {

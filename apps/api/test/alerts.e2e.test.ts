@@ -4,6 +4,8 @@ import { jest } from "@jest/globals";
 import request from "supertest";
 import { MailService } from "../src/services/mail.service.js";
 import { PushService } from "../src/services/push.service.js";
+import { PrismaService } from "../src/persistence/prisma.service.js";
+import { AlertsService } from "../src/services/alerts.service.js";
 import { bootstrapTestApp } from "./bootstrap-test-app.js";
 
 jest.setTimeout(45_000);
@@ -92,6 +94,23 @@ describe("alerts pipeline", () => {
         expect.objectContaining({ category: "STK_DUE" })
       ])
     );
+  });
+
+  it("warns subscribed users when a kit has missed its monthly check", async () => {
+    const server = app.getHttpServer();
+    const agent = request.agent(server);
+    const prisma = app.get(PrismaService);
+    const alerts = app.get(AlertsService);
+    await agent.post("/auth/login").send({ email: "admin@rescuebase.local", password: "rescuebase-admin" }).expect(201);
+    await agent.put("/alerts/subscriptions/me").send({ subscriptions: [{ category: "KIT_CHECK_DUE", locationId: "loc-main" }] }).expect(200);
+    await prisma.kit.update({ where: { id: "kit-rucksack-1" }, data: { createdAt: daysAgo(32) } });
+    await prisma.check.updateMany({ where: { kitId: "kit-rucksack-1" }, data: { createdAt: daysAgo(32) } });
+
+    await alerts.syncAlerts("test-kit-check-due");
+
+    const warnings = await agent.get("/alerts/warnings").expect(200);
+    expect(warnings.body.summary.kitCheckDue).toBe(1);
+    expect(warnings.body.warnings).toEqual(expect.arrayContaining([expect.objectContaining({ category: "KIT_CHECK_DUE", sourceId: "kit-rucksack-1" })]));
   });
 });
 

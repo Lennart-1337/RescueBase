@@ -55,6 +55,7 @@ enum AlertCategory {
   STK_DUE
   MTK_DUE
   SHORTAGE
+  KIT_CHECK_DUE
 }
 
 enum NotificationTemplateKey {
