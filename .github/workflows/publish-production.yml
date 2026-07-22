@@ -1,32 +1,25 @@
-name: Publish Production Images
+name: Promote Staging Images to Production
 
 on:
-  workflow_run:
-    workflows: ["CI"]
-    types: [completed]
+  workflow_dispatch:
+    inputs:
+      staging_tag:
+        description: Immutable staging image tag to promote
+        required: true
+        type: string
 
 permissions:
   contents: read
   packages: write
 
 concurrency:
-  group: publish-production
+  group: promote-production
   cancel-in-progress: false
 
 jobs:
-  publish:
-    if: >-
-      ${{
-        github.event.workflow_run.conclusion == 'success' &&
-        github.event.workflow_run.event == 'push' &&
-        github.event.workflow_run.head_branch == 'main'
-      }}
+  promote:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v7
-        with:
-          ref: ${{ github.event.workflow_run.head_sha }}
-
       - uses: docker/setup-buildx-action@v4
 
       - uses: docker/login-action@v4
@@ -36,35 +29,38 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - id: meta
+        env:
+          STAGING_TAG: ${{ inputs.staging_tag }}
         run: |
           owner="$(echo '${{ github.repository_owner }}' | tr '[:upper:]' '[:lower:]')"
-          short_sha="$(echo '${{ github.event.workflow_run.head_sha }}' | cut -c1-7)"
-          release_tag="prod-$(date -u +%Y%m%d%H%M)-${short_sha}"
+          staging_tag="$STAGING_TAG"
+          if ! printf '%s' "$staging_tag" | grep -Eq '^staging-[0-9]{12}-[0-9a-f]{7}$'; then
+            echo "staging_tag must be an immutable staging tag (staging-YYYYMMDDHHmm-<shortsha>)." >&2
+            exit 1
+          fi
           echo "owner=$owner" >> "$GITHUB_OUTPUT"
-          echo "release_tag=$release_tag" >> "$GITHUB_OUTPUT"
+          echo "staging_tag=$staging_tag" >> "$GITHUB_OUTPUT"
+          echo "production_tag=prod-${staging_tag#staging-}" >> "$GITHUB_OUTPUT"
 
-      - uses: docker/build-push-action@v7
-        with:
-          context: .
-          file: infra/docker/api.Dockerfile
-          platforms: linux/amd64
-          push: true
-          provenance: false
-          cache-from: type=gha,scope=rescuebase-api-production
-          cache-to: type=gha,mode=max,scope=rescuebase-api-production
-          tags: |
-            ghcr.io/${{ steps.meta.outputs.owner }}/rescuebase-api:${{ steps.meta.outputs.release_tag }}
-            ghcr.io/${{ steps.meta.outputs.owner }}/rescuebase-api:production-latest
+      - name: Verify staging images exist
+        run: |
+          docker buildx imagetools inspect "ghcr.io/${{ steps.meta.outputs.owner }}/rescuebase-api:${{ steps.meta.outputs.staging_tag }}"
+          docker buildx imagetools inspect "ghcr.io/${{ steps.meta.outputs.owner }}/rescuebase-web:${{ steps.meta.outputs.staging_tag }}"
 
-      - uses: docker/build-push-action@v7
-        with:
-          context: .
-          file: infra/docker/web.Dockerfile
-          platforms: linux/amd64
-          push: true
-          provenance: false
-          cache-from: type=gha,scope=rescuebase-web-production
-          cache-to: type=gha,mode=max,scope=rescuebase-web-production
-          tags: |
-            ghcr.io/${{ steps.meta.outputs.owner }}/rescuebase-web:${{ steps.meta.outputs.release_tag }}
-            ghcr.io/${{ steps.meta.outputs.owner }}/rescuebase-web:production-latest
+      - name: Promote API image without rebuilding
+        run: |
+          docker buildx imagetools create \
+            --tag "ghcr.io/${{ steps.meta.outputs.owner }}/rescuebase-api:${{ steps.meta.outputs.production_tag }}" \
+            --tag "ghcr.io/${{ steps.meta.outputs.owner }}/rescuebase-api:production-latest" \
+            "ghcr.io/${{ steps.meta.outputs.owner }}/rescuebase-api:${{ steps.meta.outputs.staging_tag }}"
+
+      - name: Promote web image without rebuilding
+        run: |
+          docker buildx imagetools create \
+            --tag "ghcr.io/${{ steps.meta.outputs.owner }}/rescuebase-web:${{ steps.meta.outputs.production_tag }}" \
+            --tag "ghcr.io/${{ steps.meta.outputs.owner }}/rescuebase-web:production-latest" \
+            "ghcr.io/${{ steps.meta.outputs.owner }}/rescuebase-web:${{ steps.meta.outputs.staging_tag }}"
+
+      - name: Publish promotion summary
+        run: |
+          echo "Promoted ${{ steps.meta.outputs.staging_tag }} to ${{ steps.meta.outputs.production_tag }}." >> "$GITHUB_STEP_SUMMARY"

@@ -2227,6 +2227,9 @@ const rescueBaseOpenApiDocumentDefinition = {
         },
       ]),
     },
+    "/reports/templates/{templateId}.pdf": {
+      get: fileOperation("Reports", "ReportsController_kitTemplate", pdf, "templateId"),
+    },
     "/reports/replenishment/{orderId}.pdf": {
       get: fileOperation(
         "Reports",

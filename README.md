@@ -76,9 +76,10 @@ types, so path, request-body and response drift is caught by TypeScript. CI runs
 
 Use `.env.production.example` as the baseline for production. The recommended production flow is:
 
-- push to `main`
-- let CI pass
-- let `Publish Production Images` push Linux `amd64` images to private GHCR
+- push a release candidate to `staging`
+- let CI pass and `Publish Staging Images` publish its immutable image tag
+- test that exact image in staging
+- manually run `Promote Staging Images to Production` with that staging tag
 - deploy on the server by pulling GHCR images, never by building them locally
 
 The production environment file must set at least:
@@ -102,7 +103,7 @@ Recommended image values:
 
 - `API_IMAGE=ghcr.io/<owner>/rescuebase-api`
 - `WEB_IMAGE=ghcr.io/<owner>/rescuebase-web`
-- `IMAGE_TAG=production-latest`
+- Set `IMAGE_TAG` to the immutable `prod-...` tag printed by the promotion workflow.
 
 The production compose overlay keeps MariaDB internal-only, uses the GHCR images for `api` and `web`, and mounts a Cloudflare Origin Certificate into Caddy for `Full (strict)`.
 
@@ -116,13 +117,13 @@ export GHCR_TOKEN="<ghcr-read-token>"
 sh scripts/production/deploy.sh
 ```
 
-Rollback or promotion to a pinned image tag:
+Deploy the immutable production tag printed by the promotion workflow:
 
 ```bash
 IMAGE_TAG_OVERRIDE=prod-202606160945-abcd123 sh scripts/production/deploy.sh
 ```
 
-The deploy script updates the `main` checkout, logs into GHCR, pulls the production images referenced by `.env.production`, starts the stack with `--no-build`, and prints the effective `IMAGE_TAG`.
+The deploy script updates the `main` checkout, logs into GHCR, pulls the production images referenced by `.env.production`, starts the stack with `--no-build`, and prints the effective `IMAGE_TAG`. Use an immutable `prod-...` tag for normal deployments; `production-latest` is only a convenience tag.
 
 ## Staging with GHCR
 
@@ -199,3 +200,5 @@ Pushes to the `staging` branch run CI first. When CI succeeds, the `Publish Stag
 - `ghcr.io/<owner>/rescuebase-api:staging-latest`
 - `ghcr.io/<owner>/rescuebase-web:staging-<UTCYYYYMMDDHHmm>-<shortsha>`
 - `ghcr.io/<owner>/rescuebase-web:staging-latest`
+
+Each staging image includes an SBOM and maximum-mode BuildKit provenance. To release it, manually run `Promote Staging Images to Production` and pass the immutable `staging-<UTCYYYYMMDDHHmm>-<shortsha>` tag. The action retags the existing image manifests as `prod-...` without rebuilding them.

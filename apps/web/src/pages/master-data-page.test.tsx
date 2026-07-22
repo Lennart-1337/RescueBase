@@ -411,7 +411,10 @@ describe("MasterDataPage", () => {
     expect(row?.querySelector(".template-row-actions")).not.toBeNull();
     expect(
       row?.querySelectorAll(".template-row-actions .button-label"),
-    ).toHaveLength(3);
+    ).toHaveLength(4);
+    expect(
+      within(row as HTMLElement).getByRole("link", { name: /als PDF exportieren/ }),
+    ).toHaveAttribute("href", "/api/reports/templates/template-san-a-v1.pdf");
   });
 
   it("reorders template positions before saving a new version", async () => {
