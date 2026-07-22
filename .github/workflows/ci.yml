@@ -12,7 +12,7 @@ concurrency:
 jobs:
   backend:
     name: Backend
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     env:
       DATABASE_URL: mysql://rescuebase:rescuebase@127.0.0.1:3306/rescuebase
     services:
@@ -71,7 +71,7 @@ jobs:
 
   deploy-config:
     name: Deploy config
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
 
