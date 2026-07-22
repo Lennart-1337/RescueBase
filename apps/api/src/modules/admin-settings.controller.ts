@@ -3,7 +3,7 @@ import { ApiTags } from "@nestjs/swagger";
 import { Roles } from "../auth/auth.decorators.js";
 import { SettingsService } from "../settings/settings.service.js";
 import { AlertsService } from "../services/alerts.service.js";
-import type { AlertSettingsInput, GeneralSettingsInput, InventorySettingsInput, TemplateSettingsInput } from "../settings/settings.types.js";
+import type { AlertSettingsInput, GeneralSettingsInput, InventorySettingsInput, KitCheckSettingsInput, TemplateSettingsInput } from "../settings/settings.types.js";
 import { NotificationTemplatesService } from "../settings/notification-templates.service.js";
 
 @ApiTags("Admin-Einstellungen")
@@ -39,6 +39,13 @@ export class AdminSettingsController {
   @Post("inventory")
   updateInventory(@Body() body: InventorySettingsInput) {
     return this.settings.updateInventory(body);
+  }
+
+  @Post("kit-checks")
+  async updateKitChecks(@Body() body: KitCheckSettingsInput) {
+    const settings = await this.settings.updateKitChecks(body);
+    await this.alerts.syncAlerts("kit-check-settings-updated");
+    return settings;
   }
 
   @Post("templates/:key")

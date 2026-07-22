@@ -127,6 +127,7 @@ export class AlertsService implements OnApplicationBootstrap, OnModuleDestroy {
   async syncAlerts(reason: string) {
     const now = new Date();
     const config = await this.ensureConfig();
+    const kitCheckSchedule = await this.prisma.kitCheckScheduleConfig.upsert({ where: { id: configId }, update: {}, create: { id: configId } });
     const batchRows = await this.prisma.batch.findMany({
       where: { deletedAt: null, quantity: { gt: 0 } },
       include: { article: true, location: true },
@@ -201,7 +202,8 @@ export class AlertsService implements OnApplicationBootstrap, OnModuleDestroy {
           locationName: row.location.name,
           createdAt: row.createdAt,
           lastCheckedAt: row.checks[0]?.createdAt ?? null
-        }))
+        })),
+        kitCheckSchedule
       },
       now,
       config.warningWindowDays

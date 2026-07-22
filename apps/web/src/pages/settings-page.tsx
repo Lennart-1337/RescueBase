@@ -7,6 +7,7 @@ import { settingsQueries } from "../queries/settings";
 import { AlertSettingsPanel } from "./settings/alert-settings-panel";
 import { GeneralSettingsPanel } from "./settings/general-settings-panel";
 import { InventorySettingsPanel } from "./settings/inventory-settings-panel";
+import { KitCheckSettingsPanel } from "./settings/kit-check-settings-panel";
 import { TemplateSettingsPanel } from "./settings/template-settings-panel";
 import "./settings/settings-page.css";
 
@@ -24,6 +25,7 @@ export function SettingsPage({ user }: { user: AuthenticatedUser }) {
           <div className="settings-secondary-grid">
             <AlertSettingsPanel initial={settings.data.alerts} />
             <InventorySettingsPanel initial={settings.data.inventory} />
+            <KitCheckSettingsPanel initial={settings.data.kitChecks} />
           </div>
         </div>
       </PageSection>

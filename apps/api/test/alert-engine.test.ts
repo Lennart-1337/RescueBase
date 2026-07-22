@@ -114,4 +114,13 @@ describe("alert engine", () => {
 
     expect(warnings).toEqual([expect.objectContaining({ category: "KIT_CHECK_DUE", sourceType: "KIT", sourceId: "kit-1", dueAt: "2026-06-30T00:00:00.000Z" })]);
   });
+
+  it("uses the configured kit check interval and warning lead time", () => {
+    const kit = { id: "kit-1", name: "Notfallrucksack 1", code: "NR-01", locationId: "loc-1", locationName: "Hauptlager", createdAt: new Date("2026-05-01T00:00:00.000Z"), lastCheckedAt: new Date("2026-05-01T00:00:00.000Z") };
+    const input = { batches: [], devices: [], kits: [kit], kitCheckSchedule: { enabled: true, intervalMonths: 2, warningLeadDays: 7 } };
+
+    expect(buildAlertWarnings(input, new Date("2026-06-23T00:00:00.000Z"))).toHaveLength(0);
+    expect(buildAlertWarnings(input, new Date("2026-06-24T00:00:00.000Z"))).toHaveLength(1);
+    expect(buildAlertWarnings({ ...input, kitCheckSchedule: { ...input.kitCheckSchedule, enabled: false } }, new Date("2026-07-02T00:00:00.000Z"))).toHaveLength(0);
+  });
 });

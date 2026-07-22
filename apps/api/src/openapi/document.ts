@@ -1094,6 +1094,14 @@ const rescueBaseOpenApiDocumentDefinition = {
         },
         ["enabled", "dailyReconcileTime", "lastReconciledAt"],
       ),
+      KitCheckSettings: objectSchema(
+        {
+          enabled: { type: "boolean" },
+          intervalMonths: { type: "integer", minimum: 1, maximum: 24 },
+          warningLeadDays: { type: "integer", minimum: 0, maximum: 365 },
+        },
+        ["enabled", "intervalMonths", "warningLeadDays"],
+      ),
       NotificationTemplateKey: stringEnum([
         "ALERT_IMMEDIATE",
         "ALERT_DIGEST",
@@ -1120,9 +1128,10 @@ const rescueBaseOpenApiDocumentDefinition = {
           general: ref("GeneralSettings"),
           alerts: ref("AlertSettings"),
           inventory: ref("AdminInventorySettings"),
+          kitChecks: ref("KitCheckSettings"),
           templates: arrayOf(ref("NotificationTemplate")),
         },
-        ["general", "alerts", "inventory", "templates"],
+        ["general", "alerts", "inventory", "kitChecks", "templates"],
       ),
       UpdateGeneralSettingsRequest: objectSchema({
         appName: { type: "string" },
@@ -1141,6 +1150,11 @@ const rescueBaseOpenApiDocumentDefinition = {
       UpdateAdminInventorySettingsRequest: objectSchema({
         enabled: { type: "boolean" },
         dailyReconcileTime: { type: "string" },
+      }),
+      UpdateKitCheckSettingsRequest: objectSchema({
+        enabled: { type: "boolean" },
+        intervalMonths: { type: "integer", minimum: 1, maximum: 24 },
+        warningLeadDays: { type: "integer", minimum: 0, maximum: 365 },
       }),
       UpdateNotificationTemplateRequest: objectSchema({
         subjectTemplate: { type: "string" },
@@ -1497,6 +1511,14 @@ const rescueBaseOpenApiDocumentDefinition = {
           "Inventory settings updated",
           ref("AdminInventorySettings"),
         ),
+      ),
+    },
+    "/admin/settings/kit-checks": {
+      post: operation(
+        "Admin-Einstellungen",
+        "AdminSettingsController_updateKitChecks",
+        request("UpdateKitCheckSettingsRequest"),
+        response(201, "Kit check settings updated", ref("KitCheckSettings")),
       ),
     },
     "/admin/settings/templates/{key}": {

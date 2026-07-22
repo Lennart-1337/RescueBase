@@ -2696,6 +2696,30 @@
         ],
         "additionalProperties": false
       },
+      "KitCheckSettings": {
+        "type": "object",
+        "properties": {
+          "enabled": {
+            "type": "boolean"
+          },
+          "intervalMonths": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 24
+          },
+          "warningLeadDays": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 365
+          }
+        },
+        "required": [
+          "enabled",
+          "intervalMonths",
+          "warningLeadDays"
+        ],
+        "additionalProperties": false
+      },
       "NotificationTemplateKey": {
         "type": "string",
         "enum": [
@@ -2747,6 +2771,9 @@
           "inventory": {
             "$ref": "#/components/schemas/AdminInventorySettings"
           },
+          "kitChecks": {
+            "$ref": "#/components/schemas/KitCheckSettings"
+          },
           "templates": {
             "type": "array",
             "items": {
@@ -2758,6 +2785,7 @@
           "general",
           "alerts",
           "inventory",
+          "kitChecks",
           "templates"
         ],
         "additionalProperties": false
@@ -2816,6 +2844,26 @@
           },
           "dailyReconcileTime": {
             "type": "string"
+          }
+        },
+        "required": [],
+        "additionalProperties": false
+      },
+      "UpdateKitCheckSettingsRequest": {
+        "type": "object",
+        "properties": {
+          "enabled": {
+            "type": "boolean"
+          },
+          "intervalMonths": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 24
+          },
+          "warningLeadDays": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 365
           }
         },
         "required": [],
@@ -3690,6 +3738,36 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/AdminInventorySettings"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admin/settings/kit-checks": {
+      "post": {
+        "tags": [
+          "Admin-Einstellungen"
+        ],
+        "operationId": "AdminSettingsController_updateKitChecks",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateKitCheckSettingsRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Kit check settings updated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/KitCheckSettings"
                 }
               }
             }

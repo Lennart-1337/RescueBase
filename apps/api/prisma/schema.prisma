@@ -562,6 +562,15 @@ model AlertAutomationConfig {
   updatedAt          DateTime  @updatedAt
 }
 
+model KitCheckScheduleConfig {
+  id              String   @id @default("singleton")
+  enabled         Boolean  @default(true)
+  intervalMonths  Int      @default(1)
+  warningLeadDays Int      @default(0)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
 model NotificationTemplate {
   key             NotificationTemplateKey @id
   subjectTemplate String

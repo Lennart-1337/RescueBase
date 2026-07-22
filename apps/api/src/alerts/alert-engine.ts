@@ -69,18 +69,18 @@ type KitInput = {
   lastCheckedAt: Date | null;
 };
 
-export function buildAlertWarnings(input: { batches: BatchInput[]; devices: DeviceInput[]; targets?: TargetInput[]; kits?: KitInput[] }, now = new Date(), alertDays = warningWindowDays): AlertWarning[] {
+export function buildAlertWarnings(input: { batches: BatchInput[]; devices: DeviceInput[]; targets?: TargetInput[]; kits?: KitInput[]; kitCheckSchedule?: { enabled: boolean; intervalMonths: number; warningLeadDays: number } }, now = new Date(), alertDays = warningWindowDays): AlertWarning[] {
   return [
     ...input.batches.flatMap((batch) => buildBatchWarnings(batch, now, alertDays)),
     ...input.devices.flatMap((device) => buildDeviceWarnings(device, now, alertDays)),
     ...(input.targets ?? []).flatMap((target) => buildTargetWarnings(target, now)),
-    ...(input.kits ?? []).flatMap((kit) => buildKitCheckWarnings(kit, now))
+    ...(input.kitCheckSchedule?.enabled === false ? [] : (input.kits ?? []).flatMap((kit) => buildKitCheckWarnings(kit, now, input.kitCheckSchedule)))
   ];
 }
 
-function buildKitCheckWarnings(kit: KitInput, now: Date): AlertWarning[] {
-  const dueAt = addMonths(kit.lastCheckedAt ?? kit.createdAt, 1);
-  if (now < dueAt) return [];
+function buildKitCheckWarnings(kit: KitInput, now: Date, schedule?: { intervalMonths: number; warningLeadDays: number }): AlertWarning[] {
+  const dueAt = addMonths(kit.lastCheckedAt ?? kit.createdAt, schedule?.intervalMonths ?? 1);
+  if (daysBetween(now, dueAt) > (schedule?.warningLeadDays ?? 0)) return [];
   return [{
     category: "KIT_CHECK_DUE",
     sourceType: "KIT",
