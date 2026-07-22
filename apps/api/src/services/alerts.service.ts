@@ -278,13 +278,15 @@ export class AlertsService implements OnApplicationBootstrap, OnModuleDestroy {
 
   async runDailyDigest() {
     const openEvents = await this.prisma.alertEvent.findMany({ where: { resolvedAt: null }, orderBy: [{ category: "asc" }, { locationId: "asc" }, { dueAt: "asc" }] });
-    if (openEvents.length === 0) return;
+    if (openEvents.length === 0) return { recipientCount: 0, warningCount: 0 };
     const locations = await this.prisma.location.findMany({
       where: { id: { in: openEvents.map((event) => event.locationId).filter(Boolean) as string[] }, deletedAt: null }
     });
     const locationMap = new Map(locations.map((location: { id: string; name: string }) => [location.id, location.name]));
     const subscriptions = await this.prisma.alertSubscription.findMany({ include: { user: true, location: true } });
     const recipients = this.resolveRecipients(openEvents, subscriptions);
+    let recipientCount = 0;
+    let warningCount = 0;
     for (const recipient of recipients) {
       const warnings = openEvents.filter((event) => this.matchesSubscription(event, recipient.subscriptions));
       if (warnings.length === 0) continue;
@@ -313,7 +315,10 @@ export class AlertsService implements OnApplicationBootstrap, OnModuleDestroy {
         entityId: recipient.user.id,
         payload: { count: warnings.length }
       });
+      recipientCount += 1;
+      warningCount += warnings.length;
     }
+    return { recipientCount, warningCount };
   }
 
   private async sendImmediateAlerts(events: AlertEventRecord[]) {

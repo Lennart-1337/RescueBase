@@ -73,6 +73,16 @@ describe("admin settings", () => {
     await admin.post("/admin/settings/inventory").send({ enabled: "yes" }).expect(400);
   });
 
+  it("allows admins to trigger the daily digest manually", async () => {
+    const admin = await login("admin@rescuebase.local", "rescuebase-admin");
+    await admin.post("/admin/settings/alerts/digest").send({}).expect(201).expect(({ body }) => {
+      expect(body).toEqual({ recipientCount: 0, warningCount: 0 });
+    });
+
+    const warehouse = await login("lager@rescuebase.local", "rescuebase-lager");
+    await warehouse.post("/admin/settings/alerts/digest").send({}).expect(403);
+  });
+
   it("restricts placeholders and returns a branded preview", async () => {
     const admin = await login("admin@rescuebase.local", "rescuebase-admin");
     await admin.post("/admin/settings/templates/ALERT_IMMEDIATE").send({ subjectTemplate: "{{orderId}}" }).expect(400);

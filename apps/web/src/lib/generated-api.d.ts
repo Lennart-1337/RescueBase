@@ -52,6 +52,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/admin/settings/alerts/digest": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["AdminSettingsController_runDailyDigest"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/admin/settings/inventory": {
         parameters: {
             query?: never;
@@ -1965,6 +1981,10 @@ export interface components {
             /** Format: date-time */
             lastDigestSentAt: string | null;
         };
+        DailyDigestResult: {
+            recipientCount: number;
+            warningCount: number;
+        };
         AdminInventorySettings: {
             enabled: boolean;
             dailyReconcileTime: string;
@@ -2260,6 +2280,26 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["AlertSettings"];
+                };
+            };
+        };
+    };
+    AdminSettingsController_runDailyDigest: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Daily digest triggered */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DailyDigestResult"];
                 };
             };
         };

@@ -1057,6 +1057,13 @@ const rescueBaseOpenApiDocumentDefinition = {
           "lastDigestSentAt",
         ],
       ),
+      DailyDigestResult: objectSchema(
+        {
+          recipientCount: { type: "integer", minimum: 0 },
+          warningCount: { type: "integer", minimum: 0 },
+        },
+        ["recipientCount", "warningCount"],
+      ),
       AdminInventorySettings: objectSchema(
         {
           enabled: { type: "boolean" },
@@ -1455,6 +1462,14 @@ const rescueBaseOpenApiDocumentDefinition = {
         "AdminSettingsController_updateAlerts",
         request("UpdateAlertSettingsRequest"),
         response(201, "Alert settings updated", ref("AlertSettings")),
+      ),
+    },
+    "/admin/settings/alerts/digest": {
+      post: operation(
+        "Admin-Einstellungen",
+        "AdminSettingsController_runDailyDigest",
+        {},
+        response(201, "Daily digest triggered", ref("DailyDigestResult")),
       ),
     },
     "/admin/settings/inventory": {

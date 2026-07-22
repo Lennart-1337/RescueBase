@@ -2588,6 +2588,24 @@
         ],
         "additionalProperties": false
       },
+      "DailyDigestResult": {
+        "type": "object",
+        "properties": {
+          "recipientCount": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "warningCount": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "recipientCount",
+          "warningCount"
+        ],
+        "additionalProperties": false
+      },
       "AdminInventorySettings": {
         "type": "object",
         "properties": {
@@ -3555,6 +3573,26 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/AlertSettings"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admin/settings/alerts/digest": {
+      "post": {
+        "tags": [
+          "Admin-Einstellungen"
+        ],
+        "operationId": "AdminSettingsController_runDailyDigest",
+        "responses": {
+          "201": {
+            "description": "Daily digest triggered",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DailyDigestResult"
                 }
               }
             }
