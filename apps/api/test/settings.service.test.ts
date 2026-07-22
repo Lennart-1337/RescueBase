@@ -7,6 +7,7 @@ describe("SettingsService", () => {
       appSettings: { upsert: jest.fn() },
       alertAutomationConfig: { upsert: jest.fn() },
       inventoryAutomationConfig: { upsert: jest.fn() },
+      kitCheckScheduleConfig: { upsert: jest.fn() },
       alertEvent: { aggregate: jest.fn() }
     };
     const audit = { record: jest.fn() };
@@ -40,6 +41,11 @@ describe("SettingsService", () => {
       dailyReconcileTime: "02:00",
       lastReconciledAt: null
     });
+    prisma.kitCheckScheduleConfig.upsert.mockResolvedValue({
+      enabled: true,
+      intervalMonths: 1,
+      warningLeadDays: 0
+    });
     prisma.alertEvent.aggregate.mockResolvedValue({
       _max: { lastDigestSentAt: sentAt }
     });
@@ -54,6 +60,7 @@ describe("SettingsService", () => {
       lastDigestRunAt: runAt.toISOString(),
       lastDigestSentAt: sentAt.toISOString()
     });
+    expect(result.kitChecks).toEqual({ enabled: true, intervalMonths: 1, warningLeadDays: 0 });
   });
 
   it("keeps successful delivery empty when the digest job has run but delivered nothing", async () => {
@@ -81,5 +88,22 @@ describe("SettingsService", () => {
       lastDigestRunAt: runAt.toISOString(),
       lastDigestSentAt: null
     });
+  });
+
+  it("updates monthly kit check scheduling", async () => {
+    const { service, prisma, audit } = createService();
+    prisma.kitCheckScheduleConfig.upsert.mockResolvedValue({
+      enabled: true,
+      intervalMonths: 2,
+      warningLeadDays: 7
+    });
+
+    await expect(service.updateKitChecks({ intervalMonths: 2, warningLeadDays: 7 })).resolves.toEqual({
+      enabled: true,
+      intervalMonths: 2,
+      warningLeadDays: 7
+    });
+    expect(prisma.kitCheckScheduleConfig.upsert).toHaveBeenCalled();
+    expect(audit.record).toHaveBeenCalledWith(expect.objectContaining({ action: "KIT_CHECK_SCHEDULE_CONFIG_UPDATED" }));
   });
 });
