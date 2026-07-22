@@ -563,6 +563,55 @@
         ],
         "additionalProperties": false
       },
+      "UpdateUserProfileRequest": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email"
+          },
+          "displayName": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "email",
+          "displayName"
+        ],
+        "additionalProperties": false
+      },
+      "UpdateUserProfileResponse": {
+        "type": "object",
+        "properties": {
+          "ok": {
+            "type": "boolean",
+            "enum": [
+              true
+            ]
+          },
+          "emailChangeRequested": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "ok",
+          "emailChangeRequested"
+        ],
+        "additionalProperties": false
+      },
+      "EmailChangePreview": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email"
+          }
+        },
+        "required": [
+          "email"
+        ],
+        "additionalProperties": false
+      },
       "InvitationPreview": {
         "type": "object",
         "properties": {
@@ -709,6 +758,23 @@
           },
           "twoFactorMethod": {
             "$ref": "#/components/schemas/TwoFactorMethod"
+          },
+          "sessionCount": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "invitationStatus": {
+            "type": "string",
+            "enum": [
+              "OPEN",
+              "EXPIRED",
+              "ACCEPTED",
+              "REVOKED"
+            ]
+          },
+          "pendingEmail": {
+            "type": "string",
+            "format": "email"
           }
         },
         "required": [
@@ -717,7 +783,8 @@
           "displayName",
           "role",
           "active",
-          "twoFactorEnabled"
+          "twoFactorEnabled",
+          "sessionCount"
         ],
         "additionalProperties": false
       },
@@ -3855,6 +3922,68 @@
         }
       }
     },
+    "/auth/email-changes/{token}": {
+      "get": {
+        "tags": [
+          "Auth"
+        ],
+        "operationId": "AuthController_emailChange",
+        "security": [],
+        "parameters": [
+          {
+            "name": "token",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Email change preview",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EmailChangePreview"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/email-changes/{token}/confirm": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "operationId": "AuthController_confirmEmailChange",
+        "security": [],
+        "parameters": [
+          {
+            "name": "token",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Email change confirmed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OkResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/auth/password-reset/request": {
       "post": {
         "tags": [
@@ -4388,6 +4517,196 @@
         "responses": {
           "201": {
             "description": "User role updated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OkResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/users/{id}/profile": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "operationId": "AuthController_updateUserProfile",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateUserProfileRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "User profile updated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UpdateUserProfileResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/users/{id}/invitation/resend": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "operationId": "AuthController_resendInvitation",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Invitation resent",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OkResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/users/{id}/invitation": {
+      "delete": {
+        "tags": [
+          "Auth"
+        ],
+        "operationId": "AuthController_revokeInvitation",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Invitation revoked",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OkResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/users/{id}/password-reset": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "operationId": "AuthController_adminPasswordReset",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Password reset sent",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OkResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/users/{id}/sessions/revoke": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "operationId": "AuthController_revokeUserSessions",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Sessions revoked",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OkResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/users/{id}/2fa/reset": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "operationId": "AuthController_resetUserTwoFactor",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Two-factor authentication reset",
             "content": {
               "application/json": {
                 "schema": {

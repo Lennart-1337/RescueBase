@@ -91,6 +91,37 @@ describe("UsersPage", () => {
     expect(screen.getByRole("button", { name: "Aktivieren" })).toHaveClass("user-toggle-button");
   });
 
+  it("shows invitation and session status and manages profile and security actions", async () => {
+    vi.spyOn(window, "confirm").mockReturnValue(true);
+    stubFetch({
+      "/api/auth/setup/status": { initialized: true },
+      "/api/auth/session": { user: { id: "user-admin", email: "admin@rescuebase.local", displayName: "Admin", role: "ADMIN", twoFactorEnabled: false } },
+      "/api/auth/users": [
+        { id: "user-admin", email: "admin@rescuebase.local", displayName: "Admin", role: "ADMIN", active: true, twoFactorEnabled: false, sessionCount: 1 },
+        { id: "user-managed", email: "managed@rescuebase.local", displayName: "Managed User", role: "WAREHOUSE", active: false, twoFactorEnabled: true, twoFactorMethod: "TOTP", sessionCount: 2, invitationStatus: "OPEN", pendingEmail: "managed-new@rescuebase.local" }
+      ],
+      "/api/auth/users/user-managed/profile": { ok: true, emailChangeRequested: true },
+      "/api/auth/users/user-managed/sessions/revoke": { ok: true },
+      "/api/alerts/subscriptions": []
+    });
+
+    await renderAppAt("/admin/users");
+    await screen.findByText("Einladung offen");
+    expect(screen.getByText("2 Sitzungen")).toBeInTheDocument();
+    expect(screen.getByText("Neue E-Mail: managed-new@rescuebase.local")).toBeInTheDocument();
+
+    await clickElement(screen.getByRole("button", { name: "Managed User bearbeiten" }));
+    const profileDialog = await screen.findByRole("dialog", { name: "Benutzer bearbeiten" });
+    await changeValue(within(profileDialog).getByLabelText("Name"), "Managed Team");
+    await clickElement(within(profileDialog).getByRole("button", { name: "Änderungen speichern" }));
+    await waitFor(() => expect(postedBody("/api/auth/users/user-managed/profile")).toEqual({ displayName: "Managed Team", email: "managed@rescuebase.local" }));
+
+    await clickElement(screen.getByRole("button", { name: "Managed User Sicherheit" }));
+    const securityDialog = await screen.findByRole("dialog", { name: "Kontosicherheit" });
+    await clickElement(within(securityDialog).getByRole("button", { name: "Alle Sitzungen beenden" }));
+    await waitFor(() => expect(wasRequested("/api/auth/users/user-managed/sessions/revoke", "POST")).toBe(true));
+  });
+
   it("renders role and alert recipient badges with neutral styling", async () => {
     stubFetch({
       "/api/auth/setup/status": { initialized: true },

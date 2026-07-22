@@ -1,10 +1,15 @@
 import { AnimatedRouteView } from "../motion/animated-containers";
 import { InvitationAcceptScreen } from "./public-auth/invitation-accept-screen";
+import { EmailChangeConfirmScreen } from "./public-auth/email-change-confirm-screen";
 import { PasswordResetConfirmScreen } from "./public-auth/password-reset-confirm-screen";
 import { PasswordResetRequestScreen } from "./public-auth/password-reset-request-screen";
 
 export function InvitationAcceptPage({ token }: { token: string }) {
   return <AnimatedRouteView routeKey={`invitation:${token}`}><InvitationAcceptScreen token={token} /></AnimatedRouteView>;
+}
+
+export function EmailChangeConfirmPage({ token }: { token: string }) {
+  return <AnimatedRouteView routeKey={`email-change:${token}`}><EmailChangeConfirmScreen token={token} /></AnimatedRouteView>;
 }
 
 export function PasswordResetRequestPage() {

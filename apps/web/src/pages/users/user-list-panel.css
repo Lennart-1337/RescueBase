@@ -1,6 +1,8 @@
 .user-row {
-  grid-template-columns: minmax(0, 1.1fr) auto auto auto auto;
+  grid-template-columns: minmax(180px, 1.1fr) repeat(4, auto) minmax(260px, auto);
 }
+
+.security-actions { display: grid; gap: var(--space-2); }
 
 .user-toggle-button {
   min-width: 118px;

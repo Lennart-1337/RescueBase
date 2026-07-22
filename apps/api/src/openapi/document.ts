@@ -233,6 +233,18 @@ const rescueBaseOpenApiDocumentDefinition = {
         },
         ["id", "invitationUrl"],
       ),
+      UpdateUserProfileRequest: objectSchema(
+        { email: { type: "string", format: "email" }, displayName: { type: "string" } },
+        ["email", "displayName"],
+      ),
+      UpdateUserProfileResponse: objectSchema(
+        { ok: { type: "boolean", enum: [true] }, emailChangeRequested: { type: "boolean" } },
+        ["ok", "emailChangeRequested"],
+      ),
+      EmailChangePreview: objectSchema(
+        { email: { type: "string", format: "email" } },
+        ["email"],
+      ),
       InvitationPreview: objectSchema(
         {
           email: { type: "string", format: "email" },
@@ -291,8 +303,11 @@ const rescueBaseOpenApiDocumentDefinition = {
           active: { type: "boolean" },
           twoFactorEnabled: { type: "boolean" },
           twoFactorMethod: ref("TwoFactorMethod"),
+          sessionCount: { type: "integer", minimum: 0 },
+          invitationStatus: stringEnum(["OPEN", "EXPIRED", "ACCEPTED", "REVOKED"]),
+          pendingEmail: { type: "string", format: "email" },
         },
-        ["id", "email", "displayName", "role", "active", "twoFactorEnabled"],
+        ["id", "email", "displayName", "role", "active", "twoFactorEnabled", "sessionCount"],
       ),
       SetUserActiveRequest: objectSchema(
         {
@@ -1559,6 +1574,24 @@ const rescueBaseOpenApiDocumentDefinition = {
         false,
       ),
     },
+    "/auth/email-changes/{token}": {
+      get: operation(
+        "Auth",
+        "AuthController_emailChange",
+        pathParam("token"),
+        response(200, "Email change preview", ref("EmailChangePreview")),
+        false,
+      ),
+    },
+    "/auth/email-changes/{token}/confirm": {
+      post: operation(
+        "Auth",
+        "AuthController_confirmEmailChange",
+        pathParam("token"),
+        response(201, "Email change confirmed", ref("OkResponse")),
+        false,
+      ),
+    },
     "/auth/password-reset/request": {
       post: operation(
         "Auth",
@@ -1703,6 +1736,29 @@ const rescueBaseOpenApiDocumentDefinition = {
         { ...pathParam("id"), ...request("SetUserRoleRequest") },
         response(201, "User role updated", ref("OkResponse")),
       ),
+    },
+    "/auth/users/{id}/profile": {
+      post: operation(
+        "Auth",
+        "AuthController_updateUserProfile",
+        { ...pathParam("id"), ...request("UpdateUserProfileRequest") },
+        response(201, "User profile updated", ref("UpdateUserProfileResponse")),
+      ),
+    },
+    "/auth/users/{id}/invitation/resend": {
+      post: operation("Auth", "AuthController_resendInvitation", pathParam("id"), response(201, "Invitation resent", ref("OkResponse"))),
+    },
+    "/auth/users/{id}/invitation": {
+      delete: operation("Auth", "AuthController_revokeInvitation", pathParam("id"), response(200, "Invitation revoked", ref("OkResponse"))),
+    },
+    "/auth/users/{id}/password-reset": {
+      post: operation("Auth", "AuthController_adminPasswordReset", pathParam("id"), response(201, "Password reset sent", ref("OkResponse"))),
+    },
+    "/auth/users/{id}/sessions/revoke": {
+      post: operation("Auth", "AuthController_revokeUserSessions", pathParam("id"), response(201, "Sessions revoked", ref("OkResponse"))),
+    },
+    "/auth/users/{id}/2fa/reset": {
+      post: operation("Auth", "AuthController_resetUserTwoFactor", pathParam("id"), response(201, "Two-factor authentication reset", ref("OkResponse"))),
     },
     "/auth/users/{id}": {
       delete: operation(

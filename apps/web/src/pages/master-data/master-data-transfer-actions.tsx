@@ -16,6 +16,7 @@ export function MasterDataTransferActions() {
   const [importOpen, setImportOpen] = useState(false);
   const [sections, setSections] = useState(defaultSections);
   const [bundle, setBundle] = useState<MasterDataBundle | null>(null);
+  const [selectedFileName, setSelectedFileName] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [isWorking, setIsWorking] = useState(false);
 
@@ -43,7 +44,7 @@ export function MasterDataTransferActions() {
 
   async function selectFile(file?: File) {
     if (!file) return;
-    try { setError(null); setBundle(parseMasterDataBundle(JSON.parse(await file.text()))); } catch (reason) { setBundle(null); setError(message(reason)); }
+    try { setError(null); setBundle(parseMasterDataBundle(JSON.parse(await file.text()))); setSelectedFileName(file.name); } catch (reason) { setBundle(null); setSelectedFileName(""); setError(message(reason)); }
   }
 
   async function importSelected() {
@@ -57,14 +58,14 @@ export function MasterDataTransferActions() {
 
   return <>
     <Button onClick={() => { setError(null); setExportOpen(true); }} type="button" variant="secondary"><Download data-icon="inline-start" />Export</Button>
-    <Button onClick={() => { setError(null); setBundle(null); setImportOpen(true); }} type="button" variant="secondary"><Upload data-icon="inline-start" />Import</Button>
+    <Button onClick={() => { setError(null); setBundle(null); setSelectedFileName(""); setImportOpen(true); }} type="button" variant="secondary"><Upload data-icon="inline-start" />Import</Button>
     <Dialog actions={<><Button onClick={() => setExportOpen(false)} type="button" variant="ghost">Abbrechen</Button><Button disabled={!sections.size} loading={isWorking} onClick={() => void exportSelected()} type="button">Export erstellen</Button></>} onClose={() => setExportOpen(false)} open={exportOpen} title="Stammdaten exportieren">
       <p className="form-hint">Wählen Sie die Bereiche für die JSON-Datei aus.</p><SectionChoices sections={sections} onToggle={toggle} />
     </Dialog>
     <Dialog actions={<><Button onClick={() => setImportOpen(false)} type="button" variant="ghost">Abbrechen</Button><Button disabled={!bundle || !sections.size} loading={isWorking} onClick={() => void importSelected()} type="button">Daten aktualisieren</Button></>} onClose={() => setImportOpen(false)} open={importOpen} title="Stammdaten importieren">
       <p className="form-hint">Datensätze mit bekannter ID werden aktualisiert, neue IDs angelegt. Vorlagen erhalten bei einer Aktualisierung eine neue Version.</p>
-      <input accept="application/json,.json" className="visually-hidden" onChange={(event) => void selectFile(event.target.files?.[0])} ref={fileInput} type="file" />
-      <Button onClick={() => fileInput.current?.click()} type="button" variant="secondary">JSON-Datei auswählen</Button>
+      <input accept="application/json,.json" aria-hidden="true" className="transfer-file-input" onChange={(event) => void selectFile(event.target.files?.[0])} ref={fileInput} tabIndex={-1} type="file" />
+      <div className="transfer-file-picker"><Button onClick={() => fileInput.current?.click()} type="button" variant="secondary"><Upload data-icon="inline-start" />JSON-Datei auswählen</Button>{selectedFileName ? <span>{selectedFileName}</span> : <span>Noch keine Datei gewählt</span>}</div>
       {bundle ? <><div className="transfer-counts">{bundleCounts(bundle).filter(({ count }) => count > 0).map(({ section, count }) => <span key={section}>{labels[section]}: {count}</span>)}</div><SectionChoices available={bundle.data} sections={sections} onToggle={toggle} /></> : null}
       {error ? <p className="transfer-error" role="alert">{error}</p> : null}
     </Dialog>

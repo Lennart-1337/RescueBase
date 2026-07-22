@@ -196,6 +196,38 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/auth/email-changes/{token}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["AuthController_emailChange"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/auth/email-changes/{token}/confirm": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["AuthController_confirmEmailChange"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/auth/password-reset/request": {
         parameters: {
             query?: never;
@@ -478,6 +510,102 @@ export interface paths {
         get?: never;
         put?: never;
         post: operations["AuthController_setUserRole"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/auth/users/{id}/profile": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["AuthController_updateUserProfile"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/auth/users/{id}/invitation/resend": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["AuthController_resendInvitation"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/auth/users/{id}/invitation": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete: operations["AuthController_revokeInvitation"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/auth/users/{id}/password-reset": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["AuthController_adminPasswordReset"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/auth/users/{id}/sessions/revoke": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["AuthController_revokeUserSessions"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/auth/users/{id}/2fa/reset": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["AuthController_resetUserTwoFactor"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1433,6 +1561,20 @@ export interface components {
             /** Format: uri */
             invitationUrl: string;
         };
+        UpdateUserProfileRequest: {
+            /** Format: email */
+            email: string;
+            displayName: string;
+        };
+        UpdateUserProfileResponse: {
+            /** @enum {boolean} */
+            ok: true;
+            emailChangeRequested: boolean;
+        };
+        EmailChangePreview: {
+            /** Format: email */
+            email: string;
+        };
         InvitationPreview: {
             /** Format: email */
             email: string;
@@ -1475,6 +1617,11 @@ export interface components {
             active: boolean;
             twoFactorEnabled: boolean;
             twoFactorMethod?: components["schemas"]["TwoFactorMethod"];
+            sessionCount: number;
+            /** @enum {string} */
+            invitationStatus?: "OPEN" | "EXPIRED" | "ACCEPTED" | "REVOKED";
+            /** Format: email */
+            pendingEmail?: string;
         };
         SetUserActiveRequest: {
             active: boolean;
@@ -2510,6 +2657,50 @@ export interface operations {
             };
         };
     };
+    AuthController_emailChange: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                token: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Email change preview */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EmailChangePreview"];
+                };
+            };
+        };
+    };
+    AuthController_confirmEmailChange: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                token: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Email change confirmed */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OkResponse"];
+                };
+            };
+        };
+    };
     AuthController_requestPasswordReset: {
         parameters: {
             query?: never;
@@ -2938,6 +3129,142 @@ export interface operations {
         };
         responses: {
             /** @description User role updated */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OkResponse"];
+                };
+            };
+        };
+    };
+    AuthController_updateUserProfile: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateUserProfileRequest"];
+            };
+        };
+        responses: {
+            /** @description User profile updated */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UpdateUserProfileResponse"];
+                };
+            };
+        };
+    };
+    AuthController_resendInvitation: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Invitation resent */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OkResponse"];
+                };
+            };
+        };
+    };
+    AuthController_revokeInvitation: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Invitation revoked */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OkResponse"];
+                };
+            };
+        };
+    };
+    AuthController_adminPasswordReset: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Password reset sent */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OkResponse"];
+                };
+            };
+        };
+    };
+    AuthController_revokeUserSessions: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Sessions revoked */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OkResponse"];
+                };
+            };
+        };
+    };
+    AuthController_resetUserTwoFactor: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Two-factor authentication reset */
             201: {
                 headers: {
                     [name: string]: unknown;

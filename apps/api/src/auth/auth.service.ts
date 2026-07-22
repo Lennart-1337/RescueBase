@@ -4,12 +4,13 @@ import { randomBytes, randomInt, createHash } from "node:crypto";
 import { generateSecret, generateURI, verifySync } from "otplib";
 import type { TwoFactorMethod, UserRole } from "@rescuebase/domain";
 import type { Response } from "express";
-import { EMAIL_2FA_TTL_MS, INVITATION_TTL_MS, PASSWORD_RESET_TTL_MS, SESSION_COOKIE_NAME, SESSION_TTL_MS } from "./auth.constants.js";
+import { EMAIL_2FA_TTL_MS, EMAIL_CHANGE_TTL_MS, INVITATION_TTL_MS, PASSWORD_RESET_TTL_MS, SESSION_COOKIE_NAME, SESSION_TTL_MS } from "./auth.constants.js";
 import { PrismaService } from "../persistence/prisma.service.js";
 
 type UserEmail = { email: string };
 type UserInvitation = { id: string; email: string; displayName: string; role: UserRole };
 type UserPasswordReset = { id: string; email: string; displayName: string };
+type UserEmailChange = { id: string; userId: string; email: string };
 type UserSessionView = {
   id: string;
   email: string;
@@ -142,7 +143,7 @@ export class AuthService {
       where: { tokenHash: this.hashOpaqueToken(token) },
       include: { user: true }
     });
-    if (!invitation || invitation.acceptedAt || invitation.expiresAt <= new Date() || invitation.user.deletedAt) {
+    if (!invitation || invitation.acceptedAt || invitation.revokedAt || invitation.expiresAt <= new Date() || invitation.user.deletedAt) {
       return null;
     }
     return {
@@ -156,10 +157,46 @@ export class AuthService {
 
   async markInvitationAccepted(invitationId: string): Promise<boolean> {
     const accepted = await this.prisma.userInvitation.updateMany({
-      where: { id: invitationId, acceptedAt: null, expiresAt: { gt: new Date() } },
+      where: { id: invitationId, acceptedAt: null, revokedAt: null, expiresAt: { gt: new Date() } },
       data: { acceptedAt: new Date() }
     });
     return accepted.count === 1;
+  }
+
+  async revokeOpenInvitations(userId: string): Promise<void> {
+    await this.prisma.userInvitation.updateMany({
+      where: { userId, acceptedAt: null, revokedAt: null, expiresAt: { gt: new Date() } },
+      data: { revokedAt: new Date() }
+    });
+  }
+
+  async createEmailChange(userId: string, email: string): Promise<{ token: string; expiresAt: Date }> {
+    const token = randomBytes(32).toString("base64url");
+    const expiresAt = new Date(Date.now() + EMAIL_CHANGE_TTL_MS);
+    await this.prisma.userEmailChange.updateMany({
+      where: { userId, confirmedAt: null, expiresAt: { gt: new Date() } },
+      data: { expiresAt: new Date() }
+    });
+    await this.prisma.userEmailChange.create({
+      data: { userId, email, tokenHash: this.hashOpaqueToken(token), expiresAt }
+    });
+    return { token, expiresAt };
+  }
+
+  async consumeEmailChange(token: string): Promise<UserEmailChange | null> {
+    const change = await this.prisma.userEmailChange.findUnique({ where: { tokenHash: this.hashOpaqueToken(token) } });
+    if (!change || change.confirmedAt || change.expiresAt <= new Date()) {
+      return null;
+    }
+    return change;
+  }
+
+  async markEmailChangeConfirmed(id: string): Promise<boolean> {
+    const result = await this.prisma.userEmailChange.updateMany({
+      where: { id, confirmedAt: null, expiresAt: { gt: new Date() } },
+      data: { confirmedAt: new Date() }
+    });
+    return result.count === 1;
   }
 
   async createPasswordResetToken(userId: string): Promise<{ token: string; expiresAt: Date }> {

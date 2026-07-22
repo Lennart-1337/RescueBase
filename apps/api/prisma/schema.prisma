@@ -76,6 +76,7 @@ model User {
   active           Boolean  @default(true)
   sessions         UserSession[]
   invitations      UserInvitation[]
+  emailChanges     UserEmailChange[]
   passwordResets   PasswordResetToken[]
   emailChallenges  EmailTwoFactorChallenge[]
   pendingLogins    PendingLoginChallenge[]
@@ -107,10 +108,26 @@ model UserInvitation {
   tokenHash   String   @unique
   expiresAt   DateTime
   acceptedAt  DateTime?
+  revokedAt   DateTime?
   createdAt   DateTime @default(now())
   user        User     @relation(fields: [userId], references: [id])
 
   @@index([userId])
+  @@index([expiresAt])
+}
+
+model UserEmailChange {
+  id          String   @id @default(cuid())
+  userId      String
+  email       String
+  tokenHash   String   @unique
+  expiresAt   DateTime
+  confirmedAt DateTime?
+  createdAt   DateTime @default(now())
+  user        User     @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@index([email])
   @@index([expiresAt])
 }
 

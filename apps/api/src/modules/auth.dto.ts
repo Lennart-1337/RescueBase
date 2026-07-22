@@ -58,3 +58,8 @@ export class InviteUserDto extends UserRoleDto {
   @IsEmail() @MaxLength(254) email!: string;
   @IsString() @Length(1, 120) displayName!: string;
 }
+
+export class UpdateUserProfileDto {
+  @IsEmail() @MaxLength(254) email!: string;
+  @IsString() @Length(1, 120) displayName!: string;
+}

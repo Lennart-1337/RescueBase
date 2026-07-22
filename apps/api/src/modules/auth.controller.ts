@@ -33,6 +33,7 @@ import {
   PasswordResetRequestDto,
   TotpEnableDto,
   UserActiveDto,
+  UpdateUserProfileDto,
   UserRoleDto
 } from "./auth.dto.js";
 import {
@@ -51,10 +52,9 @@ type AdminUserListItem = {
   active: boolean;
   twoFactorEnabled: boolean;
   twoFactorMethod?: TwoFactorMethod;
-};
-
-type AdminUserRecord = Omit<AdminUserListItem, "twoFactorMethod"> & {
-  twoFactorMethod: TwoFactorMethod | null;
+  sessionCount: number;
+  invitationStatus?: "OPEN" | "EXPIRED" | "ACCEPTED" | "REVOKED";
+  pendingEmail?: string;
 };
 
 @ApiTags("Auth")
@@ -287,6 +287,50 @@ export class AuthController {
 
   @PublicRoute()
   @RateLimit({ limit: 30, windowMs: 10 * 60 * 1000 })
+  @Get("email-changes/:token")
+  async emailChange(@Param("token") token: string): Promise<{ email: string }> {
+    const change = await this.auth.consumeEmailChange(token);
+    if (!change) {
+      throw new UnauthorizedException("E-Mail-Änderung ist ungültig oder abgelaufen.");
+    }
+    return { email: change.email };
+  }
+
+  @PublicRoute()
+  @RateLimit({ limit: 10, windowMs: 10 * 60 * 1000 })
+  @Post("email-changes/:token/confirm")
+  async confirmEmailChange(@Param("token") token: string): Promise<{ ok: true }> {
+    const change = await this.auth.consumeEmailChange(token);
+    if (!change) {
+      throw new UnauthorizedException("E-Mail-Änderung ist ungültig oder abgelaufen.");
+    }
+    const user = await this.prisma.user.findUnique({ where: { id: change.userId } });
+    if (!user || user.deletedAt) {
+      throw new UnauthorizedException("Benutzerkonto nicht gefunden.");
+    }
+    const owner = await this.prisma.user.findFirst({ where: { email: change.email, id: { not: user.id } } });
+    if (owner) {
+      throw new BadRequestException("Diese E-Mail-Adresse wird bereits verwendet.");
+    }
+    if (!(await this.auth.markEmailChangeConfirmed(change.id))) {
+      throw new UnauthorizedException("E-Mail-Änderung ist ungültig oder abgelaufen.");
+    }
+    await this.prisma.user.update({ where: { id: user.id }, data: { email: change.email } });
+    await this.auth.destroyUserSessions(user.id);
+    await this.mail.sendEmailChangeCompleted(user.email, change.email);
+    await this.audit.record({
+      actorType: "SYSTEM",
+      actorLabel: "E-Mail-Bestätigung",
+      action: "USER_EMAIL_CHANGED",
+      entityType: "User",
+      entityId: user.id,
+      payload: { from: user.email, to: change.email }
+    });
+    return { ok: true };
+  }
+
+  @PublicRoute()
+  @RateLimit({ limit: 30, windowMs: 10 * 60 * 1000 })
   @Get("password-reset/:token")
   async passwordReset(@Param("token") token: string): Promise<{ email: string; displayName: string }> {
     const reset = await this.auth.getPasswordReset(token);
@@ -434,9 +478,14 @@ export class AuthController {
   @Roles("ADMIN")
   @Get("users")
   async users(): Promise<AdminUserListItem[]> {
-    const users: AdminUserRecord[] = await this.prisma.user.findMany({
+    const users = await this.prisma.user.findMany({
       where: { deletedAt: null },
-      orderBy: [{ role: "asc" }, { email: "asc" }]
+      orderBy: [{ role: "asc" }, { email: "asc" }],
+      include: {
+        sessions: { where: { expiresAt: { gt: new Date() } }, select: { id: true } },
+        invitations: { orderBy: { createdAt: "desc" }, take: 1 },
+        emailChanges: { where: { confirmedAt: null, expiresAt: { gt: new Date() } }, orderBy: { createdAt: "desc" }, take: 1 }
+      }
     });
     return users.map((user): AdminUserListItem => ({
       id: user.id,
@@ -445,13 +494,16 @@ export class AuthController {
       role: user.role,
       active: user.active,
       twoFactorEnabled: user.twoFactorEnabled,
-      twoFactorMethod: user.twoFactorMethod ?? undefined
+      twoFactorMethod: user.twoFactorMethod ?? undefined,
+      sessionCount: user.sessions.length,
+      invitationStatus: user.invitations[0] ? this.invitationStatus(user.invitations[0]) : undefined,
+      pendingEmail: user.emailChanges[0]?.email
     }));
   }
 
   @Roles("ADMIN")
   @Post("users/:id/active")
-  async setUserActive(@Param("id") id: string, @Body() body: UserActiveDto): Promise<{ ok: true }> {
+  async setUserActive(@Param("id") id: string, @Body() body: UserActiveDto, @Req() request: AuthenticatedRequest): Promise<{ ok: true }> {
     if (typeof body.active !== "boolean") {
       throw new BadRequestException("Aktiv-Status muss gesetzt sein.");
     }
@@ -459,6 +511,10 @@ export class AuthController {
     if (!existing) {
       throw new NotFoundException("Benutzerkonto nicht gefunden.");
     }
+    if (existing.id === request.user?.id && !body.active) {
+      throw new BadRequestException("Das eigene Benutzerkonto kann nicht deaktiviert werden.");
+    }
+    await this.assertSafeAdminAccountChange(existing, body.active);
     const user = await this.prisma.user.update({
       where: { id: existing.id },
       data: { active: body.active }
@@ -474,6 +530,37 @@ export class AuthController {
       entityId: user.id
     });
     return { ok: true };
+  }
+
+  @Roles("ADMIN")
+  @Post("users/:id/profile")
+  async updateUserProfile(@Param("id") id: string, @Body() body: UpdateUserProfileDto, @Req() request: AuthenticatedRequest): Promise<{ ok: true; emailChangeRequested: boolean }> {
+    const user = await this.prisma.user.findFirst({ where: { id, deletedAt: null } });
+    if (!user) {
+      throw new NotFoundException("Benutzerkonto nicht gefunden.");
+    }
+    const displayName = body.displayName.trim();
+    const email = body.email.trim();
+    const owner = await this.prisma.user.findFirst({ where: { email, id: { not: user.id } } });
+    if (owner) {
+      throw new BadRequestException("Diese E-Mail-Adresse wird bereits verwendet.");
+    }
+    await this.prisma.user.update({ where: { id: user.id }, data: { displayName } });
+    const emailChangeRequested = email !== user.email;
+    if (emailChangeRequested) {
+      const change = await this.auth.createEmailChange(user.id, email);
+      const changeUrl = `${process.env.APP_PUBLIC_URL ?? "http://localhost:5173"}/email-change/${change.token}`;
+      await this.mail.sendEmailChangeConfirmation(email, changeUrl);
+    }
+    await this.audit.record({
+      actorType: "USER",
+      actorLabel: request.user?.email ?? "Admin",
+      action: emailChangeRequested ? "USER_PROFILE_AND_EMAIL_CHANGE_REQUESTED" : "USER_PROFILE_UPDATED",
+      entityType: "User",
+      entityId: user.id,
+      payload: { displayName, email: emailChangeRequested ? email : undefined }
+    });
+    return { ok: true, emailChangeRequested };
   }
 
   @Roles("ADMIN")
@@ -521,12 +608,7 @@ export class AuthController {
     if (!user) {
       throw new NotFoundException("Benutzerkonto nicht gefunden.");
     }
-    if (user.role === "ADMIN" && user.active) {
-      const activeAdminCount = await this.prisma.user.count({ where: { role: "ADMIN", active: true, deletedAt: null } });
-      if (activeAdminCount <= 1) {
-        throw new BadRequestException("Das letzte aktive Adminkonto kann nicht gelöscht werden.");
-      }
-    }
+    await this.assertSafeAdminAccountChange(user, false);
 
     const deletedAt = new Date();
     await this.prisma.user.update({
@@ -542,6 +624,57 @@ export class AuthController {
       entityId: user.id,
       payload: { email: user.email, deletedAt: deletedAt.toISOString() }
     });
+    return { ok: true };
+  }
+
+  @Roles("ADMIN")
+  @Post("users/:id/invitation/resend")
+  async resendInvitation(@Param("id") id: string, @Req() request: AuthenticatedRequest): Promise<{ ok: true }> {
+    const user = await this.pendingUser(id);
+    await this.auth.revokeOpenInvitations(user.id);
+    const invitation = await this.auth.createInvitation(user.id);
+    const invitationUrl = `${process.env.APP_PUBLIC_URL ?? "http://localhost:5173"}/invitation/${invitation.token}`;
+    await this.mail.sendInvitation(user.email, invitationUrl);
+    await this.audit.record({ actorType: "USER", actorLabel: request.user?.email ?? "Admin", action: "USER_INVITATION_RESENT", entityType: "User", entityId: user.id });
+    return { ok: true };
+  }
+
+  @Roles("ADMIN")
+  @Delete("users/:id/invitation")
+  async revokeInvitation(@Param("id") id: string, @Req() request: AuthenticatedRequest): Promise<{ ok: true }> {
+    const user = await this.pendingUser(id);
+    await this.auth.revokeOpenInvitations(user.id);
+    await this.audit.record({ actorType: "USER", actorLabel: request.user?.email ?? "Admin", action: "USER_INVITATION_REVOKED", entityType: "User", entityId: user.id });
+    return { ok: true };
+  }
+
+  @Roles("ADMIN")
+  @Post("users/:id/password-reset")
+  async adminPasswordReset(@Param("id") id: string, @Req() request: AuthenticatedRequest): Promise<{ ok: true }> {
+    const user = await this.activePasswordUser(id);
+    const reset = await this.auth.createPasswordResetToken(user.id);
+    const resetUrl = `${process.env.APP_PUBLIC_URL ?? "http://localhost:5173"}/password-reset/${reset.token}`;
+    await this.mail.sendPasswordReset(user.email, resetUrl);
+    await this.audit.record({ actorType: "USER", actorLabel: request.user?.email ?? "Admin", action: "USER_PASSWORD_RESET_SENT", entityType: "User", entityId: user.id });
+    return { ok: true };
+  }
+
+  @Roles("ADMIN")
+  @Post("users/:id/sessions/revoke")
+  async revokeUserSessions(@Param("id") id: string, @Req() request: AuthenticatedRequest): Promise<{ ok: true }> {
+    const user = await this.userOrThrow(id);
+    await this.auth.destroyUserSessions(user.id);
+    await this.audit.record({ actorType: "USER", actorLabel: request.user?.email ?? "Admin", action: "USER_SESSIONS_REVOKED", entityType: "User", entityId: user.id });
+    return { ok: true };
+  }
+
+  @Roles("ADMIN")
+  @Post("users/:id/2fa/reset")
+  async resetUserTwoFactor(@Param("id") id: string, @Req() request: AuthenticatedRequest): Promise<{ ok: true }> {
+    const user = await this.userOrThrow(id);
+    await this.prisma.user.update({ where: { id: user.id }, data: { twoFactorEnabled: false, twoFactorMethod: null, twoFactorSecret: null } });
+    await this.auth.destroyUserSessions(user.id);
+    await this.audit.record({ actorType: "USER", actorLabel: request.user?.email ?? "Admin", action: "USER_TWO_FACTOR_RESET", entityType: "User", entityId: user.id });
     return { ok: true };
   }
 
@@ -592,6 +725,46 @@ export class AuthController {
     if (!user || !(await this.auth.verifyPassword(password, user.passwordHash))) {
       throw new UnauthorizedException("Aktuelles Passwort ist ungültig.");
     }
+  }
+
+  private async userOrThrow(id: string) {
+    const user = await this.prisma.user.findFirst({ where: { id, deletedAt: null } });
+    if (!user) {
+      throw new NotFoundException("Benutzerkonto nicht gefunden.");
+    }
+    return user;
+  }
+
+  private async pendingUser(id: string) {
+    const user = await this.userOrThrow(id);
+    if (user.active || user.passwordHash) {
+      throw new BadRequestException("Einladungen können nur für noch nicht aktivierte Konten verwaltet werden.");
+    }
+    return user;
+  }
+
+  private async activePasswordUser(id: string) {
+    const user = await this.userOrThrow(id);
+    if (!user.active || !user.passwordHash) {
+      throw new BadRequestException("Für dieses Konto kann kein Passwort-Reset versendet werden.");
+    }
+    return user;
+  }
+
+  private async assertSafeAdminAccountChange(user: { id: string; role: UserRole; active: boolean }, nextActive: boolean): Promise<void> {
+    if (user.role !== "ADMIN" || !user.active || nextActive) {
+      return;
+    }
+    const activeAdminCount = await this.prisma.user.count({ where: { role: "ADMIN", active: true, deletedAt: null } });
+    if (activeAdminCount <= 1) {
+      throw new BadRequestException("Das letzte aktive Adminkonto kann nicht deaktiviert oder gelöscht werden.");
+    }
+  }
+
+  private invitationStatus(invitation: { acceptedAt: Date | null; expiresAt: Date; revokedAt: Date | null }): "OPEN" | "EXPIRED" | "ACCEPTED" | "REVOKED" {
+    if (invitation.revokedAt) return "REVOKED";
+    if (invitation.acceptedAt) return "ACCEPTED";
+    return invitation.expiresAt > new Date() ? "OPEN" : "EXPIRED";
   }
 
   private assertPassword(password: string): void {
