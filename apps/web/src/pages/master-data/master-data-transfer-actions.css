@@ -1,0 +1,4 @@
+.transfer-sections { display: grid; gap: 8px; margin-top: 14px; }
+.transfer-counts { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; color: var(--color-text-muted); font-size: 0.875rem; }
+.transfer-counts span { border-right: 1px solid var(--color-border-subtle); padding-right: 8px; }
+.transfer-error { color: var(--color-danger); margin: 12px 0 0; }
