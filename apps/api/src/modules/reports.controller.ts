@@ -40,6 +40,17 @@ export class ReportsController {
     response.send(pdf);
   }
 
+  @Get("templates/:templateId.pdf")
+  async kitTemplate(@Param("templateId") templateId: string, @Res() response: Response): Promise<void> {
+    const pdf = await this.reports.kitTemplatePdf(templateId);
+    response.setHeader("content-type", "application/pdf");
+    response.setHeader("content-disposition", `inline; filename="rucksackvorlage-${templateId}.pdf"`);
+    response.setHeader("cache-control", "no-store, max-age=0");
+    response.setHeader("pragma", "no-cache");
+    response.setHeader("expires", "0");
+    response.send(pdf);
+  }
+
   @Get("replenishment/:orderId.pdf")
   async replenishment(@Param("orderId") orderId: string, @Res() response: Response): Promise<void> {
     const pdf = await this.reports.replenishmentPdf(orderId);

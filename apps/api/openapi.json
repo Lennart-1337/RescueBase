@@ -6354,6 +6354,37 @@
         }
       }
     },
+    "/reports/templates/{templateId}.pdf": {
+      "get": {
+        "tags": [
+          "Reports"
+        ],
+        "operationId": "ReportsController_kitTemplate",
+        "parameters": [
+          {
+            "name": "templateId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Binary report",
+            "content": {
+              "application/pdf": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/reports/replenishment/{orderId}.pdf": {
       "get": {
         "tags": [

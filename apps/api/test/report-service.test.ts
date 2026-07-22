@@ -51,6 +51,35 @@ function normalizePdfText(text: string) {
 }
 
 describe("report service", () => {
+  it("renders kit templates as a compact table grouped by module", async () => {
+    const service = new ReportService({
+      kitTemplate: {
+        findFirst: async () => ({
+          id: "template-1",
+          name: "Sanitätsrucksack A",
+          version: 3,
+          positions: [
+            { moduleName: "Atmung", requiredQuantity: 1, critical: false, article: { name: "Guedel-Tubus", unit: "Stück" } },
+            { moduleName: "Verband", requiredQuantity: 2, critical: true, article: { name: "Verbandpäckchen", unit: "Stück" } },
+            { moduleName: "Verband", requiredQuantity: 4, critical: false, article: { name: "Kompressen", unit: "Packung" } },
+          ],
+        }),
+      },
+    } as never);
+
+    const pdf = await service.kitTemplatePdf("template-1");
+    const text = normalizePdfText(extractVisiblePdfText(pdf));
+
+    expect(text).toContain("sanitätsrucksacka");
+    expect(text).toContain("version3");
+    expect(text).toContain("atmung");
+    expect(text).toContain("verband");
+    expect(text).toContain("guedel-tubus");
+    expect(text).toContain("verbandpäckchen");
+    expect(text).toContain("kritisch");
+    expect(text.indexOf("atmung")).toBeLessThan(text.indexOf("verband"));
+  });
+
   it("renders purchase orders as a formal letter with supplier contact details", async () => {
     const service = new ReportService({
       purchaseOrder: {

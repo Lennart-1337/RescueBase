@@ -1236,6 +1236,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/reports/templates/{templateId}.pdf": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["ReportsController_kitTemplate"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/reports/replenishment/{orderId}.pdf": {
         parameters: {
             query?: never;
@@ -4355,6 +4371,28 @@ export interface operations {
             header?: never;
             path: {
                 kitId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Binary report */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/pdf": string;
+                };
+            };
+        };
+    };
+    ReportsController_kitTemplate: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                templateId: string;
             };
             cookie?: never;
         };
