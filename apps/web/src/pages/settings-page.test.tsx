@@ -68,7 +68,9 @@ describe("SettingsPage", () => {
     await waitFor(() => expect(postedBody("/api/admin/settings/alerts")).toEqual({
       dailyDigestEnabled: true, dailyDigestTime: "07:30", warningWindowDays: 90
     }));
-    await clickElement(within(alerts).getByRole("button", { name: "Digest jetzt senden" }));
+    const runDigest = within(alerts).getByRole("button", { name: "Digest jetzt senden" });
+    expect(runDigest.parentElement).toHaveClass("topbar-actions");
+    await clickElement(runDigest);
     await waitFor(() => expect(postedBody("/api/admin/settings/alerts/digest")).toBeUndefined());
     expect(await within(alerts).findByText("Keine passenden offenen Warnungen für den Digest.")).toBeInTheDocument();
 

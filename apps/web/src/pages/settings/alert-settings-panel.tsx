@@ -25,7 +25,13 @@ export function AlertSettingsPanel({ initial }: { initial: AlertSettings }) {
     }
   });
   return (
-    <SettingsPanel className="settings-panel-compact" isSaving={mutation.isPending} onSave={() => mutation.mutate({ dailyDigestEnabled: draft.dailyDigestEnabled, dailyDigestTime: draft.dailyDigestTime, warningWindowDays: draft.warningWindowDays })} title="Warnungen">
+    <SettingsPanel
+      className="settings-panel-compact"
+      extraAction={<Button loading={digestMutation.isPending} onClick={() => digestMutation.mutate()} type="button" variant="secondary">Digest jetzt senden</Button>}
+      isSaving={mutation.isPending}
+      onSave={() => mutation.mutate({ dailyDigestEnabled: draft.dailyDigestEnabled, dailyDigestTime: draft.dailyDigestTime, warningWindowDays: draft.warningWindowDays })}
+      title="Warnungen"
+    >
       <div className="form-grid settings-toggle-row">
         <CheckboxField checked={draft.dailyDigestEnabled} label="Täglichen Digest senden" onChange={(event) => setDraft({ ...draft, dailyDigestEnabled: event.target.checked })} />
       </div>
@@ -33,7 +39,6 @@ export function AlertSettingsPanel({ initial }: { initial: AlertSettings }) {
         <Field label="Digest-Uhrzeit"><input disabled={!draft.dailyDigestEnabled} onChange={(event) => setDraft({ ...draft, dailyDigestTime: event.target.value })} type="time" value={draft.dailyDigestTime} /></Field>
         <Field label="Warnvorlauf in Tagen"><input min="1" onChange={(event) => setDraft({ ...draft, warningWindowDays: Number(event.target.value) })} type="number" value={draft.warningWindowDays} /></Field>
       </div>
-      <Button loading={digestMutation.isPending} onClick={() => digestMutation.mutate()} type="button" variant="secondary">Digest jetzt senden</Button>
       {digestMutation.data ? <p className="settings-meta">{digestMutation.data.warningCount > 0 ? `Digest an ${digestMutation.data.recipientCount} Empfänger mit ${digestMutation.data.warningCount} Warnungen gesendet.` : "Keine passenden offenen Warnungen für den Digest."}</p> : null}
       <p className="settings-meta">Letzter Digest-Lauf: {draft.lastDigestRunAt ? formatDateTime(draft.lastDigestRunAt) : "noch nicht ausgeführt"}</p>
       <p className="settings-meta">Letzte erfolgreiche Zustellung: {draft.lastDigestSentAt ? formatDateTime(draft.lastDigestSentAt) : "noch nicht gesendet"}</p>
