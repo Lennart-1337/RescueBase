@@ -11,6 +11,7 @@ export const adminSettingsApi = {
   adminSettings: () => openApiClient.get("/admin/settings"),
   updateGeneralSettings: (body: GeneralInput) => openApiClient.post("/admin/settings/general", body),
   updateAlertSettings: (body: AlertInput) => openApiClient.post("/admin/settings/alerts", body),
+  runDailyDigest: () => openApiClient.post("/admin/settings/alerts/digest"),
   updateAdminInventorySettings: (body: InventoryInput) => openApiClient.post("/admin/settings/inventory", body),
   updateNotificationTemplate: (key: NotificationTemplateKey, body: TemplateInput) =>
     openApiClient.post("/admin/settings/templates/{key}", body, { params: { key } }),

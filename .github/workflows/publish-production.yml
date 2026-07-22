@@ -9,11 +9,16 @@ permissions:
   contents: read
   packages: write
 
+concurrency:
+  group: publish-production
+  cancel-in-progress: false
+
 jobs:
   publish:
     if: >-
       ${{
         github.event.workflow_run.conclusion == 'success' &&
+        github.event.workflow_run.event == 'push' &&
         github.event.workflow_run.head_branch == 'main'
       }}
     runs-on: ubuntu-latest

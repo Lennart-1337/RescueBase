@@ -29,6 +29,7 @@ describe("SettingsPage", () => {
       "/api/admin/settings": settings,
       "/api/admin/settings/general": { ...settings.general, appName: "RescueBase Pro", appSubtitle: "Bereitschaft Nord", showAppName: true, timezone: "Europe/Madrid" },
       "/api/admin/settings/alerts": { ...settings.alerts, dailyDigestTime: "07:30" },
+      "/api/admin/settings/alerts/digest": { recipientCount: 0, warningCount: 0 },
       "/api/admin/settings/inventory": { ...settings.inventory, enabled: false }
     });
     await renderAppAt("/admin/settings");
@@ -67,6 +68,11 @@ describe("SettingsPage", () => {
     await waitFor(() => expect(postedBody("/api/admin/settings/alerts")).toEqual({
       dailyDigestEnabled: true, dailyDigestTime: "07:30", warningWindowDays: 90
     }));
+    const runDigest = within(alerts).getByRole("button", { name: "Digest jetzt senden" });
+    expect(runDigest.parentElement).toHaveClass("topbar-actions");
+    await clickElement(runDigest);
+    await waitFor(() => expect(postedBody("/api/admin/settings/alerts/digest")).toBeUndefined());
+    expect(await within(alerts).findByText("Keine passenden offenen Warnungen für den Digest.")).toBeInTheDocument();
 
     const inventory = screen.getByRole("region", { name: "Lagerautomatik" });
     await clickElement(within(inventory).getByRole("checkbox", { name: "Automatische Bestandsprüfung aktiv" }));

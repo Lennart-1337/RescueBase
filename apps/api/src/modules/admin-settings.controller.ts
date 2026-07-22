@@ -2,6 +2,7 @@ import { Body, Controller, Get, Param, Post } from "@nestjs/common";
 import { ApiTags } from "@nestjs/swagger";
 import { Roles } from "../auth/auth.decorators.js";
 import { SettingsService } from "../settings/settings.service.js";
+import { AlertsService } from "../services/alerts.service.js";
 import type { AlertSettingsInput, GeneralSettingsInput, InventorySettingsInput, TemplateSettingsInput } from "../settings/settings.types.js";
 import { NotificationTemplatesService } from "../settings/notification-templates.service.js";
 
@@ -9,7 +10,11 @@ import { NotificationTemplatesService } from "../settings/notification-templates
 @Roles("ADMIN")
 @Controller("admin/settings")
 export class AdminSettingsController {
-  constructor(private readonly settings: SettingsService, private readonly templates: NotificationTemplatesService) {}
+  constructor(
+    private readonly settings: SettingsService,
+    private readonly templates: NotificationTemplatesService,
+    private readonly alerts: AlertsService
+  ) {}
 
   @Get()
   getAll() {
@@ -24,6 +29,11 @@ export class AdminSettingsController {
   @Post("alerts")
   updateAlerts(@Body() body: AlertSettingsInput) {
     return this.settings.updateAlerts(body);
+  }
+
+  @Post("alerts/digest")
+  runDailyDigest() {
+    return this.alerts.runDailyDigest();
   }
 
   @Post("inventory")
