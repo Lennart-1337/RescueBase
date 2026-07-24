@@ -2,9 +2,10 @@ import { CanActivate, ExecutionContext, ForbiddenException, Injectable, Unauthor
 import { Reflector } from "@nestjs/core";
 import type { UserRole } from "@rescuebase/domain";
 import type { Request } from "express";
+import { fromNodeHeaders } from "better-auth/node";
 import { IS_PUBLIC_ROUTE, REQUIRED_ROLES } from "./auth.decorators.js";
-import { SESSION_COOKIE_NAME } from "./auth.constants.js";
 import { AuthService, type AuthenticatedUser } from "./auth.service.js";
+import { BetterAuthService } from "./better-auth.service.js";
 
 export interface AuthenticatedRequest extends Request {
   user?: AuthenticatedUser;
@@ -15,7 +16,8 @@ export interface AuthenticatedRequest extends Request {
 export class AuthGuard implements CanActivate {
   constructor(
     private readonly reflector: Reflector,
-    private readonly auth: AuthService
+    private readonly auth: BetterAuthService,
+    private readonly legacyAuth: AuthService
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
@@ -28,7 +30,10 @@ export class AuthGuard implements CanActivate {
     }
 
     const request = context.switchToHttp().getRequest<AuthenticatedRequest>();
-    const user = await this.auth.authenticateSession(request.cookies?.[SESSION_COOKIE_NAME]);
+    const session = await this.auth.instance.api.getSession({ headers: fromNodeHeaders(request.headers) });
+    const user = session?.user && isActiveUser(session.user)
+      ? toAuthenticatedUser(session.user)
+      : await this.legacyUser(request);
     if (!user) {
       throw new UnauthorizedException("Bitte melden Sie sich an.");
     }
@@ -44,4 +49,24 @@ export class AuthGuard implements CanActivate {
     request.user = user;
     return true;
   }
+
+  private async legacyUser(request: AuthenticatedRequest): Promise<AuthenticatedUser | null> {
+    if (process.env.AUTH_LEGACY_SESSIONS_ENABLED === "false") return null;
+    return this.legacyAuth.authenticateSession(request.cookies?.rb_session);
+  }
+}
+
+function isActiveUser(user: Record<string, unknown>): boolean {
+  return user.active === true && user.banned !== true && user.activationRequired !== true;
+}
+
+function toAuthenticatedUser(user: Record<string, unknown>): AuthenticatedUser {
+  return {
+    id: String(user.id),
+    email: String(user.email),
+    displayName: String(user.name),
+    role: user.role === "ADMIN" ? "ADMIN" : "WAREHOUSE",
+    twoFactorEnabled: user.twoFactorEnabled === true,
+    newOrderNotificationsEnabled: user.newOrderNotificationsEnabled === true
+  };
 }

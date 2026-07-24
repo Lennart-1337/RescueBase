@@ -30,4 +30,7 @@ function assertProductionConfig(): void {
   if (!process.env.RESEND_API_KEY?.trim()) {
     throw new Error("RESEND_API_KEY must be configured in production.");
   }
+  if ((process.env.BETTER_AUTH_SECRET?.trim().length ?? 0) < 32) {
+    throw new Error("BETTER_AUTH_SECRET muss in Produktion mindestens 32 Zeichen haben.");
+  }
 }

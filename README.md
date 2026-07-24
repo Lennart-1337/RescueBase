@@ -87,6 +87,7 @@ The production environment file must set at least:
 - `APP_DOMAIN`
 - `APP_PUBLIC_URL`
 - `JWT_SECRET`
+- `BETTER_AUTH_SECRET` (mindestens 32 zufällige Zeichen)
 - `MARIADB_DATABASE`
 - `MARIADB_USER`
 - `MARIADB_PASSWORD`

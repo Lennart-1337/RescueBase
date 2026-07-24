@@ -1,6 +1,7 @@
 import { Module } from "@nestjs/common";
 import { APP_GUARD } from "@nestjs/core";
 import { AuthController } from "./auth.controller.js";
+import { AccountActivationController } from "./account-activation.controller.js";
 import { AdminSettingsController } from "./admin-settings.controller.js";
 import { AlertsController } from "./alerts.controller.js";
 import { AuditController } from "./audit.controller.js";
@@ -27,12 +28,15 @@ import { AuthGuard } from "../auth/auth.guard.js";
 import { RateLimitGuard } from "../auth/rate-limit.guard.js";
 import { RateLimitService } from "../auth/rate-limit.service.js";
 import { AuthService } from "../auth/auth.service.js";
+import { BetterAuthService } from "../auth/better-auth.service.js";
+import { AccountActivationService } from "../auth/account-activation.service.js";
 import { SettingsService } from "../settings/settings.service.js";
 import { NotificationTemplatesService } from "../settings/notification-templates.service.js";
 
 @Module({
   controllers: [
     AdminSettingsController,
+    AccountActivationController,
     AuthController,
     AlertsController,
     AuditController,
@@ -48,6 +52,8 @@ import { NotificationTemplatesService } from "../settings/notification-templates
   ],
   providers: [
     PrismaService,
+    BetterAuthService,
+    AccountActivationService,
     AuthService,
     AuditService,
     CheckRecordsService,
