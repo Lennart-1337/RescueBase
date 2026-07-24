@@ -81,7 +81,21 @@ describe("Public auth pages", () => {
     await changeValue(screen.getByLabelText("E-Mail"), "lager-neu@rescuebase.local");
     await changeValue(screen.getByLabelText("Passwort"), "rescuebase-neu-2");
     await clickElement(screen.getByRole("button", { name: "Anmelden" }));
-    await screen.findByLabelText("2FA-Code");
+    await screen.findByRole("group", { name: "2FA-Code" });
+    expect(screen.getByText("Schritt 2 von 2")).toBeInTheDocument();
+    expect(screen.queryByLabelText("E-Mail")).toBeNull();
+    const codeInputs = screen.getAllByRole("textbox", { name: /Ziffer \d von 6/ });
+    const firstCodeInput = codeInputs.at(0)!;
+    expect(codeInputs).toHaveLength(6);
+    expect(firstCodeInput).toHaveFocus();
+    fireEvent.paste(firstCodeInput, { clipboardData: { getData: () => "12 34 56" } });
+    expect(codeInputs.map((input) => input.getAttribute("value"))).toEqual(["1", "2", "3", "4", "5", "6"]);
+    expect(codeInputs[5]).toHaveFocus();
+    expect(sessionStorage.getItem("rescuebase.pending-login")).toContain("challenge-1");
+    expect(localStorage.getItem("rescuebase.pending-login")).toBeNull();
+
+    fireEvent.change(firstCodeInput, { target: { value: "654321" } });
+    expect(codeInputs.map((input) => input.getAttribute("value"))).toEqual(["6", "5", "4", "3", "2", "1"]);
 
     vi.restoreAllMocks();
     history.pushState({}, "", "/");
@@ -90,10 +104,10 @@ describe("Public auth pages", () => {
       "/api/auth/session": {}
     });
     await renderAppAt("/");
-    expect(await screen.findByLabelText("2FA-Code")).toHaveFocus();
+    expect(await screen.findByRole("textbox", { name: "Ziffer 1 von 6" })).toHaveFocus();
     expect(screen.queryByLabelText("Passwort")).not.toBeInTheDocument();
-    expect(screen.getByLabelText("E-Mail")).toHaveValue("lager-neu@rescuebase.local");
-    expect(screen.getByLabelText("2FA-Code")).toHaveAttribute("autocomplete", "one-time-code");
+    expect(screen.queryByLabelText("E-Mail")).toBeNull();
+    expect(screen.getByRole("textbox", { name: "Ziffer 1 von 6" })).toHaveAttribute("autocomplete", "one-time-code");
   });
 
   it("shows legal links in the admin content footer", async () => {

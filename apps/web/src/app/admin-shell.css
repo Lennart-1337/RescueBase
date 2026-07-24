@@ -108,6 +108,7 @@
   padding: 0 10px;
   color: var(--color-text-nav);
   font-size: 14px;
+  transition: background-color 180ms ease, color 180ms ease, transform 180ms ease;
 }
 
 .nav-list a.active,
@@ -116,9 +117,18 @@
   color: var(--color-brand-strong);
 }
 
+.nav-list a:hover {
+  transform: translateX(3px);
+}
+
 .nav-list svg {
   width: 18px;
   height: 18px;
+  transition: transform 180ms ease;
+}
+
+.nav-list a:hover svg {
+  transform: scale(1.08);
 }
 
 .dashboard {

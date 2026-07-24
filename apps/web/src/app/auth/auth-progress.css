@@ -1,0 +1,26 @@
+.auth-progress {
+  display: grid;
+  gap: 7px;
+  color: var(--color-text-muted);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+}
+
+.auth-progress-track {
+  height: 3px;
+  overflow: hidden;
+  background: var(--color-surface-subtle);
+}
+
+.auth-progress-fill {
+  display: block;
+  width: 50%;
+  height: 100%;
+  background: var(--color-brand-solid);
+  transition: width 180ms ease;
+}
+
+.auth-progress-fill-complete {
+  width: 100%;
+}

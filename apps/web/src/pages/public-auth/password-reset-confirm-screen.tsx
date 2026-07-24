@@ -29,8 +29,8 @@ export function PasswordResetConfirmScreen({ token }: { token: string }) {
           if (password.length >= 12 && password === passwordRepeat && !mutation.isPending) mutation.mutate({ password, token });
         }}
       >
-        <Field label="Passwort"><input autoFocus type="password" value={password} onChange={(event) => setPassword(event.target.value)} /></Field>
-        <Field label="Passwort wiederholen"><input type="password" value={passwordRepeat} onChange={(event) => setPasswordRepeat(event.target.value)} /></Field>
+        <Field label="Passwort" required><input autoComplete="new-password" autoFocus minLength={12} required type="password" value={password} onChange={(event) => setPassword(event.target.value)} /></Field>
+        <Field label="Passwort wiederholen" required><input autoComplete="new-password" minLength={12} required type="password" value={passwordRepeat} onChange={(event) => setPasswordRepeat(event.target.value)} /></Field>
         {mutation.error ? <InlineError error={mutation.error} /> : null}
         <Button disabled={password.length < 12 || password !== passwordRepeat} loading={mutation.isPending} type="submit">Passwort speichern</Button>
       </form>

@@ -6,6 +6,9 @@ import { InlineError } from "../../components/state-panels";
 import { Button, Field, Panel } from "../../components/ui";
 import { rescueBaseApi } from "../../lib/api";
 import { clearPendingLogin, loadPendingLogin, savePendingLogin } from "./pending-login";
+import { AuthProgress } from "./auth-progress";
+import { AnimatedContentSwap } from "../../motion/animated-containers";
+import { TwoFactorCodeInput } from "./two-factor-code-input";
 import "./auth-form-layout.css";
 
 export function LoginForm({ onDone }: { onDone: () => void }) {
@@ -64,7 +67,7 @@ export function LoginForm({ onDone }: { onDone: () => void }) {
 
   return (
     <Panel className="auth-panel">
-      <div className="panel-header"><div><h2>Anmelden</h2></div><ShieldCheck /></div>
+      <div className="panel-header"><div><h2>Anmelden</h2><p>Sicherer Zugang zum Sanitätslager.</p></div><ShieldCheck /></div>
       <form
         className="auth-form"
         onSubmit={(event) => {
@@ -72,9 +75,15 @@ export function LoginForm({ onDone }: { onDone: () => void }) {
           if (canSubmit && !mutation.isPending) submitLogin();
         }}
       >
-        <Field label="E-Mail"><input autoComplete="email" autoFocus={!usesPendingLogin} disabled={usesPendingLogin} type="email" value={email} onChange={(event) => setEmail(event.target.value)} /></Field>
-        {!usesPendingLogin ? <Field label="Passwort"><input autoComplete="current-password" type="password" value={password} onChange={(event) => setPassword(event.target.value)} /></Field> : null}
-        {requiresTwoFactor ? <Field label="2FA-Code"><input autoComplete="one-time-code" autoFocus={usesPendingLogin} inputMode="numeric" value={twoFactorCode} onChange={(event) => setTwoFactorCode(event.target.value)} /></Field> : null}
+        <AuthProgress currentStep={usesPendingLogin ? 2 : 1} />
+        <AnimatedContentSwap contentKey={usesPendingLogin ? "two-factor" : "credentials"}>
+          <div className="auth-step-fields">
+            {usesPendingLogin ? <TwoFactorCodeInput onChange={setTwoFactorCode} value={twoFactorCode} /> : <>
+              <Field label="E-Mail" required><input autoCapitalize="none" autoComplete="email" autoFocus required spellCheck={false} type="email" value={email} onChange={(event) => setEmail(event.target.value)} /></Field>
+              <Field label="Passwort" required><input autoComplete="current-password" required type="password" value={password} onChange={(event) => setPassword(event.target.value)} /></Field>
+            </>}
+          </div>
+        </AnimatedContentSwap>
         {mutation.error ? <InlineError error={mutation.error} /> : null}
         <Button disabled={!canSubmit} loading={mutation.isPending} type="submit">Anmelden</Button>
         {usesPendingLogin ? <Button onClick={resetPendingStep} type="button" variant="ghost">Neu starten</Button> : null}

@@ -1,10 +1,11 @@
 import { useState, type ReactNode } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { Link } from "@tanstack/react-router";
+import { Link, useRouterState } from "@tanstack/react-router";
 import { Archive, ClipboardCheck, ClipboardList, Cog, LogOut, Menu, PackageCheck, Settings, ShieldCheck, ShoppingCart, Users, X } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { Button } from "../components/ui";
 import { fadeVariants, slideLeftVariants } from "../motion/presets";
+import { AnimatedRouteView } from "../motion/animated-containers";
 import { useMotionMode } from "../motion/use-motion-mode";
 import { rescueBaseApi } from "../lib/api";
 import type { AuthenticatedUser } from "../lib/types";
@@ -28,6 +29,7 @@ export function AdminShell({ children, user, branding }: { children: ReactNode; 
   const queryClient = useQueryClient();
   const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
   const motionMode = useMotionMode();
+  const pathname = useRouterState({ select: (state) => state.location.pathname });
   const logout = useMutation({
     mutationFn: rescueBaseApi.logout,
     onSuccess: async () => {
@@ -121,7 +123,7 @@ export function AdminShell({ children, user, branding }: { children: ReactNode; 
         ) : null}
       </AnimatePresence>
       <main className="dashboard">
-        <div className="dashboard-content">{children}</div>
+        <div className="dashboard-content"><AnimatedRouteView routeKey={pathname}>{children}</AnimatedRouteView></div>
         <div className="dashboard-footer">
           <div className="dashboard-footer-meta">
             <LegalLinks className="dashboard-legal" />

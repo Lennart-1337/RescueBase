@@ -11,6 +11,7 @@
   font-size: 14px;
   font-weight: 700;
   cursor: pointer;
+  transition: background-color 160ms ease, border-color 160ms ease, box-shadow 160ms ease, color 160ms ease, transform 120ms ease;
 }
 
 .button-loading-icon {
@@ -20,6 +21,20 @@
 .button:disabled {
   opacity: 0.55;
   cursor: not-allowed;
+}
+
+.button:not(:disabled):hover {
+  transform: translateY(-1px);
+}
+
+.button:not(:disabled):active {
+  transform: translateY(0);
+}
+
+.button:focus-visible,
+.tab-button:focus-visible {
+  outline: 2px solid var(--color-focus-border);
+  outline-offset: 3px;
 }
 
 .button-primary {
@@ -91,6 +106,16 @@
   text-decoration: none;
   white-space: nowrap;
   cursor: pointer;
+  transition: background-color 180ms ease, color 180ms ease, box-shadow 180ms ease, transform 180ms ease;
+}
+
+.tab-button:hover:not(.tab-button-active) {
+  background: var(--color-surface-subtle);
+  color: var(--color-text-strong);
+}
+
+.tab-button:hover {
+  transform: translateY(-1px);
 }
 
 .tab-button-active {
@@ -114,6 +139,11 @@
   color: var(--color-text-body);
   font-size: 13px;
   font-weight: 800;
+}
+
+.field-is-required > span::after {
+  content: " *";
+  color: var(--color-brand-solid);
 }
 
 .field input,

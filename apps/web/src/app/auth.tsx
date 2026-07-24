@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { ErrorPanel, LoadingPanel } from "../components/state-panels";
+import { ApiError } from "../lib/api";
 import type { AuthenticatedUser } from "../lib/types";
 import { authKeys, authQueries } from "../queries/auth";
 import type { AppBranding } from "./branding";
@@ -17,10 +18,11 @@ export function AdminAuthGate({ children }: { children: (user: AuthenticatedUser
   const queryClient = useQueryClient();
   const setup = useQuery(authQueries.setupStatus());
   const session = useQuery(authQueries.session(setup.data?.initialized === true));
+  const sessionIsUnauthenticated = session.error instanceof ApiError && session.error.status === 401;
   const pageTitle =
     setup.isLoading || (setup.data?.initialized && session.isLoading)
       ? "RescueBase wird geladen"
-      : setup.isError || session.isError
+      : setup.isError || (session.isError && !sessionIsUnauthenticated)
         ? "Fehler"
         : setup.data && !setup.data.initialized
           ? "Erstadmin einrichten"

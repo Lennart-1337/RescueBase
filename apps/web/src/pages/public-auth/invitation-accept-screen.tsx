@@ -33,9 +33,9 @@ export function InvitationAcceptScreen({ token }: { token: string }) {
           }
         }}
       >
-        <Field label="Name"><input autoFocus value={displayName} onChange={(event) => setDisplayName(event.target.value)} /></Field>
-        <Field label="Passwort"><input type="password" value={password} onChange={(event) => setPassword(event.target.value)} /></Field>
-        <Field label="Passwort wiederholen"><input type="password" value={passwordRepeat} onChange={(event) => setPasswordRepeat(event.target.value)} /></Field>
+        <Field label="Name" required><input autoFocus required value={displayName} onChange={(event) => setDisplayName(event.target.value)} /></Field>
+        <Field label="Passwort" required><input autoComplete="new-password" minLength={12} required type="password" value={password} onChange={(event) => setPassword(event.target.value)} /></Field>
+        <Field label="Passwort wiederholen" required><input autoComplete="new-password" minLength={12} required type="password" value={passwordRepeat} onChange={(event) => setPasswordRepeat(event.target.value)} /></Field>
         {accept.error ? <InlineError error={accept.error} /> : null}
         <Button disabled={!displayName.trim() || password.length < 12 || password !== passwordRepeat} loading={accept.isPending} type="submit">Konto aktivieren</Button>
       </form>

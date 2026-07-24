@@ -2,6 +2,9 @@
   "name": "RescueBase",
   "short_name": "RescueBase",
   "description": "Sanitätslager der DLRG Ortsgruppe Neukirchen-Vluyn",
+  "id": "/",
+  "start_url": "/?source=pwa",
+  "scope": "/",
   "icons": [
     {
       "src": "/android-chrome-192x192.png",
@@ -15,6 +18,20 @@
     }
   ],
   "theme_color": "#e30613",
-  "background_color": "#ffffff",
-  "display": "standalone"
+  "background_color": "#0d1117",
+  "display": "standalone",
+  "display_override": ["window-controls-overlay", "standalone"],
+  "categories": ["productivity", "utilities"],
+  "shortcuts": [
+    {
+      "name": "Aufträge",
+      "short_name": "Aufträge",
+      "url": "/?source=pwa-shortcut"
+    },
+    {
+      "name": "Rucksäcke",
+      "short_name": "Rucksäcke",
+      "url": "/admin/kits?source=pwa-shortcut"
+    }
+  ]
 }

@@ -4,6 +4,21 @@ import { changeValue, clickElement, renderAppAt, resetTestBrowser } from "../tes
 describe("auth boundary", () => {
   afterEach(resetTestBrowser);
 
+  it("treats an unauthenticated session as a login state, not an error", async () => {
+    vi.stubGlobal("fetch", vi.fn(async (input: RequestInfo | URL) => {
+      const url = typeof input === "string" ? input : input instanceof URL ? input.pathname : input.url;
+      const pathname = url.startsWith("http") ? new URL(url).pathname : url;
+      if (pathname === "/api/auth/setup/status") return json({ initialized: true });
+      if (pathname === "/api/auth/session") return new Response(JSON.stringify({ message: "Bitte melden Sie sich an." }), { status: 401, headers: { "content-type": "application/json" } });
+      return new Response(JSON.stringify({ message: `No test route for ${pathname}` }), { status: 404, headers: { "content-type": "application/json" } });
+    }));
+
+    await renderAppAt("/");
+
+    expect(await screen.findByRole("heading", { name: "Anmelden" })).toBeInTheDocument();
+    expect(document.title).toBe("Anmelden | RescueBase");
+  });
+
   it("clears cached account data before another user signs in", async () => {
     const admin = { id: "user-admin", email: "admin@rescuebase.local", displayName: "Admin", role: "ADMIN", twoFactorEnabled: false } as const;
     const warehouse = { id: "user-warehouse", email: "lager@rescuebase.local", displayName: "Lager", role: "WAREHOUSE", twoFactorEnabled: false } as const;

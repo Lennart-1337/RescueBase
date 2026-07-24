@@ -32,7 +32,12 @@ export function MetricGrid(props: {
 
 export function LoadingPanel({ label }: { label: string }) {
   return (
-    <AnimatedStateSection className="panel state-panel">
+    <AnimatedStateSection aria-busy="true" className="panel state-panel loading-state" role="status">
+      <div aria-hidden="true" className="loading-skeleton">
+        <span className="loading-skeleton-line loading-skeleton-title" />
+        <span className="loading-skeleton-line" />
+        <span className="loading-skeleton-line loading-skeleton-short" />
+      </div>
       <h1>{label}</h1>
     </AnimatedStateSection>
   );

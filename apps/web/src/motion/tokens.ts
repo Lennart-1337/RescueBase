@@ -1,12 +1,12 @@
 export const motionDurations = {
-  fast: 0.12,
-  base: 0.18,
-  slow: 0.22
+  fast: 0.14,
+  base: 0.24,
+  slow: 0.3
 } as const;
 
 export const motionDistance = {
-  near: 8,
-  medium: 16
+  near: 10,
+  medium: 18
 } as const;
 
 export const motionEase = {
@@ -15,8 +15,8 @@ export const motionEase = {
 } as const;
 
 export const motionStagger = {
-  list: 0.04,
-  fast: 0.025
+  list: 0.05,
+  fast: 0.03
 } as const;
 
 export type MotionMode = "full" | "reduced";
