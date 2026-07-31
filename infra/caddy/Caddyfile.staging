@@ -2,7 +2,7 @@
   tls /srv/certs/origin-cert.pem /srv/certs/origin-key.pem
   encode zstd gzip
 
-  handle_path /api/* {
+  handle /api/* {
     reverse_proxy api:3000
   }
 
