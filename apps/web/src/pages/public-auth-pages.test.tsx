@@ -1,5 +1,5 @@
 import { fireEvent, screen, waitFor } from "@testing-library/react";
-import { changeValue, clickElement, postedBody, renderAppAt, resetTestBrowser, stubFetch } from "../test-support/app-test-helpers";
+import { changeValue, clickElement, postedBody, renderAppAt, resetTestBrowser, stubFetch, wasRequested } from "../test-support/app-test-helpers";
 
 describe("Public auth pages", () => {
   afterEach(resetTestBrowser);
@@ -72,7 +72,8 @@ describe("Public auth pages", () => {
     stubFetch({
       "/api/auth/setup/status": { initialized: true, appName: "RescueBase Pro", appSubtitle: "Bereitschaft Nord", showLogo: true, showAppName: false, showAppSubtitle: true },
       "/api/auth/session": {},
-      "/api/auth/sign-in/email": { twoFactorRedirect: true, twoFactorMethods: ["otp"] }
+      "/api/auth/sign-in/email": { twoFactorRedirect: true, twoFactorMethods: ["otp"] },
+      "/api/auth/two-factor/send-otp": { status: true }
     });
     await renderAppAt("/");
     expect(await screen.findByText("Bereitschaft Nord")).toBeInTheDocument();
@@ -82,6 +83,7 @@ describe("Public auth pages", () => {
     await changeValue(screen.getByLabelText("Passwort"), "rescuebase-neu-2");
     await clickElement(screen.getByRole("button", { name: "Anmelden" }));
     await screen.findByRole("group", { name: "2FA-Code" });
+    expect(wasRequested("/api/auth/two-factor/send-otp", "POST")).toBe(true);
     expect(screen.getByText("Schritt 2 von 2")).toBeInTheDocument();
     expect(screen.queryByLabelText("E-Mail")).toBeNull();
     const codeInputs = screen.getAllByRole("textbox", { name: /Ziffer \d von 6/ });

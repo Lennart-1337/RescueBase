@@ -51,6 +51,10 @@ export function LoginForm({ onDone }: { onDone: () => void }) {
       const { data, error } = await betterAuthClient.signIn.email({ email, password });
       if (error) throw error;
       const result = data as { twoFactorRedirect?: boolean; twoFactorMethods?: string[] } | null;
+      if (result?.twoFactorRedirect && result.twoFactorMethods?.includes("otp")) {
+        const { error: otpError } = await betterAuthClient.twoFactor.sendOtp();
+        if (otpError) throw otpError;
+      }
       return { requiresTwoFactor: result?.twoFactorRedirect === true, twoFactorMethods: result?.twoFactorMethods ?? [] };
     },
     onSuccess: (result) => {
