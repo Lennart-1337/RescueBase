@@ -2040,6 +2040,7 @@ export interface components {
             manufacturerPartNumber?: string;
             unit: string;
             grossUnitPriceCents: number;
+            unitsPerPackage?: number;
             orderedQuantity: number;
             receivedQuantity: number;
             remainingQuantity: number;

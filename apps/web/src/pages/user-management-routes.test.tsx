@@ -47,4 +47,22 @@ describe("user management routes", () => {
     fireEvent.click(await screen.findByRole("button", { name: "Benutzer sortieren" }));
     expect(screen.getByRole("columnheader", { name: "Benutzer" })).toHaveAttribute("aria-sort", "ascending");
   });
+
+  it("places account actions in their corresponding detail tab", async () => {
+    const users = [...routes["/api/auth/users"], { active: true, displayName: "Lagerteam", email: "lager@rescuebase.local", id: "user-lager", role: "WAREHOUSE" as const, twoFactorEnabled: false }];
+    stubFetch({ ...routes, "/api/auth/users": users });
+    await renderAppAt("/admin/user-management");
+
+    fireEvent.click(await screen.findByText("Lagerteam"));
+    expect(screen.getByRole("button", { name: "Profil bearbeiten" })).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Konto deaktivieren" })).toBeNull();
+
+    fireEvent.click(screen.getByRole("tab", { name: "Zugang" }));
+    expect(screen.queryByRole("button", { name: "Profil bearbeiten" })).toBeNull();
+    expect(screen.getByRole("button", { name: "Konto deaktivieren" })).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("tab", { name: "Sicherheit" }));
+    expect(screen.queryByRole("button", { name: "Konto deaktivieren" })).toBeNull();
+    expect(screen.getByRole("button", { name: "Sicherheit verwalten" })).toBeInTheDocument();
+  });
 });

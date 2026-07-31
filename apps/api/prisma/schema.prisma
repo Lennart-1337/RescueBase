@@ -459,6 +459,7 @@ model PurchaseOrderLine {
   manufacturerPartNumberSnapshot String?
   unitSnapshot                   String
   grossUnitPriceCents            Int
+  unitsPerPackageSnapshot        Int?
   orderedQuantity                Int
   receivedQuantity               Int                    @default(0)
   note                           String?                @db.Text

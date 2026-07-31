@@ -147,7 +147,10 @@ export class PurchaseOrdersService {
           })
         : new Map([
             [
-              normalizeRequiredText(body.supplierId, "Lieferant ist erforderlich."),
+              normalizeRequiredText(
+                body.supplierId,
+                "Lieferant ist erforderlich.",
+              ),
               shortages,
             ],
           ]);
@@ -331,21 +334,21 @@ export class PurchaseOrdersService {
       await tx.purchaseOrder.update({
         where: { id },
         data: {
-              ...(payload
-                ? {
-                    supplierId: payload.supplierId,
-                    supplierName: payload.supplierName,
-                    locationId: payload.locationId,
-                    notes: payload.notes,
-                    lines: { create: payload.lines },
-                  }
-                : {
-                    ...(body.supplierId
-                      ? await this.normalizeSupplierSelection(body.supplierId)
-                      : {}),
-                    locationId: body.locationId
-                      ? await this.normalizeLocationId(body.locationId)
-                      : undefined,
+          ...(payload
+            ? {
+                supplierId: payload.supplierId,
+                supplierName: payload.supplierName,
+                locationId: payload.locationId,
+                notes: payload.notes,
+                lines: { create: payload.lines },
+              }
+            : {
+                ...(body.supplierId
+                  ? await this.normalizeSupplierSelection(body.supplierId)
+                  : {}),
+                locationId: body.locationId
+                  ? await this.normalizeLocationId(body.locationId)
+                  : undefined,
                 notes: optionalNullableText(body.notes),
               }),
         },
@@ -433,6 +436,7 @@ export class PurchaseOrdersService {
           line.grossUnitPriceCents ?? article.defaultGrossPriceCents ?? 0,
           "Preis muss eine ganze Cent-Zahl sein.",
         ),
+        unitsPerPackageSnapshot: article.unitsPerPackage ?? null,
         orderedQuantity: normalizePositiveInteger(
           line.orderedQuantity,
           "Bestellmenge muss eine ganze Zahl größer 0 sein.",
@@ -542,7 +546,7 @@ export class PurchaseOrdersService {
 
 function mapPurchaseOrder(order: NonNullable<PurchaseOrderRecord>) {
   const totalGrossCents = order.lines.reduce(
-    (sum, line) => sum + line.grossUnitPriceCents * line.orderedQuantity,
+    (sum, line) => sum + calculateLineTotalGrossCents(line),
     0,
   );
   return {
@@ -571,13 +575,14 @@ function mapPurchaseOrder(order: NonNullable<PurchaseOrderRecord>) {
       manufacturerPartNumber: line.manufacturerPartNumberSnapshot ?? undefined,
       unit: line.unitSnapshot,
       grossUnitPriceCents: line.grossUnitPriceCents,
+      unitsPerPackage: line.unitsPerPackageSnapshot ?? undefined,
       orderedQuantity: line.orderedQuantity,
       receivedQuantity: line.receivedQuantity,
       remainingQuantity: Math.max(
         line.orderedQuantity - line.receivedQuantity,
         0,
       ),
-      lineTotalGrossCents: line.grossUnitPriceCents * line.orderedQuantity,
+      lineTotalGrossCents: calculateLineTotalGrossCents(line),
       note: line.note ?? undefined,
     })),
     receipts: order.receipts.map((receipt) => ({
@@ -592,6 +597,17 @@ function mapPurchaseOrder(order: NonNullable<PurchaseOrderRecord>) {
       createdAt: toIsoDateTime(receipt.createdAt),
     })),
   };
+}
+
+function calculateLineTotalGrossCents(line: {
+  grossUnitPriceCents: number;
+  orderedQuantity: number;
+  unitsPerPackageSnapshot: number | null;
+}) {
+  const unitsPerPackage = line.unitsPerPackageSnapshot ?? 1;
+  return (
+    line.grossUnitPriceCents * Math.ceil(line.orderedQuantity / unitsPerPackage)
+  );
 }
 
 function normalizeReceiptBody(
@@ -648,7 +664,6 @@ function normalizeRequiredText(value: string | undefined, message: string) {
   if (!normalized) throw new BadRequestException(message);
   return normalized;
 }
-
 
 function optionalNullableText(value: string | undefined) {
   if (value === undefined) return undefined;

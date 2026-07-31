@@ -753,6 +753,13 @@
           "active": {
             "type": "boolean"
           },
+          "emailVerified": {
+            "type": "boolean"
+          },
+          "lastLoginAt": {
+            "type": "string",
+            "format": "date-time"
+          },
           "twoFactorEnabled": {
             "type": "boolean"
           },
@@ -783,6 +790,7 @@
           "displayName",
           "role",
           "active",
+          "emailVerified",
           "twoFactorEnabled",
           "sessionCount"
         ],
@@ -2195,6 +2203,10 @@
           "grossUnitPriceCents": {
             "type": "integer",
             "minimum": 0
+          },
+          "unitsPerPackage": {
+            "type": "integer",
+            "minimum": 1
           },
           "orderedQuantity": {
             "type": "integer",

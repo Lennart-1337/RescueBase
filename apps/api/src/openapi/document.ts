@@ -205,19 +205,37 @@ const rescueBaseOpenApiDocumentDefinition = {
         },
         ["ok", "user"],
       ),
-      PushConfiguration: objectSchema({
-        enabled: { type: "boolean" },
-        publicKey: { type: "string" },
-      }, ["enabled"]),
-      PushSubscriptionRequest: objectSchema({
-        endpoint: { type: "string", format: "uri" },
-        expirationTime: { type: "number", nullable: true },
-        keys: objectSchema({ auth: { type: "string" }, p256dh: { type: "string" } }, ["auth", "p256dh"]),
-      }, ["endpoint", "keys"]),
-      PushSubscriptionEndpoints: objectSchema({
-        endpoints: { type: "array", items: { type: "string", format: "uri" } },
-      }, ["endpoints"]),
-      PushSubscriptionRemovalRequest: objectSchema({ endpoint: { type: "string", format: "uri" } }, ["endpoint"]),
+      PushConfiguration: objectSchema(
+        {
+          enabled: { type: "boolean" },
+          publicKey: { type: "string" },
+        },
+        ["enabled"],
+      ),
+      PushSubscriptionRequest: objectSchema(
+        {
+          endpoint: { type: "string", format: "uri" },
+          expirationTime: { type: "number", nullable: true },
+          keys: objectSchema(
+            { auth: { type: "string" }, p256dh: { type: "string" } },
+            ["auth", "p256dh"],
+          ),
+        },
+        ["endpoint", "keys"],
+      ),
+      PushSubscriptionEndpoints: objectSchema(
+        {
+          endpoints: {
+            type: "array",
+            items: { type: "string", format: "uri" },
+          },
+        },
+        ["endpoints"],
+      ),
+      PushSubscriptionRemovalRequest: objectSchema(
+        { endpoint: { type: "string", format: "uri" } },
+        ["endpoint"],
+      ),
       InviteUserRequest: objectSchema(
         {
           email: { type: "string", format: "email" },
@@ -234,11 +252,17 @@ const rescueBaseOpenApiDocumentDefinition = {
         ["id", "invitationUrl"],
       ),
       UpdateUserProfileRequest: objectSchema(
-        { email: { type: "string", format: "email" }, displayName: { type: "string" } },
+        {
+          email: { type: "string", format: "email" },
+          displayName: { type: "string" },
+        },
         ["email", "displayName"],
       ),
       UpdateUserProfileResponse: objectSchema(
-        { ok: { type: "boolean", enum: [true] }, emailChangeRequested: { type: "boolean" } },
+        {
+          ok: { type: "boolean", enum: [true] },
+          emailChangeRequested: { type: "boolean" },
+        },
         ["ok", "emailChangeRequested"],
       ),
       EmailChangePreview: objectSchema(
@@ -306,10 +330,24 @@ const rescueBaseOpenApiDocumentDefinition = {
           twoFactorEnabled: { type: "boolean" },
           twoFactorMethod: ref("TwoFactorMethod"),
           sessionCount: { type: "integer", minimum: 0 },
-          invitationStatus: stringEnum(["OPEN", "EXPIRED", "ACCEPTED", "REVOKED"]),
+          invitationStatus: stringEnum([
+            "OPEN",
+            "EXPIRED",
+            "ACCEPTED",
+            "REVOKED",
+          ]),
           pendingEmail: { type: "string", format: "email" },
         },
-        ["id", "email", "displayName", "role", "active", "emailVerified", "twoFactorEnabled", "sessionCount"],
+        [
+          "id",
+          "email",
+          "displayName",
+          "role",
+          "active",
+          "emailVerified",
+          "twoFactorEnabled",
+          "sessionCount",
+        ],
       ),
       SetUserActiveRequest: objectSchema(
         {
@@ -868,6 +906,7 @@ const rescueBaseOpenApiDocumentDefinition = {
           manufacturerPartNumber: { type: "string" },
           unit: { type: "string" },
           grossUnitPriceCents: { type: "integer", minimum: 0 },
+          unitsPerPackage: { type: "integer", minimum: 1 },
           orderedQuantity: { type: "integer", minimum: 1 },
           receivedQuantity: { type: "integer", minimum: 0 },
           remainingQuantity: { type: "integer", minimum: 0 },
@@ -1712,14 +1751,38 @@ const rescueBaseOpenApiDocumentDefinition = {
       ),
     },
     "/push/config": {
-      get: operation("Push", "PushController_configuration", {}, response(200, "Push configuration", ref("PushConfiguration"))),
+      get: operation(
+        "Push",
+        "PushController_configuration",
+        {},
+        response(200, "Push configuration", ref("PushConfiguration")),
+      ),
     },
     "/push/subscriptions/me": {
-      get: operation("Push", "PushController_subscriptions", {}, response(200, "Current user push subscriptions", ref("PushSubscriptionEndpoints"))),
+      get: operation(
+        "Push",
+        "PushController_subscriptions",
+        {},
+        response(
+          200,
+          "Current user push subscriptions",
+          ref("PushSubscriptionEndpoints"),
+        ),
+      ),
     },
     "/push/subscriptions": {
-      post: operation("Push", "PushController_register", request("PushSubscriptionRequest"), response(201, "Push subscription saved", ref("OkResponse"))),
-      delete: operation("Push", "PushController_remove", request("PushSubscriptionRemovalRequest"), response(200, "Push subscription removed", ref("OkResponse"))),
+      post: operation(
+        "Push",
+        "PushController_register",
+        request("PushSubscriptionRequest"),
+        response(201, "Push subscription saved", ref("OkResponse")),
+      ),
+      delete: operation(
+        "Push",
+        "PushController_remove",
+        request("PushSubscriptionRemovalRequest"),
+        response(200, "Push subscription removed", ref("OkResponse")),
+      ),
     },
     "/auth/2fa/disable": {
       post: operation(
@@ -1770,19 +1833,44 @@ const rescueBaseOpenApiDocumentDefinition = {
       ),
     },
     "/auth/users/{id}/invitation/resend": {
-      post: operation("Auth", "AuthController_resendInvitation", pathParam("id"), response(201, "Invitation resent", ref("OkResponse"))),
+      post: operation(
+        "Auth",
+        "AuthController_resendInvitation",
+        pathParam("id"),
+        response(201, "Invitation resent", ref("OkResponse")),
+      ),
     },
     "/auth/users/{id}/invitation": {
-      delete: operation("Auth", "AuthController_revokeInvitation", pathParam("id"), response(200, "Invitation revoked", ref("OkResponse"))),
+      delete: operation(
+        "Auth",
+        "AuthController_revokeInvitation",
+        pathParam("id"),
+        response(200, "Invitation revoked", ref("OkResponse")),
+      ),
     },
     "/auth/users/{id}/password-reset": {
-      post: operation("Auth", "AuthController_adminPasswordReset", pathParam("id"), response(201, "Password reset sent", ref("OkResponse"))),
+      post: operation(
+        "Auth",
+        "AuthController_adminPasswordReset",
+        pathParam("id"),
+        response(201, "Password reset sent", ref("OkResponse")),
+      ),
     },
     "/auth/users/{id}/sessions/revoke": {
-      post: operation("Auth", "AuthController_revokeUserSessions", pathParam("id"), response(201, "Sessions revoked", ref("OkResponse"))),
+      post: operation(
+        "Auth",
+        "AuthController_revokeUserSessions",
+        pathParam("id"),
+        response(201, "Sessions revoked", ref("OkResponse")),
+      ),
     },
     "/auth/users/{id}/2fa/reset": {
-      post: operation("Auth", "AuthController_resetUserTwoFactor", pathParam("id"), response(201, "Two-factor authentication reset", ref("OkResponse"))),
+      post: operation(
+        "Auth",
+        "AuthController_resetUserTwoFactor",
+        pathParam("id"),
+        response(201, "Two-factor authentication reset", ref("OkResponse")),
+      ),
     },
     "/auth/users/{id}": {
       delete: operation(
@@ -2308,7 +2396,12 @@ const rescueBaseOpenApiDocumentDefinition = {
       ]),
     },
     "/reports/templates/{templateId}.pdf": {
-      get: fileOperation("Reports", "ReportsController_kitTemplate", pdf, "templateId"),
+      get: fileOperation(
+        "Reports",
+        "ReportsController_kitTemplate",
+        pdf,
+        "templateId",
+      ),
     },
     "/reports/replenishment/{orderId}.pdf": {
       get: fileOperation(
