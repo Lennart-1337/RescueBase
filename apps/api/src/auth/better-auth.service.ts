@@ -2,6 +2,7 @@ import { Injectable } from "@nestjs/common";
 import { betterAuth } from "better-auth/minimal";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 import { admin, twoFactor } from "better-auth/plugins";
+import { hashPassword, verifyPassword } from "./password-hash.js";
 import { PrismaService } from "../persistence/prisma.service.js";
 import { MailService } from "../services/mail.service.js";
 
@@ -34,6 +35,10 @@ export class BetterAuthService {
         minPasswordLength: 12,
         resetPasswordTokenExpiresIn: 60 * 60,
         revokeSessionsOnPasswordReset: true,
+        password: {
+          hash: hashPassword,
+          verify: ({ hash, password }) => verifyPassword(password, hash)
+        },
         sendResetPassword: async ({ user, url }) => { await mail.sendPasswordReset(user.email, url); }
       },
       emailVerification: {
