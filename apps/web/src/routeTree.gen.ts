@@ -10,34 +10,99 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AdminAccountRouteImport } from './routes/admin/account'
+import { Route as AdminCheckProtocolsRouteImport } from './routes/admin/check-protocols'
+import { Route as AdminInventoryRouteImport } from './routes/admin/inventory'
+import { Route as AdminKitsRouteImport } from './routes/admin/kits'
+import { Route as AdminMasterDataRouteImport } from './routes/admin/master-data'
+import { Route as AdminPurchaseOrdersRouteImport } from './routes/admin/purchase-orders'
+import { Route as AdminSettingsRouteImport } from './routes/admin/settings'
+import { Route as AdminUsersRouteImport } from './routes/admin/users'
+import { Route as CheckTokenRouteImport } from './routes/check/$token'
+import { Route as EmailChangeTokenRouteImport } from './routes/email-change/$token'
+import { Route as InvitationTokenRouteImport } from './routes/invitation/$token'
+import { Route as LegalImprintRouteImport } from './routes/legal/imprint'
+import { Route as LegalPrivacyRouteImport } from './routes/legal/privacy'
 import { Route as PasswordResetIndexRouteImport } from './routes/password-reset/index'
 import { Route as PasswordResetTokenRouteImport } from './routes/password-reset/$token'
-import { Route as LegalPrivacyRouteImport } from './routes/legal/privacy'
-import { Route as LegalImprintRouteImport } from './routes/legal/imprint'
-import { Route as InvitationTokenRouteImport } from './routes/invitation/$token'
-import { Route as EmailChangeTokenRouteImport } from './routes/email-change/$token'
-import { Route as CheckTokenRouteImport } from './routes/check/$token'
-import { Route as AdminUsersRouteImport } from './routes/admin/users'
-import { Route as AdminSettingsRouteImport } from './routes/admin/settings'
-import { Route as AdminPurchaseOrdersRouteImport } from './routes/admin/purchase-orders'
-import { Route as AdminMasterDataRouteImport } from './routes/admin/master-data'
-import { Route as AdminKitsRouteImport } from './routes/admin/kits'
-import { Route as AdminInventoryRouteImport } from './routes/admin/inventory'
-import { Route as AdminCheckProtocolsRouteImport } from './routes/admin/check-protocols'
-import { Route as AdminAccountRouteImport } from './routes/admin/account'
-import { Route as AdminPurchaseOrdersIndexRouteImport } from './routes/admin/purchase-orders/index'
 import { Route as AdminMasterDataIndexRouteImport } from './routes/admin/master-data/index'
-import { Route as AdminPurchaseOrdersNewRouteImport } from './routes/admin/purchase-orders/new'
-import { Route as AdminPurchaseOrdersOrderIdRouteImport } from './routes/admin/purchase-orders/$orderId'
-import { Route as AdminMasterDataTemplatesRouteImport } from './routes/admin/master-data/templates'
-import { Route as AdminMasterDataSuppliersRouteImport } from './routes/admin/master-data/suppliers'
-import { Route as AdminMasterDataLocationsRouteImport } from './routes/admin/master-data/locations'
-import { Route as AdminMasterDataDevicesRouteImport } from './routes/admin/master-data/devices'
 import { Route as AdminMasterDataArticlesRouteImport } from './routes/admin/master-data/articles'
+import { Route as AdminMasterDataDevicesRouteImport } from './routes/admin/master-data/devices'
+import { Route as AdminMasterDataLocationsRouteImport } from './routes/admin/master-data/locations'
+import { Route as AdminMasterDataSuppliersRouteImport } from './routes/admin/master-data/suppliers'
+import { Route as AdminMasterDataTemplatesRouteImport } from './routes/admin/master-data/templates'
+import { Route as AdminPurchaseOrdersIndexRouteImport } from './routes/admin/purchase-orders/index'
+import { Route as AdminPurchaseOrdersOrderIdRouteImport } from './routes/admin/purchase-orders/$orderId'
+import { Route as AdminPurchaseOrdersNewRouteImport } from './routes/admin/purchase-orders/new'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminAccountRoute = AdminAccountRouteImport.update({
+  id: '/admin/account',
+  path: '/admin/account',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminCheckProtocolsRoute = AdminCheckProtocolsRouteImport.update({
+  id: '/admin/check-protocols',
+  path: '/admin/check-protocols',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminInventoryRoute = AdminInventoryRouteImport.update({
+  id: '/admin/inventory',
+  path: '/admin/inventory',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminKitsRoute = AdminKitsRouteImport.update({
+  id: '/admin/kits',
+  path: '/admin/kits',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminMasterDataRoute = AdminMasterDataRouteImport.update({
+  id: '/admin/master-data',
+  path: '/admin/master-data',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminPurchaseOrdersRoute = AdminPurchaseOrdersRouteImport.update({
+  id: '/admin/purchase-orders',
+  path: '/admin/purchase-orders',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminSettingsRoute = AdminSettingsRouteImport.update({
+  id: '/admin/settings',
+  path: '/admin/settings',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminUsersRoute = AdminUsersRouteImport.update({
+  id: '/admin/users',
+  path: '/admin/users',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CheckTokenRoute = CheckTokenRouteImport.update({
+  id: '/check/$token',
+  path: '/check/$token',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EmailChangeTokenRoute = EmailChangeTokenRouteImport.update({
+  id: '/email-change/$token',
+  path: '/email-change/$token',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const InvitationTokenRoute = InvitationTokenRouteImport.update({
+  id: '/invitation/$token',
+  path: '/invitation/$token',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LegalImprintRoute = LegalImprintRouteImport.update({
+  id: '/legal/imprint',
+  path: '/legal/imprint',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LegalPrivacyRoute = LegalPrivacyRouteImport.update({
+  id: '/legal/privacy',
+  path: '/legal/privacy',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PasswordResetIndexRoute = PasswordResetIndexRouteImport.update({
@@ -50,97 +115,25 @@ const PasswordResetTokenRoute = PasswordResetTokenRouteImport.update({
   path: '/password-reset/$token',
   getParentRoute: () => rootRouteImport,
 } as any)
-const LegalPrivacyRoute = LegalPrivacyRouteImport.update({
-  id: '/legal/privacy',
-  path: '/legal/privacy',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const LegalImprintRoute = LegalImprintRouteImport.update({
-  id: '/legal/imprint',
-  path: '/legal/imprint',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const InvitationTokenRoute = InvitationTokenRouteImport.update({
-  id: '/invitation/$token',
-  path: '/invitation/$token',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const EmailChangeTokenRoute = EmailChangeTokenRouteImport.update({
-  id: '/email-change/$token',
-  path: '/email-change/$token',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const CheckTokenRoute = CheckTokenRouteImport.update({
-  id: '/check/$token',
-  path: '/check/$token',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AdminUsersRoute = AdminUsersRouteImport.update({
-  id: '/admin/users',
-  path: '/admin/users',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AdminSettingsRoute = AdminSettingsRouteImport.update({
-  id: '/admin/settings',
-  path: '/admin/settings',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AdminPurchaseOrdersRoute = AdminPurchaseOrdersRouteImport.update({
-  id: '/admin/purchase-orders',
-  path: '/admin/purchase-orders',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AdminMasterDataRoute = AdminMasterDataRouteImport.update({
-  id: '/admin/master-data',
-  path: '/admin/master-data',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AdminKitsRoute = AdminKitsRouteImport.update({
-  id: '/admin/kits',
-  path: '/admin/kits',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AdminInventoryRoute = AdminInventoryRouteImport.update({
-  id: '/admin/inventory',
-  path: '/admin/inventory',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AdminCheckProtocolsRoute = AdminCheckProtocolsRouteImport.update({
-  id: '/admin/check-protocols',
-  path: '/admin/check-protocols',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AdminAccountRoute = AdminAccountRouteImport.update({
-  id: '/admin/account',
-  path: '/admin/account',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AdminPurchaseOrdersIndexRoute =
-  AdminPurchaseOrdersIndexRouteImport.update({
-    id: '/',
-    path: '/',
-    getParentRoute: () => AdminPurchaseOrdersRoute,
-  } as any)
 const AdminMasterDataIndexRoute = AdminMasterDataIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => AdminMasterDataRoute,
 } as any)
-const AdminPurchaseOrdersNewRoute = AdminPurchaseOrdersNewRouteImport.update({
-  id: '/new',
-  path: '/new',
-  getParentRoute: () => AdminPurchaseOrdersRoute,
+const AdminMasterDataArticlesRoute = AdminMasterDataArticlesRouteImport.update({
+  id: '/articles',
+  path: '/articles',
+  getParentRoute: () => AdminMasterDataRoute,
 } as any)
-const AdminPurchaseOrdersOrderIdRoute =
-  AdminPurchaseOrdersOrderIdRouteImport.update({
-    id: '/$orderId',
-    path: '/$orderId',
-    getParentRoute: () => AdminPurchaseOrdersRoute,
-  } as any)
-const AdminMasterDataTemplatesRoute =
-  AdminMasterDataTemplatesRouteImport.update({
-    id: '/templates',
-    path: '/templates',
+const AdminMasterDataDevicesRoute = AdminMasterDataDevicesRouteImport.update({
+  id: '/devices',
+  path: '/devices',
+  getParentRoute: () => AdminMasterDataRoute,
+} as any)
+const AdminMasterDataLocationsRoute =
+  AdminMasterDataLocationsRouteImport.update({
+    id: '/locations',
+    path: '/locations',
     getParentRoute: () => AdminMasterDataRoute,
   } as any)
 const AdminMasterDataSuppliersRoute =
@@ -149,21 +142,28 @@ const AdminMasterDataSuppliersRoute =
     path: '/suppliers',
     getParentRoute: () => AdminMasterDataRoute,
   } as any)
-const AdminMasterDataLocationsRoute =
-  AdminMasterDataLocationsRouteImport.update({
-    id: '/locations',
-    path: '/locations',
+const AdminMasterDataTemplatesRoute =
+  AdminMasterDataTemplatesRouteImport.update({
+    id: '/templates',
+    path: '/templates',
     getParentRoute: () => AdminMasterDataRoute,
   } as any)
-const AdminMasterDataDevicesRoute = AdminMasterDataDevicesRouteImport.update({
-  id: '/devices',
-  path: '/devices',
-  getParentRoute: () => AdminMasterDataRoute,
-} as any)
-const AdminMasterDataArticlesRoute = AdminMasterDataArticlesRouteImport.update({
-  id: '/articles',
-  path: '/articles',
-  getParentRoute: () => AdminMasterDataRoute,
+const AdminPurchaseOrdersIndexRoute =
+  AdminPurchaseOrdersIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => AdminPurchaseOrdersRoute,
+  } as any)
+const AdminPurchaseOrdersOrderIdRoute =
+  AdminPurchaseOrdersOrderIdRouteImport.update({
+    id: '/$orderId',
+    path: '/$orderId',
+    getParentRoute: () => AdminPurchaseOrdersRoute,
+  } as any)
+const AdminPurchaseOrdersNewRoute = AdminPurchaseOrdersNewRouteImport.update({
+  id: '/new',
+  path: '/new',
+  getParentRoute: () => AdminPurchaseOrdersRoute,
 } as any)
 
 export interface FileRoutesByFullPath {
@@ -356,6 +356,97 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/account': {
+      id: '/admin/account'
+      path: '/admin/account'
+      fullPath: '/admin/account'
+      preLoaderRoute: typeof AdminAccountRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/check-protocols': {
+      id: '/admin/check-protocols'
+      path: '/admin/check-protocols'
+      fullPath: '/admin/check-protocols'
+      preLoaderRoute: typeof AdminCheckProtocolsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/inventory': {
+      id: '/admin/inventory'
+      path: '/admin/inventory'
+      fullPath: '/admin/inventory'
+      preLoaderRoute: typeof AdminInventoryRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/kits': {
+      id: '/admin/kits'
+      path: '/admin/kits'
+      fullPath: '/admin/kits'
+      preLoaderRoute: typeof AdminKitsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/master-data': {
+      id: '/admin/master-data'
+      path: '/admin/master-data'
+      fullPath: '/admin/master-data'
+      preLoaderRoute: typeof AdminMasterDataRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/purchase-orders': {
+      id: '/admin/purchase-orders'
+      path: '/admin/purchase-orders'
+      fullPath: '/admin/purchase-orders'
+      preLoaderRoute: typeof AdminPurchaseOrdersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/settings': {
+      id: '/admin/settings'
+      path: '/admin/settings'
+      fullPath: '/admin/settings'
+      preLoaderRoute: typeof AdminSettingsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/users': {
+      id: '/admin/users'
+      path: '/admin/users'
+      fullPath: '/admin/users'
+      preLoaderRoute: typeof AdminUsersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/check/$token': {
+      id: '/check/$token'
+      path: '/check/$token'
+      fullPath: '/check/$token'
+      preLoaderRoute: typeof CheckTokenRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/email-change/$token': {
+      id: '/email-change/$token'
+      path: '/email-change/$token'
+      fullPath: '/email-change/$token'
+      preLoaderRoute: typeof EmailChangeTokenRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/invitation/$token': {
+      id: '/invitation/$token'
+      path: '/invitation/$token'
+      fullPath: '/invitation/$token'
+      preLoaderRoute: typeof InvitationTokenRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/legal/imprint': {
+      id: '/legal/imprint'
+      path: '/legal/imprint'
+      fullPath: '/legal/imprint'
+      preLoaderRoute: typeof LegalImprintRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/legal/privacy': {
+      id: '/legal/privacy'
+      path: '/legal/privacy'
+      fullPath: '/legal/privacy'
+      preLoaderRoute: typeof LegalPrivacyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/password-reset/': {
       id: '/password-reset/'
       path: '/password-reset'
@@ -370,104 +461,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PasswordResetTokenRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/legal/privacy': {
-      id: '/legal/privacy'
-      path: '/legal/privacy'
-      fullPath: '/legal/privacy'
-      preLoaderRoute: typeof LegalPrivacyRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/legal/imprint': {
-      id: '/legal/imprint'
-      path: '/legal/imprint'
-      fullPath: '/legal/imprint'
-      preLoaderRoute: typeof LegalImprintRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/invitation/$token': {
-      id: '/invitation/$token'
-      path: '/invitation/$token'
-      fullPath: '/invitation/$token'
-      preLoaderRoute: typeof InvitationTokenRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/email-change/$token': {
-      id: '/email-change/$token'
-      path: '/email-change/$token'
-      fullPath: '/email-change/$token'
-      preLoaderRoute: typeof EmailChangeTokenRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/check/$token': {
-      id: '/check/$token'
-      path: '/check/$token'
-      fullPath: '/check/$token'
-      preLoaderRoute: typeof CheckTokenRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/admin/users': {
-      id: '/admin/users'
-      path: '/admin/users'
-      fullPath: '/admin/users'
-      preLoaderRoute: typeof AdminUsersRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/admin/settings': {
-      id: '/admin/settings'
-      path: '/admin/settings'
-      fullPath: '/admin/settings'
-      preLoaderRoute: typeof AdminSettingsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/admin/purchase-orders': {
-      id: '/admin/purchase-orders'
-      path: '/admin/purchase-orders'
-      fullPath: '/admin/purchase-orders'
-      preLoaderRoute: typeof AdminPurchaseOrdersRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/admin/master-data': {
-      id: '/admin/master-data'
-      path: '/admin/master-data'
-      fullPath: '/admin/master-data'
-      preLoaderRoute: typeof AdminMasterDataRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/admin/kits': {
-      id: '/admin/kits'
-      path: '/admin/kits'
-      fullPath: '/admin/kits'
-      preLoaderRoute: typeof AdminKitsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/admin/inventory': {
-      id: '/admin/inventory'
-      path: '/admin/inventory'
-      fullPath: '/admin/inventory'
-      preLoaderRoute: typeof AdminInventoryRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/admin/check-protocols': {
-      id: '/admin/check-protocols'
-      path: '/admin/check-protocols'
-      fullPath: '/admin/check-protocols'
-      preLoaderRoute: typeof AdminCheckProtocolsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/admin/account': {
-      id: '/admin/account'
-      path: '/admin/account'
-      fullPath: '/admin/account'
-      preLoaderRoute: typeof AdminAccountRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/admin/purchase-orders/': {
-      id: '/admin/purchase-orders/'
-      path: '/'
-      fullPath: '/admin/purchase-orders/'
-      preLoaderRoute: typeof AdminPurchaseOrdersIndexRouteImport
-      parentRoute: typeof AdminPurchaseOrdersRoute
-    }
     '/admin/master-data/': {
       id: '/admin/master-data/'
       path: '/'
@@ -475,39 +468,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminMasterDataIndexRouteImport
       parentRoute: typeof AdminMasterDataRoute
     }
-    '/admin/purchase-orders/new': {
-      id: '/admin/purchase-orders/new'
-      path: '/new'
-      fullPath: '/admin/purchase-orders/new'
-      preLoaderRoute: typeof AdminPurchaseOrdersNewRouteImport
-      parentRoute: typeof AdminPurchaseOrdersRoute
-    }
-    '/admin/purchase-orders/$orderId': {
-      id: '/admin/purchase-orders/$orderId'
-      path: '/$orderId'
-      fullPath: '/admin/purchase-orders/$orderId'
-      preLoaderRoute: typeof AdminPurchaseOrdersOrderIdRouteImport
-      parentRoute: typeof AdminPurchaseOrdersRoute
-    }
-    '/admin/master-data/templates': {
-      id: '/admin/master-data/templates'
-      path: '/templates'
-      fullPath: '/admin/master-data/templates'
-      preLoaderRoute: typeof AdminMasterDataTemplatesRouteImport
-      parentRoute: typeof AdminMasterDataRoute
-    }
-    '/admin/master-data/suppliers': {
-      id: '/admin/master-data/suppliers'
-      path: '/suppliers'
-      fullPath: '/admin/master-data/suppliers'
-      preLoaderRoute: typeof AdminMasterDataSuppliersRouteImport
-      parentRoute: typeof AdminMasterDataRoute
-    }
-    '/admin/master-data/locations': {
-      id: '/admin/master-data/locations'
-      path: '/locations'
-      fullPath: '/admin/master-data/locations'
-      preLoaderRoute: typeof AdminMasterDataLocationsRouteImport
+    '/admin/master-data/articles': {
+      id: '/admin/master-data/articles'
+      path: '/articles'
+      fullPath: '/admin/master-data/articles'
+      preLoaderRoute: typeof AdminMasterDataArticlesRouteImport
       parentRoute: typeof AdminMasterDataRoute
     }
     '/admin/master-data/devices': {
@@ -517,12 +482,47 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminMasterDataDevicesRouteImport
       parentRoute: typeof AdminMasterDataRoute
     }
-    '/admin/master-data/articles': {
-      id: '/admin/master-data/articles'
-      path: '/articles'
-      fullPath: '/admin/master-data/articles'
-      preLoaderRoute: typeof AdminMasterDataArticlesRouteImport
+    '/admin/master-data/locations': {
+      id: '/admin/master-data/locations'
+      path: '/locations'
+      fullPath: '/admin/master-data/locations'
+      preLoaderRoute: typeof AdminMasterDataLocationsRouteImport
       parentRoute: typeof AdminMasterDataRoute
+    }
+    '/admin/master-data/suppliers': {
+      id: '/admin/master-data/suppliers'
+      path: '/suppliers'
+      fullPath: '/admin/master-data/suppliers'
+      preLoaderRoute: typeof AdminMasterDataSuppliersRouteImport
+      parentRoute: typeof AdminMasterDataRoute
+    }
+    '/admin/master-data/templates': {
+      id: '/admin/master-data/templates'
+      path: '/templates'
+      fullPath: '/admin/master-data/templates'
+      preLoaderRoute: typeof AdminMasterDataTemplatesRouteImport
+      parentRoute: typeof AdminMasterDataRoute
+    }
+    '/admin/purchase-orders/': {
+      id: '/admin/purchase-orders/'
+      path: '/'
+      fullPath: '/admin/purchase-orders/'
+      preLoaderRoute: typeof AdminPurchaseOrdersIndexRouteImport
+      parentRoute: typeof AdminPurchaseOrdersRoute
+    }
+    '/admin/purchase-orders/$orderId': {
+      id: '/admin/purchase-orders/$orderId'
+      path: '/$orderId'
+      fullPath: '/admin/purchase-orders/$orderId'
+      preLoaderRoute: typeof AdminPurchaseOrdersOrderIdRouteImport
+      parentRoute: typeof AdminPurchaseOrdersRoute
+    }
+    '/admin/purchase-orders/new': {
+      id: '/admin/purchase-orders/new'
+      path: '/new'
+      fullPath: '/admin/purchase-orders/new'
+      preLoaderRoute: typeof AdminPurchaseOrdersNewRouteImport
+      parentRoute: typeof AdminPurchaseOrdersRoute
     }
   }
 }
