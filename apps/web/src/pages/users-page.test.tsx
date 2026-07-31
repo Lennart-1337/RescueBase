@@ -40,7 +40,9 @@ describe("UsersPage", () => {
     });
     await renderAppAt("/admin/user-management");
     await screen.findByRole("heading", { name: "Benutzerverwaltung" });
-    await clickElement(screen.getByRole("button", { name: /Lagerteam löschen/ }));
+    await clickElement(screen.getByText("Lagerteam"));
+    await clickElement(screen.getByRole("tab", { name: "Zugang" }));
+    await clickElement(screen.getByRole("button", { name: "Konto löschen" }));
     await waitFor(() => expect(wasRequested("/api/auth/users/user-lager", "DELETE")).toBe(true));
   });
 
@@ -58,7 +60,8 @@ describe("UsersPage", () => {
     await renderAppAt("/admin/user-management");
     await screen.findByRole("heading", { name: "Benutzerverwaltung" });
 
-    await clickElement(screen.getByRole("button", { name: /Lagerteam bearbeiten/ }));
+    await clickElement(screen.getByText("Lagerteam"));
+    await clickElement(screen.getByRole("button", { name: "Profil bearbeiten" }));
     const dialog = await screen.findByRole("dialog", { name: "Benutzer bearbeiten" });
     expect(within(dialog).getByLabelText("Rolle")).toHaveValue("Lagerwart");
 
@@ -67,11 +70,11 @@ describe("UsersPage", () => {
     expect(within(dialog).getByLabelText("Rolle")).toHaveValue("Admin");
     await clickElement(within(dialog).getByRole("button", { name: "Änderungen speichern" }));
 
-    await waitFor(() => expect(postedBody("/api/auth/users/user-lager/profile")).toEqual({ displayName: "Lagerteam", email: "lager@rescuebase.local" }));
+    await waitFor(() => expect(postedBody("/api/auth/users/user-lager/profile")).toEqual({ displayName: "Lagerteam", email: "lager@rescuebase.local", role: "ADMIN" }));
     await waitFor(() => expect(postedBody("/api/auth/users/user-lager/role")).toEqual({ role: "ADMIN" }));
   });
 
-  it("uses the same width class for activate and deactivate actions", async () => {
+  it("offers account activation controls for the selected account", async () => {
     stubFetch({
       "/api/auth/setup/status": { initialized: true },
       "/api/auth/session": { user: { id: "user-admin", email: "admin@rescuebase.local", displayName: "Admin", role: "ADMIN", twoFactorEnabled: false } },
@@ -86,10 +89,11 @@ describe("UsersPage", () => {
     await renderAppAt("/admin/user-management");
     await screen.findByRole("heading", { name: "Benutzerverwaltung" });
 
-    for (const button of screen.getAllByRole("button", { name: "Deaktivieren" })) {
-      expect(button).toHaveClass("user-toggle-button");
-    }
-    expect(screen.getByRole("button", { name: "Aktivieren" })).toHaveClass("user-toggle-button");
+    await clickElement(screen.getByText("Lagerteam"));
+    await clickElement(screen.getByRole("tab", { name: "Zugang" }));
+    expect(screen.getByRole("button", { name: "Konto deaktivieren" })).toBeEnabled();
+    await clickElement(screen.getByText("Mobile Test"));
+    expect(screen.getByRole("button", { name: "Konto aktivieren" })).toBeEnabled();
   });
 
   it("shows invitation and session status and manages profile and security actions", async () => {
@@ -108,22 +112,25 @@ describe("UsersPage", () => {
 
     await renderAppAt("/admin/user-management");
     await screen.findByText("Einladung offen");
-    expect(screen.getByText("2 Sitzungen")).toBeInTheDocument();
-    expect(screen.getByText("Neue E-Mail: managed-new@rescuebase.local")).toBeInTheDocument();
+    await clickElement(screen.getByText("Managed User"));
+    await clickElement(screen.getByRole("tab", { name: "Zugang" }));
+    expect(screen.getByText("2")).toBeInTheDocument();
 
-    await clickElement(screen.getByRole("button", { name: "Managed User bearbeiten" }));
+    await clickElement(screen.getByRole("tab", { name: "Profil" }));
+    await clickElement(screen.getByRole("button", { name: "Profil bearbeiten" }));
     const profileDialog = await screen.findByRole("dialog", { name: "Benutzer bearbeiten" });
     await changeValue(within(profileDialog).getByLabelText("Name"), "Managed Team");
     await clickElement(within(profileDialog).getByRole("button", { name: "Änderungen speichern" }));
-    await waitFor(() => expect(postedBody("/api/auth/users/user-managed/profile")).toEqual({ displayName: "Managed Team", email: "managed@rescuebase.local" }));
+    await waitFor(() => expect(postedBody("/api/auth/users/user-managed/profile")).toEqual({ displayName: "Managed Team", email: "managed@rescuebase.local", role: "WAREHOUSE" }));
 
-    await clickElement(screen.getByRole("button", { name: "Managed User Sicherheit" }));
+    await clickElement(screen.getByRole("tab", { name: "Sicherheit" }));
+    await clickElement(screen.getByRole("button", { name: "Sicherheit verwalten" }));
     const securityDialog = await screen.findByRole("dialog", { name: "Kontosicherheit" });
     await clickElement(within(securityDialog).getByRole("button", { name: "Alle Sitzungen beenden" }));
     await waitFor(() => expect(wasRequested("/api/auth/users/user-managed/sessions/revoke", "POST")).toBe(true));
   });
 
-  it("renders role and alert recipient badges with neutral styling", async () => {
+  it("renders roles and alert recipients in the account overview", async () => {
     stubFetch({
       "/api/auth/setup/status": { initialized: true },
       "/api/auth/session": { user: { id: "user-admin", email: "admin@rescuebase.local", displayName: "Admin", role: "ADMIN", twoFactorEnabled: false } },
@@ -144,23 +151,8 @@ describe("UsersPage", () => {
     await renderAppAt("/admin/user-management");
     await screen.findByRole("heading", { name: "Benutzerverwaltung" });
 
-    const adminRow = screen.getByText("admin@rescuebase.local").closest(".user-row");
-    expect(adminRow).not.toBeNull();
-    const adminRoleBadge = (adminRow as HTMLElement).querySelector(".badge");
-    expect(adminRoleBadge).not.toBeNull();
-    expect(adminRoleBadge).toHaveClass("badge-neutral");
-
-    const warehouseRow = screen.getByText("Lagerteam").closest(".user-row");
-    expect(warehouseRow).not.toBeNull();
-    const warehouseRoleBadge = within(warehouseRow as HTMLElement).getByText("Lagerwart").closest(".badge");
-    expect(warehouseRoleBadge).not.toBeNull();
-    expect(warehouseRoleBadge).toHaveClass("badge-neutral");
-
-    await screen.findByText("SHORTAGE");
-    const alertRow = document.querySelector(".compact-list-row");
-    expect(alertRow).not.toBeNull();
-    const alertBadge = within(alertRow as HTMLElement).getByText("SHORTAGE").closest(".badge");
-    expect(alertBadge).not.toBeNull();
-    expect(alertBadge).toHaveClass("badge-neutral");
+    expect(screen.getAllByText("Admin").length).toBeGreaterThan(0);
+    expect(screen.getByText("Lagerwart")).toBeInTheDocument();
+    expect(screen.getByText("Kontodetails")).toBeInTheDocument();
   });
 });

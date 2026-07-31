@@ -9,6 +9,7 @@ type RescueBaseSessionUser = {
   name: string;
   role?: string | null;
   twoFactorEnabled?: boolean | null;
+  twoFactorMethod?: "EMAIL" | "TOTP" | null;
   newOrderNotificationsEnabled?: boolean | null;
 };
 
@@ -25,8 +26,9 @@ export const authQueries = {
 
 async function getSession() {
   const { data, error } = await betterAuthClient.getSession();
+  if (error?.status === 401) return null;
   if (error) throw error;
-  if (!data) return null;
+  if (!data?.user) return null;
   const user = data.user as RescueBaseSessionUser;
   return {
     user: {
@@ -35,6 +37,7 @@ async function getSession() {
       displayName: user.name,
       role: user.role === "ADMIN" ? "ADMIN" as const : "WAREHOUSE" as const,
       twoFactorEnabled: user.twoFactorEnabled === true,
+      twoFactorMethod: user.twoFactorMethod ?? undefined,
       newOrderNotificationsEnabled: user.newOrderNotificationsEnabled === true
     }
   };
