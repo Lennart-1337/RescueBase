@@ -1,11 +1,11 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { preloadAdminQueries } from "../../app/route-preload";
 import { AdminRoute } from "../../app/admin-route";
-import { UsersPage } from "../../pages/users-page";
+import { preloadAdminQueries } from "../../app/route-preload";
+import { UserManagementPage } from "../../pages/user-management-page";
 import { alertQueries } from "../../queries/alerts";
 import { userQueries } from "../../queries/users";
 
-export const Route = createFileRoute("/admin/users")({
+export const Route = createFileRoute("/admin/user-management")({
   loader: ({ context }) =>
     preloadAdminQueries(context.queryClient, () =>
       Promise.all([
@@ -13,9 +13,9 @@ export const Route = createFileRoute("/admin/users")({
         context.queryClient.prefetchQuery(userQueries.list())
       ])
     ),
-  component: UsersRoute
+  component: UserManagementRoute
 });
 
-function UsersRoute() {
-  return <AdminRoute>{(user) => <UsersPage isLegacy user={user} />}</AdminRoute>;
+function UserManagementRoute() {
+  return <AdminRoute>{(user) => <UserManagementPage user={user} />}</AdminRoute>;
 }

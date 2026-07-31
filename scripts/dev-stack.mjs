@@ -1,7 +1,9 @@
 import { spawn, spawnSync } from "node:child_process";
 
 process.loadEnvFile?.();
-process.env.RESEND_API_KEY ??= "dev-placeholder";
+if (!process.env.RESEND_API_KEY?.trim()) {
+  process.env.RESEND_API_KEY = "dev-placeholder";
+}
 
 const children = [];
 

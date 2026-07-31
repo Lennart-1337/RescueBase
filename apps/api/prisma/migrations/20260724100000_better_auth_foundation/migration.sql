@@ -75,7 +75,7 @@ CREATE TABLE `RateLimit` (
   `id` VARCHAR(191) NOT NULL,
   `key` VARCHAR(191) NOT NULL,
   `count` INTEGER NOT NULL,
-  `lastRequest` DATETIME(3) NOT NULL,
+  `lastRequest` BIGINT NOT NULL,
   `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
   `updatedAt` DATETIME(3) NOT NULL,
   UNIQUE INDEX `RateLimit_key_key`(`key`),

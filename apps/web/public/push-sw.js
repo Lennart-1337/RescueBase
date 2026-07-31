@@ -10,7 +10,7 @@ self.addEventListener("activate", (event) => {
 self.addEventListener("fetch", (event) => {
   const request = event.request;
   const url = new URL(request.url);
-  if (request.method !== "GET" || url.origin !== self.location.origin || url.pathname.startsWith("/api")) return;
+  if (request.method !== "GET" || url.origin !== self.location.origin || isDevelopmentAsset(url)) return;
   if (request.mode === "navigate") {
     event.respondWith(fetch(request).then((response) => cacheResponse(request, response)).catch(() => caches.match(request).then((cached) => cached ?? caches.match("/"))));
     return;
@@ -19,6 +19,10 @@ self.addEventListener("fetch", (event) => {
     event.respondWith(caches.match(request).then((cached) => cached ?? fetch(request).then((response) => cacheResponse(request, response))));
   }
 });
+
+function isDevelopmentAsset(url) {
+  return url.pathname.startsWith("/@vite/") || url.pathname.startsWith("/src/") || url.pathname.startsWith("/node_modules/.vite/");
+}
 
 async function cacheResponse(request, response) {
   if (response.ok) (await caches.open("rescuebase-shell-v1")).put(request, response.clone());

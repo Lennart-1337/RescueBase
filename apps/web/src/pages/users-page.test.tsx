@@ -12,8 +12,8 @@ describe("UsersPage", () => {
       "/api/auth/invite": { invitationUrl: "https://example.test/invite", debugUrl: "http://localhost/debug-invite" },
       "/api/alerts/subscriptions": []
     });
-    await renderAppAt("/admin/users");
-    await screen.findByRole("heading", { name: "Benutzer" });
+    await renderAppAt("/admin/user-management");
+    await screen.findByRole("heading", { name: "Benutzerverwaltung" });
     expect(screen.getByRole("button", { name: /Benutzer einladen/ }).closest(".topbar")).not.toBeNull();
     await clickElement(screen.getByRole("button", { name: /Benutzer einladen/ }));
     const dialog = await screen.findByRole("dialog", { name: "Benutzer einladen" });
@@ -38,8 +38,8 @@ describe("UsersPage", () => {
       "/api/auth/users/user-lager": { ok: true },
       "/api/alerts/subscriptions": []
     });
-    await renderAppAt("/admin/users");
-    await screen.findByRole("heading", { name: "Benutzer" });
+    await renderAppAt("/admin/user-management");
+    await screen.findByRole("heading", { name: "Benutzerverwaltung" });
     await clickElement(screen.getByRole("button", { name: /Lagerteam löschen/ }));
     await waitFor(() => expect(wasRequested("/api/auth/users/user-lager", "DELETE")).toBe(true));
   });
@@ -55,8 +55,8 @@ describe("UsersPage", () => {
       "/api/auth/users/user-lager/role": { ok: true },
       "/api/alerts/subscriptions": []
     });
-    await renderAppAt("/admin/users");
-    await screen.findByRole("heading", { name: "Benutzer" });
+    await renderAppAt("/admin/user-management");
+    await screen.findByRole("heading", { name: "Benutzerverwaltung" });
 
     await clickElement(screen.getByRole("button", { name: /Lagerteam bearbeiten/ }));
     const dialog = await screen.findByRole("dialog", { name: "Benutzer bearbeiten" });
@@ -83,8 +83,8 @@ describe("UsersPage", () => {
       "/api/alerts/subscriptions": []
     });
 
-    await renderAppAt("/admin/users");
-    await screen.findByRole("heading", { name: "Benutzer" });
+    await renderAppAt("/admin/user-management");
+    await screen.findByRole("heading", { name: "Benutzerverwaltung" });
 
     for (const button of screen.getAllByRole("button", { name: "Deaktivieren" })) {
       expect(button).toHaveClass("user-toggle-button");
@@ -106,7 +106,7 @@ describe("UsersPage", () => {
       "/api/alerts/subscriptions": []
     });
 
-    await renderAppAt("/admin/users");
+    await renderAppAt("/admin/user-management");
     await screen.findByText("Einladung offen");
     expect(screen.getByText("2 Sitzungen")).toBeInTheDocument();
     expect(screen.getByText("Neue E-Mail: managed-new@rescuebase.local")).toBeInTheDocument();
@@ -141,8 +141,8 @@ describe("UsersPage", () => {
       ]
     });
 
-    await renderAppAt("/admin/users");
-    await screen.findByRole("heading", { name: "Benutzer" });
+    await renderAppAt("/admin/user-management");
+    await screen.findByRole("heading", { name: "Benutzerverwaltung" });
 
     const adminRow = screen.getByText("admin@rescuebase.local").closest(".user-row");
     expect(adminRow).not.toBeNull();

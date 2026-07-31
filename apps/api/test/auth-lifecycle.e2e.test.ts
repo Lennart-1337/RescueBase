@@ -186,7 +186,7 @@ describe("auth lifecycle", () => {
     const invitation = await admin.post("/auth/invite").send({ email: "managed-user@rescuebase.local", displayName: "Managed User", role: "WAREHOUSE" }).expect(201);
     const firstToken = invitation.body.invitationUrl.split("/").pop();
     await admin.get("/auth/users").expect(200).expect(({ body }) => {
-      expect(body).toEqual(expect.arrayContaining([expect.objectContaining({ id: invitation.body.id, invitationStatus: "OPEN", sessionCount: 0 })]));
+      expect(body).toEqual(expect.arrayContaining([expect.objectContaining({ id: invitation.body.id, emailVerified: false, invitationStatus: "OPEN", sessionCount: 0 })]));
     });
 
     await admin.post(`/auth/users/${invitation.body.id}/invitation/resend`).expect(201);
@@ -199,6 +199,9 @@ describe("auth lifecycle", () => {
     expect(invitationToken).toBeTruthy();
     await accepted.post("/auth/invitations/accept").send({ token: invitationToken, password: "managed-user-password" }).expect(201);
     await accepted.get("/auth/session").expect(200);
+    await admin.get("/auth/users").expect(200).expect(({ body }) => {
+      expect(body).toEqual(expect.arrayContaining([expect.objectContaining({ id: invitation.body.id, emailVerified: false, lastLoginAt: expect.any(String), sessionCount: 1 })]));
+    });
 
     await admin.post(`/auth/users/${invitation.body.id}/profile`).send({ displayName: "Managed User", email: "managed-new@rescuebase.local" }).expect(201);
     const emailToken = latestEmailChangeUrl.split("/").pop();

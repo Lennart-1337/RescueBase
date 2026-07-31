@@ -50,6 +50,8 @@ type AdminUserListItem = {
   displayName: string;
   role: UserRole;
   active: boolean;
+  emailVerified: boolean;
+  lastLoginAt?: string;
   twoFactorEnabled: boolean;
   twoFactorMethod?: TwoFactorMethod;
   sessionCount: number;
@@ -58,7 +60,7 @@ type AdminUserListItem = {
 };
 
 @ApiTags("Auth")
-@Controller("auth")
+@Controller(["auth", "api/auth"])
 export class AuthController {
   constructor(
     private readonly prisma: PrismaService,
@@ -493,6 +495,8 @@ export class AuthController {
       displayName: user.displayName,
       role: user.role,
       active: user.active,
+      emailVerified: user.emailVerified,
+      lastLoginAt: user.lastLoginAt?.toISOString(),
       twoFactorEnabled: user.twoFactorEnabled,
       twoFactorMethod: user.twoFactorMethod ?? undefined,
       sessionCount: user.sessions.length,

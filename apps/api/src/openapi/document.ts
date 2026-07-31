@@ -301,13 +301,15 @@ const rescueBaseOpenApiDocumentDefinition = {
           displayName: { type: "string" },
           role: ref("UserRole"),
           active: { type: "boolean" },
+          emailVerified: { type: "boolean" },
+          lastLoginAt: { type: "string", format: "date-time" },
           twoFactorEnabled: { type: "boolean" },
           twoFactorMethod: ref("TwoFactorMethod"),
           sessionCount: { type: "integer", minimum: 0 },
           invitationStatus: stringEnum(["OPEN", "EXPIRED", "ACCEPTED", "REVOKED"]),
           pendingEmail: { type: "string", format: "email" },
         },
-        ["id", "email", "displayName", "role", "active", "twoFactorEnabled", "sessionCount"],
+        ["id", "email", "displayName", "role", "active", "emailVerified", "twoFactorEnabled", "sessionCount"],
       ),
       SetUserActiveRequest: objectSchema(
         {

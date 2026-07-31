@@ -80,6 +80,7 @@ model User {
   banReason        String?
   banExpires       DateTime?
   activationRequired Boolean @default(false)
+  lastLoginAt      DateTime?
   sessions         UserSession[]
   authSessions     Session[]
   accounts         Account[]
@@ -166,7 +167,7 @@ model RateLimit {
   id        String   @id
   key       String
   count     Int
-  lastRequest DateTime
+  lastRequest BigInt
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
