@@ -1,16 +1,17 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable, OnModuleInit } from "@nestjs/common";
 import { betterAuth } from "better-auth/minimal";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 import { admin, twoFactor } from "better-auth/plugins";
 import { hashPassword, verifyPassword } from "./password-hash.js";
+import { migrateLegacyTwoFactor } from "./legacy-two-factor-migration.js";
 import { PrismaService } from "../persistence/prisma.service.js";
 import { MailService } from "../services/mail.service.js";
 
 @Injectable()
-export class BetterAuthService {
+export class BetterAuthService implements OnModuleInit {
   readonly instance;
 
-  constructor(prisma: PrismaService, mail: MailService) {
+  constructor(private readonly prisma: PrismaService, mail: MailService) {
     this.instance = betterAuth({
       appName: "RescueBase",
       basePath: "/api/auth",
@@ -56,6 +57,10 @@ export class BetterAuthService {
         })
       ]
     });
+  }
+
+  async onModuleInit(): Promise<void> {
+    await migrateLegacyTwoFactor(this.prisma, requiredSecret());
   }
 }
 

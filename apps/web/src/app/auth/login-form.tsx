@@ -60,7 +60,7 @@ export function LoginForm({ onDone }: { onDone: () => void }) {
         setPendingLogin({
           email,
           loginChallengeId: "better-auth",
-          twoFactorMethod: result.twoFactorMethods?.includes("otp") ? "EMAIL" : "TOTP"
+          twoFactorMethod: result.twoFactorMethods?.includes("totp") ? "TOTP" : "EMAIL"
         });
         return;
       }
