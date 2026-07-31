@@ -11,7 +11,13 @@ import type {
   UpdateArticleRequest,
 } from "../../lib/types";
 import { InlineError } from "../../components/state-panels";
-import { Button, CheckboxField, Dialog, Field, Panel } from "../../components/ui";
+import {
+  Button,
+  CheckboxField,
+  Dialog,
+  Field,
+  Panel,
+} from "../../components/ui";
 import { ArticleListRow } from "./article-list-row";
 import { centsInput, parseCents } from "../purchase-orders/format";
 import type { ReorderDirection } from "./reorder";
@@ -199,10 +205,38 @@ export function ArticlePanel(props: {
             />
           </Field>
           <div aria-label="Artikelmerkmale" className="article-filter-checks">
-            <CheckboxField compact checked={props.filters.medicalDevice} label="MPDG" onChange={(event) => props.onFilterChange({ medicalDevice: event.target.checked })} />
-            <CheckboxField compact checked={props.filters.stkRequired} label="STK" onChange={(event) => props.onFilterChange({ stkRequired: event.target.checked })} />
-            <CheckboxField compact checked={props.filters.mtkRequired} label="MTK" onChange={(event) => props.onFilterChange({ mtkRequired: event.target.checked })} />
-            <CheckboxField compact checked={props.filters.criticalDefault} label="Kritisch" onChange={(event) => props.onFilterChange({ criticalDefault: event.target.checked })} />
+            <CheckboxField
+              compact
+              checked={props.filters.medicalDevice}
+              label="MPDG"
+              onChange={(event) =>
+                props.onFilterChange({ medicalDevice: event.target.checked })
+              }
+            />
+            <CheckboxField
+              compact
+              checked={props.filters.stkRequired}
+              label="STK"
+              onChange={(event) =>
+                props.onFilterChange({ stkRequired: event.target.checked })
+              }
+            />
+            <CheckboxField
+              compact
+              checked={props.filters.mtkRequired}
+              label="MTK"
+              onChange={(event) =>
+                props.onFilterChange({ mtkRequired: event.target.checked })
+              }
+            />
+            <CheckboxField
+              compact
+              checked={props.filters.criticalDefault}
+              label="Kritisch"
+              onChange={(event) =>
+                props.onFilterChange({ criticalDefault: event.target.checked })
+              }
+            />
           </div>
         </ListFilterBar>
       </PageToolbar>
@@ -395,7 +429,13 @@ export function ArticlePanel(props: {
                   value={draft.unitsPerPackage}
                 />
               </Field>
-              <Field label="Standardpreis brutto">
+              <Field
+                label={
+                  draft.unitsPerPackage
+                    ? "Standardpreis je VE brutto"
+                    : "Standardpreis je Stück brutto"
+                }
+              >
                 <input
                   inputMode="decimal"
                   onChange={(event) =>
@@ -440,10 +480,43 @@ export function ArticlePanel(props: {
               className="article-editor-flags"
             >
               <h3>Merkmale</h3>
-              <CheckboxField checked={draft.sterile} className="article-editor-toggle" label="Steril" onChange={(event) => setDraft((current) => ({ ...current, sterile: event.target.checked }))} />
-              <CheckboxField checked={draft.medicalDevice} className="article-editor-toggle" label="Medizinprodukt (MPDG)" onChange={(event) => setDraft((current) => ({ ...current, medicalDevice: event.target.checked }))} />
+              <CheckboxField
+                checked={draft.sterile}
+                className="article-editor-toggle"
+                label="Steril"
+                onChange={(event) =>
+                  setDraft((current) => ({
+                    ...current,
+                    sterile: event.target.checked,
+                  }))
+                }
+              />
+              <CheckboxField
+                checked={draft.medicalDevice}
+                className="article-editor-toggle"
+                label="Medizinprodukt (MPDG)"
+                onChange={(event) =>
+                  setDraft((current) => ({
+                    ...current,
+                    medicalDevice: event.target.checked,
+                  }))
+                }
+              />
               <div className="article-editor-toggle-group">
-                <CheckboxField checked={draft.stkRequired} className="article-editor-toggle" label="STK erforderlich" onChange={(event) => setDraft((current) => ({ ...current, stkRequired: event.target.checked, stkIntervalMonths: event.target.checked ? current.stkIntervalMonths || "12" : "" }))} />
+                <CheckboxField
+                  checked={draft.stkRequired}
+                  className="article-editor-toggle"
+                  label="STK erforderlich"
+                  onChange={(event) =>
+                    setDraft((current) => ({
+                      ...current,
+                      stkRequired: event.target.checked,
+                      stkIntervalMonths: event.target.checked
+                        ? current.stkIntervalMonths || "12"
+                        : "",
+                    }))
+                  }
+                />
                 {draft.stkRequired ? (
                   <Field
                     className="article-editor-interval"
@@ -465,7 +538,20 @@ export function ArticlePanel(props: {
                 ) : null}
               </div>
               <div className="article-editor-toggle-group">
-                <CheckboxField checked={draft.mtkRequired} className="article-editor-toggle" label="MTK erforderlich" onChange={(event) => setDraft((current) => ({ ...current, mtkRequired: event.target.checked, mtkIntervalMonths: event.target.checked ? current.mtkIntervalMonths || "12" : "" }))} />
+                <CheckboxField
+                  checked={draft.mtkRequired}
+                  className="article-editor-toggle"
+                  label="MTK erforderlich"
+                  onChange={(event) =>
+                    setDraft((current) => ({
+                      ...current,
+                      mtkRequired: event.target.checked,
+                      mtkIntervalMonths: event.target.checked
+                        ? current.mtkIntervalMonths || "12"
+                        : "",
+                    }))
+                  }
+                />
                 {draft.mtkRequired ? (
                   <Field
                     className="article-editor-interval"
@@ -486,7 +572,17 @@ export function ArticlePanel(props: {
                   </Field>
                 ) : null}
               </div>
-              <CheckboxField checked={draft.criticalDefault} className="article-editor-toggle" label="Kritisch als Standard" onChange={(event) => setDraft((current) => ({ ...current, criticalDefault: event.target.checked }))} />
+              <CheckboxField
+                checked={draft.criticalDefault}
+                className="article-editor-toggle"
+                label="Kritisch als Standard"
+                onChange={(event) =>
+                  setDraft((current) => ({
+                    ...current,
+                    criticalDefault: event.target.checked,
+                  }))
+                }
+              />
             </section>
           </div>
           {props.error ? <InlineError error={props.error} /> : null}

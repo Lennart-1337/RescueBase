@@ -157,6 +157,7 @@ describe("PurchaseOrderNewPage", () => {
 
     expect(screen.getByLabelText("Packungen")).toHaveValue(1);
     expect(screen.getByLabelText("Menge")).toHaveValue(10);
+    expect(screen.getByLabelText("Preis je VE")).toBeInTheDocument();
 
     await changeValue(screen.getByLabelText("Packungen"), "3");
     await clickElement(screen.getByRole("button", { name: "Entwurf anlegen" }));

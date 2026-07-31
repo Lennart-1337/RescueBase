@@ -67,6 +67,13 @@ describe("CheckProtocolsPage", () => {
         totalCount: 2,
         total: 1,
       },
+      "/api/checks": {
+        items: [protocol],
+        page: 1,
+        pageSize: 25,
+        totalCount: 2,
+        total: 1,
+      },
       "/api/checks/check-1": {
         ...protocol,
         signaturePngDataUrl: "data:image/png;base64,abc",

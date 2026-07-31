@@ -4,6 +4,7 @@ import { preloadAdminQueries } from "./route-preload";
 import { catalogKeys, catalogQueries } from "../queries/catalog";
 import { authKeys } from "../queries/auth";
 import { resetTestBrowser, stubFetch, wasRequested } from "../test-support/app-test-helpers";
+import { setFetchHandler } from "../test/setup";
 
 describe("route preload", () => {
   afterEach(resetTestBrowser);
@@ -21,7 +22,7 @@ describe("route preload", () => {
     );
 
     expect(wasRequested("/api/auth/setup/status", "GET")).toBe(true);
-    expect(wasRequested("/api/auth/session", "GET")).toBe(true);
+    expect(wasRequested("/api/auth/get-session", "GET")).toBe(true);
     expect(wasRequested("/api/catalog/kits", "GET")).toBe(true);
     expect(queryClient.getQueryData(catalogKeys.kits())).toEqual([]);
   });
@@ -37,7 +38,7 @@ describe("route preload", () => {
     );
 
     expect(wasRequested("/api/auth/setup/status", "GET")).toBe(true);
-    expect(wasRequested("/api/auth/session", "GET")).toBe(false);
+    expect(wasRequested("/api/auth/get-session", "GET")).toBe(false);
     expect(wasRequested("/api/catalog/kits", "GET")).toBe(false);
     expect(queryClient.getQueryData(authKeys.session())).toBeUndefined();
   });
@@ -49,12 +50,12 @@ describe("route preload", () => {
       if (pathname === "/api/auth/setup/status") {
         return new Response(JSON.stringify({ initialized: true }), { status: 200, headers: { "content-type": "application/json" } });
       }
-      if (pathname === "/api/auth/session") {
+      if (pathname === "/api/auth/get-session") {
         return new Response(JSON.stringify({ message: "Unauthorized" }), { status: 401, headers: { "content-type": "application/json" } });
       }
       return new Response(JSON.stringify([]), { status: 200, headers: { "content-type": "application/json" } });
     });
-    vi.stubGlobal("fetch", fetchMock);
+    setFetchHandler(fetchMock);
 
     const queryClient = createRescueBaseQueryClient();
     await preloadAdminQueries(queryClient, () =>
@@ -68,9 +69,9 @@ describe("route preload", () => {
 
     expect(requestedPaths).toEqual([
       "/api/auth/setup/status",
-      "/api/auth/session",
+      "/api/auth/get-session",
     ]);
-    expect(queryClient.getQueryData(authKeys.session())).toBeUndefined();
+    expect(queryClient.getQueryData(authKeys.session())).toBeNull();
     expect(queryClient.getQueryData(catalogKeys.kits())).toBeUndefined();
   });
 });

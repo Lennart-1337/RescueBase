@@ -1631,6 +1631,9 @@ export interface components {
             displayName: string;
             role: components["schemas"]["UserRole"];
             active: boolean;
+            emailVerified: boolean;
+            /** Format: date-time */
+            lastLoginAt?: string;
             twoFactorEnabled: boolean;
             twoFactorMethod?: components["schemas"]["TwoFactorMethod"];
             sessionCount: number;
@@ -2037,6 +2040,7 @@ export interface components {
             manufacturerPartNumber?: string;
             unit: string;
             grossUnitPriceCents: number;
+            unitsPerPackage?: number;
             orderedQuantity: number;
             receivedQuantity: number;
             remainingQuantity: number;

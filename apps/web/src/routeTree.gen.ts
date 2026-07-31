@@ -17,6 +17,7 @@ import { Route as AdminKitsRouteImport } from './routes/admin/kits'
 import { Route as AdminMasterDataRouteImport } from './routes/admin/master-data'
 import { Route as AdminPurchaseOrdersRouteImport } from './routes/admin/purchase-orders'
 import { Route as AdminSettingsRouteImport } from './routes/admin/settings'
+import { Route as AdminUserManagementRouteImport } from './routes/admin/user-management'
 import { Route as AdminUsersRouteImport } from './routes/admin/users'
 import { Route as CheckTokenRouteImport } from './routes/check/$token'
 import { Route as EmailChangeTokenRouteImport } from './routes/email-change/$token'
@@ -73,6 +74,11 @@ const AdminPurchaseOrdersRoute = AdminPurchaseOrdersRouteImport.update({
 const AdminSettingsRoute = AdminSettingsRouteImport.update({
   id: '/admin/settings',
   path: '/admin/settings',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminUserManagementRoute = AdminUserManagementRouteImport.update({
+  id: '/admin/user-management',
+  path: '/admin/user-management',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdminUsersRoute = AdminUsersRouteImport.update({
@@ -175,6 +181,7 @@ export interface FileRoutesByFullPath {
   '/admin/master-data': typeof AdminMasterDataRouteWithChildren
   '/admin/purchase-orders': typeof AdminPurchaseOrdersRouteWithChildren
   '/admin/settings': typeof AdminSettingsRoute
+  '/admin/user-management': typeof AdminUserManagementRoute
   '/admin/users': typeof AdminUsersRoute
   '/check/$token': typeof CheckTokenRoute
   '/email-change/$token': typeof EmailChangeTokenRoute
@@ -200,6 +207,7 @@ export interface FileRoutesByTo {
   '/admin/inventory': typeof AdminInventoryRoute
   '/admin/kits': typeof AdminKitsRoute
   '/admin/settings': typeof AdminSettingsRoute
+  '/admin/user-management': typeof AdminUserManagementRoute
   '/admin/users': typeof AdminUsersRoute
   '/check/$token': typeof CheckTokenRoute
   '/email-change/$token': typeof EmailChangeTokenRoute
@@ -228,6 +236,7 @@ export interface FileRoutesById {
   '/admin/master-data': typeof AdminMasterDataRouteWithChildren
   '/admin/purchase-orders': typeof AdminPurchaseOrdersRouteWithChildren
   '/admin/settings': typeof AdminSettingsRoute
+  '/admin/user-management': typeof AdminUserManagementRoute
   '/admin/users': typeof AdminUsersRoute
   '/check/$token': typeof CheckTokenRoute
   '/email-change/$token': typeof EmailChangeTokenRoute
@@ -257,6 +266,7 @@ export interface FileRouteTypes {
     | '/admin/master-data'
     | '/admin/purchase-orders'
     | '/admin/settings'
+    | '/admin/user-management'
     | '/admin/users'
     | '/check/$token'
     | '/email-change/$token'
@@ -282,6 +292,7 @@ export interface FileRouteTypes {
     | '/admin/inventory'
     | '/admin/kits'
     | '/admin/settings'
+    | '/admin/user-management'
     | '/admin/users'
     | '/check/$token'
     | '/email-change/$token'
@@ -309,6 +320,7 @@ export interface FileRouteTypes {
     | '/admin/master-data'
     | '/admin/purchase-orders'
     | '/admin/settings'
+    | '/admin/user-management'
     | '/admin/users'
     | '/check/$token'
     | '/email-change/$token'
@@ -337,6 +349,7 @@ export interface RootRouteChildren {
   AdminMasterDataRoute: typeof AdminMasterDataRouteWithChildren
   AdminPurchaseOrdersRoute: typeof AdminPurchaseOrdersRouteWithChildren
   AdminSettingsRoute: typeof AdminSettingsRoute
+  AdminUserManagementRoute: typeof AdminUserManagementRoute
   AdminUsersRoute: typeof AdminUsersRoute
   CheckTokenRoute: typeof CheckTokenRoute
   EmailChangeTokenRoute: typeof EmailChangeTokenRoute
@@ -403,6 +416,13 @@ declare module '@tanstack/react-router' {
       path: '/admin/settings'
       fullPath: '/admin/settings'
       preLoaderRoute: typeof AdminSettingsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/user-management': {
+      id: '/admin/user-management'
+      path: '/admin/user-management'
+      fullPath: '/admin/user-management'
+      preLoaderRoute: typeof AdminUserManagementRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/admin/users': {
@@ -573,6 +593,7 @@ const rootRouteChildren: RootRouteChildren = {
   AdminMasterDataRoute: AdminMasterDataRouteWithChildren,
   AdminPurchaseOrdersRoute: AdminPurchaseOrdersRouteWithChildren,
   AdminSettingsRoute: AdminSettingsRoute,
+  AdminUserManagementRoute: AdminUserManagementRoute,
   AdminUsersRoute: AdminUsersRoute,
   CheckTokenRoute: CheckTokenRoute,
   EmailChangeTokenRoute: EmailChangeTokenRoute,
