@@ -4,6 +4,12 @@
 @import "./components/table.css";
 
 :root {
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --font-size-sm: 13px;
   --color-canvas: #f6f8fa;
   --color-canvas-elevated: #f8f9fb;
   --color-canvas-accent: #eef2f7;

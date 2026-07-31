@@ -30,6 +30,10 @@ export default defineConfig({
       interval: 120
     },
     proxy: {
+      "/api/auth": {
+        target: "http://localhost:3000",
+        changeOrigin: true
+      },
       "/api": {
         target: "http://localhost:3000",
         changeOrigin: true,

@@ -22,7 +22,7 @@ type NavigationItem = {
   icon: typeof ClipboardList;
   label: string;
   search?: Record<string, never>;
-  to: "/" | "/admin/kits" | "/admin/inventory" | "/admin/purchase-orders" | "/admin/check-protocols" | "/admin/master-data/articles" | "/admin/users" | "/admin/settings" | "/admin/account";
+  to: "/" | "/admin/kits" | "/admin/inventory" | "/admin/purchase-orders" | "/admin/check-protocols" | "/admin/master-data/articles" | "/admin/user-management" | "/admin/users" | "/admin/settings" | "/admin/account";
 };
 
 export function AdminShell({ children, user, branding }: { children: ReactNode; user: AuthenticatedUser; branding: AppBranding }) {
@@ -44,7 +44,10 @@ export function AdminShell({ children, user, branding }: { children: ReactNode; 
     { icon: ShoppingCart, label: "Bestellungen", search: {}, to: "/admin/purchase-orders" },
     { icon: ClipboardCheck, label: "Check-Protokolle", search: {}, to: "/admin/check-protocols" },
     ...(user.role === "ADMIN" ? [{ icon: Settings, label: "Stammdaten", search: {}, to: "/admin/master-data/articles" as const }] : []),
-    ...(user.role === "ADMIN" ? [{ icon: Users, label: "Benutzer", to: "/admin/users" as const }] : []),
+    ...(user.role === "ADMIN" ? [
+      { icon: Users, label: "Benutzerverwaltung", to: "/admin/user-management" as const },
+      { icon: Users, label: "Benutzer (Legacy)", to: "/admin/users" as const }
+    ] : []),
     ...(user.role === "ADMIN" ? [{ icon: Cog, label: "Einstellungen", to: "/admin/settings" as const }] : []),
     { icon: ShieldCheck, label: "Sicherheit", to: "/admin/account" }
   ] as const;

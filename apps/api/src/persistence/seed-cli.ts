@@ -1,3 +1,4 @@
+import "../config/load-local-environment.js";
 import { createPrismaClient } from "./prisma-client.js";
 import { seedRescueBaseDevelopmentData } from "./seed.js";
 

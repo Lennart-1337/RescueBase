@@ -66,13 +66,10 @@ export class AuthService {
   async createSession(response: Response, userId: string): Promise<void> {
     const token = randomBytes(32).toString("base64url");
     const expiresAt = new Date(Date.now() + SESSION_TTL_MS);
-    await this.prisma.userSession.create({
-      data: {
-        userId,
-        tokenHash: this.hashSessionToken(token),
-        expiresAt
-      }
-    });
+    await this.prisma.$transaction([
+      this.prisma.userSession.create({ data: { userId, tokenHash: this.hashSessionToken(token), expiresAt } }),
+      this.prisma.user.update({ where: { id: userId }, data: { lastLoginAt: new Date() } })
+    ]);
     response.cookie(SESSION_COOKIE_NAME, token, {
       httpOnly: true,
       sameSite: "lax",

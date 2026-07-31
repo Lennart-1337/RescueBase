@@ -35,7 +35,7 @@ describe("Public auth pages", () => {
     stubFetch({
       "/api/auth/setup/status": { initialized: true },
       "/api/auth/session": {},
-      "/api/auth/login": { user: { id: "user-admin", email: "admin@rescuebase.local", displayName: "Admin", role: "ADMIN", twoFactorEnabled: false } }
+      "/api/auth/sign-in/email": { user: { id: "user-admin", email: "admin@rescuebase.local", name: "Admin", role: "ADMIN", twoFactorEnabled: false } }
     });
     await renderAppAt("/");
     const emailInput = await screen.findByLabelText("E-Mail");
@@ -51,7 +51,7 @@ describe("Public auth pages", () => {
     await changeValue(passwordInput, "rescuebase-admin");
     fireEvent.submit(screen.getByRole("button", { name: "Anmelden" }).closest("form") as HTMLFormElement);
 
-    await waitFor(() => expect(postedBody("/api/auth/login")).toEqual({
+    await waitFor(() => expect(postedBody("/api/auth/sign-in/email")).toMatchObject({
       email: "admin@rescuebase.local",
       password: "rescuebase-admin"
     }));
@@ -72,7 +72,7 @@ describe("Public auth pages", () => {
     stubFetch({
       "/api/auth/setup/status": { initialized: true, appName: "RescueBase Pro", appSubtitle: "Bereitschaft Nord", showLogo: true, showAppName: false, showAppSubtitle: true },
       "/api/auth/session": {},
-      "/api/auth/login": { requiresTwoFactor: true, twoFactorMethod: "EMAIL", loginChallengeId: "challenge-1", debugCode: "123456" }
+      "/api/auth/sign-in/email": { twoFactorRedirect: true, twoFactorMethods: ["otp"] }
     });
     await renderAppAt("/");
     expect(await screen.findByText("Bereitschaft Nord")).toBeInTheDocument();
@@ -91,7 +91,7 @@ describe("Public auth pages", () => {
     fireEvent.paste(firstCodeInput, { clipboardData: { getData: () => "12 34 56" } });
     expect(codeInputs.map((input) => input.getAttribute("value"))).toEqual(["1", "2", "3", "4", "5", "6"]);
     expect(codeInputs[5]).toHaveFocus();
-    expect(sessionStorage.getItem("rescuebase.pending-login")).toContain("challenge-1");
+    expect(sessionStorage.getItem("rescuebase.pending-login")).toContain("better-auth");
     expect(localStorage.getItem("rescuebase.pending-login")).toBeNull();
 
     fireEvent.change(firstCodeInput, { target: { value: "654321" } });

@@ -4,7 +4,7 @@ import { Link } from "@tanstack/react-router";
 import { ShieldCheck } from "lucide-react";
 import { InlineError } from "../../components/state-panels";
 import { Button, Field, Panel } from "../../components/ui";
-import { rescueBaseApi } from "../../lib/api";
+import { betterAuthClient } from "../../lib/better-auth-client";
 import { clearPendingLogin, loadPendingLogin, savePendingLogin } from "./pending-login";
 import { AuthProgress } from "./auth-progress";
 import { AnimatedContentSwap } from "../../motion/animated-containers";
@@ -36,25 +36,32 @@ export function LoginForm({ onDone }: { onDone: () => void }) {
     clearPendingLogin();
   }
 
-  function submitLogin() {
-    mutation.mutate(
-      usesPendingLogin
-        ? { loginChallengeId, twoFactorCode }
-        : { email, password, twoFactorCode: twoFactorCode || undefined },
-    );
-  }
+  function submitLogin() { mutation.mutate(); }
 
   const mutation = useMutation({
-    mutationFn: rescueBaseApi.login,
+    mutationFn: async () => {
+      if (usesPendingLogin) {
+        const response = pendingLogin?.twoFactorMethod === "EMAIL"
+          ? await betterAuthClient.twoFactor.verifyOtp({ code: twoFactorCode, trustDevice: false })
+          : await betterAuthClient.twoFactor.verifyTotp({ code: twoFactorCode, trustDevice: false });
+        const { error } = response;
+        if (error) throw error;
+        return { requiresTwoFactor: false };
+      }
+      const { data, error } = await betterAuthClient.signIn.email({ email, password });
+      if (error) throw error;
+      const result = data as { twoFactorRedirect?: boolean; twoFactorMethods?: string[] } | null;
+      return { requiresTwoFactor: result?.twoFactorRedirect === true, twoFactorMethods: result?.twoFactorMethods ?? [] };
+    },
     onSuccess: (result) => {
       if (result.requiresTwoFactor) {
         setRequiresTwoFactor(true);
-        setLoginChallengeId(result.loginChallengeId ?? "");
-        setPendingLogin(result.loginChallengeId && result.twoFactorMethod ? {
+        setLoginChallengeId("better-auth");
+        setPendingLogin({
           email,
-          loginChallengeId: result.loginChallengeId,
-          twoFactorMethod: result.twoFactorMethod
-        } : null);
+          loginChallengeId: "better-auth",
+          twoFactorMethod: result.twoFactorMethods?.includes("otp") ? "EMAIL" : "TOTP"
+        });
         return;
       }
       resetPendingStep();

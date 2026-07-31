@@ -1,5 +1,6 @@
 import type { PrismaClient } from "@prisma/client";
 import { hash } from "bcryptjs";
+import { hashPassword } from "better-auth/crypto";
 
 export async function seedRescueBaseDevelopmentData(
   prisma: PrismaClient,
@@ -13,32 +14,10 @@ export async function seedRescueBaseDevelopmentData(
     12,
   );
 
-  await prisma.user.upsert({
-    where: { email: "admin@rescuebase.local" },
-    update: { passwordHash: adminPasswordHash },
-    create: {
-      id: "user-admin",
-      email: "admin@rescuebase.local",
-      displayName: "Admin",
-      passwordHash: adminPasswordHash,
-      role: "ADMIN",
-      twoFactorEnabled: false,
-      active: true,
-    },
-  });
-  await prisma.user.upsert({
-    where: { email: "lager@rescuebase.local" },
-    update: { passwordHash: warehousePasswordHash },
-    create: {
-      id: "user-lager",
-      email: "lager@rescuebase.local",
-      displayName: "Lagerteam",
-      passwordHash: warehousePasswordHash,
-      role: "WAREHOUSE",
-      twoFactorEnabled: false,
-      active: true,
-    },
-  });
+  await Promise.all([
+    seedDevelopmentUser(prisma, "user-admin", "admin@rescuebase.local", "Admin", "ADMIN", adminPasswordHash, process.env.RESCUEBASE_DEV_ADMIN_PASSWORD ?? "rescuebase-admin"),
+    seedDevelopmentUser(prisma, "user-lager", "lager@rescuebase.local", "Lagerteam", "WAREHOUSE", warehousePasswordHash, process.env.RESCUEBASE_DEV_WAREHOUSE_PASSWORD ?? "rescuebase-lager")
+  ]);
 
   await prisma.location.upsert({
     where: { id: "loc-main" },
@@ -302,5 +281,26 @@ export async function seedRescueBaseDevelopmentData(
         ],
       },
     },
+  });
+}
+
+async function seedDevelopmentUser(
+  prisma: PrismaClient,
+  id: string,
+  email: string,
+  displayName: string,
+  role: "ADMIN" | "WAREHOUSE",
+  legacyPasswordHash: string,
+  password: string
+): Promise<void> {
+  await prisma.user.upsert({
+    where: { email },
+    update: { passwordHash: legacyPasswordHash, emailVerified: true, activationRequired: false, active: true },
+    create: { id, email, displayName, passwordHash: legacyPasswordHash, role, emailVerified: true, twoFactorEnabled: false, active: true }
+  });
+  await prisma.account.upsert({
+    where: { providerId_accountId: { providerId: "credential", accountId: id } },
+    update: { password: await hashPassword(password) },
+    create: { id: `account-${id}`, userId: id, providerId: "credential", accountId: id, password: await hashPassword(password) }
   });
 }

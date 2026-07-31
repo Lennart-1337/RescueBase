@@ -1,15 +1,16 @@
 import { screen, waitFor } from "@testing-library/react";
 import { changeValue, clickElement, renderAppAt, resetTestBrowser } from "../test-support/app-test-helpers";
+import { setFetchHandler } from "../test/setup";
 
 describe("auth boundary", () => {
   afterEach(resetTestBrowser);
 
   it("treats an unauthenticated session as a login state, not an error", async () => {
-    vi.stubGlobal("fetch", vi.fn(async (input: RequestInfo | URL) => {
+    setFetchHandler(vi.fn(async (input: RequestInfo | URL) => {
       const url = typeof input === "string" ? input : input instanceof URL ? input.pathname : input.url;
       const pathname = url.startsWith("http") ? new URL(url).pathname : url;
       if (pathname === "/api/auth/setup/status") return json({ initialized: true });
-      if (pathname === "/api/auth/session") return new Response(JSON.stringify({ message: "Bitte melden Sie sich an." }), { status: 401, headers: { "content-type": "application/json" } });
+      if (pathname === "/api/auth/get-session") return new Response(JSON.stringify({ message: "Bitte melden Sie sich an." }), { status: 401, headers: { "content-type": "application/json" } });
       return new Response(JSON.stringify({ message: `No test route for ${pathname}` }), { status: 404, headers: { "content-type": "application/json" } });
     }));
 
@@ -25,21 +26,21 @@ describe("auth boundary", () => {
     let sessionUser: typeof admin | typeof warehouse | null = admin;
     let kits = [{ id: "kit-admin", name: "Admin Rucksack", code: "SAN-1", status: "READY", locationId: "loc-1", templateId: "tpl-1", publicToken: "KIT-1" }];
 
-    vi.stubGlobal("fetch", vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+    setFetchHandler(vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
       const url = typeof input === "string" ? input : input instanceof URL ? input.pathname : input.url;
       const pathname = url.startsWith("http") ? new URL(url).pathname : url;
       const method = init?.method ?? "GET";
 
       if (pathname === "/api/auth/setup/status") return json({ initialized: true });
-      if (pathname === "/api/auth/session") return json(sessionUser ? { user: sessionUser } : {});
+      if (pathname === "/api/auth/get-session") return json(sessionUser ? { user: { ...sessionUser, name: sessionUser.displayName } } : {});
       if (pathname === "/api/auth/logout" && method === "POST") {
         sessionUser = null;
         return json({});
       }
-      if (pathname === "/api/auth/login" && method === "POST") {
+      if (pathname === "/api/auth/sign-in/email" && method === "POST") {
         sessionUser = warehouse;
         kits = [{ id: "kit-warehouse", name: "Lager Rucksack", code: "SAN-2", status: "READY", locationId: "loc-1", templateId: "tpl-1", publicToken: "KIT-2" }];
-        return json({});
+        return json({ user: { ...warehouse, name: warehouse.displayName } });
       }
       if (pathname === "/api/catalog/kits") return json(kits);
       if (pathname === "/api/catalog/locations") return json([{ id: "loc-1", name: "Hauptlager", kind: "STORAGE" }]);
