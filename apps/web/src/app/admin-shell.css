@@ -141,6 +141,11 @@
 .dashboard-content {
   flex: 1;
   display: grid;
+  align-content: start;
+}
+
+.dashboard-content > .animated-route-view {
+  display: grid;
   gap: 22px;
   align-content: start;
 }

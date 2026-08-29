@@ -20,7 +20,7 @@
   gap: 18px;
 }
 
-.public-legal-header > div {
+.public-legal-heading {
   display: grid;
   gap: 10px;
 }

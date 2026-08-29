@@ -36,6 +36,7 @@ export function AnimatedRouteView({
     <AnimatePresence initial={false}>
       <motion.div
         animate="visible"
+        className="animated-route-view"
         data-motion-mode={mode}
         data-motion-preset="route-enter"
         exit="exit"
