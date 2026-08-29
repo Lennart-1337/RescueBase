@@ -5,21 +5,31 @@ import QRCode from "qrcode";
 import { copyText } from "../../app/clipboard";
 import { InlineError } from "../../components/state-panels";
 import { Button, Field, Panel } from "../../components/ui";
-import { rescueBaseApi } from "../../lib/api";
+import { betterAuthClient } from "../../lib/better-auth-client";
 import { authKeys } from "../../queries/auth";
 import "../../app/auth/auth-form-layout.css";
 import "./account-totp-panel.css";
 
 export function AccountTotpPanel() {
   const queryClient = useQueryClient();
-  const [totpSetup, setTotpSetup] = useState<{ secret: string; otpauthUrl: string } | null>(null);
+  const [totpSetup, setTotpSetup] = useState<TotpSetup | null>(null);
   const [totpQrUrl, setTotpQrUrl] = useState("");
   const [totpCode, setTotpCode] = useState("");
   const [currentPassword, setCurrentPassword] = useState("");
   const [copiedValue, setCopiedValue] = useState("");
-  const setupTotp = useMutation({ mutationFn: rescueBaseApi.setupTotp, onSuccess: (result) => { setTotpSetup(result); setTotpQrUrl(""); setTotpCode(""); } });
+  const setupTotp = useMutation({
+    mutationFn: async () => {
+      const { data, error } = await betterAuthClient.twoFactor.enable({ password: currentPassword });
+      if (error || !data) throw error ?? new Error("TOTP konnte nicht vorbereitet werden.");
+      return toTotpSetup(data);
+    },
+    onSuccess: (result) => { setTotpSetup(result); setTotpQrUrl(""); setTotpCode(""); }
+  });
   const enableTotp = useMutation({
-    mutationFn: rescueBaseApi.enableTotp,
+    mutationFn: async () => {
+      const { error } = await betterAuthClient.twoFactor.verifyTotp({ code: totpCode, trustDevice: false });
+      if (error) throw error;
+    },
     onSuccess: async () => {
       setTotpSetup(null);
       setTotpQrUrl("");
@@ -38,9 +48,9 @@ export function AccountTotpPanel() {
       <div className="panel-header"><div><h2>TOTP einrichten</h2></div><KeyRound /></div>
       <div className="auth-form">
         {!totpSetup ? <Field label="Aktuelles Passwort"><input type="password" value={currentPassword} onChange={(event) => setCurrentPassword(event.target.value)} /></Field> : null}
-        {totpSetup ? <TotpSetupCard copiedValue={copiedValue} onCopy={setCopiedValue} qrUrl={totpQrUrl} setup={totpSetup} /> : <Button disabled={!currentPassword} loading={setupTotp.isPending} onClick={() => setupTotp.mutate({ currentPassword })} type="button">TOTP vorbereiten</Button>}
+        {totpSetup ? <TotpSetupCard copiedValue={copiedValue} onCopy={setCopiedValue} qrUrl={totpQrUrl} setup={totpSetup} /> : <Button disabled={!currentPassword} loading={setupTotp.isPending} onClick={() => setupTotp.mutate()} type="button">TOTP vorbereiten</Button>}
         {totpSetup ? <Field label="TOTP-Code"><input autoComplete="one-time-code" inputMode="numeric" value={totpCode} onChange={(event) => setTotpCode(event.target.value)} /></Field> : null}
-        {totpSetup ? <Button disabled={totpCode.trim().length < 6} loading={enableTotp.isPending} onClick={() => enableTotp.mutate({ code: totpCode })} type="button">TOTP aktivieren</Button> : null}
+        {totpSetup ? <Button disabled={totpCode.trim().length < 6} loading={enableTotp.isPending} onClick={() => enableTotp.mutate()} type="button">TOTP aktivieren</Button> : null}
         {setupTotp.error ? <InlineError error={setupTotp.error} /> : null}
         {enableTotp.error ? <InlineError error={enableTotp.error} /> : null}
       </div>
@@ -48,7 +58,15 @@ export function AccountTotpPanel() {
   );
 }
 
-function TotpSetupCard(props: { copiedValue: string; onCopy: (value: string) => void; qrUrl: string; setup: { secret: string; otpauthUrl: string } }) {
+type TotpSetup = { secret: string; otpauthUrl: string };
+
+function toTotpSetup(data: { totpURI: string }): TotpSetup {
+  const secret = new URL(data.totpURI).searchParams.get("secret");
+  if (!secret) throw new Error("TOTP-URI enthält kein Geheimnis.");
+  return { secret, otpauthUrl: data.totpURI };
+}
+
+function TotpSetupCard(props: { copiedValue: string; onCopy: (value: string) => void; qrUrl: string; setup: TotpSetup }) {
   return (
     <div className="totp-setup-card">
       {props.qrUrl ? <img alt="TOTP-QR-Code" className="totp-qr" src={props.qrUrl} /> : <div className="totp-qr-placeholder">QR wird erzeugt</div>}
