@@ -17,6 +17,14 @@ describe("RescueBase routes", () => {
     expect(router.options.defaultPreload).toBe("intent");
   });
 
+  it("shows the rescue-themed not-found page for unknown routes", async () => {
+    await renderAppAt("/einsatzleitung/vermisst");
+
+    expect(await screen.findByRole("heading", { name: "Dieser Bestandseintrag existiert nicht." })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Zur Übersicht" })).toHaveAttribute("href", "/");
+    expect(document.title).toBe("Seite nicht gefunden | RescueBase");
+  });
+
   it("renders the admin dashboard from routed API data", async () => {
     stubFetch({
       "/api/auth/setup/status": {

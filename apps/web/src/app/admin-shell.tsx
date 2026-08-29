@@ -1,10 +1,11 @@
 import { useState, type ReactNode } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { Link } from "@tanstack/react-router";
+import { Link, useRouterState } from "@tanstack/react-router";
 import { Archive, ClipboardCheck, ClipboardList, Cog, LogOut, Menu, PackageCheck, Settings, ShieldCheck, ShoppingCart, Users, X } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { Button } from "../components/ui";
 import { fadeVariants, slideLeftVariants } from "../motion/presets";
+import { AnimatedRouteView } from "../motion/animated-containers";
 import { useMotionMode } from "../motion/use-motion-mode";
 import { rescueBaseApi } from "../lib/api";
 import type { AuthenticatedUser } from "../lib/types";
@@ -21,13 +22,14 @@ type NavigationItem = {
   icon: typeof ClipboardList;
   label: string;
   search?: Record<string, never>;
-  to: "/" | "/admin/kits" | "/admin/inventory" | "/admin/purchase-orders" | "/admin/check-protocols" | "/admin/master-data/articles" | "/admin/users" | "/admin/settings" | "/admin/account";
+  to: "/" | "/admin/kits" | "/admin/inventory" | "/admin/purchase-orders" | "/admin/check-protocols" | "/admin/master-data/articles" | "/admin/user-management" | "/admin/users" | "/admin/settings" | "/admin/account";
 };
 
 export function AdminShell({ children, user, branding }: { children: ReactNode; user: AuthenticatedUser; branding: AppBranding }) {
   const queryClient = useQueryClient();
   const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
   const motionMode = useMotionMode();
+  const pathname = useRouterState({ select: (state) => state.location.pathname });
   const logout = useMutation({
     mutationFn: rescueBaseApi.logout,
     onSuccess: async () => {
@@ -42,7 +44,10 @@ export function AdminShell({ children, user, branding }: { children: ReactNode; 
     { icon: ShoppingCart, label: "Bestellungen", search: {}, to: "/admin/purchase-orders" },
     { icon: ClipboardCheck, label: "Check-Protokolle", search: {}, to: "/admin/check-protocols" },
     ...(user.role === "ADMIN" ? [{ icon: Settings, label: "Stammdaten", search: {}, to: "/admin/master-data/articles" as const }] : []),
-    ...(user.role === "ADMIN" ? [{ icon: Users, label: "Benutzer", to: "/admin/users" as const }] : []),
+    ...(user.role === "ADMIN" ? [
+      { icon: Users, label: "Benutzerverwaltung", to: "/admin/user-management" as const },
+      { icon: Users, label: "Benutzer (Legacy)", to: "/admin/users" as const }
+    ] : []),
     ...(user.role === "ADMIN" ? [{ icon: Cog, label: "Einstellungen", to: "/admin/settings" as const }] : []),
     { icon: ShieldCheck, label: "Sicherheit", to: "/admin/account" }
   ] as const;
@@ -121,7 +126,7 @@ export function AdminShell({ children, user, branding }: { children: ReactNode; 
         ) : null}
       </AnimatePresence>
       <main className="dashboard">
-        <div className="dashboard-content">{children}</div>
+        <div className="dashboard-content"><AnimatedRouteView routeKey={pathname}>{children}</AnimatedRouteView></div>
         <div className="dashboard-footer">
           <div className="dashboard-footer-meta">
             <LegalLinks className="dashboard-legal" />

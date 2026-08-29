@@ -13,7 +13,8 @@ const categories: AlertCategoryOption[] = [
   { key: "EXPIRY", label: "Ablauf" },
   { key: "STK_DUE", label: "STK" },
   { key: "MTK_DUE", label: "MTK" },
-  { key: "SHORTAGE", label: "Fehlbestand" }
+  { key: "SHORTAGE", label: "Fehlbestand" },
+  { key: "KIT_CHECK_DUE", label: "Rucksackprüfung" }
 ];
 
 export function AccountAlertsPanel() {

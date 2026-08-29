@@ -2,8 +2,8 @@ import { Injectable } from "@nestjs/common";
 import type { Prisma } from "@prisma/client";
 import { AuditService } from "../services/audit.service.js";
 import { PrismaService } from "../persistence/prisma.service.js";
-import type { AlertSettingsInput, GeneralSettingsInput, InventorySettingsInput } from "./settings.types.js";
-import { validateBoolean, validateDisplayText, validateTime, validateTimezone, validateWarningWindow } from "./settings-validation.js";
+import type { AlertSettingsInput, GeneralSettingsInput, InventorySettingsInput, KitCheckSettingsInput } from "./settings.types.js";
+import { validateBoolean, validateDisplayText, validateIntegerRange, validateTime, validateTimezone, validateWarningWindow } from "./settings-validation.js";
 import { defaultTimezone } from "./default-timezone.js";
 import { NotificationTemplatesService } from "./notification-templates.service.js";
 
@@ -19,13 +19,14 @@ export class SettingsService {
   constructor(private readonly prisma: PrismaService, private readonly audit: AuditService, private readonly templates: NotificationTemplatesService) {}
 
   async getAll() {
-    const [general, alerts, inventory, templates] = await Promise.all([
-      this.ensureGeneral(), this.ensureAlerts(), this.ensureInventory(), this.templates.list()
+    const [general, alerts, inventory, kitChecks, templates] = await Promise.all([
+      this.ensureGeneral(), this.ensureAlerts(), this.ensureInventory(), this.ensureKitChecks(), this.templates.list()
     ]);
     return {
       general: this.generalView(general),
       alerts: await this.alertsView(alerts),
       inventory: this.inventoryView(inventory),
+      kitChecks: this.kitChecksView(kitChecks),
       templates
     };
   }
@@ -78,6 +79,16 @@ export class SettingsService {
     return this.inventoryView(row);
   }
 
+  async updateKitChecks(input: KitCheckSettingsInput) {
+    const data: Prisma.KitCheckScheduleConfigUpdateInput = {};
+    if (input.enabled !== undefined) data.enabled = validateBoolean(input.enabled, "Monatliche Rucksackprüfung");
+    if (input.intervalMonths !== undefined) data.intervalMonths = validateIntegerRange(input.intervalMonths, "Prüfintervall", 1, 24);
+    if (input.warningLeadDays !== undefined) data.warningLeadDays = validateIntegerRange(input.warningLeadDays, "Warnvorlauf", 0, 365);
+    const row = await this.prisma.kitCheckScheduleConfig.upsert({ where: { id: singletonId }, update: data, create: { id: singletonId, ...data as Prisma.KitCheckScheduleConfigCreateInput } });
+    await this.record("KIT_CHECK_SCHEDULE_CONFIG_UPDATED", data);
+    return this.kitChecksView(row);
+  }
+
   private ensureGeneral() {
     return this.prisma.appSettings.upsert({
       where: { id: singletonId },
@@ -100,6 +111,10 @@ export class SettingsService {
 
   private ensureInventory() {
     return this.prisma.inventoryAutomationConfig.upsert({ where: { id: singletonId }, update: {}, create: { id: singletonId } });
+  }
+
+  private ensureKitChecks() {
+    return this.prisma.kitCheckScheduleConfig.upsert({ where: { id: singletonId }, update: {}, create: { id: singletonId } });
   }
 
   private generalView(row: {
@@ -137,6 +152,10 @@ export class SettingsService {
 
   private inventoryView(row: { enabled: boolean; dailyReconcileTime: string; lastReconciledAt: Date | null }) {
     return { enabled: row.enabled, dailyReconcileTime: row.dailyReconcileTime, lastReconciledAt: row.lastReconciledAt?.toISOString() ?? null };
+  }
+
+  private kitChecksView(row: { enabled: boolean; intervalMonths: number; warningLeadDays: number }) {
+    return { enabled: row.enabled, intervalMonths: row.intervalMonths, warningLeadDays: row.warningLeadDays };
   }
 
   private record(action: string, payload: Record<string, unknown>) {

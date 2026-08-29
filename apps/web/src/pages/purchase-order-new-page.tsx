@@ -62,7 +62,12 @@ export function PurchaseOrderNewPage() {
     onSuccess: (orders) => onCreated(orders[0]),
   });
 
-  if (articles.isLoading || suppliers.isLoading || locations.isLoading || targets.isLoading)
+  if (
+    articles.isLoading ||
+    suppliers.isLoading ||
+    locations.isLoading ||
+    targets.isLoading
+  )
     return <LoadingPanel label="Bestellung wird vorbereitet" />;
   if (
     articles.isError ||
@@ -76,7 +81,9 @@ export function PurchaseOrderNewPage() {
   ) {
     return (
       <ErrorPanel
-        error={toError(articles.error ?? suppliers.error ?? locations.error ?? targets.error)}
+        error={toError(
+          articles.error ?? suppliers.error ?? locations.error ?? targets.error,
+        )}
         onRetry={() =>
           void Promise.all([
             articles.refetch(),
@@ -289,9 +296,7 @@ export function PurchaseOrderNewPage() {
               </section>
               <div className="purchase-order-new-actions">
                 <Button
-                  disabled={
-                    !canSubmitShortages
-                  }
+                  disabled={!canSubmitShortages}
                   loading={createFromShortages.isPending}
                   onClick={submitShortages}
                   type="button"
@@ -457,7 +462,7 @@ function ManualLine(props: {
             1 VE = {unitsPerPackage} {article?.unit}
           </p>
         ) : null}
-        <Field label="Preis">
+        <Field label={unitsPerPackage ? "Preis je VE" : "Preis je Stück"}>
           <input
             inputMode="decimal"
             onChange={(event) => props.onUpdate({ price: event.target.value })}

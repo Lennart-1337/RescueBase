@@ -4,8 +4,11 @@ import { Link } from "@tanstack/react-router";
 import { ShieldCheck } from "lucide-react";
 import { InlineError } from "../../components/state-panels";
 import { Button, Field, Panel } from "../../components/ui";
-import { rescueBaseApi } from "../../lib/api";
+import { betterAuthClient } from "../../lib/better-auth-client";
 import { clearPendingLogin, loadPendingLogin, savePendingLogin } from "./pending-login";
+import { AuthProgress } from "./auth-progress";
+import { AnimatedContentSwap } from "../../motion/animated-containers";
+import { TwoFactorCodeInput } from "./two-factor-code-input";
 import "./auth-form-layout.css";
 
 export function LoginForm({ onDone }: { onDone: () => void }) {
@@ -33,25 +36,36 @@ export function LoginForm({ onDone }: { onDone: () => void }) {
     clearPendingLogin();
   }
 
-  function submitLogin() {
-    mutation.mutate(
-      usesPendingLogin
-        ? { loginChallengeId, twoFactorCode }
-        : { email, password, twoFactorCode: twoFactorCode || undefined },
-    );
-  }
+  function submitLogin() { mutation.mutate(); }
 
   const mutation = useMutation({
-    mutationFn: rescueBaseApi.login,
+    mutationFn: async () => {
+      if (usesPendingLogin) {
+        const response = pendingLogin?.twoFactorMethod === "EMAIL"
+          ? await betterAuthClient.twoFactor.verifyOtp({ code: twoFactorCode, trustDevice: false })
+          : await betterAuthClient.twoFactor.verifyTotp({ code: twoFactorCode, trustDevice: false });
+        const { error } = response;
+        if (error) throw error;
+        return { requiresTwoFactor: false };
+      }
+      const { data, error } = await betterAuthClient.signIn.email({ email, password });
+      if (error) throw error;
+      const result = data as { twoFactorRedirect?: boolean; twoFactorMethods?: string[] } | null;
+      if (result?.twoFactorRedirect && result.twoFactorMethods?.includes("otp")) {
+        const { error: otpError } = await betterAuthClient.twoFactor.sendOtp();
+        if (otpError) throw otpError;
+      }
+      return { requiresTwoFactor: result?.twoFactorRedirect === true, twoFactorMethods: result?.twoFactorMethods ?? [] };
+    },
     onSuccess: (result) => {
       if (result.requiresTwoFactor) {
         setRequiresTwoFactor(true);
-        setLoginChallengeId(result.loginChallengeId ?? "");
-        setPendingLogin(result.loginChallengeId && result.twoFactorMethod ? {
+        setLoginChallengeId("better-auth");
+        setPendingLogin({
           email,
-          loginChallengeId: result.loginChallengeId,
-          twoFactorMethod: result.twoFactorMethod
-        } : null);
+          loginChallengeId: "better-auth",
+          twoFactorMethod: result.twoFactorMethods?.includes("totp") ? "TOTP" : "EMAIL"
+        });
         return;
       }
       resetPendingStep();
@@ -64,7 +78,7 @@ export function LoginForm({ onDone }: { onDone: () => void }) {
 
   return (
     <Panel className="auth-panel">
-      <div className="panel-header"><div><h2>Anmelden</h2></div><ShieldCheck /></div>
+      <div className="panel-header"><div><h2>Anmelden</h2><p>Sicherer Zugang zum Sanitätslager.</p></div><ShieldCheck /></div>
       <form
         className="auth-form"
         onSubmit={(event) => {
@@ -72,9 +86,15 @@ export function LoginForm({ onDone }: { onDone: () => void }) {
           if (canSubmit && !mutation.isPending) submitLogin();
         }}
       >
-        <Field label="E-Mail"><input autoComplete="email" autoFocus={!usesPendingLogin} disabled={usesPendingLogin} type="email" value={email} onChange={(event) => setEmail(event.target.value)} /></Field>
-        {!usesPendingLogin ? <Field label="Passwort"><input autoComplete="current-password" type="password" value={password} onChange={(event) => setPassword(event.target.value)} /></Field> : null}
-        {requiresTwoFactor ? <Field label="2FA-Code"><input autoComplete="one-time-code" autoFocus={usesPendingLogin} inputMode="numeric" value={twoFactorCode} onChange={(event) => setTwoFactorCode(event.target.value)} /></Field> : null}
+        <AuthProgress currentStep={usesPendingLogin ? 2 : 1} />
+        <AnimatedContentSwap contentKey={usesPendingLogin ? "two-factor" : "credentials"}>
+          <div className="auth-step-fields">
+            {usesPendingLogin ? <TwoFactorCodeInput onChange={setTwoFactorCode} value={twoFactorCode} /> : <>
+              <Field label="E-Mail" required><input autoCapitalize="none" autoComplete="email" autoFocus required spellCheck={false} type="email" value={email} onChange={(event) => setEmail(event.target.value)} /></Field>
+              <Field label="Passwort" required><input autoComplete="current-password" required type="password" value={password} onChange={(event) => setPassword(event.target.value)} /></Field>
+            </>}
+          </div>
+        </AnimatedContentSwap>
         {mutation.error ? <InlineError error={mutation.error} /> : null}
         <Button disabled={!canSubmit} loading={mutation.isPending} type="submit">Anmelden</Button>
         {usesPendingLogin ? <Button onClick={resetPendingStep} type="button" variant="ghost">Neu starten</Button> : null}

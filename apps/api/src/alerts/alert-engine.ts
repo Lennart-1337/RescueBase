@@ -1,7 +1,7 @@
 const warningWindowDays = 90;
 
-export type AlertCategory = "EXPIRY" | "STK_DUE" | "MTK_DUE" | "SHORTAGE";
-export type AlertSource = "BATCH" | "MEDICAL_DEVICE" | "INVENTORY_TARGET";
+export type AlertCategory = "EXPIRY" | "STK_DUE" | "MTK_DUE" | "SHORTAGE" | "KIT_CHECK_DUE";
+export type AlertSource = "BATCH" | "MEDICAL_DEVICE" | "INVENTORY_TARGET" | "KIT";
 
 export type AlertWarning = {
   category: AlertCategory;
@@ -59,12 +59,39 @@ type TargetInput = {
   unit: string;
 };
 
-export function buildAlertWarnings(input: { batches: BatchInput[]; devices: DeviceInput[]; targets?: TargetInput[] }, now = new Date(), alertDays = warningWindowDays): AlertWarning[] {
+type KitInput = {
+  id: string;
+  name: string;
+  code: string;
+  locationId: string;
+  locationName: string;
+  createdAt: Date;
+  lastCheckedAt: Date | null;
+};
+
+export function buildAlertWarnings(input: { batches: BatchInput[]; devices: DeviceInput[]; targets?: TargetInput[]; kits?: KitInput[]; kitCheckSchedule?: { enabled: boolean; intervalMonths: number; warningLeadDays: number } }, now = new Date(), alertDays = warningWindowDays): AlertWarning[] {
   return [
     ...input.batches.flatMap((batch) => buildBatchWarnings(batch, now, alertDays)),
     ...input.devices.flatMap((device) => buildDeviceWarnings(device, now, alertDays)),
-    ...(input.targets ?? []).flatMap((target) => buildTargetWarnings(target, now))
+    ...(input.targets ?? []).flatMap((target) => buildTargetWarnings(target, now)),
+    ...(input.kitCheckSchedule?.enabled === false ? [] : (input.kits ?? []).flatMap((kit) => buildKitCheckWarnings(kit, now, input.kitCheckSchedule)))
   ];
+}
+
+function buildKitCheckWarnings(kit: KitInput, now: Date, schedule?: { intervalMonths: number; warningLeadDays: number }): AlertWarning[] {
+  const dueAt = addMonths(kit.lastCheckedAt ?? kit.createdAt, schedule?.intervalMonths ?? 1);
+  if (daysBetween(now, dueAt) > (schedule?.warningLeadDays ?? 0)) return [];
+  return [{
+    category: "KIT_CHECK_DUE",
+    sourceType: "KIT",
+    sourceId: kit.id,
+    locationId: kit.locationId,
+    locationName: kit.locationName,
+    title: `Rucksackprüfung überfällig: ${kit.name}`,
+    details: `${kit.name} (${kit.code}) hätte bis zum ${dueAt.toISOString().slice(0, 10)} geprüft werden müssen.`,
+    dueAt: dueAt.toISOString(),
+    metadata: { kitCode: kit.code, lastCheckedAt: kit.lastCheckedAt?.toISOString() ?? null }
+  }];
 }
 
 export function computeControlDueDate(lastControlAt: Date | null, intervalMonths: number, now = new Date()): string {

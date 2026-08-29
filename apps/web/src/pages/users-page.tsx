@@ -7,6 +7,7 @@ import { ErrorPanel, LoadingPanel } from "../components/state-panels";
 import { PageHeader, PageSection } from "../components/page-layout";
 import { Badge, Button } from "../components/ui";
 import { Plus } from "lucide-react";
+import { Link } from "@tanstack/react-router";
 import { userKeys, userQueries } from "../queries/users";
 import { AlertRecipientsPanel } from "./users/alert-recipients-panel";
 import { UserInvitationPanel } from "./users/user-invitation-panel";
@@ -14,7 +15,7 @@ import { UserListPanel } from "./users/user-list-panel";
 import { UserProfileDialog } from "./users/user-profile-dialog";
 import { UserSecurityDialog, type UserSecurityAction } from "./users/user-security-dialog";
 
-export function UsersPage({ user }: { user: AuthenticatedUser }) {
+export function UsersPage({ isLegacy = false, user }: { isLegacy?: boolean; user: AuthenticatedUser }) {
   const [inviteOpen, setInviteOpen] = useState(false);
   const [profileUserId, setProfileUserId] = useState("");
   const [securityUserId, setSecurityUserId] = useState("");
@@ -42,7 +43,12 @@ export function UsersPage({ user }: { user: AuthenticatedUser }) {
 
   return (
     <>
-      <PageHeader actions={<><Badge tone="info">{users.data.length} Konten</Badge><Button onClick={() => setInviteOpen(true)} type="button"><Plus data-icon="inline-start" />Benutzer einladen</Button></>} title="Benutzer" />
+      <PageHeader
+        actions={<><Badge tone="info">{users.data.length} Konten</Badge><Button onClick={() => setInviteOpen(true)} type="button"><Plus data-icon="inline-start" />Benutzer einladen</Button></>}
+        description={isLegacy ? "Diese Ansicht bleibt für eine Release-Phase verfügbar und wird nach der Abnahme dieser Release-Phase entfernt." : "Konten, Rollen, Einladungen und Zugangsschutz zentral verwalten."}
+        title={isLegacy ? "Benutzerverwaltung (Legacy)" : "Benutzerverwaltung"}
+      />
+      {isLegacy ? <Link className="text-link" to="/admin/user-management">Zur neuen Benutzerverwaltung</Link> : null}
       <UserListPanel currentUserId={user.id} error={toggle.error ?? deleteUser.error ?? updateUser.error ?? resendInvitation.error ?? revokeInvitation.error ?? security.error ?? null} isSubmitting={toggle.isPending || deleteUser.isPending || updateUser.isPending || resendInvitation.isPending || revokeInvitation.isPending || security.isPending} onDelete={(id) => deleteUser.mutate(id)} onEditProfile={(entry) => setProfileUserId(entry.id)} onResendInvitation={(entry) => resendInvitation.mutate(entry.id)} onRevokeInvitation={(entry) => { if (window.confirm(`Einladung für ${entry.displayName} wirklich widerrufen?`)) revokeInvitation.mutate(entry.id); }} onSecurity={(entry) => setSecurityUserId(entry.id)} onToggle={(id, active) => toggle.mutate({ active, id })} users={users.data} />
       <PageSection title="Alarmempfänger"><AlertRecipientsPanel /></PageSection>
       <UserInvitationPanel error={invite.error ?? null} isOpen={inviteOpen} isSubmitting={invite.isPending} onClose={() => setInviteOpen(false)} onInvite={invite.mutateAsync} />

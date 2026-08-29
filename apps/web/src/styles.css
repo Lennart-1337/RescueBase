@@ -4,6 +4,12 @@
 @import "./components/table.css";
 
 :root {
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --font-size-sm: 13px;
   --color-canvas: #f6f8fa;
   --color-canvas-elevated: #f8f9fb;
   --color-canvas-accent: #eef2f7;
@@ -184,6 +190,11 @@ a {
   text-decoration: none;
 }
 
+a:focus-visible {
+  outline: 2px solid var(--color-focus-border);
+  outline-offset: 3px;
+}
+
 input::placeholder,
 textarea::placeholder {
   color: var(--color-text-faint);
@@ -192,6 +203,17 @@ textarea::placeholder {
 ::selection {
   background: var(--color-selection-background);
   color: var(--color-selection-text);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
 }
 
 .warning-panel svg {

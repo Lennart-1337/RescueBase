@@ -2,6 +2,11 @@
   tls /srv/certs/origin-cert.pem /srv/certs/origin-key.pem
   encode zstd gzip
 
+  # Better Auth is mounted at /api/auth, while Nest domain routes omit /api.
+  handle /api/auth/* {
+    reverse_proxy api:3000
+  }
+
   handle_path /api/* {
     reverse_proxy api:3000
   }

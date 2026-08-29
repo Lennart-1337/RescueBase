@@ -14,6 +14,7 @@ const settings = {
   },
   alerts: { dailyDigestEnabled: true, dailyDigestTime: "06:00", warningWindowDays: 90, lastDigestRunAt: null, lastDigestSentAt: null },
   inventory: { enabled: true, dailyReconcileTime: "02:00", lastReconciledAt: null },
+  kitChecks: { enabled: true, intervalMonths: 1, warningLeadDays: 0 },
   templates: [{
     key: "ALERT_DIGEST", subjectTemplate: "Tägliche Übersicht", introTemplate: "Guten Morgen", bodyTemplate: "{{alertCount}} offene Warnungen", allowedPlaceholders: ["alertCount"]
   }]
@@ -30,7 +31,8 @@ describe("SettingsPage", () => {
       "/api/admin/settings/general": { ...settings.general, appName: "RescueBase Pro", appSubtitle: "Bereitschaft Nord", showAppName: true, timezone: "Europe/Madrid" },
       "/api/admin/settings/alerts": { ...settings.alerts, dailyDigestTime: "07:30" },
       "/api/admin/settings/alerts/digest": { recipientCount: 0, warningCount: 0 },
-      "/api/admin/settings/inventory": { ...settings.inventory, enabled: false }
+      "/api/admin/settings/inventory": { ...settings.inventory, enabled: false },
+      "/api/admin/settings/kit-checks": { ...settings.kitChecks, intervalMonths: 2, warningLeadDays: 7 }
     });
     await renderAppAt("/admin/settings");
     expect(await screen.findByRole("heading", { name: "App-Einstellungen" })).toBeInTheDocument();
@@ -78,6 +80,12 @@ describe("SettingsPage", () => {
     await clickElement(within(inventory).getByRole("checkbox", { name: "Automatische Bestandsprüfung aktiv" }));
     await clickElement(within(inventory).getByRole("button", { name: "Speichern" }));
     await waitFor(() => expect(postedBody("/api/admin/settings/inventory")).toEqual({ enabled: false, dailyReconcileTime: "02:00" }));
+
+    const kitChecks = screen.getByRole("region", { name: "Rucksackprüfungen" });
+    await changeValue(within(kitChecks).getByLabelText("Prüfintervall in Monaten"), "2");
+    await changeValue(within(kitChecks).getByLabelText("Warnvorlauf in Tagen"), "7");
+    await clickElement(within(kitChecks).getByRole("button", { name: "Speichern" }));
+    await waitFor(() => expect(postedBody("/api/admin/settings/kit-checks")).toEqual({ enabled: true, intervalMonths: 2, warningLeadDays: 7 }));
   });
 
   it("edits and previews operational email templates", async () => {

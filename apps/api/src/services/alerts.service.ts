@@ -14,6 +14,7 @@ type WarningInput = Parameters<typeof buildAlertWarnings>[0];
 type BatchWarningInput = WarningInput["batches"][number];
 type DeviceWarningInput = WarningInput["devices"][number];
 type TargetWarningInput = NonNullable<WarningInput["targets"]>[number];
+type KitWarningInput = NonNullable<WarningInput["kits"]>[number];
 
 type AlertEventRecord = {
   id: string;
@@ -90,7 +91,8 @@ export class AlertsService implements OnApplicationBootstrap, OnModuleDestroy {
         expiry: warnings.filter((warning) => warning.category === AlertCategory.EXPIRY).length,
         stkDue: warnings.filter((warning) => warning.category === AlertCategory.STK_DUE).length,
         mtkDue: warnings.filter((warning) => warning.category === AlertCategory.MTK_DUE).length,
-        shortage: warnings.filter((warning) => warning.category === AlertCategory.SHORTAGE).length
+        shortage: warnings.filter((warning) => warning.category === AlertCategory.SHORTAGE).length,
+        kitCheckDue: warnings.filter((warning) => warning.category === AlertCategory.KIT_CHECK_DUE).length
       }
     };
   }
@@ -125,6 +127,7 @@ export class AlertsService implements OnApplicationBootstrap, OnModuleDestroy {
   async syncAlerts(reason: string) {
     const now = new Date();
     const config = await this.ensureConfig();
+    const kitCheckSchedule = await this.prisma.kitCheckScheduleConfig.upsert({ where: { id: configId }, update: {}, create: { id: configId } });
     const batchRows = await this.prisma.batch.findMany({
       where: { deletedAt: null, quantity: { gt: 0 } },
       include: { article: true, location: true },
@@ -138,6 +141,11 @@ export class AlertsService implements OnApplicationBootstrap, OnModuleDestroy {
     const targetRows = await this.prisma.inventoryTarget.findMany({
       include: { article: true, location: true },
       orderBy: [{ article: { name: "asc" } }, { location: { name: "asc" } }]
+    });
+    const kitRows = await this.prisma.kit.findMany({
+      where: { deletedAt: null },
+      include: { location: true, checks: { orderBy: { createdAt: "desc" }, take: 1, select: { createdAt: true } } },
+      orderBy: [{ name: "asc" }]
     });
     const usableStock = await this.usableStockMap(now);
     const warnings = buildAlertWarnings(
@@ -185,7 +193,17 @@ export class AlertsService implements OnApplicationBootstrap, OnModuleDestroy {
             shortageQuantity: Math.max(row.targetQuantity - currentQuantity, 0),
             unit: row.article.unit
           };
-        })
+        }),
+        kits: kitRows.map((row): KitWarningInput => ({
+          id: row.id,
+          name: row.name,
+          code: row.code,
+          locationId: row.locationId,
+          locationName: row.location.name,
+          createdAt: row.createdAt,
+          lastCheckedAt: row.checks[0]?.createdAt ?? null
+        })),
+        kitCheckSchedule
       },
       now,
       config.warningWindowDays
@@ -440,6 +458,8 @@ export class AlertsService implements OnApplicationBootstrap, OnModuleDestroy {
       ? "/admin/inventory?warning=expiry"
       : category === AlertCategory.SHORTAGE
         ? "/admin/inventory"
+        : category === AlertCategory.KIT_CHECK_DUE
+          ? "/admin/kits"
         : "/admin/master-data?tab=devices";
   }
 

@@ -107,4 +107,20 @@ describe("alert engine", () => {
     expect(computeControlDueDate(null, 12, new Date("2026-06-15T00:00:00.000Z"))).toBe("2026-06-15T00:00:00.000Z");
     expect(computeControlDueDate(new Date("2026-01-31T00:00:00.000Z"), 1, new Date("2026-06-15T00:00:00.000Z"))).toBe("2026-02-28T00:00:00.000Z");
   });
+
+  it("warns only after a kit's monthly check is overdue", () => {
+    const kit = { id: "kit-1", name: "Notfallrucksack 1", code: "NR-01", locationId: "loc-1", locationName: "Hauptlager", createdAt: new Date("2026-05-31T00:00:00.000Z"), lastCheckedAt: new Date("2026-05-31T00:00:00.000Z") };
+    const warnings = buildAlertWarnings({ batches: [], devices: [], kits: [kit] }, new Date("2026-07-01T00:00:00.000Z"));
+
+    expect(warnings).toEqual([expect.objectContaining({ category: "KIT_CHECK_DUE", sourceType: "KIT", sourceId: "kit-1", dueAt: "2026-06-30T00:00:00.000Z" })]);
+  });
+
+  it("uses the configured kit check interval and warning lead time", () => {
+    const kit = { id: "kit-1", name: "Notfallrucksack 1", code: "NR-01", locationId: "loc-1", locationName: "Hauptlager", createdAt: new Date("2026-05-01T00:00:00.000Z"), lastCheckedAt: new Date("2026-05-01T00:00:00.000Z") };
+    const input = { batches: [], devices: [], kits: [kit], kitCheckSchedule: { enabled: true, intervalMonths: 2, warningLeadDays: 7 } };
+
+    expect(buildAlertWarnings(input, new Date("2026-06-23T00:00:00.000Z"))).toHaveLength(0);
+    expect(buildAlertWarnings(input, new Date("2026-06-24T00:00:00.000Z"))).toHaveLength(1);
+    expect(buildAlertWarnings({ ...input, kitCheckSchedule: { ...input.kitCheckSchedule, enabled: false } }, new Date("2026-07-02T00:00:00.000Z"))).toHaveLength(0);
+  });
 });

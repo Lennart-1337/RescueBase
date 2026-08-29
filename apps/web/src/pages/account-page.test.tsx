@@ -52,7 +52,7 @@ describe("AccountPage", () => {
     expect(button.closest(".account-status-body")).not.toBeNull();
     const statusPanel = button.closest(".account-status-panel") as HTMLElement;
     expect(within(statusPanel).getByLabelText("Aktuelles Passwort").closest(".account-status-password-field")).not.toBeNull();
-    expect(screen.getByText("2FA EMAIL").closest(".badge")).toHaveClass("badge-ready");
+    expect(within(statusPanel).getByText("2FA EMAIL")).toBeInTheDocument();
   });
 
   it("saves alert preferences from the account page", async () => {

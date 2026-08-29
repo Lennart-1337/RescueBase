@@ -14,6 +14,11 @@
   gap: 14px;
 }
 
+.auth-step-fields {
+  display: grid;
+  gap: 14px;
+}
+
 .text-link {
   color: var(--color-text-muted);
   font-size: 13px;

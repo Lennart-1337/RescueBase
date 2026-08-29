@@ -21,7 +21,7 @@ export function PasswordResetRequestScreen() {
           if (email.trim() && !mutation.isPending) mutation.mutate({ email });
         }}
       >
-        <Field label="E-Mail"><input autoFocus type="email" value={email} onChange={(event) => setEmail(event.target.value)} /></Field>
+        <Field label="E-Mail" required><input autoCapitalize="none" autoComplete="email" autoFocus required spellCheck={false} type="email" value={email} onChange={(event) => setEmail(event.target.value)} /></Field>
         {mutation.error ? <InlineError error={mutation.error} /> : null}
         <Button disabled={!email.trim()} loading={mutation.isPending} type="submit">Reset-Link senden</Button>
         <Link className="text-link" search={{}} to="/">Zur Anmeldung</Link>

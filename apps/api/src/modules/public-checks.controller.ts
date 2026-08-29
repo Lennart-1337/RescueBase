@@ -8,6 +8,7 @@ import {
 } from "@rescuebase/domain";
 import { AuditService } from "../services/audit.service.js";
 import { OrderNotificationsService } from "../services/order-notifications.service.js";
+import { AlertsService } from "../services/alerts.service.js";
 import { PrismaService } from "../persistence/prisma.service.js";
 import { mapOrder, mapTemplate, toIsoDateTime, type KitRecord } from "../persistence/mappers.js";
 import { PublicRoute } from "../auth/auth.decorators.js";
@@ -26,7 +27,8 @@ export class PublicChecksController {
   constructor(
     private readonly prisma: PrismaService,
     private readonly audit: AuditService,
-    private readonly orderNotifications: OrderNotificationsService
+    private readonly orderNotifications: OrderNotificationsService,
+    private readonly alerts: AlertsService
   ) {}
 
   @Get(":token")
@@ -137,6 +139,7 @@ export class PublicChecksController {
     if (result.replenishmentOrder) {
       await this.orderNotifications.notifyNewOrder(result.replenishmentOrder.id);
     }
+    await this.alerts.syncAlerts("kit-check-completed");
 
     return {
       check: {

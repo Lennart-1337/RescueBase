@@ -17,5 +17,5 @@ export const Route = createFileRoute("/admin/users")({
 });
 
 function UsersRoute() {
-  return <AdminRoute>{(user) => <UsersPage user={user} />}</AdminRoute>;
+  return <AdminRoute>{(user) => <UsersPage isLegacy user={user} />}</AdminRoute>;
 }

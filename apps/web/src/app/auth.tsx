@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { ErrorPanel, LoadingPanel } from "../components/state-panels";
+import { ApiError } from "../lib/api";
 import type { AuthenticatedUser } from "../lib/types";
 import { authKeys, authQueries } from "../queries/auth";
 import type { AppBranding } from "./branding";
@@ -17,10 +18,11 @@ export function AdminAuthGate({ children }: { children: (user: AuthenticatedUser
   const queryClient = useQueryClient();
   const setup = useQuery(authQueries.setupStatus());
   const session = useQuery(authQueries.session(setup.data?.initialized === true));
+  const sessionIsUnauthenticated = session.error instanceof ApiError && session.error.status === 401;
   const pageTitle =
     setup.isLoading || (setup.data?.initialized && session.isLoading)
       ? "RescueBase wird geladen"
-      : setup.isError || session.isError
+      : setup.isError || (session.isError && !sessionIsUnauthenticated)
         ? "Fehler"
         : setup.data && !setup.data.initialized
           ? "Erstadmin einrichten"
@@ -35,10 +37,10 @@ export function AdminAuthGate({ children }: { children: (user: AuthenticatedUser
   if (setup.data && !setup.data.initialized) return <AuthScreen branding={setup.data}><SetupForm onDone={() => void Promise.all([queryClient.invalidateQueries({ queryKey: authKeys.setupStatus() }), queryClient.invalidateQueries({ queryKey: authKeys.session() })])} /></AuthScreen>;
   if (session.isError || !session.data?.user) return <AuthScreen branding={setup.data} showThemeToggle={false}><LoginForm onDone={() => void clearAccountQueries(queryClient).then(() => queryClient.refetchQueries({ queryKey: authKeys.session(), type: "active" }))} /></AuthScreen>;
   return children(session.data.user, {
-    appName: session.data.appName ?? setup.data?.appName ?? "RescueBase",
-    appSubtitle: session.data.appSubtitle ?? setup.data?.appSubtitle ?? "Sanitätslager",
-    showLogo: session.data.showLogo ?? setup.data?.showLogo ?? true,
-    showAppName: session.data.showAppName ?? setup.data?.showAppName ?? false,
-    showAppSubtitle: session.data.showAppSubtitle ?? setup.data?.showAppSubtitle ?? true
+    appName: setup.data?.appName ?? "RescueBase",
+    appSubtitle: setup.data?.appSubtitle ?? "Sanitätslager",
+    showLogo: setup.data?.showLogo ?? true,
+    showAppName: setup.data?.showAppName ?? false,
+    showAppSubtitle: setup.data?.showAppSubtitle ?? true
   });
 }

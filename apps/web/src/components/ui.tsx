@@ -55,9 +55,9 @@ export function Panel({ className, ...props }: HTMLAttributes<HTMLElement>) {
   return <section className={cn("panel", className)} {...props} />;
 }
 
-export function Field({ label, children, className }: PropsWithChildren<{ className?: string; label: string }>) {
+export function Field({ label, children, className, required = false }: PropsWithChildren<{ className?: string; label: string; required?: boolean }>) {
   return (
-    <label className={cn("field", className)}>
+    <label className={cn("field", required && "field-is-required", className)}>
       <span>{label}</span>
       {children}
     </label>

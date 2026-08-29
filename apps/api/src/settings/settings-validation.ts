@@ -35,3 +35,10 @@ export function validateWarningWindow(value: unknown): number {
   }
   return Number(value);
 }
+
+export function validateIntegerRange(value: unknown, field: string, minimum: number, maximum: number): number {
+  if (!Number.isInteger(value) || Number(value) < minimum || Number(value) > maximum) {
+    throw new BadRequestException(`${field} muss eine ganze Zahl zwischen ${minimum} und ${maximum} sein.`);
+  }
+  return Number(value);
+}

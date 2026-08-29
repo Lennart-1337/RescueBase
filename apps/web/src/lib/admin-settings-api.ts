@@ -5,6 +5,7 @@ import type { components } from "./generated-api";
 type GeneralInput = components["schemas"]["UpdateGeneralSettingsRequest"];
 type AlertInput = components["schemas"]["UpdateAlertSettingsRequest"];
 type InventoryInput = components["schemas"]["UpdateAdminInventorySettingsRequest"];
+type KitCheckInput = components["schemas"]["UpdateKitCheckSettingsRequest"];
 type TemplateInput = components["schemas"]["UpdateNotificationTemplateRequest"];
 
 export const adminSettingsApi = {
@@ -13,6 +14,7 @@ export const adminSettingsApi = {
   updateAlertSettings: (body: AlertInput) => openApiClient.post("/admin/settings/alerts", body),
   runDailyDigest: () => openApiClient.post("/admin/settings/alerts/digest"),
   updateAdminInventorySettings: (body: InventoryInput) => openApiClient.post("/admin/settings/inventory", body),
+  updateKitCheckSettings: (body: KitCheckInput) => openApiClient.post("/admin/settings/kit-checks", body),
   updateNotificationTemplate: (key: NotificationTemplateKey, body: TemplateInput) =>
     openApiClient.post("/admin/settings/templates/{key}", body, { params: { key } }),
   previewNotificationTemplate: (key: NotificationTemplateKey, body: TemplateInput) =>

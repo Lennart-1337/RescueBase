@@ -6,6 +6,7 @@ import { configureApp } from "../src/app-config";
 describe("configureApp", () => {
   const originalNodeEnv = process.env.NODE_ENV;
   const originalApiKey = process.env.RESEND_API_KEY;
+  const originalBetterAuthSecret = process.env.BETTER_AUTH_SECRET;
   const originalPublicUrl = process.env.APP_PUBLIC_URL;
 
   afterEach(() => {
@@ -13,6 +14,8 @@ describe("configureApp", () => {
     else process.env.NODE_ENV = originalNodeEnv;
     if (originalApiKey === undefined) delete process.env.RESEND_API_KEY;
     else process.env.RESEND_API_KEY = originalApiKey;
+    if (originalBetterAuthSecret === undefined) delete process.env.BETTER_AUTH_SECRET;
+    else process.env.BETTER_AUTH_SECRET = originalBetterAuthSecret;
     if (originalPublicUrl === undefined) delete process.env.APP_PUBLIC_URL;
     else process.env.APP_PUBLIC_URL = originalPublicUrl;
     jest.restoreAllMocks();
@@ -28,6 +31,7 @@ describe("configureApp", () => {
   it("does not expose Swagger docs by default outside development", () => {
     process.env.NODE_ENV = "production";
     process.env.RESEND_API_KEY = "re_live_test";
+    process.env.BETTER_AUTH_SECRET = "test-secret-with-at-least-thirty-two-characters";
     const setup = jest.spyOn(SwaggerModule, "setup").mockImplementation(() => undefined);
 
     configureApp(testApp());

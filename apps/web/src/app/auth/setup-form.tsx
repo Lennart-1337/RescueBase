@@ -26,9 +26,9 @@ export function SetupForm({ onDone }: { onDone: () => void }) {
           if (canSubmit && !mutation.isPending) submitSetup();
         }}
       >
-        <Field label="Name"><input autoFocus value={displayName} onChange={(event) => setDisplayName(event.target.value)} /></Field>
-        <Field label="E-Mail"><input type="email" value={email} onChange={(event) => setEmail(event.target.value)} /></Field>
-        <Field label="Passwort"><input type="password" value={password} onChange={(event) => setPassword(event.target.value)} /></Field>
+        <Field label="Name" required><input autoFocus required value={displayName} onChange={(event) => setDisplayName(event.target.value)} /></Field>
+        <Field label="E-Mail" required><input autoCapitalize="none" autoComplete="email" required spellCheck={false} type="email" value={email} onChange={(event) => setEmail(event.target.value)} /></Field>
+        <Field label="Passwort" required><input autoComplete="new-password" minLength={12} required type="password" value={password} onChange={(event) => setPassword(event.target.value)} /></Field>
         {mutation.error ? <InlineError error={mutation.error} /> : null}
         <Button disabled={!canSubmit} loading={mutation.isPending} type="submit">Erstadmin erstellen</Button>
       </form>

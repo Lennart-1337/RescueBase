@@ -1,6 +1,21 @@
 import "@testing-library/jest-dom/vitest";
 import { vi } from "vitest";
 
+let fetchHandler: typeof fetch | undefined;
+const nativeFetch = globalThis.fetch.bind(globalThis);
+
+export function installFetchInterceptor() {
+  vi.stubGlobal("fetch", (...args: Parameters<typeof fetch>) =>
+    fetchHandler ? fetchHandler(...args) : nativeFetch(...args)
+  );
+}
+
+export function setFetchHandler(handler?: typeof fetch) {
+  fetchHandler = handler;
+}
+
+installFetchInterceptor();
+
 const mediaQueryState = new Map<string, { listeners: Set<(event: MediaQueryListEvent) => void>; matches: boolean }>();
 
 Object.defineProperty(window, "scrollTo", {

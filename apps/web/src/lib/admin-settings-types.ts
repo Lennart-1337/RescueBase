@@ -4,4 +4,5 @@ export type NotificationTemplateKey = components["schemas"]["NotificationTemplat
 export type GeneralSettings = components["schemas"]["GeneralSettings"];
 export type AlertSettings = components["schemas"]["AlertSettings"];
 export type InventorySettings = components["schemas"]["AdminInventorySettings"];
+export type KitCheckSettings = components["schemas"]["KitCheckSettings"];
 export type NotificationTemplate = components["schemas"]["NotificationTemplate"];

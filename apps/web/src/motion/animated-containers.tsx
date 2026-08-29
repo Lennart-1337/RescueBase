@@ -1,6 +1,6 @@
-import type { PropsWithChildren } from "react";
+import type { ComponentPropsWithoutRef, PropsWithChildren } from "react";
 import { AnimatePresence, motion } from "motion/react";
-import { fadeVariants, listContainerVariants, listItemVariants, scaleFadeVariants, slideUpVariants } from "./presets";
+import { listContainerVariants, listItemVariants, scaleFadeVariants, slideUpVariants } from "./presets";
 import { useMotionMode } from "./use-motion-mode";
 
 export function AnimatedContentSwap({
@@ -33,15 +33,15 @@ export function AnimatedRouteView({
   const mode = useMotionMode();
 
   return (
-    <AnimatePresence initial={false} mode="wait">
+    <AnimatePresence initial={false}>
       <motion.div
         animate="visible"
         data-motion-mode={mode}
-        data-motion-preset="fade"
+        data-motion-preset="route-enter"
         exit="exit"
         initial="hidden"
         key={routeKey}
-        variants={fadeVariants(mode)}
+        variants={scaleFadeVariants(mode)}
       >
         {children}
       </motion.div>
@@ -49,12 +49,13 @@ export function AnimatedRouteView({
   );
 }
 
-export function AnimatedStateSection(props: PropsWithChildren<{ className: string }>) {
+export function AnimatedStateSection(props: PropsWithChildren<ComponentPropsWithoutRef<typeof motion.section> & { className: string }>) {
   const mode = useMotionMode();
 
   return (
     <motion.section
       animate="visible"
+      {...props}
       className={props.className}
       data-motion-mode={mode}
       data-motion-preset="scale-fade"

@@ -34,7 +34,8 @@ describe("admin settings", () => {
         newUserOrderNotificationsDefaultEnabled: false
       },
       alerts: { dailyDigestEnabled: true, dailyDigestTime: "06:00", warningWindowDays: 90, lastDigestRunAt: null, lastDigestSentAt: null },
-      inventory: { enabled: true, dailyReconcileTime: "02:00", lastReconciledAt: null }
+      inventory: { enabled: true, dailyReconcileTime: "02:00", lastReconciledAt: null },
+      kitChecks: { enabled: true, intervalMonths: 1, warningLeadDays: 0 }
     });
     expect(response.body.templates.map((template: { key: string }) => template.key)).toEqual([
       "ALERT_IMMEDIATE", "ALERT_DIGEST", "NEW_ORDER"
@@ -66,11 +67,15 @@ describe("admin settings", () => {
       .expect(201).expect(({ body }) => expect(body).toMatchObject({ dailyDigestEnabled: false, dailyDigestTime: "07:15", warningWindowDays: 30 }));
     await admin.post("/admin/settings/inventory").send({ enabled: false, dailyReconcileTime: "03:45" })
       .expect(201).expect(({ body }) => expect(body).toMatchObject({ enabled: false, dailyReconcileTime: "03:45" }));
+    await admin.post("/admin/settings/kit-checks").send({ enabled: true, intervalMonths: 2, warningLeadDays: 7 })
+      .expect(201).expect(({ body }) => expect(body).toEqual({ enabled: true, intervalMonths: 2, warningLeadDays: 7 }));
     await admin.post("/admin/settings/general").send({ timezone: "Mars/Olympus" }).expect(400);
     await admin.post("/admin/settings/general").send({ appName: "" }).expect(400);
     await admin.post("/admin/settings/alerts").send({ dailyDigestTime: "24:00" }).expect(400);
     await admin.post("/admin/settings/alerts").send({ warningWindowDays: 0 }).expect(400);
     await admin.post("/admin/settings/inventory").send({ enabled: "yes" }).expect(400);
+    await admin.post("/admin/settings/kit-checks").send({ intervalMonths: 0 }).expect(400);
+    await admin.post("/admin/settings/kit-checks").send({ warningLeadDays: 366 }).expect(400);
   });
 
   it("allows admins to trigger the daily digest manually", async () => {

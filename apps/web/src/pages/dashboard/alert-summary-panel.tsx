@@ -24,6 +24,7 @@ export function AlertSummaryPanel() {
         <Badge tone="neutral">STK {query.data.summary.stkDue}</Badge>
         <Badge tone="neutral">MTK {query.data.summary.mtkDue}</Badge>
         <Badge tone="warning">Fehlbestand {query.data.summary.shortage}</Badge>
+        <Badge tone="danger">Rucksackprüfung {query.data.summary.kitCheckDue}</Badge>
       </div>
       {query.data.warnings.length === 0 ? <div className="compact-list-empty">Keine aktiven Warnungen.</div> : null}
       <div className="compact-list">

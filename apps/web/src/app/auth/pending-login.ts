@@ -9,7 +9,7 @@ export type PendingLoginState = {
 export function loadPendingLogin(): PendingLoginState | null {
   if (typeof window === "undefined") return null;
   try {
-    const value = window.localStorage.getItem(STORAGE_KEY);
+  const value = window.sessionStorage.getItem(STORAGE_KEY);
     if (!value) return null;
     const state = JSON.parse(value) as Partial<PendingLoginState>;
     if (!state.email || !state.loginChallengeId || !state.twoFactorMethod) return null;
@@ -22,10 +22,11 @@ export function loadPendingLogin(): PendingLoginState | null {
 
 export function savePendingLogin(state: PendingLoginState) {
   if (typeof window === "undefined") return;
-  window.localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  window.sessionStorage.setItem(STORAGE_KEY, JSON.stringify(state));
 }
 
 export function clearPendingLogin() {
   if (typeof window === "undefined") return;
+  window.sessionStorage.removeItem(STORAGE_KEY);
   window.localStorage.removeItem(STORAGE_KEY);
 }

@@ -22,7 +22,7 @@ describe("purchase orders", () => {
     await closeApp?.();
   });
 
-  it("creates a manual draft with article snapshots and gross totals", async () => {
+  it("charges the configured price once per packaging unit", async () => {
     const agent = request.agent(app.getHttpServer());
     await agent
       .post("/auth/login")
@@ -38,7 +38,7 @@ describe("purchase orders", () => {
         lines: [
           {
             articleId: "article-bandage",
-            orderedQuantity: 4,
+            orderedQuantity: 30,
             note: "Kartonweise möglich",
           },
         ],
@@ -49,7 +49,7 @@ describe("purchase orders", () => {
       supplierName: "MediSafe Einkauf",
       locationId: "loc-main",
       status: "DRAFT",
-      totalGrossCents: 996,
+      totalGrossCents: 747,
       lines: [
         expect.objectContaining({
           articleId: "article-bandage",
@@ -57,9 +57,10 @@ describe("purchase orders", () => {
           articleUrl:
             "https://shop.example.org/articles/verbandpaeckchen-mittel",
           grossUnitPriceCents: 249,
-          orderedQuantity: 4,
+          unitsPerPackage: 10,
+          orderedQuantity: 30,
           receivedQuantity: 0,
-          lineTotalGrossCents: 996,
+          lineTotalGrossCents: 747,
         }),
       ],
     });

@@ -1,5 +1,5 @@
 import { fireEvent, screen, waitFor } from "@testing-library/react";
-import { changeValue, clickElement, postedBody, renderAppAt, resetTestBrowser, stubFetch } from "../test-support/app-test-helpers";
+import { changeValue, clickElement, postedBody, renderAppAt, resetTestBrowser, stubFetch, wasRequested } from "../test-support/app-test-helpers";
 
 describe("Public auth pages", () => {
   afterEach(resetTestBrowser);
@@ -35,7 +35,7 @@ describe("Public auth pages", () => {
     stubFetch({
       "/api/auth/setup/status": { initialized: true },
       "/api/auth/session": {},
-      "/api/auth/login": { user: { id: "user-admin", email: "admin@rescuebase.local", displayName: "Admin", role: "ADMIN", twoFactorEnabled: false } }
+      "/api/auth/sign-in/email": { user: { id: "user-admin", email: "admin@rescuebase.local", name: "Admin", role: "ADMIN", twoFactorEnabled: false } }
     });
     await renderAppAt("/");
     const emailInput = await screen.findByLabelText("E-Mail");
@@ -51,7 +51,7 @@ describe("Public auth pages", () => {
     await changeValue(passwordInput, "rescuebase-admin");
     fireEvent.submit(screen.getByRole("button", { name: "Anmelden" }).closest("form") as HTMLFormElement);
 
-    await waitFor(() => expect(postedBody("/api/auth/login")).toEqual({
+    await waitFor(() => expect(postedBody("/api/auth/sign-in/email")).toMatchObject({
       email: "admin@rescuebase.local",
       password: "rescuebase-admin"
     }));
@@ -72,7 +72,8 @@ describe("Public auth pages", () => {
     stubFetch({
       "/api/auth/setup/status": { initialized: true, appName: "RescueBase Pro", appSubtitle: "Bereitschaft Nord", showLogo: true, showAppName: false, showAppSubtitle: true },
       "/api/auth/session": {},
-      "/api/auth/login": { requiresTwoFactor: true, twoFactorMethod: "EMAIL", loginChallengeId: "challenge-1", debugCode: "123456" }
+      "/api/auth/sign-in/email": { twoFactorRedirect: true, twoFactorMethods: ["otp"] },
+      "/api/auth/two-factor/send-otp": { status: true }
     });
     await renderAppAt("/");
     expect(await screen.findByText("Bereitschaft Nord")).toBeInTheDocument();
@@ -81,7 +82,22 @@ describe("Public auth pages", () => {
     await changeValue(screen.getByLabelText("E-Mail"), "lager-neu@rescuebase.local");
     await changeValue(screen.getByLabelText("Passwort"), "rescuebase-neu-2");
     await clickElement(screen.getByRole("button", { name: "Anmelden" }));
-    await screen.findByLabelText("2FA-Code");
+    await screen.findByRole("group", { name: "2FA-Code" });
+    expect(wasRequested("/api/auth/two-factor/send-otp", "POST")).toBe(true);
+    expect(screen.getByText("Schritt 2 von 2")).toBeInTheDocument();
+    expect(screen.queryByLabelText("E-Mail")).toBeNull();
+    const codeInputs = screen.getAllByRole("textbox", { name: /Ziffer \d von 6/ });
+    const firstCodeInput = codeInputs.at(0)!;
+    expect(codeInputs).toHaveLength(6);
+    expect(firstCodeInput).toHaveFocus();
+    fireEvent.paste(firstCodeInput, { clipboardData: { getData: () => "12 34 56" } });
+    expect(codeInputs.map((input) => input.getAttribute("value"))).toEqual(["1", "2", "3", "4", "5", "6"]);
+    expect(codeInputs[5]).toHaveFocus();
+    expect(sessionStorage.getItem("rescuebase.pending-login")).toContain("better-auth");
+    expect(localStorage.getItem("rescuebase.pending-login")).toBeNull();
+
+    fireEvent.change(firstCodeInput, { target: { value: "654321" } });
+    expect(codeInputs.map((input) => input.getAttribute("value"))).toEqual(["6", "5", "4", "3", "2", "1"]);
 
     vi.restoreAllMocks();
     history.pushState({}, "", "/");
@@ -90,10 +106,10 @@ describe("Public auth pages", () => {
       "/api/auth/session": {}
     });
     await renderAppAt("/");
-    expect(await screen.findByLabelText("2FA-Code")).toHaveFocus();
+    expect(await screen.findByRole("textbox", { name: "Ziffer 1 von 6" })).toHaveFocus();
     expect(screen.queryByLabelText("Passwort")).not.toBeInTheDocument();
-    expect(screen.getByLabelText("E-Mail")).toHaveValue("lager-neu@rescuebase.local");
-    expect(screen.getByLabelText("2FA-Code")).toHaveAttribute("autocomplete", "one-time-code");
+    expect(screen.queryByLabelText("E-Mail")).toBeNull();
+    expect(screen.getByRole("textbox", { name: "Ziffer 1 von 6" })).toHaveAttribute("autocomplete", "one-time-code");
   });
 
   it("shows legal links in the admin content footer", async () => {
