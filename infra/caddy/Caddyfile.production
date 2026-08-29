@@ -3,7 +3,12 @@
 
   encode zstd gzip
 
-  handle /api/* {
+  # Better Auth is mounted at /api/auth, while Nest domain routes omit /api.
+  handle /api/auth/* {
+    reverse_proxy api:3000
+  }
+
+  handle_path /api/* {
     reverse_proxy api:3000
   }
 
