@@ -1,6 +1,7 @@
 import { Link, Outlet, useRouterState } from "@tanstack/react-router";
 import { PageHeader } from "../../components/page-layout";
 import { cn } from "../../components/ui";
+import { AnimatedContentSwap } from "../../motion/animated-containers";
 import { MasterDataTransferActions } from "./master-data-transfer-actions";
 import "./master-data-layout.css";
 
@@ -32,7 +33,7 @@ export function MasterDataLayout() {
           </Link>
         ))}
       </div>
-      <div className="master-data-content"><Outlet /></div>
+      <div className="master-data-content"><AnimatedContentSwap contentKey={pathname}><Outlet /></AnimatedContentSwap></div>
     </div>
   );
 }

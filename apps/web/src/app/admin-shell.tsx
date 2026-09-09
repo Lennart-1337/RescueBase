@@ -30,6 +30,7 @@ export function AdminShell({ children, user, branding }: { children: ReactNode; 
   const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
   const motionMode = useMotionMode();
   const pathname = useRouterState({ select: (state) => state.location.pathname });
+  const routeKey = pathname.startsWith("/admin/master-data/") ? "/admin/master-data" : pathname;
   const logout = useMutation({
     mutationFn: rescueBaseApi.logout,
     onSuccess: async () => {
@@ -126,7 +127,7 @@ export function AdminShell({ children, user, branding }: { children: ReactNode; 
         ) : null}
       </AnimatePresence>
       <main className="dashboard">
-        <div className="dashboard-content"><AnimatedRouteView routeKey={pathname}>{children}</AnimatedRouteView></div>
+        <div className="dashboard-content"><AnimatedRouteView routeKey={routeKey}>{children}</AnimatedRouteView></div>
         <div className="dashboard-footer">
           <div className="dashboard-footer-meta">
             <LegalLinks className="dashboard-legal" />

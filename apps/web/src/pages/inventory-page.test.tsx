@@ -139,6 +139,28 @@ describe("InventoryPage", () => {
     expect(screen.getByText(/VB-ALT-0/)).toBeInTheDocument();
   });
 
+  it("sorts batches by expiry date and can limit the list to expired batches", async () => {
+    stubFetch({
+      ...baseInventoryRoutes(),
+      "/api/inventory/batches": [
+        { ...batch, id: "batch-later", lotNumber: "LOT-2030", expiresAt: "2030-01-01" },
+        { ...batch, id: "batch-expired", lotNumber: "LOT-EXPIRED", expiresAt: "2020-01-01" },
+        { ...batch, id: "batch-sooner", lotNumber: "LOT-2027", expiresAt: "2027-01-01" }
+      ]
+    });
+    await renderAppAt("/admin/inventory");
+    await screen.findByRole("heading", { name: "Lager" });
+
+    expect(screen.getByText(/LOT-EXPIRED/).compareDocumentPosition(screen.getByText(/LOT-2030/)) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+
+    await changeValue(screen.getByLabelText("Ablaufdatum"), "desc");
+    expect(screen.getByText(/LOT-2030/).compareDocumentPosition(screen.getByText(/LOT-EXPIRED/)) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+
+    await clickElement(screen.getByLabelText("Nur abgelaufene Chargen"));
+    expect(screen.getByText(/LOT-EXPIRED/)).toBeInTheDocument();
+    expect(screen.queryByText(/LOT-2030/)).toBeNull();
+  });
+
   it("restores inventory filters from the URL and can reset them", async () => {
     stubFetch({
       ...baseInventoryRoutes(),
