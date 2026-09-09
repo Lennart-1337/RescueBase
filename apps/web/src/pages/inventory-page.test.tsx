@@ -139,6 +139,18 @@ describe("InventoryPage", () => {
     expect(screen.getByText(/VB-ALT-0/)).toBeInTheDocument();
   });
 
+  it("keeps the quantity and expiry toggles together in one filter row", async () => {
+    stubFetch(baseInventoryRoutes());
+    await renderAppAt("/admin/inventory");
+    await screen.findByRole("heading", { name: "Lager" });
+
+    const toggles = screen.getByLabelText("Chargen mit Menge 0 anzeigen").closest(".inventory-filter-toggles");
+
+    expect(toggles).toHaveClass("inventory-filter-toggles");
+    expect(toggles).toContainElement(screen.getByLabelText("Nur abgelaufene Chargen"));
+    expect(toggles?.parentElement).toHaveClass("inventory-filter-grid");
+  });
+
   it("sorts batches by expiry date and can limit the list to expired batches", async () => {
     stubFetch({
       ...baseInventoryRoutes(),

@@ -6,7 +6,7 @@ import type { InventoryFilters } from "./types";
 
 export function InventoryFilterToolbar(props: { articles: Article[]; countLabel: string; filters: InventoryFilters; locations: Location[]; onChange: (patch: Partial<InventoryFilters>) => void; onReset: () => void }) {
   return (
-    <ListFilterBar countLabel={props.countLabel} fieldsClassName="form-grid-five" onReset={props.onReset}>
+    <ListFilterBar countLabel={props.countLabel} fieldsClassName="inventory-filter-grid" onReset={props.onReset}>
       <Field label="Suche"><input onChange={(event) => props.onChange({ q: event.target.value })} placeholder="Artikel oder Charge" value={props.filters.q} /></Field>
       <Field label="Standort"><SearchableSelect emptyLabel="Alle Standorte" onChange={(value) => props.onChange({ locationId: value })} options={[{ label: "Alle Standorte", value: "" }, ...props.locations.map((location) => ({ label: location.name, value: location.id }))]} value={props.filters.locationId} /></Field>
       <Field label="Artikel"><SearchableSelect emptyLabel="Alle Artikel" onChange={(value) => props.onChange({ articleId: value })} options={[{ label: "Alle Artikel", value: "" }, ...props.articles.map((article) => ({ label: article.name, value: article.id }))]} value={props.filters.articleId} /></Field>
