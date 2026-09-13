@@ -906,6 +906,15 @@ describe("MasterDataPage", () => {
     expect(getActiveRouter()?.state.location.search).toEqual({});
   });
 
+  it("marks the existing device management as deprecated", async () => {
+    stubFetch(baseAdminRoutes());
+    await renderAppAt("/admin/master-data/devices");
+
+    const notice = await screen.findByRole("status", { name: "Veraltete Geräteverwaltung" });
+    expect(notice).toHaveTextContent("Deprecated");
+    expect(notice).toHaveTextContent("wird vollständig neu aufgebaut");
+  });
+
   it("renders kit assignments in the device list", async () => {
     stubFetch({
       ...baseAdminRoutes(),

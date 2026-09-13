@@ -1,18 +1,20 @@
 import { useState } from "react";
-import { Plus, Save, X } from "lucide-react";
+import { Plus, Save, TriangleAlert, X } from "lucide-react";
 import { ListFilterBar } from "../../components/list-filter-bar";
 import { PanelHeader } from "../../components/panel-header";
 import { PageToolbar } from "../../components/page-layout";
 import { SearchableSelect } from "../../components/searchable-select";
 import { InlineError } from "../../components/state-panels";
-import { Button, CheckboxField, Dialog, Field, Panel } from "../../components/ui";
+import { Badge, Button, CheckboxField, Dialog, Field, Panel } from "../../components/ui";
 import type { Article, Kit, Location } from "../../lib/types";
 import type { MedicalDevice, MedicalDeviceWriteBody } from "../../lib/extra-api";
 import { DeviceListRow } from "./device-list-row";
 import { buildDeviceLocationFilterOptions, buildDeviceStorageOptions, decodeDeviceStorage, selectedDeviceStorageValue } from "./device-storage";
+import "./device-panel.css";
 
 type Draft = MedicalDeviceWriteBody & { isOpen: boolean; editingId: string | null; active: boolean };
 
+/** @deprecated Diese Verwaltung wird nach der Planung durch die neue Geräteverwaltung ersetzt. */
 export function DevicePanel(props: {
   articles: Article[];
   error: Error | null;
@@ -91,6 +93,13 @@ export function DevicePanel(props: {
 
   return (
     <>
+      <section aria-label="Veraltete Geräteverwaltung" className="device-deprecation-notice" role="status">
+        <TriangleAlert aria-hidden="true" />
+        <div>
+          <strong>Alte Geräteverwaltung <Badge tone="warning">Deprecated</Badge></strong>
+          <p>Diese Verwaltung wird vollständig neu aufgebaut. Bis zur Ablösung bleibt sie weiterhin nutzbar.</p>
+        </div>
+      </section>
       <PageToolbar label="Geräte filtern"><ListFilterBar countLabel={`${props.devices.length}/${props.totalCount} sichtbar`} onReset={props.onResetFilters}>
         <Field label="Suche"><input onChange={(event) => props.onFilterChange({ q: event.target.value })} placeholder="Name, Serien- oder Inventarnummer" value={props.filters.q} /></Field>
         <Field label="Standort"><SearchableSelect emptyLabel="Alle Standorte" onChange={(value) => props.onFilterChange({ locationId: value })} options={[{ label: "Alle Standorte", value: "" }, ...locationFilterOptions]} value={props.filters.locationId} /></Field>
