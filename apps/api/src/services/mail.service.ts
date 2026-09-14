@@ -131,6 +131,7 @@ function formatCategory(category: string) {
   if (category === "MTK_DUE") return "MTK";
   if (category === "SHORTAGE") return "Fehlbestand";
   if (category === "KIT_CHECK_DUE") return "Rucksackprüfung";
+  if (category === "MPG_DUE") return "Medizinprodukt";
   return category;
 }
 

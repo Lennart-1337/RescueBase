@@ -7,7 +7,6 @@ import { AlertsController } from "./alerts.controller.js";
 import { AuditController } from "./audit.controller.js";
 import { CatalogController } from "./catalog.controller.js";
 import { CheckRecordsController } from "./check-records.controller.js";
-import { MedicalDevicesController } from "./medical-devices.controller.js";
 import { InventoryController } from "./inventory.controller.js";
 import { PublicChecksController } from "./public-checks.controller.js";
 import { PushController } from "./push.controller.js";
@@ -32,8 +31,11 @@ import { BetterAuthService } from "../auth/better-auth.service.js";
 import { AccountActivationService } from "../auth/account-activation.service.js";
 import { SettingsService } from "../settings/settings.service.js";
 import { NotificationTemplatesService } from "../settings/notification-templates.service.js";
+import { MpgModule } from "../mpg/mpg.module.js";
+import { MpgPermissionsController } from "../auth/mpg-permissions.controller.js";
 
 @Module({
+  imports: [MpgModule],
   controllers: [
     AdminSettingsController,
     AccountActivationController,
@@ -42,7 +44,7 @@ import { NotificationTemplatesService } from "../settings/notification-templates
     AuditController,
     CheckRecordsController,
     CatalogController,
-    MedicalDevicesController,
+    MpgPermissionsController,
     InventoryController,
     PublicChecksController,
     PushController,

@@ -1,6 +1,6 @@
 import { ApiError } from "./openapi-client";
 
-export type AlertCategory = "EXPIRY" | "STK_DUE" | "MTK_DUE" | "SHORTAGE" | "KIT_CHECK_DUE";
+export type AlertCategory = "EXPIRY" | "STK_DUE" | "MTK_DUE" | "SHORTAGE" | "KIT_CHECK_DUE" | "MPG_DUE";
 
 export type AlertWarning = {
   id: string;

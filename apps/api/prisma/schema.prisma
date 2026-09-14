@@ -56,6 +56,7 @@ enum AlertCategory {
   MTK_DUE
   SHORTAGE
   KIT_CHECK_DUE
+  MPG_DUE
 }
 
 enum NotificationTemplateKey {
@@ -75,6 +76,7 @@ model User {
   twoFactorEnabled Boolean  @default(false)
   twoFactorMethod  TwoFactorMethod?
   newOrderNotificationsEnabled Boolean @default(false)
+  medicalDevicesManage Boolean @default(false)
   active           Boolean  @default(true)
   banned           Boolean  @default(false)
   banReason        String?
@@ -93,6 +95,7 @@ model User {
   pendingLogins    PendingLoginChallenge[]
   alertSubscriptions AlertSubscription[]
   pushSubscriptions  PushSubscription[]
+  mpgNotifications MpgNotification[]
   approvedPurchaseOrders PurchaseOrder[] @relation("PurchaseOrderApprovedBy")
   deletedAt        DateTime?
   createdAt        DateTime @default(now())
@@ -708,6 +711,21 @@ model MedicalDevice {
   article           Article  @relation(fields: [articleId], references: [id])
   location          Location @relation(fields: [locationId], references: [id])
   kit               Kit?     @relation(fields: [kitId], references: [id])
+  mpgModelId String?
+  mpgModel MpgModel? @relation(fields: [mpgModelId], references: [id])
+  acquisitionYear Int?
+  commissionedAt DateTime?
+  responsiblePersonId String?
+  releasedAt DateTime?
+  releasedBy String?
+  retiredAt DateTime?
+  retirementReason String? @db.Text
+  version Int @default(0)
+  inspections MpgInspection[]
+  glucoseControls MpgGlucoseControl[]
+  incidents MpgIncident[]
+  assignments MpgDeviceAssignment[]
+  cylinderAssignments MpgCylinderAssignment[]
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
 
@@ -767,4 +785,212 @@ model AlertEvent {
   @@unique([category, sourceType, sourceId])
   @@index([category, locationId])
   @@index([resolvedAt])
+}
+
+model MpgModel {
+  id String @id @default(cuid())
+  name String
+  manufacturer String
+  manufacturerAddress String @db.Text
+  productType String
+  instructionsDocumentId String?
+  requirementsReviewedAt DateTime?
+  requirementsReviewedBy String?
+  requirementsReviewSource String? @db.Text
+  version Int @default(0)
+  devices MedicalDevice[]
+  requirements MpgRequirement[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+model MpgRequirement {
+  id String @id @default(cuid())
+  modelId String
+  model MpgModel @relation(fields: [modelId], references: [id])
+  kind String
+  title String
+  source String @db.Text
+  mandatory Boolean @default(true)
+  intervalMonths Int?
+  firstDueAt DateTime?
+  active Boolean @default(true)
+  version Int @default(0)
+  inspections MpgInspection[]
+  createdAt DateTime @default(now())
+}
+model MpgInspection {
+  id String @id @default(cuid())
+  deviceId String
+  device MedicalDevice @relation(fields: [deviceId], references: [id])
+  requirementId String
+  requirement MpgRequirement @relation(fields: [requirementId], references: [id])
+  performedAt DateTime
+  result String
+  personId String?
+  externalCompany String?
+  qualification String? @db.Text
+  reportDocumentId String?
+  notes String? @db.Text
+  nextDueAt DateTime?
+  finalizedAt DateTime?
+  finalizedBy String?
+  correctionOfId String? @unique
+  correctionReason String? @db.Text
+  version Int @default(0)
+  createdAt DateTime @default(now())
+  @@index([deviceId, finalizedAt])
+}
+model MpgPerson {
+  id String @id @default(cuid())
+  name String
+  internalCode String @unique
+  affiliation String
+  userId String? @unique
+  active Boolean @default(true)
+  instructorAuthorization String? @db.Text
+  qualificationDocumentId String?
+  version Int @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+model MpgTraining {
+  id String @id @default(cuid())
+  modelId String
+  deviceId String?
+  scope String @db.Text
+  performedAt DateTime
+  contents String @db.Text
+  documentId String
+  instructorId String
+  finalizedAt DateTime?
+  finalizedBy String?
+  correctionOfId String? @unique
+  correctionReason String? @db.Text
+  version Int @default(0)
+  confirmations MpgTrainingConfirmation[]
+  createdAt DateTime @default(now())
+  @@index([modelId])
+  @@index([deviceId])
+}
+model MpgTrainingConfirmation {
+  id String @id @default(cuid())
+  trainingId String
+  training MpgTraining @relation(fields: [trainingId], references: [id])
+  personId String
+  role String
+  nameSnapshot String
+  confirmationText String @db.Text
+  signaturePngDataUrl String? @db.LongText
+  signatureHash String?
+  confirmedAt DateTime?
+  confirmedBy String?
+  @@unique([trainingId, personId, role])
+}
+model MpgGlucoseControl {
+  id String @id @default(cuid())
+  deviceId String
+  device MedicalDevice @relation(fields: [deviceId], references: [id])
+  performedAt DateTime
+  personId String
+  stripLot String
+  solutionName String
+  solutionLot String
+  solutionExpiresAt DateTime
+  controlLevel String
+  unit String
+  targetUnit String
+  targetMin Float
+  targetMax Float
+  value Float
+  passed Boolean
+  clarification String? @db.Text
+  resolvedAt DateTime?
+  resolvedBy String?
+  finalizedBy String
+  createdAt DateTime @default(now())
+  @@index([deviceId, performedAt])
+}
+model MpgIncident {
+  id String @id @default(cuid())
+  deviceId String
+  device MedicalDevice @relation(fields: [deviceId], references: [id])
+  occurredAt DateTime
+  description String @db.Text
+  safetyRelevant Boolean
+  measures String @db.Text
+  status String @default("OPEN")
+  reportedAt DateTime?
+  reportReference String?
+  resolvedAt DateTime?
+  resolvedBy String?
+  version Int @default(0)
+  createdAt DateTime @default(now())
+}
+model MpgDeviceAssignment {
+  id String @id @default(cuid())
+  deviceId String
+  device MedicalDevice @relation(fields: [deviceId], references: [id])
+  locationId String
+  kitId String?
+  responsiblePersonId String?
+  startedAt DateTime @default(now())
+  endedAt DateTime?
+  actorId String
+}
+model MpgCylinder {
+  id String @id @default(cuid())
+  supplier String
+  cylinderNumber String @unique
+  sizeLiters Float
+  inspectedAt DateTime?
+  inspectionDueAt DateTime?
+  expiresAt DateTime?
+  locationId String
+  status String @default("FULL")
+  version Int @default(0)
+  assignments MpgCylinderAssignment[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+model MpgCylinderAssignment {
+  id String @id @default(cuid())
+  cylinderId String
+  cylinder MpgCylinder @relation(fields: [cylinderId], references: [id])
+  deviceId String
+  device MedicalDevice @relation(fields: [deviceId], references: [id])
+  startedAt DateTime @default(now())
+  endedAt DateTime?
+  actorId String
+  @@index([deviceId, endedAt])
+  @@index([cylinderId, endedAt])
+}
+model MpgDocument {
+  id String @id @default(cuid())
+  filename String
+  mimeType String
+  storageKey String @unique
+  sha256 String
+  size Int
+  deviceId String?
+  modelId String?
+  inspectionId String?
+  trainingId String?
+  personId String?
+  previousVersionId String? @unique
+  version Int @default(1)
+  createdBy String
+  createdAt DateTime @default(now())
+  @@index([deviceId])
+  @@index([modelId])
+}
+
+model MpgNotification {
+  id String @id @default(cuid())
+  eventKey String
+  userId String
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  channel String
+  createdAt DateTime @default(now())
+  @@unique([eventKey, userId, channel])
+  @@index([userId, createdAt])
 }

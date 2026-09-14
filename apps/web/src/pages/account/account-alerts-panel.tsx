@@ -14,7 +14,8 @@ const categories: AlertCategoryOption[] = [
   { key: "STK_DUE", label: "STK" },
   { key: "MTK_DUE", label: "MTK" },
   { key: "SHORTAGE", label: "Fehlbestand" },
-  { key: "KIT_CHECK_DUE", label: "Rucksackprüfung" }
+  { key: "KIT_CHECK_DUE", label: "Rucksackprüfung" },
+  { key: "MPG_DUE", label: "Medizinprodukte" }
 ];
 
 export function AccountAlertsPanel() {

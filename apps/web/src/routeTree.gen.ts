@@ -15,6 +15,7 @@ import { Route as AdminCheckProtocolsRouteImport } from './routes/admin/check-pr
 import { Route as AdminInventoryRouteImport } from './routes/admin/inventory'
 import { Route as AdminKitsRouteImport } from './routes/admin/kits'
 import { Route as AdminMasterDataRouteImport } from './routes/admin/master-data'
+import { Route as AdminMpgRouteImport } from './routes/admin/mpg'
 import { Route as AdminPurchaseOrdersRouteImport } from './routes/admin/purchase-orders'
 import { Route as AdminSettingsRouteImport } from './routes/admin/settings'
 import { Route as AdminUserManagementRouteImport } from './routes/admin/user-management'
@@ -64,6 +65,11 @@ const AdminKitsRoute = AdminKitsRouteImport.update({
 const AdminMasterDataRoute = AdminMasterDataRouteImport.update({
   id: '/admin/master-data',
   path: '/admin/master-data',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminMpgRoute = AdminMpgRouteImport.update({
+  id: '/admin/mpg',
+  path: '/admin/mpg',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdminPurchaseOrdersRoute = AdminPurchaseOrdersRouteImport.update({
@@ -179,6 +185,7 @@ export interface FileRoutesByFullPath {
   '/admin/inventory': typeof AdminInventoryRoute
   '/admin/kits': typeof AdminKitsRoute
   '/admin/master-data': typeof AdminMasterDataRouteWithChildren
+  '/admin/mpg': typeof AdminMpgRoute
   '/admin/purchase-orders': typeof AdminPurchaseOrdersRouteWithChildren
   '/admin/settings': typeof AdminSettingsRoute
   '/admin/user-management': typeof AdminUserManagementRoute
@@ -206,6 +213,7 @@ export interface FileRoutesByTo {
   '/admin/check-protocols': typeof AdminCheckProtocolsRoute
   '/admin/inventory': typeof AdminInventoryRoute
   '/admin/kits': typeof AdminKitsRoute
+  '/admin/mpg': typeof AdminMpgRoute
   '/admin/settings': typeof AdminSettingsRoute
   '/admin/user-management': typeof AdminUserManagementRoute
   '/admin/users': typeof AdminUsersRoute
@@ -234,6 +242,7 @@ export interface FileRoutesById {
   '/admin/inventory': typeof AdminInventoryRoute
   '/admin/kits': typeof AdminKitsRoute
   '/admin/master-data': typeof AdminMasterDataRouteWithChildren
+  '/admin/mpg': typeof AdminMpgRoute
   '/admin/purchase-orders': typeof AdminPurchaseOrdersRouteWithChildren
   '/admin/settings': typeof AdminSettingsRoute
   '/admin/user-management': typeof AdminUserManagementRoute
@@ -264,6 +273,7 @@ export interface FileRouteTypes {
     | '/admin/inventory'
     | '/admin/kits'
     | '/admin/master-data'
+    | '/admin/mpg'
     | '/admin/purchase-orders'
     | '/admin/settings'
     | '/admin/user-management'
@@ -291,6 +301,7 @@ export interface FileRouteTypes {
     | '/admin/check-protocols'
     | '/admin/inventory'
     | '/admin/kits'
+    | '/admin/mpg'
     | '/admin/settings'
     | '/admin/user-management'
     | '/admin/users'
@@ -318,6 +329,7 @@ export interface FileRouteTypes {
     | '/admin/inventory'
     | '/admin/kits'
     | '/admin/master-data'
+    | '/admin/mpg'
     | '/admin/purchase-orders'
     | '/admin/settings'
     | '/admin/user-management'
@@ -347,6 +359,7 @@ export interface RootRouteChildren {
   AdminInventoryRoute: typeof AdminInventoryRoute
   AdminKitsRoute: typeof AdminKitsRoute
   AdminMasterDataRoute: typeof AdminMasterDataRouteWithChildren
+  AdminMpgRoute: typeof AdminMpgRoute
   AdminPurchaseOrdersRoute: typeof AdminPurchaseOrdersRouteWithChildren
   AdminSettingsRoute: typeof AdminSettingsRoute
   AdminUserManagementRoute: typeof AdminUserManagementRoute
@@ -402,6 +415,13 @@ declare module '@tanstack/react-router' {
       path: '/admin/master-data'
       fullPath: '/admin/master-data'
       preLoaderRoute: typeof AdminMasterDataRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/mpg': {
+      id: '/admin/mpg'
+      path: '/admin/mpg'
+      fullPath: '/admin/mpg'
+      preLoaderRoute: typeof AdminMpgRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/admin/purchase-orders': {
@@ -591,6 +611,7 @@ const rootRouteChildren: RootRouteChildren = {
   AdminInventoryRoute: AdminInventoryRoute,
   AdminKitsRoute: AdminKitsRoute,
   AdminMasterDataRoute: AdminMasterDataRouteWithChildren,
+  AdminMpgRoute: AdminMpgRoute,
   AdminPurchaseOrdersRoute: AdminPurchaseOrdersRouteWithChildren,
   AdminSettingsRoute: AdminSettingsRoute,
   AdminUserManagementRoute: AdminUserManagementRoute,

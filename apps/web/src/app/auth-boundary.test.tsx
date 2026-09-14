@@ -61,6 +61,7 @@ describe("auth boundary", () => {
 
     expect(await screen.findByText("Lager Rucksack")).toBeInTheDocument();
     await waitFor(() => expect(screen.queryByText("Admin Rucksack")).toBeNull());
+    expect(document.title).toBe("Rucksäcke | RescueBase");
   });
 });
 

@@ -35,6 +35,9 @@ services:
       VAPID_PRIVATE_KEY: ${VAPID_PRIVATE_KEY:-}
       VAPID_SUBJECT: ${VAPID_SUBJECT:-}
       RESCUEBASE_SEED_DEV_DATA: ${RESCUEBASE_SEED_DEV_DATA:-false}
+      MPG_DOCUMENT_DIR: /app/var/mpg-documents
+    volumes:
+      - mpg-documents:/app/var/mpg-documents
     depends_on:
       mariadb:
         condition: service_healthy
@@ -68,3 +71,4 @@ volumes:
   mariadb-data:
   caddy-data:
   caddy-config:
+  mpg-documents:

@@ -71,9 +71,9 @@ describe("alerts pipeline", () => {
     );
 
     const deviceDate = daysAgo(330);
-    await agent
-      .post("/catalog/devices")
-      .send({
+    const prisma = app.get(PrismaService);
+    await prisma.medicalDevice.create({
+      data: {
         name: "Defibrillator A",
         articleId: "article-tourniquet",
         locationId: "loc-main",
@@ -82,8 +82,8 @@ describe("alerts pipeline", () => {
         lastStkAt: deviceDate,
         stkIntervalMonths: 12,
         active: true
-      })
-      .expect(201);
+      }
+    });
 
     const warnings = await agent.get("/alerts/warnings").expect(200);
     expect(warnings.body.summary.expiry).toBeGreaterThanOrEqual(1);

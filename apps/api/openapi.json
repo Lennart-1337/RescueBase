@@ -44,6 +44,9 @@
     },
     {
       "name": "Push"
+    },
+    {
+      "name": "MPG"
     }
   ],
   "components": {
@@ -55,6 +58,14 @@
       }
     },
     "schemas": {
+      "MpgInput": {
+        "type": "object",
+        "additionalProperties": true
+      },
+      "MpgRecord": {
+        "type": "object",
+        "additionalProperties": true
+      },
       "UserRole": {
         "type": "string",
         "enum": [
@@ -205,6 +216,9 @@
             "$ref": "#/components/schemas/TwoFactorMethod"
           },
           "newOrderNotificationsEnabled": {
+            "type": "boolean"
+          },
+          "medicalDevicesManage": {
             "type": "boolean"
           }
         },
@@ -5225,21 +5239,21 @@
         }
       }
     },
-    "/catalog/devices": {
+    "/mpg/models": {
       "get": {
         "tags": [
-          "Stammdaten"
+          "MPG"
         ],
-        "operationId": "MedicalDevicesController_list",
+        "operationId": "MpgController_modelsList",
         "responses": {
           "200": {
-            "description": "Medical devices",
+            "description": "MPG models",
             "content": {
               "application/json": {
                 "schema": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/components/schemas/MedicalDevice"
+                    "$ref": "#/components/schemas/MpgRecord"
                   }
                 }
               }
@@ -5249,26 +5263,26 @@
       },
       "post": {
         "tags": [
-          "Stammdaten"
+          "MPG"
         ],
-        "operationId": "MedicalDevicesController_create",
+        "operationId": "MpgController_modelsCreate",
         "requestBody": {
           "required": true,
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/MedicalDeviceWriteRequest"
+                "$ref": "#/components/schemas/MpgInput"
               }
             }
           }
         },
         "responses": {
           "201": {
-            "description": "Medical device created",
+            "description": "Model created",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/MedicalDevice"
+                  "$ref": "#/components/schemas/MpgRecord"
                 }
               }
             }
@@ -5276,12 +5290,12 @@
         }
       }
     },
-    "/catalog/devices/{id}": {
+    "/mpg/models/{id}": {
       "patch": {
         "tags": [
-          "Stammdaten"
+          "MPG"
         ],
-        "operationId": "MedicalDevicesController_update",
+        "operationId": "MpgController_modelsUpdate",
         "parameters": [
           {
             "name": "id",
@@ -5297,29 +5311,162 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/MedicalDeviceWriteRequest"
+                "$ref": "#/components/schemas/MpgInput"
               }
             }
           }
         },
         "responses": {
           "200": {
-            "description": "Medical device updated",
+            "description": "Model updated",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/MedicalDevice"
+                  "$ref": "#/components/schemas/MpgRecord"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/mpg/models/{id}/requirements": {
+      "post": {
+        "tags": [
+          "MPG"
+        ],
+        "operationId": "MpgController_requirement",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MpgInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Requirement created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MpgRecord"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/mpg/models/{id}/review": {
+      "post": {
+        "tags": [
+          "MPG"
+        ],
+        "operationId": "MpgController_modelReview",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MpgInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Requirements reviewed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MpgRecord"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/mpg/devices": {
+      "get": {
+        "tags": [
+          "MPG"
+        ],
+        "operationId": "MpgController_devicesList",
+        "responses": {
+          "200": {
+            "description": "Devices",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/MpgRecord"
+                  }
                 }
               }
             }
           }
         }
       },
-      "delete": {
+      "post": {
         "tags": [
-          "Stammdaten"
+          "MPG"
         ],
-        "operationId": "MedicalDevicesController_delete",
+        "operationId": "MpgController_deviceCreate",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MpgInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Device created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MpgRecord"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/mpg/devices/{id}": {
+      "get": {
+        "tags": [
+          "MPG"
+        ],
+        "operationId": "MpgController_device",
         "parameters": [
           {
             "name": "id",
@@ -5332,11 +5479,1303 @@
         ],
         "responses": {
           "200": {
-            "description": "Medical device deleted",
+            "description": "Device record",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/OkResponse"
+                  "$ref": "#/components/schemas/MpgRecord"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "MPG"
+        ],
+        "operationId": "MpgController_deviceUpdate",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MpgInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Device updated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MpgRecord"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/mpg/devices/{id}/release": {
+      "post": {
+        "tags": [
+          "MPG"
+        ],
+        "operationId": "MpgController_deviceRelease",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MpgInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Device released",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MpgRecord"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/mpg/devices/{id}/retire": {
+      "post": {
+        "tags": [
+          "MPG"
+        ],
+        "operationId": "MpgController_deviceRetire",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MpgInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Device retired",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MpgRecord"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/mpg/devices/{id}/inspections": {
+      "post": {
+        "tags": [
+          "MPG"
+        ],
+        "operationId": "MpgController_inspectionCreate",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MpgInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Inspection draft",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MpgRecord"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/mpg/inspections/{id}": {
+      "patch": {
+        "tags": [
+          "MPG"
+        ],
+        "operationId": "MpgController_inspectionUpdate",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MpgInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Inspection updated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MpgRecord"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/mpg/inspections/{id}/finalize": {
+      "post": {
+        "tags": [
+          "MPG"
+        ],
+        "operationId": "MpgController_inspectionFinalize",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MpgInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Inspection finalized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MpgRecord"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/mpg/inspections/{id}/correct": {
+      "post": {
+        "tags": [
+          "MPG"
+        ],
+        "operationId": "MpgController_inspectionCorrect",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MpgInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Correction created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MpgRecord"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/mpg/people": {
+      "get": {
+        "tags": [
+          "MPG"
+        ],
+        "operationId": "MpgController_peopleList",
+        "responses": {
+          "200": {
+            "description": "People",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/MpgRecord"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "MPG"
+        ],
+        "operationId": "MpgController_personCreate",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MpgInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Person created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MpgRecord"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/mpg/people/{id}": {
+      "patch": {
+        "tags": [
+          "MPG"
+        ],
+        "operationId": "MpgController_personUpdate",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MpgInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Person updated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MpgRecord"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/mpg/trainings": {
+      "get": {
+        "tags": [
+          "MPG"
+        ],
+        "operationId": "MpgController_trainingList",
+        "responses": {
+          "200": {
+            "description": "Trainings",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/MpgRecord"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "MPG"
+        ],
+        "operationId": "MpgController_trainingCreate",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MpgInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Training created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MpgRecord"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/mpg/trainings/{id}": {
+      "get": {
+        "tags": [
+          "MPG"
+        ],
+        "operationId": "MpgController_training",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Training",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MpgRecord"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/mpg/trainings/{id}/confirm": {
+      "post": {
+        "tags": [
+          "MPG"
+        ],
+        "operationId": "MpgController_trainingConfirm",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MpgInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Confirmation stored",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MpgRecord"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/mpg/trainings/{id}/finalize": {
+      "post": {
+        "tags": [
+          "MPG"
+        ],
+        "operationId": "MpgController_trainingFinalize",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MpgInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Training finalized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MpgRecord"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/mpg/devices/{id}/glucose-controls": {
+      "post": {
+        "tags": [
+          "MPG"
+        ],
+        "operationId": "MpgController_glucose",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MpgInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Control finalized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MpgRecord"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/mpg/glucose-controls/{id}/resolve": {
+      "post": {
+        "tags": [
+          "MPG"
+        ],
+        "operationId": "MpgController_glucoseResolve",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MpgInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Control resolved",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MpgRecord"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/mpg/devices/{id}/incidents": {
+      "post": {
+        "tags": [
+          "MPG"
+        ],
+        "operationId": "MpgController_incident",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MpgInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Incident created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MpgRecord"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/mpg/incidents/{id}": {
+      "patch": {
+        "tags": [
+          "MPG"
+        ],
+        "operationId": "MpgController_incidentUpdate",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MpgInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Incident updated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MpgRecord"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/mpg/cylinders": {
+      "get": {
+        "tags": [
+          "MPG"
+        ],
+        "operationId": "MpgController_cylindersList",
+        "responses": {
+          "200": {
+            "description": "Cylinders",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/MpgRecord"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "MPG"
+        ],
+        "operationId": "MpgController_cylinderCreate",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MpgInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Cylinder created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MpgRecord"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/mpg/cylinders/{id}": {
+      "patch": {
+        "tags": [
+          "MPG"
+        ],
+        "operationId": "MpgController_cylinderUpdate",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MpgInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Cylinder updated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MpgRecord"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/mpg/cylinders/{id}/assign": {
+      "post": {
+        "tags": [
+          "MPG"
+        ],
+        "operationId": "MpgController_cylinderAssign",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MpgInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Cylinder assigned",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MpgRecord"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/mpg/cylinders/{id}/return": {
+      "post": {
+        "tags": [
+          "MPG"
+        ],
+        "operationId": "MpgController_cylinderReturn",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MpgInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Cylinder returned",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MpgRecord"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/mpg-permissions/me": {
+      "get": {
+        "tags": [
+          "MPG"
+        ],
+        "operationId": "MpgPermissionsController_mine",
+        "responses": {
+          "200": {
+            "description": "Current MPG permission",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MpgRecord"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/mpg-permissions/users": {
+      "get": {
+        "tags": [
+          "MPG"
+        ],
+        "operationId": "MpgPermissionsController_users",
+        "responses": {
+          "200": {
+            "description": "Users and MPG permissions",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/MpgRecord"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/mpg-permissions/users/{id}": {
+      "put": {
+        "tags": [
+          "MPG"
+        ],
+        "operationId": "MpgPermissionsController_update",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MpgInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "MPG permission updated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MpgRecord"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/mpg/documents": {
+      "get": {
+        "tags": [
+          "MPG"
+        ],
+        "operationId": "MpgDocumentsController_list",
+        "parameters": [
+          {
+            "name": "modelId",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "deviceId",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "personId",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "trainingId",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "incidentId",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Document versions",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/MpgRecord"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "MPG"
+        ],
+        "operationId": "MpgDocumentsController_upload",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "file"
+                ],
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "binary"
+                  },
+                  "modelId": {
+                    "type": "string"
+                  },
+                  "deviceId": {
+                    "type": "string"
+                  },
+                  "personId": {
+                    "type": "string"
+                  },
+                  "trainingId": {
+                    "type": "string"
+                  },
+                  "incidentId": {
+                    "type": "string"
+                  },
+                  "previousVersionId": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Document uploaded",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MpgRecord"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/mpg/documents/{id}": {
+      "get": {
+        "tags": [
+          "MPG"
+        ],
+        "operationId": "MpgDocumentsController_download",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Binary report",
+            "content": {
+              "application/octet-stream": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/mpg/exports/inventory.csv": {
+      "get": {
+        "tags": [
+          "MPG"
+        ],
+        "operationId": "MpgReportsController_csv",
+        "responses": {
+          "200": {
+            "description": "Binary report",
+            "content": {
+              "text/csv": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/mpg/exports/inventory.pdf": {
+      "get": {
+        "tags": [
+          "MPG"
+        ],
+        "operationId": "MpgReportsController_inventory",
+        "responses": {
+          "200": {
+            "description": "Binary report",
+            "content": {
+              "application/pdf": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/mpg/exports/devices/{id}.pdf": {
+      "get": {
+        "tags": [
+          "MPG"
+        ],
+        "operationId": "MpgReportsController_device",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Binary report",
+            "content": {
+              "application/pdf": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/mpg/exports/devices/{id}.zip": {
+      "get": {
+        "tags": [
+          "MPG"
+        ],
+        "operationId": "MpgReportsController_archive",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Binary report",
+            "content": {
+              "application/zip": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/mpg/exports/devices/{id}/label.pdf": {
+      "get": {
+        "tags": [
+          "MPG"
+        ],
+        "operationId": "MpgReportsController_label",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Binary report",
+            "content": {
+              "application/pdf": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/mpg/exports/trainings/{id}.pdf": {
+      "get": {
+        "tags": [
+          "MPG"
+        ],
+        "operationId": "MpgReportsController_training",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Binary report",
+            "content": {
+              "application/pdf": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/mpg/exports/people/{id}.pdf": {
+      "get": {
+        "tags": [
+          "MPG"
+        ],
+        "operationId": "MpgReportsController_person",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Binary report",
+            "content": {
+              "application/pdf": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
                 }
               }
             }
