@@ -8,9 +8,11 @@ import { inventoryQueries } from "../../queries/inventory";
 
 type InventorySearch = {
   articleId?: string;
+  expiryOrder?: "desc";
   locationId?: string;
   q?: string;
   showEmpty?: true;
+  showExpired?: true;
   view?: "stock" | "targets";
 };
 
@@ -27,10 +29,12 @@ export const Route = createFileRoute("/admin/inventory")({
   validateSearch: (search: Record<string, unknown>): InventorySearch =>
     withPrunedSearch({
       articleId: readStringSearch(search.articleId),
+      expiryOrder: search.expiryOrder === "desc" ? "desc" : undefined,
       locationId: readStringSearch(search.locationId),
       q: readStringSearch(search.q),
-      showEmpty: readBooleanSearch(search.showEmpty) ? true : undefined
-      ,view: search.view === "targets" ? "targets" : undefined
+      showEmpty: readBooleanSearch(search.showEmpty) ? true : undefined,
+      showExpired: readBooleanSearch(search.showExpired) ? true : undefined,
+      view: search.view === "targets" ? "targets" : undefined
     }),
   component: InventoryRoute
 });

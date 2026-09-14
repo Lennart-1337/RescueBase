@@ -21,11 +21,11 @@ export async function migrateLegacyTwoFactor(store: LegacyTwoFactorStore, secret
     select: { id: true, twoFactorMethod: true, twoFactorSecret: true }
   });
 
-  await Promise.all(users.map(async (user) => {
+  for (const user of users) {
     const isTotp = user.twoFactorMethod === "TOTP" && Boolean(user.twoFactorSecret);
     const encryptedSecret = await symmetricEncrypt({ data: user.twoFactorSecret ?? "", key: secret });
     await store.twoFactor.create({
       data: { backupCodes: "[]", id: randomUUID(), secret: encryptedSecret, userId: user.id, verified: isTotp }
     });
-  }));
+  }
 }

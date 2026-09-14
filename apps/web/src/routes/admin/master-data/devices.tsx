@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, redirect } from "@tanstack/react-router";
 import { readStringSearch, withPrunedSearch } from "../../../app/filter-utils";
 import { preloadAdminQueries } from "../../../app/route-preload";
 import { MasterDataDevicePage } from "../../../pages/master-data/device-page";
@@ -13,6 +13,7 @@ export type DeviceRouteSearch = {
 };
 
 export const Route = createFileRoute("/admin/master-data/devices")({
+  beforeLoad: () => { throw redirect({ to: "/admin/mpg", search: { view: "devices", device: undefined } }); },
   loader: ({ context }) =>
     preloadAdminQueries(context.queryClient, () =>
       Promise.all([

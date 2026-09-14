@@ -36,6 +36,13 @@ describe("RescueBase OpenAPI contract", () => {
     );
   });
 
+  it("documents the MPG write and evidence endpoints", () => {
+    expect(rescueBaseOpenApiDocument.paths["/mpg/devices"]?.post).toMatchObject({ operationId: "MpgController_deviceCreate", requestBody: expect.any(Object) });
+    expect(rescueBaseOpenApiDocument.paths["/mpg/inspections/{id}/finalize"]?.post).toBeDefined();
+    expect(rescueBaseOpenApiDocument.paths["/mpg/trainings/{id}/confirm"]?.post).toBeDefined();
+    expect(rescueBaseOpenApiDocument.paths["/mpg/documents/{id}"]?.get).toBeDefined();
+  });
+
   it("exposes complete admin master-data write operations", () => {
     expect(
       rescueBaseOpenApiDocument.paths["/catalog/suppliers"]?.post,
@@ -91,12 +98,7 @@ describe("RescueBase OpenAPI contract", () => {
       operationId: "CatalogController_updateKit",
       requestBody: expect.any(Object),
     });
-    expect(
-      rescueBaseOpenApiDocument.paths["/catalog/devices/{id}"]?.delete,
-    ).toMatchObject({
-      operationId: "MedicalDevicesController_delete",
-      responses: expect.any(Object),
-    });
+    expect(rescueBaseOpenApiDocument.paths["/catalog/devices/{id}"]).toBeUndefined();
   });
 
   it("describes public QR check, replenishment fulfillment, and batch correction request bodies", () => {

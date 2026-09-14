@@ -26,6 +26,7 @@ const rescueBaseOpenApiDocumentDefinition = {
     { name: "Audit" },
     { name: "Admin-Einstellungen" },
     { name: "Push" },
+    { name: "MPG" },
   ],
   components: {
     securitySchemes: {
@@ -36,6 +37,8 @@ const rescueBaseOpenApiDocumentDefinition = {
       },
     },
     schemas: {
+      MpgInput: { type: "object", additionalProperties: true },
+      MpgRecord: { type: "object", additionalProperties: true },
       UserRole: stringEnum(["ADMIN", "WAREHOUSE"]),
       TwoFactorMethod: stringEnum(["TOTP", "EMAIL"]),
       KitOperationalStatus: stringEnum(["READY", "CONDITIONAL", "NOT_READY"]),
@@ -101,6 +104,7 @@ const rescueBaseOpenApiDocumentDefinition = {
           twoFactorEnabled: { type: "boolean" },
           twoFactorMethod: ref("TwoFactorMethod"),
           newOrderNotificationsEnabled: { type: "boolean" },
+          medicalDevicesManage: { type: "boolean" },
         },
         [
           "id",
@@ -1972,34 +1976,77 @@ const rescueBaseOpenApiDocumentDefinition = {
         response(200, "Location deleted", ref("OkResponse")),
       ),
     },
-    "/catalog/devices": {
+    "/mpg/models": {
       get: operation(
-        "Stammdaten",
-        "MedicalDevicesController_list",
+        "MPG",
+        "MpgController_modelsList",
         {},
-        response(200, "Medical devices", arrayOf(ref("MedicalDevice"))),
+        response(200, "MPG models", arrayOf(ref("MpgRecord"))),
       ),
       post: operation(
-        "Stammdaten",
-        "MedicalDevicesController_create",
-        request("MedicalDeviceWriteRequest"),
-        response(201, "Medical device created", ref("MedicalDevice")),
+        "MPG", "MpgController_modelsCreate", request("MpgInput"), response(201, "Model created", ref("MpgRecord")),
       ),
     },
-    "/catalog/devices/{id}": {
+    "/mpg/models/{id}": {
       patch: operation(
-        "Stammdaten",
-        "MedicalDevicesController_update",
-        { ...pathParam("id"), ...request("MedicalDeviceWriteRequest") },
-        response(200, "Medical device updated", ref("MedicalDevice")),
-      ),
-      delete: operation(
-        "Stammdaten",
-        "MedicalDevicesController_delete",
-        pathParam("id"),
-        response(200, "Medical device deleted", ref("OkResponse")),
+        "MPG", "MpgController_modelsUpdate", { ...pathParam("id"), ...request("MpgInput") }, response(200, "Model updated", ref("MpgRecord")),
       ),
     },
+    "/mpg/models/{id}/requirements": { post: operation("MPG", "MpgController_requirement", { ...pathParam("id"), ...request("MpgInput") }, response(201, "Requirement created", ref("MpgRecord"))) },
+    "/mpg/models/{id}/review": { post: operation("MPG", "MpgController_modelReview", { ...pathParam("id"), ...request("MpgInput") }, response(201, "Requirements reviewed", ref("MpgRecord"))) },
+    "/mpg/devices": {
+      get: operation("MPG", "MpgController_devicesList", {}, response(200, "Devices", arrayOf(ref("MpgRecord")))),
+      post: operation("MPG", "MpgController_deviceCreate", request("MpgInput"), response(201, "Device created", ref("MpgRecord"))),
+    },
+    "/mpg/devices/{id}": {
+      get: operation("MPG", "MpgController_device", pathParam("id"), response(200, "Device record", ref("MpgRecord"))),
+      patch: operation("MPG", "MpgController_deviceUpdate", { ...pathParam("id"), ...request("MpgInput") }, response(200, "Device updated", ref("MpgRecord"))),
+    },
+    "/mpg/devices/{id}/release": { post: operation("MPG", "MpgController_deviceRelease", { ...pathParam("id"), ...request("MpgInput") }, response(201, "Device released", ref("MpgRecord"))) },
+    "/mpg/devices/{id}/retire": { post: operation("MPG", "MpgController_deviceRetire", { ...pathParam("id"), ...request("MpgInput") }, response(201, "Device retired", ref("MpgRecord"))) },
+    "/mpg/devices/{id}/inspections": { post: operation("MPG", "MpgController_inspectionCreate", { ...pathParam("id"), ...request("MpgInput") }, response(201, "Inspection draft", ref("MpgRecord"))) },
+    "/mpg/inspections/{id}": { patch: operation("MPG", "MpgController_inspectionUpdate", { ...pathParam("id"), ...request("MpgInput") }, response(200, "Inspection updated", ref("MpgRecord"))) },
+    "/mpg/inspections/{id}/finalize": { post: operation("MPG", "MpgController_inspectionFinalize", { ...pathParam("id"), ...request("MpgInput") }, response(201, "Inspection finalized", ref("MpgRecord"))) },
+    "/mpg/inspections/{id}/correct": { post: operation("MPG", "MpgController_inspectionCorrect", { ...pathParam("id"), ...request("MpgInput") }, response(201, "Correction created", ref("MpgRecord"))) },
+    "/mpg/people": { get: operation("MPG", "MpgController_peopleList", {}, response(200, "People", arrayOf(ref("MpgRecord")))), post: operation("MPG", "MpgController_personCreate", request("MpgInput"), response(201, "Person created", ref("MpgRecord"))) },
+    "/mpg/people/{id}": { patch: operation("MPG", "MpgController_personUpdate", { ...pathParam("id"), ...request("MpgInput") }, response(200, "Person updated", ref("MpgRecord"))) },
+    "/mpg/trainings": { get: operation("MPG", "MpgController_trainingList", {}, response(200, "Trainings", arrayOf(ref("MpgRecord")))), post: operation("MPG", "MpgController_trainingCreate", request("MpgInput"), response(201, "Training created", ref("MpgRecord"))) },
+    "/mpg/trainings/{id}": { get: operation("MPG", "MpgController_training", pathParam("id"), response(200, "Training", ref("MpgRecord"))) },
+    "/mpg/trainings/{id}/confirm": { post: operation("MPG", "MpgController_trainingConfirm", { ...pathParam("id"), ...request("MpgInput") }, response(201, "Confirmation stored", ref("MpgRecord"))) },
+    "/mpg/trainings/{id}/finalize": { post: operation("MPG", "MpgController_trainingFinalize", { ...pathParam("id"), ...request("MpgInput") }, response(201, "Training finalized", ref("MpgRecord"))) },
+    "/mpg/devices/{id}/glucose-controls": { post: operation("MPG", "MpgController_glucose", { ...pathParam("id"), ...request("MpgInput") }, response(201, "Control finalized", ref("MpgRecord"))) },
+    "/mpg/glucose-controls/{id}/resolve": { post: operation("MPG", "MpgController_glucoseResolve", { ...pathParam("id"), ...request("MpgInput") }, response(201, "Control resolved", ref("MpgRecord"))) },
+    "/mpg/devices/{id}/incidents": { post: operation("MPG", "MpgController_incident", { ...pathParam("id"), ...request("MpgInput") }, response(201, "Incident created", ref("MpgRecord"))) },
+    "/mpg/incidents/{id}": { patch: operation("MPG", "MpgController_incidentUpdate", { ...pathParam("id"), ...request("MpgInput") }, response(200, "Incident updated", ref("MpgRecord"))) },
+    "/mpg/cylinders": { get: operation("MPG", "MpgController_cylindersList", {}, response(200, "Cylinders", arrayOf(ref("MpgRecord")))), post: operation("MPG", "MpgController_cylinderCreate", request("MpgInput"), response(201, "Cylinder created", ref("MpgRecord"))) },
+    "/mpg/cylinders/{id}": { patch: operation("MPG", "MpgController_cylinderUpdate", { ...pathParam("id"), ...request("MpgInput") }, response(200, "Cylinder updated", ref("MpgRecord"))) },
+    "/mpg/cylinders/{id}/assign": { post: operation("MPG", "MpgController_cylinderAssign", { ...pathParam("id"), ...request("MpgInput") }, response(201, "Cylinder assigned", ref("MpgRecord"))) },
+    "/mpg/cylinders/{id}/return": { post: operation("MPG", "MpgController_cylinderReturn", { ...pathParam("id"), ...request("MpgInput") }, response(201, "Cylinder returned", ref("MpgRecord"))) },
+    "/mpg-permissions/me": {
+      get: operation("MPG", "MpgPermissionsController_mine", {}, response(200, "Current MPG permission", ref("MpgRecord"))),
+    },
+    "/mpg-permissions/users": {
+      get: operation("MPG", "MpgPermissionsController_users", {}, response(200, "Users and MPG permissions", arrayOf(ref("MpgRecord")))),
+    },
+    "/mpg-permissions/users/{id}": {
+      put: operation("MPG", "MpgPermissionsController_update", { ...pathParam("id"), ...request("MpgInput") }, response(200, "MPG permission updated", ref("MpgRecord"))),
+    },
+    "/mpg/documents": {
+      get: operation("MPG", "MpgDocumentsController_list", { parameters: ["modelId", "deviceId", "personId", "trainingId", "incidentId"].map(optionalQueryParam) }, response(200, "Document versions", arrayOf(ref("MpgRecord")))),
+      post: operation("MPG", "MpgDocumentsController_upload", {
+        requestBody: { required: true, content: { "multipart/form-data": { schema: { type: "object", required: ["file"], properties: { file: { type: "string", format: "binary" }, modelId: { type: "string" }, deviceId: { type: "string" }, personId: { type: "string" }, trainingId: { type: "string" }, incidentId: { type: "string" }, previousVersionId: { type: "string" } } } } } },
+      }, response(201, "Document uploaded", ref("MpgRecord"))),
+    },
+    "/mpg/documents/{id}": {
+      get: fileOperation("MPG", "MpgDocumentsController_download", "application/octet-stream", "id"),
+    },
+    "/mpg/exports/inventory.csv": { get: fileOperation("MPG", "MpgReportsController_csv", "text/csv") },
+    "/mpg/exports/inventory.pdf": { get: fileOperation("MPG", "MpgReportsController_inventory", pdf) },
+    "/mpg/exports/devices/{id}.pdf": { get: fileOperation("MPG", "MpgReportsController_device", pdf, "id") },
+    "/mpg/exports/devices/{id}.zip": { get: fileOperation("MPG", "MpgReportsController_archive", "application/zip", "id") },
+    "/mpg/exports/devices/{id}/label.pdf": { get: fileOperation("MPG", "MpgReportsController_label", pdf, "id") },
+    "/mpg/exports/trainings/{id}.pdf": { get: fileOperation("MPG", "MpgReportsController_training", pdf, "id") },
+    "/mpg/exports/people/{id}.pdf": { get: fileOperation("MPG", "MpgReportsController_person", pdf, "id") },
     "/catalog/templates": {
       get: operation(
         "Stammdaten",

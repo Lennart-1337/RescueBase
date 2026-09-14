@@ -22,6 +22,7 @@ export class BetterAuthService implements OnModuleInit {
       user: {
         fields: { name: "displayName" },
         additionalFields: {
+          medicalDevicesManage: { type: "boolean", input: false },
           active: { type: "boolean", input: false },
           activationRequired: { type: "boolean", input: false },
           newOrderNotificationsEnabled: { type: "boolean", input: false }

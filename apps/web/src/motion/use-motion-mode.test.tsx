@@ -1,5 +1,5 @@
 import { render, screen } from "@testing-library/react";
-import { AnimatedStateSection } from "./animated-containers";
+import { AnimatedRouteView, AnimatedStateSection } from "./animated-containers";
 import { prefersReducedMotion } from "./use-motion-mode";
 import { setReducedMotionForTests } from "../test/setup";
 
@@ -23,5 +23,11 @@ describe("motion accessibility", () => {
     );
 
     expect(screen.getByText("Reduziert").closest("[data-motion-mode]")).toHaveAttribute("data-motion-mode", "reduced");
+  });
+
+  it("marks route wrappers so the application shell can space page sections", () => {
+    render(<AnimatedRouteView routeKey="kits"><h1>Rucksäcke</h1></AnimatedRouteView>);
+
+    expect(screen.getByText("Rucksäcke").closest(".animated-route-view")).toBeInTheDocument();
   });
 });

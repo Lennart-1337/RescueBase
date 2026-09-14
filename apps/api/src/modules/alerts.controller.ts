@@ -15,7 +15,10 @@ export class AlertsController {
   ) {}
 
   @Get("warnings")
-  warnings(@Query("category") category?: string, @Query("locationId") locationId?: string) {
+  async warnings(@Query("category") category?: string, @Query("locationId") locationId?: string) {
+    // Refresh on read so changes made by scheduled jobs or external integrations
+    // are reflected immediately, even when no mutation endpoint was called.
+    await this.alerts.syncAlerts("warnings-read");
     return this.alerts.listWarnings({ category, locationId });
   }
 
@@ -27,7 +30,7 @@ export class AlertsController {
   @Put("subscriptions/me")
   async replaceMySubscriptions(
     @Req() request: AuthenticatedRequest,
-    @Body() body: { subscriptions: Array<{ category: "EXPIRY" | "STK_DUE" | "MTK_DUE" | "SHORTAGE" | "KIT_CHECK_DUE"; locationId?: string | null }> }
+    @Body() body: { subscriptions: Array<{ category: "EXPIRY" | "STK_DUE" | "MTK_DUE" | "SHORTAGE" | "KIT_CHECK_DUE" | "MPG_DUE"; locationId?: string | null }> }
   ) {
     if (!request.user) {
       throw new BadRequestException("Kein angemeldeter Benutzer gefunden.");
@@ -45,7 +48,7 @@ export class AlertsController {
   @Post("subscriptions/:userId")
   async replaceUserSubscriptions(
     @Param("userId") userId: string,
-    @Body() body: { subscriptions: Array<{ category: "EXPIRY" | "STK_DUE" | "MTK_DUE" | "SHORTAGE" | "KIT_CHECK_DUE"; locationId?: string | null }> }
+    @Body() body: { subscriptions: Array<{ category: "EXPIRY" | "STK_DUE" | "MTK_DUE" | "SHORTAGE" | "KIT_CHECK_DUE" | "MPG_DUE"; locationId?: string | null }> }
   ) {
     const user = await this.prisma.user.findUnique({ where: { id: userId } });
     if (!user) {

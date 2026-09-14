@@ -8,7 +8,7 @@ export function PublicLegalLayout({ children, title }: { children: ReactNode; ti
     <main className="public-legal-layout">
       <section className="public-legal-content" aria-labelledby="legal-page-title">
         <header className="public-legal-header">
-          <div>
+          <div className="public-legal-heading">
             <span>RescueBase</span>
             <h1 id="legal-page-title">{title}</h1>
           </div>

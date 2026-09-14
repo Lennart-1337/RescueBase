@@ -3,7 +3,6 @@ import {
   article,
   kit,
   location,
-  medicalDevice,
   supplier,
 } from "../test-support/fixtures";
 import {
@@ -590,49 +589,6 @@ describe("MasterDataPage", () => {
     ).toBeNull();
   });
 
-  it("opens the new devices tab", async () => {
-    stubFetch(baseAdminRoutes());
-    await renderAppAt("/admin/master-data/articles");
-    await screen.findByRole("heading", { name: "Stammdaten" });
-    await clickElement(screen.getByRole("tab", { name: "Geräte" }));
-    expect(
-      await screen.findByRole("button", { name: /Gerät hinzufügen/ }),
-    ).toBeInTheDocument();
-  });
-
-  it("assigns devices to kits from the create dialog", async () => {
-    stubFetch(baseAdminRoutes());
-    await renderAppAt("/admin/master-data/devices");
-    await screen.findByRole("heading", { name: "Stammdaten" });
-    await clickElement(
-      await screen.findByRole("button", { name: "Gerät hinzufügen" }),
-    );
-
-    const dialog = await screen.findByRole("dialog", { name: "Gerät anlegen" });
-    await changeValue(within(dialog).getByLabelText("Name"), "AED im Rucksack");
-    await changeValue(
-      within(dialog).getByRole("combobox", { name: "Lagerort" }),
-      "Rucksack",
-    );
-    await mouseDownElement(
-      await screen.findByRole("option", { name: "Rucksack Fahrzeug 1" }),
-    );
-    await clickElement(
-      within(dialog).getByRole("button", { name: "Gerät anlegen" }),
-    );
-
-    await waitFor(() =>
-      expect(postedBody("/api/catalog/devices")).toEqual({
-        name: "AED im Rucksack",
-        articleId: article.id,
-        kitId: kit.id,
-        stkIntervalMonths: null,
-        mtkIntervalMonths: null,
-        active: true,
-      }),
-    );
-  });
-
   it("opens the new suppliers tab with linked article usage", async () => {
     const secondArticle = {
       ...article,
@@ -881,89 +837,6 @@ describe("MasterDataPage", () => {
     ).toBeInTheDocument();
   });
 
-  it("restores the active master-data tab and device filters from the URL", async () => {
-    stubFetch({
-      ...baseAdminRoutes(),
-      "/api/catalog/devices": [{ ...medicalDevice, active: false }],
-    });
-    await renderAppAt("/admin/master-data/devices?active=inactive");
-    await screen.findByLabelText("Status");
-    expect(screen.getByRole("tab", { name: "Geräte" })).toHaveAttribute(
-      "aria-selected",
-      "true",
-    );
-    expect(screen.getByLabelText("Status")).toHaveValue("Inaktiv");
-    expect(screen.getByText("Corpuls C3")).toBeInTheDocument();
-
-    await clickElement(
-      screen.getByRole("button", { name: "Filter zurücksetzen" }),
-    );
-    await waitFor(() =>
-      expect(getActiveRouter()?.state.location.pathname).toEqual(
-        "/admin/master-data/devices",
-      ),
-    );
-    expect(getActiveRouter()?.state.location.search).toEqual({});
-  });
-
-  it("renders kit assignments in the device list", async () => {
-    stubFetch({
-      ...baseAdminRoutes(),
-      "/api/catalog/devices": [
-        {
-          ...medicalDevice,
-          kit: {
-            id: kit.id,
-            name: kit.name,
-            code: kit.code,
-            locationId: kit.locationId,
-            locationName: kit.location.name,
-          },
-        },
-      ],
-    });
-    await renderAppAt("/admin/master-data/devices");
-
-    const row = (await screen.findByText("Corpuls C3")).closest(
-      ".compact-list-row",
-    );
-    expect(row).not.toBeNull();
-    expect(
-      within(row as HTMLElement).getByText(
-        "Rucksack Fahrzeug 1 · Verbandpäckchen mittel",
-      ),
-    ).toBeInTheDocument();
-  });
-
-  it("includes kits in the device location filter and restores them from the URL", async () => {
-    stubFetch({
-      ...baseAdminRoutes(),
-      "/api/catalog/devices": [
-        {
-          ...medicalDevice,
-          kitId: kit.id,
-          kit: {
-            id: kit.id,
-            name: kit.name,
-            code: kit.code,
-            locationId: kit.locationId,
-            locationName: kit.location.name,
-          },
-        },
-      ],
-    });
-    await renderAppAt(`/admin/master-data/devices?locationId=${kit.id}`);
-
-    const locationFilter = await screen.findByLabelText("Standort");
-    expect(locationFilter).toHaveValue(kit.name);
-    await changeValue(locationFilter, "Rucksack");
-
-    expect(
-      await screen.findByRole("option", { name: kit.name }),
-    ).toBeInTheDocument();
-    expect(screen.getByText("Corpuls C3")).toBeInTheDocument();
-  });
-
   it("soft-deletes master data entries after confirmation", async () => {
     vi.spyOn(window, "confirm").mockReturnValue(true);
     stubFetch({
@@ -972,8 +845,6 @@ describe("MasterDataPage", () => {
       "/api/catalog/suppliers/supplier-medisafe": { ok: true },
       "/api/catalog/locations/loc-main": { ok: true },
       "/api/catalog/templates/template-san-a-v1": { ok: true },
-      "/api/catalog/devices/device-1": { ok: true },
-      "/api/catalog/devices": [medicalDevice],
     });
     await renderAppAt("/admin/master-data/articles");
     await screen.findByRole("button", {
@@ -997,10 +868,6 @@ describe("MasterDataPage", () => {
         name: /Sanitätsrucksack A v1 löschen/,
       }),
     );
-    await clickElement(screen.getByRole("tab", { name: "Geräte" }));
-    await clickElement(
-      await screen.findByRole("button", { name: /Corpuls C3 löschen/ }),
-    );
 
     await waitFor(() => {
       expect(
@@ -1015,9 +882,6 @@ describe("MasterDataPage", () => {
       expect(
         wasRequested("/api/catalog/templates/template-san-a-v1", "DELETE"),
       ).toBe(true);
-      expect(wasRequested("/api/catalog/devices/device-1", "DELETE")).toBe(
-        true,
-      );
     });
   });
 

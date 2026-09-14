@@ -59,9 +59,11 @@ export function InventoryPage({ user: _user }: { user: AuthenticatedUser }) {
   const expiring = batches.data?.filter((batch) => daysUntil(batch.expiresAt) <= 90) ?? [];
   const filters: InventoryFilters = {
     articleId: search.articleId ?? "",
+    expiryOrder: search.expiryOrder === "desc" ? "desc" : "asc",
     locationId: search.locationId ?? "",
     q: search.q ?? "",
-    showEmpty: search.showEmpty === true
+    showEmpty: search.showEmpty === true,
+    showExpired: search.showExpired === true
   };
 
   useEffect(() => {
@@ -74,9 +76,13 @@ export function InventoryPage({ user: _user }: { user: AuthenticatedUser }) {
 
   const filteredBatches = (batches.data ?? []).filter((batch) => {
     if (!filters.showEmpty && batch.quantity === 0) return false;
+    if (filters.showExpired && daysUntil(batch.expiresAt) >= 0) return false;
     if (filters.locationId && batch.location.id !== filters.locationId) return false;
     if (filters.articleId && batch.article.id !== filters.articleId) return false;
     return matchesFilterText(filters.q, batch.article.name, batch.lotNumber);
+  }).sort((left, right) => {
+    const comparison = left.expiresAt.localeCompare(right.expiresAt) || left.id.localeCompare(right.id);
+    return filters.expiryOrder === "asc" ? comparison : -comparison;
   });
   const filteredTargets = (targets.data ?? []).filter((target) => matchesInventoryFilters(filters, target.articleId, target.locationId, target.article.name, target.location.name));
   const pagedBatches = paginateItems(filteredBatches, batchPage, batchPageSize);
@@ -93,7 +99,7 @@ export function InventoryPage({ user: _user }: { user: AuthenticatedUser }) {
   useEffect(() => {
     setBatchPage(1);
     setTargetPage(1);
-  }, [filters.articleId, filters.locationId, filters.q, filters.showEmpty]);
+  }, [filters.articleId, filters.expiryOrder, filters.locationId, filters.q, filters.showEmpty, filters.showExpired]);
 
   useEffect(() => {
     setBatchPage((page) => clampPage(page, filteredBatches.length, batchPageSize));
@@ -109,9 +115,11 @@ export function InventoryPage({ user: _user }: { user: AuthenticatedUser }) {
       search: (current) => withPrunedSearch({
         ...current,
         articleId: toOptionalString(patch.articleId ?? filters.articleId),
+        expiryOrder: patch.expiryOrder === "desc" || (!patch.expiryOrder && filters.expiryOrder === "desc") ? "desc" : undefined,
         locationId: toOptionalString(patch.locationId ?? filters.locationId),
         q: toOptionalString(patch.q ?? filters.q),
-        showEmpty: toOptionalBoolean(patch.showEmpty ?? filters.showEmpty)
+        showEmpty: toOptionalBoolean(patch.showEmpty ?? filters.showEmpty),
+        showExpired: toOptionalBoolean(patch.showExpired ?? filters.showExpired)
       })
     });
   }

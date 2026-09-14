@@ -1,0 +1,27 @@
+.device-deprecation-notice {
+  align-items: flex-start;
+  background: var(--color-warning-tint);
+  border: 1px solid var(--color-warning-line);
+  border-radius: 12px;
+  color: var(--color-warning-text-dark);
+  display: flex;
+  gap: 12px;
+  padding: 14px 16px;
+}
+
+.device-deprecation-notice > svg {
+  flex: 0 0 auto;
+  height: 20px;
+  margin-top: 1px;
+  width: 20px;
+}
+
+.device-deprecation-notice strong {
+  align-items: center;
+  display: flex;
+  gap: 8px;
+}
+
+.device-deprecation-notice p {
+  margin: 4px 0 0;
+}

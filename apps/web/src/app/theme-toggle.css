@@ -4,15 +4,17 @@
   gap: 4px;
   padding: 4px;
   border: 1px solid var(--color-border-default);
-  border-radius: 999px;
+  border-radius: 10px;
   background: color-mix(in srgb, var(--color-surface) 88%, transparent);
   box-shadow: var(--shadow-soft);
   backdrop-filter: blur(14px);
+  flex: 0 0 auto;
+  white-space: nowrap;
 }
 
 .theme-toggle-option {
   border: 0;
-  border-radius: 999px;
+  border-radius: 7px;
   min-height: 34px;
   padding: 0 12px;
   display: inline-flex;

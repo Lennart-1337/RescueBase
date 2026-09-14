@@ -1,7 +1,7 @@
 import { useState, type ReactNode } from "react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link, useRouterState } from "@tanstack/react-router";
-import { Archive, ClipboardCheck, ClipboardList, Cog, LogOut, Menu, PackageCheck, Settings, ShieldCheck, ShoppingCart, Users, X } from "lucide-react";
+import { Archive, ClipboardCheck, ClipboardList, Cog, HeartPulse, LogOut, Menu, PackageCheck, Settings, ShieldCheck, ShoppingCart, Users, X } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { Button } from "../components/ui";
 import { fadeVariants, slideLeftVariants } from "../motion/presets";
@@ -22,7 +22,7 @@ type NavigationItem = {
   icon: typeof ClipboardList;
   label: string;
   search?: Record<string, never>;
-  to: "/" | "/admin/kits" | "/admin/inventory" | "/admin/purchase-orders" | "/admin/check-protocols" | "/admin/master-data/articles" | "/admin/user-management" | "/admin/users" | "/admin/settings" | "/admin/account";
+  to: "/" | "/admin/kits" | "/admin/inventory" | "/admin/purchase-orders" | "/admin/check-protocols" | "/admin/mpg" | "/admin/master-data/articles" | "/admin/user-management" | "/admin/users" | "/admin/settings" | "/admin/account";
 };
 
 export function AdminShell({ children, user, branding }: { children: ReactNode; user: AuthenticatedUser; branding: AppBranding }) {
@@ -30,6 +30,13 @@ export function AdminShell({ children, user, branding }: { children: ReactNode; 
   const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
   const motionMode = useMotionMode();
   const pathname = useRouterState({ select: (state) => state.location.pathname });
+  const mpgPermission = useQuery({ queryKey: ["mpg-permission", user.id], enabled: user.role !== "ADMIN", queryFn: async () => {
+    const response = await fetch("/api/mpg-permissions/me", { credentials: "include" });
+    if (!response.ok) return { medicalDevicesManage: false };
+    return response.json() as Promise<{ medicalDevicesManage: boolean }>;
+  } });
+  const canManageMpg = user.role === "ADMIN" || mpgPermission.data?.medicalDevicesManage === true;
+  const routeKey = pathname.startsWith("/admin/master-data/") ? "/admin/master-data" : pathname;
   const logout = useMutation({
     mutationFn: rescueBaseApi.logout,
     onSuccess: async () => {
@@ -43,6 +50,7 @@ export function AdminShell({ children, user, branding }: { children: ReactNode; 
     { icon: Archive, label: "Lager", search: {}, to: "/admin/inventory" },
     { icon: ShoppingCart, label: "Bestellungen", search: {}, to: "/admin/purchase-orders" },
     { icon: ClipboardCheck, label: "Check-Protokolle", search: {}, to: "/admin/check-protocols" },
+    ...(canManageMpg ? [{ icon: HeartPulse, label: "MPG", search: {}, to: "/admin/mpg" as const }] : []),
     ...(user.role === "ADMIN" ? [{ icon: Settings, label: "Stammdaten", search: {}, to: "/admin/master-data/articles" as const }] : []),
     ...(user.role === "ADMIN" ? [
       { icon: Users, label: "Benutzerverwaltung", to: "/admin/user-management" as const },
@@ -126,7 +134,7 @@ export function AdminShell({ children, user, branding }: { children: ReactNode; 
         ) : null}
       </AnimatePresence>
       <main className="dashboard">
-        <div className="dashboard-content"><AnimatedRouteView routeKey={pathname}>{children}</AnimatedRouteView></div>
+        <div className="dashboard-content"><AnimatedRouteView routeKey={routeKey}>{children}</AnimatedRouteView></div>
         <div className="dashboard-footer">
           <div className="dashboard-footer-meta">
             <LegalLinks className="dashboard-legal" />

@@ -10,6 +10,7 @@ const routeTitles: Record<string, string> = {
   "/admin/inventory": "Lager",
   "/admin/kits": "Rucksäcke",
   "/admin/master-data": "Stammdaten",
+  "/admin/mpg": "MPG",
   "/admin/master-data/articles": "Stammdaten · Artikel",
   "/admin/master-data/devices": "Stammdaten · Geräte",
   "/admin/master-data/locations": "Stammdaten · Standorte",
@@ -45,7 +46,11 @@ export function useRouteDocumentTitle() {
 export function useDocumentTitle(title?: string) {
   useEffect(() => {
     if (!title) return;
+    const previousTitle = document.title;
     document.title = formatDocumentTitle(title);
+    return () => {
+      document.title = previousTitle;
+    };
   }, [title]);
 }
 

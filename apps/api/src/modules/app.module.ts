@@ -7,7 +7,6 @@ import { AlertsController } from "./alerts.controller.js";
 import { AuditController } from "./audit.controller.js";
 import { CatalogController } from "./catalog.controller.js";
 import { CheckRecordsController } from "./check-records.controller.js";
-import { MedicalDevicesController } from "./medical-devices.controller.js";
 import { InventoryController } from "./inventory.controller.js";
 import { PublicChecksController } from "./public-checks.controller.js";
 import { PushController } from "./push.controller.js";
@@ -32,6 +31,21 @@ import { BetterAuthService } from "../auth/better-auth.service.js";
 import { AccountActivationService } from "../auth/account-activation.service.js";
 import { SettingsService } from "../settings/settings.service.js";
 import { NotificationTemplatesService } from "../settings/notification-templates.service.js";
+import { MpgPermissionsController } from "../auth/mpg-permissions.controller.js";
+import { MpgGuard } from "../auth/mpg.guard.js";
+import { MpgDocumentsController } from "./mpg-documents.controller.js";
+import { MpgReportsController } from "./mpg-reports.controller.js";
+import { MpgController } from "./mpg.controller.js";
+import { MpgDocumentsService } from "../services/mpg-documents.service.js";
+import { MpgReportsService } from "../services/mpg-reports.service.js";
+import { MpgNotificationsService } from "../services/mpg-notifications.service.js";
+import { MpgCylindersService } from "../services/mpg-cylinders.service.js";
+import { MpgDevicesService } from "../services/mpg-devices.service.js";
+import { MpgInspectionsService } from "../services/mpg-inspections.service.js";
+import { MpgModelsService } from "../services/mpg-models.service.js";
+import { MpgOperationsService } from "../services/mpg-operations.service.js";
+import { MpgPeopleService } from "../services/mpg-people.service.js";
+import { MpgTrainingsService } from "../services/mpg-trainings.service.js";
 
 @Module({
   controllers: [
@@ -42,7 +56,10 @@ import { NotificationTemplatesService } from "../settings/notification-templates
     AuditController,
     CheckRecordsController,
     CatalogController,
-    MedicalDevicesController,
+    MpgPermissionsController,
+    MpgController,
+    MpgDocumentsController,
+    MpgReportsController,
     InventoryController,
     PublicChecksController,
     PushController,
@@ -67,6 +84,17 @@ import { NotificationTemplatesService } from "../settings/notification-templates
     SettingsService,
     NotificationTemplatesService,
     RateLimitService,
+    MpgGuard,
+    MpgModelsService,
+    MpgDevicesService,
+    MpgInspectionsService,
+    MpgPeopleService,
+    MpgTrainingsService,
+    MpgOperationsService,
+    MpgCylindersService,
+    MpgDocumentsService,
+    MpgReportsService,
+    MpgNotificationsService,
     { provide: APP_GUARD, useClass: RateLimitGuard },
     { provide: APP_GUARD, useClass: AuthGuard }
   ]

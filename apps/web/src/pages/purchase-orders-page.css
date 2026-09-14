@@ -397,6 +397,14 @@
   border-top: 1px solid var(--color-border-subtle);
 }
 
+.purchase-order-documents .checkbox-field {
+  align-items: center;
+}
+
+.purchase-order-documents .checkbox-control {
+  margin-top: 0;
+}
+
 .purchase-order-timeline-row {
   display: grid;
   gap: 4px;

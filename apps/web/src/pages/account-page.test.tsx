@@ -8,7 +8,8 @@ describe("AccountPage", () => {
     stubFetch({
       "/api/auth/setup/status": { initialized: true },
       "/api/auth/session": { user: { id: "user-admin", email: "admin@rescuebase.local", displayName: "Admin", role: "ADMIN", twoFactorEnabled: false } },
-      "/api/auth/2fa/totp/setup": { secret: "ABCDEF123456", otpauthUrl: "otpauth://totp/RescueBase:admin@rescuebase.local?secret=ABCDEF123456&issuer=RescueBase" },
+      "/api/auth/two-factor/enable": { totpURI: "otpauth://totp/RescueBase:admin@rescuebase.local?secret=ABCDEF123456&issuer=RescueBase", backupCodes: [] },
+      "/api/auth/two-factor/verify-totp": { status: true },
       "/api/catalog/locations": [],
       "/api/alerts/subscriptions/me": []
     });
@@ -19,6 +20,10 @@ describe("AccountPage", () => {
     expect(await screen.findByAltText("TOTP-QR-Code")).toBeInTheDocument();
     expect(screen.getByText("ABCDEF123456")).toBeInTheDocument();
     expect(screen.getByLabelText("TOTP-Code")).toHaveAttribute("autocomplete", "one-time-code");
+    expect(requestBody("/api/auth/two-factor/enable", "POST")).toEqual({ password: "rescuebase-admin" });
+    await changeValue(screen.getByLabelText("TOTP-Code"), "123456");
+    await clickElement(screen.getByRole("button", { name: "TOTP aktivieren" }));
+    expect(requestBody("/api/auth/two-factor/verify-totp", "POST")).toEqual({ code: "123456", trustDevice: false });
   });
 
   it("marks the mail challenge field as a one-time code input", async () => {

@@ -20,18 +20,14 @@ describe("medical devices", () => {
     await closeApp?.();
   });
 
-  it("deletes devices and removes them from the catalog listing", async () => {
+  it("rejects the retired catalog device write API", async () => {
     const agent = request.agent(app.getHttpServer());
     await agent.post("/auth/login").send({ email: "admin@rescuebase.local", password: "rescuebase-admin" }).expect(201);
 
-    const created = await agent
+    await agent
       .post("/catalog/devices")
       .send({ name: "Corpuls C3", articleId: "article-tourniquet", locationId: "loc-main", active: true })
-      .expect(201);
-
-    await agent.delete(`/catalog/devices/${created.body.id}`).expect(200, { ok: true });
-
-    const listed = await agent.get("/catalog/devices").expect(200);
-    expect(listed.body).toEqual([]);
+      .expect(404);
+    await agent.get("/catalog/devices").expect(404);
   });
 });
