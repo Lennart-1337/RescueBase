@@ -1,6 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { PrismaService } from "../persistence/prisma.service.js";
-import { audit, optional, revision, text, type Input } from "./mpg.validation.js";
+import { audit, optional, revision, text, type Input } from "./mpg-validation.js";
 @Injectable()
 export class MpgPeopleService {
   constructor(private readonly db: PrismaService) {}

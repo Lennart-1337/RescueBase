@@ -1,4 +1,4 @@
-import { buildMpgReminders } from "../src/mpg-notifications/reminders.js";
+import { buildMpgReminders } from "../src/services/mpg-reminders.js";
 
 const device = {
   id: "device-1",

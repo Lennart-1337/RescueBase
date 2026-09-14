@@ -1,15 +1,15 @@
 import { Body, Controller, Get, Param, Patch, Post, Req, UseGuards } from "@nestjs/common";
 import type { AuthenticatedRequest } from "../auth/auth.guard.js";
 import { MpgGuard } from "../auth/mpg.guard.js";
-import { MpgNotificationsService } from "../mpg-notifications/mpg-notifications.service.js";
-import { MpgCylindersService } from "./mpg-cylinders.service.js";
-import { MpgDevicesService } from "./mpg-devices.service.js";
-import { MpgInspectionsService } from "./mpg-inspections.service.js";
-import { MpgModelsService } from "./mpg-models.service.js";
-import { MpgOperationsService } from "./mpg-operations.service.js";
-import { MpgPeopleService } from "./mpg-people.service.js";
-import { MpgTrainingsService } from "./mpg-trainings.service.js";
-import type { Input } from "./mpg.validation.js";
+import { MpgNotificationsService } from "../services/mpg-notifications.service.js";
+import { MpgCylindersService } from "../services/mpg-cylinders.service.js";
+import { MpgDevicesService } from "../services/mpg-devices.service.js";
+import { MpgInspectionsService } from "../services/mpg-inspections.service.js";
+import { MpgModelsService } from "../services/mpg-models.service.js";
+import { MpgOperationsService } from "../services/mpg-operations.service.js";
+import { MpgPeopleService } from "../services/mpg-people.service.js";
+import { MpgTrainingsService } from "../services/mpg-trainings.service.js";
+import type { Input } from "../services/mpg-validation.js";
 
 @Controller("mpg")
 @UseGuards(MpgGuard)

@@ -1,5 +1,5 @@
-import { inspectUpload, safeFilename } from "../src/mpg-files/file-validation.js";
-import { inventoryCsv } from "../src/mpg-files/csv.js";
+import { inspectUpload, safeFilename } from "../src/services/mpg-file-validation.js";
+import { inventoryCsv } from "../src/services/mpg-csv.js";
 
 describe("MPG private documents", () => {
   it("accepts a PDF with a matching signature", () => {

@@ -3,9 +3,9 @@ import { FileInterceptor } from "@nestjs/platform-express";
 import type { Response } from "express";
 import { MpgGuard } from "../auth/mpg.guard.js";
 import type { AuthenticatedRequest } from "../auth/auth.guard.js";
-import { MAX_DOCUMENT_BYTES } from "./file-validation.js";
-import type { DocumentOwner } from "./document-owner.js";
-import { MpgDocumentsService, type UploadedDocument } from "./documents.service.js";
+import { MAX_DOCUMENT_BYTES } from "../services/mpg-file-validation.js";
+import type { DocumentOwner } from "../services/mpg-document-owner.js";
+import { MpgDocumentsService, type UploadedDocument } from "../services/mpg-documents.service.js";
 
 @Controller("mpg/documents")
 @UseGuards(MpgGuard)

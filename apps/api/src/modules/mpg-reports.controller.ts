@@ -1,7 +1,7 @@
 import { Controller, Get, Param, Res, UseGuards } from "@nestjs/common";
 import type { Response } from "express";
 import { MpgGuard } from "../auth/mpg.guard.js";
-import { MpgReportsService } from "./mpg-reports.service.js";
+import { MpgReportsService } from "../services/mpg-reports.service.js";
 
 @Controller("mpg/exports")
 @UseGuards(MpgGuard)

@@ -2,10 +2,10 @@ import { Injectable } from "@nestjs/common";
 import PDFDocument from "pdfkit";
 import QRCode from "qrcode";
 import { PrismaService } from "../persistence/prisma.service.js";
-import { MpgDevicesService } from "../mpg/mpg-devices.service.js";
-import { MpgDocumentsService } from "./documents.service.js";
-import { inventoryCsv } from "./csv.js";
-import { zip } from "./zip.js";
+import { MpgDevicesService } from "./mpg-devices.service.js";
+import { MpgDocumentsService } from "./mpg-documents.service.js";
+import { inventoryCsv } from "./mpg-csv.js";
+import { zip } from "./mpg-zip.js";
 
 @Injectable()
 export class MpgReportsService {

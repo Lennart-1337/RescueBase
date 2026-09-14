@@ -3,8 +3,8 @@ import { createHash, randomUUID } from "node:crypto";
 import { mkdir, readFile, unlink, writeFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import { PrismaService } from "../persistence/prisma.service.js";
-import { assertOwner, documentOwnerKeys, parseOwner, type DocumentOwner } from "./document-owner.js";
-import { inspectUpload, safeFilename } from "./file-validation.js";
+import { assertOwner, documentOwnerKeys, parseOwner, type DocumentOwner } from "./mpg-document-owner.js";
+import { inspectUpload, safeFilename } from "./mpg-file-validation.js";
 
 export type UploadedDocument = { buffer: Buffer; mimetype: string; originalname: string };
 

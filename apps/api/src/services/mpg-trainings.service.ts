@@ -1,7 +1,7 @@
 import { BadRequestException, Injectable } from "@nestjs/common";
 import { createHash } from "node:crypto";
 import { PrismaService } from "../persistence/prisma.service.js";
-import { audit, choice, date, isFutureCalendarDate, optional, revision, text, type Input } from "./mpg.validation.js";
+import { audit, choice, date, isFutureCalendarDate, optional, revision, text, type Input } from "./mpg-validation.js";
 @Injectable()
 export class MpgTrainingsService {
   constructor(private readonly db: PrismaService) {}

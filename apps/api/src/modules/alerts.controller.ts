@@ -15,7 +15,10 @@ export class AlertsController {
   ) {}
 
   @Get("warnings")
-  warnings(@Query("category") category?: string, @Query("locationId") locationId?: string) {
+  async warnings(@Query("category") category?: string, @Query("locationId") locationId?: string) {
+    // Refresh on read so changes made by scheduled jobs or external integrations
+    // are reflected immediately, even when no mutation endpoint was called.
+    await this.alerts.syncAlerts("warnings-read");
     return this.alerts.listWarnings({ category, locationId });
   }
 

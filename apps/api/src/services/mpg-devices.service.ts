@@ -1,6 +1,6 @@
 import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
 import { PrismaService } from "../persistence/prisma.service.js";
-import { audit, date, integer, optional, optionalDate, revision, text, type Input } from "./mpg.validation.js";
+import { audit, date, integer, optional, optionalDate, revision, text, type Input } from "./mpg-validation.js";
 import { deviceInclude, deviceState } from "./mpg-device-state.js";
 @Injectable()
 export class MpgDevicesService {

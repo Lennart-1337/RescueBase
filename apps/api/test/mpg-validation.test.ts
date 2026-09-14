@@ -1,4 +1,4 @@
-import { date, integer, isFutureCalendarDate, revision, text } from "../../src/mpg/mpg.validation.js";
+import { date, integer, isFutureCalendarDate, revision, text } from "../src/services/mpg-validation.js";
 describe("MPG input invariants", () => {
   it("rejects missing evidence and malformed dates", () => {
     expect(() => text("  ", "Quelle")).toThrow();

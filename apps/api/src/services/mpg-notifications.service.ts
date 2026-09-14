@@ -1,9 +1,9 @@
 import { Injectable, Logger, type OnApplicationBootstrap, type OnModuleDestroy } from '@nestjs/common';
 import { PrismaService } from '../persistence/prisma.service.js';
-import { MailService } from '../services/mail.service.js';
-import { PushService } from '../services/push.service.js';
-import { deviceInclude, deviceState } from '../mpg/mpg-device-state.js';
-import { buildMpgReminders, type MpgReminder } from './reminders.js';
+import { MailService } from './mail.service.js';
+import { PushService } from './push.service.js';
+import { deviceInclude, deviceState } from './mpg-device-state.js';
+import { buildMpgReminders, type MpgReminder } from './mpg-reminders.js';
 
 @Injectable()
 export class MpgNotificationsService implements OnApplicationBootstrap, OnModuleDestroy {

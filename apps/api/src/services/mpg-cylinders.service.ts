@@ -1,6 +1,6 @@
 import { BadRequestException, Injectable } from "@nestjs/common";
 import { PrismaService } from "../persistence/prisma.service.js";
-import { audit, choice, finiteNumber, optionalDate, revision, text, type Input } from "./mpg.validation.js";
+import { audit, choice, finiteNumber, optionalDate, revision, text, type Input } from "./mpg-validation.js";
 
 @Injectable()
 export class MpgCylindersService {
