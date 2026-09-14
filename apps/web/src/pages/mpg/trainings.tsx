@@ -1,18 +1,19 @@
 import { useState } from "react";
 import { AnchorButton, Button, Field } from "../../components/ui";
+import type { DataTableColumn } from "../../components/data-table/data-table";
 import { useMpgAction } from "./api";
+import { MpgDataTable } from "./data-table";
 import { MpgForm } from "./form";
 import { Signature } from "./signature";
-import { dateField, MpgTable, textField } from "./shared";
+import { dateField, textField } from "./shared";
 import { displayDate, options, type Device, type Training } from "./types";
 import type { Catalog } from "./devices";
 
 export function Trainings({ catalog, devices, trainings = [], deviceId }: { catalog: Catalog; devices: Device[]; trainings?: Training[]; deviceId?: string }) {
   const action = useMpgAction();
   const visible = deviceId ? trainings.filter(t => t.deviceId === deviceId || t.modelId === devices[0]?.mpgModelId) : trainings;
-  return <section><h2>Einweisungen</h2><MpgTable headings={["Datum", "Geltungsbereich", "Bestätigungen", "Nachweis"]} empty={!visible.length}>{visible.map(training => <tr key={training.id}>
-    <td>{displayDate(training.performedAt)}</td><td>{training.scope}</td><td>{training.confirmations.filter(c => c.confirmedAt).length}/{training.confirmations.length}</td>
-    <td><TrainingActions training={training} /></td></tr>)}</MpgTable>
+  const columns: DataTableColumn<Training>[] = [{ id: "date", label: "Datum", render: training => displayDate(training.performedAt), sortValue: training => training.performedAt, width: "140px" }, { id: "scope", label: "Geltungsbereich", render: training => <strong>{training.scope}</strong>, sortValue: training => training.scope }, { id: "confirmations", label: "Bestätigungen", render: training => `${training.confirmations.filter(confirmation => confirmation.confirmedAt).length}/${training.confirmations.length}`, sortValue: training => training.confirmations.filter(confirmation => confirmation.confirmedAt).length, width: "150px" }, { id: "record", label: "Nachweis", render: training => <TrainingActions training={training} />, width: "260px" }];
+  return <section className="mpg-section"><header className="mpg-section-header"><div><h2>Einweisungen</h2><p>{visible.length} Einweisungsnachweise</p></div></header><MpgDataTable columns={columns} emptyMessage="Noch keine Einweisungen dokumentiert." getRowId={training => training.id} rows={visible} />
     <details className="mpg-detail"><summary>Einweisung anlegen</summary><MpgForm title="Neue Einweisung" initial={deviceId ? { deviceId } : {}} fields={[
       { name: "modelId", label: "Modell", required: true, options: options(catalog.models) },
       { name: "deviceId", label: "Optionales Einzelgerät", options: options(devices) }, dateField("performedAt", "Datum", true),

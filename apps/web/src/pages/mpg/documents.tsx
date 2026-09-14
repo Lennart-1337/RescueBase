@@ -1,13 +1,16 @@
 import { useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { AnchorButton, Button, Field } from "../../components/ui";
+import type { DataTableColumn } from "../../components/data-table/data-table";
 import { useMpg } from "./api";
-import { QueryState, MpgTable } from "./shared";
+import { MpgDataTable } from "./data-table";
+import { QueryState } from "./shared";
 import { displayDate, type Document } from "./types";
 export function Documents({ owner, onUploaded }: { owner: { deviceId?: string; modelId?: string; personId?: string }; onUploaded?: (id: string) => Promise<unknown> }) {
   const query = useMpg<Document[]>(`/documents?${new URLSearchParams(owner).toString()}`);
   const client = useQueryClient(); const [file, setFile] = useState<File | null>(null); const [previous, setPrevious] = useState(""); const [error, setError] = useState(""); const [pending, setPending] = useState(false);
-  return <section><h3>Dokumente</h3><QueryState query={query} /><MpgTable headings={["Datei", "Version", "Hochgeladen", ""]} empty={query.data?.length === 0}>{query.data?.map((document) => <tr key={document.id}><td>{document.filename}</td><td>{document.version}</td><td>{displayDate(document.createdAt)}</td><td><AnchorButton variant="ghost" href={`/api/mpg/documents/${document.id}`}>Herunterladen</AnchorButton></td></tr>)}</MpgTable>
+  const columns: DataTableColumn<Document>[] = [{ id: "file", label: "Datei", render: document => <strong>{document.filename}</strong>, sortValue: document => document.filename }, { id: "version", label: "Version", render: document => `v${document.version}`, sortValue: document => document.version, width: "100px" }, { id: "uploaded", label: "Hochgeladen", render: document => displayDate(document.createdAt), sortValue: document => document.createdAt, width: "150px" }, { id: "download", label: "Dokument", render: document => <AnchorButton variant="ghost" href={`/api/mpg/documents/${document.id}`}>Herunterladen</AnchorButton>, width: "150px" }];
+  return <section><h3>Dokumente</h3><QueryState query={query} /><MpgDataTable columns={columns} emptyMessage="Noch keine Dokumente hinterlegt." getRowId={document => document.id} rows={query.data ?? []} />
     <form className="mpg-form" onSubmit={async (event) => { event.preventDefault(); if (!file) return; setError(""); setPending(true); try {
       if (file.size > 20 * 1024 * 1024) throw new Error("Die Datei darf höchstens 20 MB groß sein.");
       const body = new FormData(); body.append("file", file); for (const [key, value] of Object.entries(owner)) if (value) body.append(key, value); if (previous) body.append("previousVersionId", previous);

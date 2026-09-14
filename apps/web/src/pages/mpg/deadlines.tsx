@@ -1,9 +1,19 @@
 import { Link } from "@tanstack/react-router";
-import { MpgTable } from "./shared";
+import type { DataTableColumn } from "../../components/data-table/data-table";
+import { MpgDataTable } from "./data-table";
+import { MpgStatus } from "./shared";
 import { displayDate, statusLabel, type Device } from "./types";
 
+type DeadlineRow = { id: string; device: Device; requirement: NonNullable<Device["requirements"]>[number] };
+
 export function Deadlines({ devices }: { devices: Device[] }) {
-  const rows = devices.flatMap(device => (device.requirements ?? []).map(requirement => ({ device, requirement })))
+  const rows: DeadlineRow[] = devices.flatMap(device => (device.requirements ?? []).map(requirement => ({ id: `${device.id}-${requirement.id}`, device, requirement })))
     .filter(row => row.requirement.dueDate).sort((a, b) => String(a.requirement.dueDate).localeCompare(String(b.requirement.dueDate)));
-  return <section><h2>Termine und Sperren</h2><MpgTable headings={["Fälligkeit", "Gerät", "Prüfung", "Status"]} empty={!rows.length}>{rows.map(({ device, requirement }) => <tr key={`${device.id}-${requirement.id}`}><td>{displayDate(requirement.dueDate)}</td><td><Link to="/admin/mpg" search={{ device: device.id, view: "devices" }}>{device.name}</Link></td><td>{requirement.title}</td><td>{statusLabel(device.status)}</td></tr>)}</MpgTable></section>;
+  const columns: DataTableColumn<DeadlineRow>[] = [
+    { id: "due", label: "Fälligkeit", render: row => displayDate(row.requirement.dueDate), sortValue: row => row.requirement.dueDate ?? "", width: "150px" },
+    { id: "device", label: "Gerät", render: row => <Link to="/admin/mpg" search={{ device: row.device.id, view: "devices" }}>{row.device.name}</Link>, sortValue: row => row.device.name },
+    { id: "inspection", label: "Prüfung", render: row => row.requirement.title, sortValue: row => row.requirement.title },
+    { id: "status", label: "Gerätestatus", render: row => <MpgStatus value={row.device.status} />, sortValue: row => statusLabel(row.device.status), width: "150px" }
+  ];
+  return <section className="mpg-section"><header className="mpg-section-header"><div><h2>Termine und Sperren</h2><p>{rows.length} anstehende Prüftermine</p></div></header><MpgDataTable columns={columns} emptyMessage="Keine Prüftermine vorhanden." getRowId={row => row.id} rows={rows} /></section>;
 }
