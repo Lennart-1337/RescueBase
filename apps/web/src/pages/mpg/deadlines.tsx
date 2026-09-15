@@ -15,5 +15,5 @@ export function Deadlines({ devices }: { devices: Device[] }) {
     { id: "inspection", label: "Prüfung", render: row => row.requirement.title, sortValue: row => row.requirement.title },
     { id: "status", label: "Gerätestatus", render: row => <MpgStatus value={row.device.status} />, sortValue: row => statusLabel(row.device.status), width: "150px" }
   ];
-  return <section className="mpg-section"><header className="mpg-section-header"><div><h2>Termine und Sperren</h2><p>{rows.length} anstehende Prüftermine</p></div></header><MpgDataTable columns={columns} emptyMessage="Keine Prüftermine vorhanden." getRowId={row => row.id} rows={rows} /></section>;
+  return <section className="mpg-section"><header className="mpg-section-header"><div><h2>Termine und Sperren</h2><p>{rows.length} {rows.length === 1 ? "anstehender Prüftermin" : "anstehende Prüftermine"}</p></div></header><MpgDataTable columns={columns} emptyMessage="Keine Prüftermine vorhanden." getRowId={row => row.id} rows={rows} /></section>;
 }

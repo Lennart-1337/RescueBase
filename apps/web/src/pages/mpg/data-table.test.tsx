@@ -17,4 +17,11 @@ describe("MpgDataTable", () => {
     render(<MpgDataTable columns={[{ id: "name", label: "Gerät", render: (row: { id: string; name: string }) => row.name }]} emptyMessage="Keine Geräte gefunden." getRowId={(row) => row.id} rows={[]} />);
     expect(screen.getByText("Keine Geräte gefunden.")).toBeInTheDocument();
   });
+
+  it("gives wide tables enough horizontal space for their columns", () => {
+    const columns = Array.from({ length: 7 }, (_, index) => ({ id: `column-${index}`, label: `Spalte ${index}`, render: () => "Wert" }));
+    const { container } = render(<MpgDataTable columns={columns} getRowId={(row: { id: string }) => row.id} rows={[{ id: "1" }]} />);
+
+    expect(container.querySelector(".mpg-table-frame")).toHaveStyle({ "--mpg-table-min-width": "1190px" });
+  });
 });
