@@ -10,6 +10,13 @@ export type InvitationPreview = components["schemas"]["InvitationPreview"];
 export type PasswordResetPreview = components["schemas"]["PasswordResetPreview"];
 export type EmailChangePreview = components["schemas"]["EmailChangePreview"];
 export type UserSummary = components["schemas"]["UserSummary"];
+export type MedicalDevicePermissionUser = {
+  id: string;
+  displayName: string;
+  email: string;
+  role: "ADMIN" | "WAREHOUSE";
+  medicalDevicesManage: boolean;
+};
 export type Supplier = components["schemas"]["Supplier"];
 export type Article = components["schemas"]["Article"];
 export type Location = components["schemas"]["Location"];

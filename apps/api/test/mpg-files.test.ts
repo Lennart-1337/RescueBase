@@ -1,5 +1,4 @@
 import { inspectUpload, safeFilename } from "../src/services/mpg-file-validation.js";
-import { inventoryCsv } from "../src/services/mpg-csv.js";
 
 describe("MPG private documents", () => {
   it("accepts a PDF with a matching signature", () => {
@@ -15,10 +14,5 @@ describe("MPG private documents", () => {
   it("strips path and header characters from filenames", () => {
     expect(safeFilename("../../Prüfung\r\n.pdf")).toBe("Prüfung.pdf");
     expect(safeFilename("C:\\temp\\Bericht.pdf")).toBe("Bericht.pdf");
-  });
-  it("escapes delimiters, quotes and spreadsheet formulas in exports", () => {
-    const csv = inventoryCsv([{"Name": '=HYPERLINK("bad")', "Ort": "Wache; Süd"}]);
-    expect(csv).toContain('"\'=HYPERLINK(""bad"")"');
-    expect(csv).toContain('"Wache; Süd"');
   });
 });

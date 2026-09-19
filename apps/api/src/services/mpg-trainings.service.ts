@@ -9,13 +9,15 @@ export class MpgTrainingsService {
   get(id: string) { return this.db.mpgTraining.findUniqueOrThrow({ where: { id }, include: { confirmations: true } }); }
   create(b: Input, actor: string) {
     return this.db.$transaction(async tx => {
-      const modelId = text(b.modelId, "Modell"), deviceId = optional(b.deviceId), instructorId = text(b.instructorId, "Einweisende Person");
+      const modelId = text(b.modelId, "Modell"), instructorId = text(b.instructorId, "Einweisende Person");
+      if ("deviceId" in b || "scope" in b) throw new BadRequestException("Einweisungen gelten für das ausgewählte Modell und alle baugleichen Geräte.");
       await tx.mpgModel.findUniqueOrThrow({ where: { id: modelId } });
-      if (deviceId) await tx.medicalDevice.findFirstOrThrow({ where: { id: deviceId, mpgModelId: modelId } });
       const instructor = await tx.mpgPerson.findFirstOrThrow({ where: { id: instructorId, active: true } });
-      if (!instructor.instructorAuthorization) throw new BadRequestException("Beauftragung der einweisenden Person fehlt.");
-      const documentId = text(b.documentId, "Dokumentversion");
-      await tx.mpgDocument.findFirstOrThrow({ where: { id: documentId, OR: [{ modelId }, ...(deviceId ? [{ deviceId }] : [])] } });
+      if (!instructor.instructorAuthorized || !instructor.instructorAuthorization || !instructor.qualificationDocumentId ||
+          (instructor.authorizationValidUntil && instructor.authorizationValidUntil < new Date()))
+        throw new BadRequestException("Beauftragung und Qualifikationsnachweis der einweisenden Person fehlen oder sind ungültig.");
+      const documentId = optional(b.documentId);
+      if (documentId) await tx.mpgDocument.findFirstOrThrow({ where: { id: documentId, modelId } });
       if (!Array.isArray(b.participantIds) || !b.participantIds.length) throw new BadRequestException("Teilnehmer fehlen.");
       const participantIds = [...new Set(b.participantIds.map(p => text(p, "Teilnehmer")))];
       const participants = await tx.mpgPerson.findMany({ where: { id: { in: participantIds }, active: true } });
@@ -23,8 +25,8 @@ export class MpgTrainingsService {
       const performedAt = date(b.performedAt); if (isFutureCalendarDate(performedAt)) throw new BadRequestException("Einweisungsdatum liegt in der Zukunft.");
       const correctionOfId = optional(b.correctionOfId);
       if (correctionOfId) await tx.mpgTraining.findFirstOrThrow({ where: { id: correctionOfId, finalizedAt: { not: null } } });
-      const result = await tx.mpgTraining.create({ data: { modelId, deviceId, instructorId, documentId, performedAt,
-        scope: text(b.scope, "Geltungsbereich"), contents: text(b.contents, "Inhalte"), correctionOfId,
+      const result = await tx.mpgTraining.create({ data: { modelId, instructorId, documentId, performedAt,
+        contents: text(b.contents, "Inhalte"), correctionOfId,
         correctionReason: correctionOfId ? text(b.reason, "Berichtigungsgrund") : null,
         confirmations: { create: [{ personId: instructor.id, role: "INSTRUCTOR", nameSnapshot: instructor.name, confirmationText: "" },
           ...participants.map(p => ({ personId: p.id, role: "PARTICIPANT", nameSnapshot: p.name, confirmationText: "" }))] } }, include: { confirmations: true } });

@@ -14,7 +14,7 @@ export function parseOwner(body: DocumentOwner): DocumentOwner {
 
 export async function assertOwner(tx: Prisma.TransactionClient, owner: DocumentOwner) {
   let exists: unknown;
-  if (owner.deviceId) exists = await tx.medicalDevice.findUnique({ where: { id: owner.deviceId } });
+  if (owner.deviceId) exists = await tx.mpgDevice.findUnique({ where: { id: owner.deviceId } });
   if (owner.modelId) exists = await tx.mpgModel.findUnique({ where: { id: owner.modelId } });
   if (owner.personId) exists = await tx.mpgPerson.findUnique({ where: { id: owner.personId } });
   if (owner.inspectionId) exists = await tx.mpgInspection.findUnique({ where: { id: owner.inspectionId } });

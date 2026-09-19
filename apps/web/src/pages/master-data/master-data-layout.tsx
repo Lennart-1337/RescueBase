@@ -8,7 +8,8 @@ const tabs = [
   { label: "Artikel", path: "/admin/master-data/articles" },
   { label: "Lieferanten", path: "/admin/master-data/suppliers" },
   { label: "Lagerorte", path: "/admin/master-data/locations" },
-  { label: "Rucksackvorlagen", path: "/admin/master-data/templates" }
+  { label: "Rucksackvorlagen", path: "/admin/master-data/templates" },
+  { label: "Geräte", path: "/admin/master-data/devices" }
 ] as const;
 
 export function MasterDataLayout() {

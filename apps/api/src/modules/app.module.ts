@@ -7,6 +7,7 @@ import { AlertsController } from "./alerts.controller.js";
 import { AuditController } from "./audit.controller.js";
 import { CatalogController } from "./catalog.controller.js";
 import { CheckRecordsController } from "./check-records.controller.js";
+import { MedicalDevicesController } from "./medical-devices.controller.js";
 import { InventoryController } from "./inventory.controller.js";
 import { PublicChecksController } from "./public-checks.controller.js";
 import { PushController } from "./push.controller.js";
@@ -56,6 +57,7 @@ import { MpgTrainingsService } from "../services/mpg-trainings.service.js";
     AuditController,
     CheckRecordsController,
     CatalogController,
+    MedicalDevicesController,
     MpgPermissionsController,
     MpgController,
     MpgDocumentsController,

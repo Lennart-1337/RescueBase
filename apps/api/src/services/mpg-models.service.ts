@@ -25,15 +25,16 @@ export class MpgModelsService {
       const intervalMonths = b.intervalMonths == null ? null : integer(b.intervalMonths, 1), firstDueAt = optionalDate(b.firstDueAt);
       if (!intervalMonths && !firstDueAt) throw new BadRequestException("Intervall oder konkrete Fälligkeit fehlt.");
       const result = await tx.mpgRequirement.create({ data: { modelId: id, kind: choice(b.kind, ["STK", "MTK", "MAINTENANCE", "OTHER", "GLUCOSE"]),
-        title: text(b.title, "Bezeichnung"), source: text(b.source, "Quelle"), mandatory: b.mandatory !== false, intervalMonths, firstDueAt } });
+        title: text(b.title, "Bezeichnung"), justification: text(b.justification, "Begründung"), source: text(b.source, "Quelle"), mandatory: b.mandatory !== false, intervalMonths, firstDueAt } });
       await tx.mpgModel.update({ where: { id, version: model.version }, data: { requirementsReviewedAt: null, version: { increment: 1 } } });
       await audit(tx, actor, "MpgModel", id, "MPG_REQUIREMENT_CREATED", result); return result;
     });
   }
   async review(id: string, b: Input, actor: string) {
     return this.db.$transaction(async tx => {
-      const model = await tx.mpgModel.findUniqueOrThrow({ where: { id } }); revision(model.version, b.version);
+      const model = await tx.mpgModel.findUniqueOrThrow({ where: { id }, include: { requirements: { where: { active: true } } } }); revision(model.version, b.version);
       if (!model.instructionsDocumentId) throw new BadRequestException("Gebrauchsanweisung muss hinterlegt sein.");
+      if (!model.requirements.length) throw new BadRequestException("Mindestens eine belegte Prüfanforderung muss festgelegt sein.");
       const result = await tx.mpgModel.update({ where: { id, version: model.version }, data: { requirementsReviewSource: text(b.source, "Begründung und Quelle"),
         requirementsReviewedAt: new Date(), requirementsReviewedBy: actor, version: { increment: 1 } } });
       await audit(tx, actor, "MpgModel", id, "MPG_REQUIREMENTS_REVIEWED", result); return result;

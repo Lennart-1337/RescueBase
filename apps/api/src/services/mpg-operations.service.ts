@@ -17,7 +17,7 @@ export class MpgOperationsService {
       solutionExpiresOn: text(body.solutionExpiresAt, "Verfall der Kontrolllösung") }); }
     catch (error) { throw new BadRequestException(error instanceof Error ? error.message : "Kontrollmessung ungültig."); }
     return this.db.$transaction(async tx => {
-      const device = await tx.medicalDevice.findUniqueOrThrow({ where: { id: deviceId }, include: { mpgModel: true } });
+      const device = await tx.mpgDevice.findUniqueOrThrow({ where: { id: deviceId }, include: { mpgModel: true } });
       if (device.retiredAt || !device.mpgModel || !/blutzucker|\bbz\b/i.test(`${device.mpgModel.productType} ${device.mpgModel.name}`)) {
         throw new BadRequestException("BZ-Kontrollen sind nur für aktive Blutzuckermessgeräte zulässig.");
       }
@@ -29,7 +29,7 @@ export class MpgOperationsService {
         controlLevel: text(body.controlLevel, "Kontrollniveau"), unit: text(body.unit, "Einheit"),
         targetUnit: text(body.targetUnit, "Sollbereichseinheit"), targetMin, targetMax, value,
         passed: evaluation.passed, clarification: evaluation.reasons.length ? evaluation.reasons.join(" ") : null, finalizedBy: actor } });
-      await audit(tx, actor, "MedicalDevice", deviceId, "MPG_GLUCOSE_CONTROL_FINALIZED", row); return row;
+      await audit(tx, actor, "MpgDevice", deviceId, "MPG_GLUCOSE_CONTROL_FINALIZED", row); return row;
     });
   }
 
@@ -40,7 +40,7 @@ export class MpgOperationsService {
       const retry = await tx.mpgGlucoseControl.findFirst({ where: { deviceId: row.deviceId, passed: true, performedAt: { gt: row.performedAt } } });
       if (!retry) throw new BadRequestException("Vor der Klärung ist eine erfolgreiche Wiederholungsmessung erforderlich.");
       const result = await tx.mpgGlucoseControl.update({ where: { id }, data: { clarification: text(body.clarification, "Ursache und Maßnahmen"), resolvedAt: new Date(), resolvedBy: actor } });
-      await audit(tx, actor, "MedicalDevice", row.deviceId, "MPG_GLUCOSE_CONTROL_RESOLVED", result); return result;
+      await audit(tx, actor, "MpgDevice", row.deviceId, "MPG_GLUCOSE_CONTROL_RESOLVED", result); return result;
     });
   }
 
@@ -48,11 +48,13 @@ export class MpgOperationsService {
     const occurredAt = date(body.occurredAt);
     if (isFutureCalendarDate(occurredAt)) throw new BadRequestException("Datum des Vorkommnisses liegt in der Zukunft.");
     return this.db.$transaction(async tx => {
-      const device = await tx.medicalDevice.findUniqueOrThrow({ where: { id: deviceId } });
+      const device = await tx.mpgDevice.findUniqueOrThrow({ where: { id: deviceId } });
       if (device.retiredAt) throw new BadRequestException("Gerät ist außer Betrieb.");
       const row = await tx.mpgIncident.create({ data: { deviceId, occurredAt,
-        description: text(body.description, "Beschreibung"), measures: text(body.measures, "Maßnahmen"), safetyRelevant: body.safetyRelevant === true } });
-      await audit(tx, actor, "MedicalDevice", deviceId, "MPG_INCIDENT_CREATED", row); return row;
+        description: text(body.description, "Beschreibung"), effects: text(body.effects, "Auswirkungen"),
+        measures: text(body.measures, "Maßnahmen"), safetyRelevant: body.safetyRelevant === true,
+        reportedAt: optionalDate(body.reportedAt), reportReference: optional(body.reportReference) } });
+      await audit(tx, actor, "MpgDevice", deviceId, "MPG_INCIDENT_CREATED", row); return row;
     });
   }
 
@@ -61,10 +63,10 @@ export class MpgOperationsService {
       const old = await tx.mpgIncident.findUniqueOrThrow({ where: { id } }); revision(old.version, body.version);
       const status = choice(body.status, ["OPEN", "RESOLVED"]);
       const row = await tx.mpgIncident.update({ where: { id, version: old.version }, data: {
-        measures: text(body.measures, "Maßnahmen"), status, reportedAt: optionalDate(body.reportedAt),
+        effects: text(body.effects, "Auswirkungen"), measures: text(body.measures, "Maßnahmen"), status, reportedAt: optionalDate(body.reportedAt),
         reportReference: optional(body.reportReference), resolvedAt: status === "RESOLVED" ? new Date() : null,
         resolvedBy: status === "RESOLVED" ? actor : null, version: { increment: 1 } } });
-      await audit(tx, actor, "MedicalDevice", old.deviceId, "MPG_INCIDENT_UPDATED", { old, row }); return row;
+      await audit(tx, actor, "MpgDevice", old.deviceId, "MPG_INCIDENT_UPDATED", { old, row }); return row;
     });
   }
 }

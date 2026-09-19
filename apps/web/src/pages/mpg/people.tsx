@@ -1,41 +1,31 @@
 import { useState } from "react";
-import { Pencil, Plus } from "lucide-react";
-import { AnchorButton } from "../../components/ui";
-import { Button } from "../../components/ui";
+import { Plus } from "lucide-react";
 import type { DataTableColumn } from "../../components/data-table/data-table";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { Button } from "../../components/ui";
+import type { UserSummary } from "../../lib/types";
 import { useMpgAction } from "./api";
 import { MpgDataTable } from "./data-table";
 import { MpgFormDialog } from "./form-dialog";
-import { textField } from "./shared";
-import type { Person } from "./types";
+import { PersonDetail } from "./person-detail";
+import { dateField, textField } from "./shared";
+import { displayDate, type Person } from "./types";
 
-export function People({ people, isAdmin }: { people: Person[]; isAdmin?: boolean }) {
-  const action = useMpgAction(); const [createOpen, setCreateOpen] = useState(false); const [editing, setEditing] = useState<Person | null>(null);
-  const columns: DataTableColumn<Person>[] = [{ id: "person", label: "Person", render: person => <><strong>{person.name}</strong><small>{person.internalCode}</small></>, sortValue: person => person.name }, { id: "affiliation", label: "Zugehörigkeit", render: person => person.affiliation, sortValue: person => person.affiliation }, { id: "status", label: "Status", render: person => <span className={person.active ? "mpg-status mpg-status-ready" : "mpg-status mpg-status-neutral"}>{person.active ? "Aktiv" : "Inaktiv"}</span>, sortValue: person => person.active ? 1 : 0, width: "120px" }, { id: "records", label: "Nachweise", render: person => <AnchorButton variant="ghost" href={`/api/mpg/exports/people/${person.id}.pdf`}>Einweisungen PDF</AnchorButton>, width: "170px" }, { id: "actions", label: "Aktionen", render: person => <Button onClick={() => setEditing(person)} type="button" variant="secondary"><Pencil data-icon="inline-start" />Bearbeiten</Button>, width: "150px" }];
-  const fields = [textField("name", "Name"), textField("internalCode", "Interne Kennung"), textField("affiliation", "Zugehörigkeit"), { ...textField("instructorAuthorization", "Beauftragung als einweisende Person", false), type: "textarea" as const }, { name: "active", label: "Aktive Zugehörigkeit", type: "checkbox" as const }];
-  return <section className="mpg-section"><header className="mpg-section-header"><div><h2>Personen</h2><p>{people.length} Personen · unabhängig von Benutzerkonten</p></div><Button onClick={() => setCreateOpen(true)} type="button"><Plus data-icon="inline-start" />Person anlegen</Button></header><p>Personen mit Nachweisen werden deaktiviert und nicht gelöscht.</p>
-    <MpgDataTable columns={columns} emptyMessage="Noch keine Personen angelegt." getRowId={person => person.id} rows={people} />
-    <MpgFormDialog fields={fields} initial={{ active: true }} intent="create" onClose={() => setCreateOpen(false)} onSubmit={body => action.mutateAsync({ path: "/people", body })} open={createOpen} submitLabel="Person anlegen" title="Person anlegen" />
-    {editing ? <MpgFormDialog fields={fields} initial={{ name: editing.name, internalCode: editing.internalCode, affiliation: editing.affiliation, active: editing.active, instructorAuthorization: editing.instructorAuthorization ?? "" }} onClose={() => setEditing(null)} onSubmit={body => action.mutateAsync({ path: `/people/${editing.id}`, method: "PATCH", body: { ...body, version: editing.version } })} open submitLabel="Änderungen speichern" title="Person bearbeiten" /> : null}
-    {isAdmin ? <AccessPermissions /> : null}
-  </section>;
-}
-
-type PermissionUser = { id: string; displayName: string; email: string; role: string; medicalDevicesManage: boolean };
-function AccessPermissions() {
-  const client = useQueryClient();
-  const users = useQuery({ queryKey: ["mpg-permissions", "users"], queryFn: async () => {
-    const response = await fetch("/api/mpg-permissions/users", { credentials: "include" });
-    if (!response.ok) throw new Error("Berechtigungen konnten nicht geladen werden.");
-    return response.json() as Promise<PermissionUser[]>;
-  } });
-  const update = useMutation({ mutationFn: async ({ id, enabled }: { id: string; enabled: boolean }) => {
-    const response = await fetch(`/api/mpg-permissions/users/${id}`, { method: "PUT", credentials: "include", headers: { "content-type": "application/json" }, body: JSON.stringify({ medicalDevicesManage: enabled }) });
-    if (!response.ok) throw new Error("Berechtigung konnte nicht geändert werden.");
-  }, onSuccess: () => client.invalidateQueries({ queryKey: ["mpg-permissions"] }) });
-  const columns: DataTableColumn<PermissionUser>[] = [{ id: "user", label: "Benutzer", render: user => <><strong>{user.displayName}</strong><small>{user.email}</small></>, sortValue: user => user.displayName }, { id: "role", label: "Rolle", render: user => user.role === "ADMIN" ? "Admin" : "Lagerwart", sortValue: user => user.role, width: "140px" }, { id: "access", label: "MPG verwalten", render: user => <input aria-label={`MPG-Zugriff für ${user.displayName}`} type="checkbox" disabled={user.role === "ADMIN" || update.isPending} checked={user.role === "ADMIN" || user.medicalDevicesManage} onChange={event => update.mutate({ id: user.id, enabled: event.target.checked })} />, sortValue: user => user.role === "ADMIN" || user.medicalDevicesManage ? 1 : 0, width: "160px" }];
-  return <section className="mpg-subsection"><h3>Zugriffsberechtigungen</h3><p>Administratoren haben immer Zugriff. Lagerwarte können gezielt für die zentrale MPG-Verwaltung freigeschaltet werden.</p>
-    {users.error ? <p role="alert">{users.error.message}</p> : null}<MpgDataTable columns={columns} emptyMessage="Keine Benutzerkonten vorhanden." getRowId={user => user.id} rows={users.data ?? []} />
+export function People({ people, users }: { people: Person[]; users: UserSummary[] }) {
+  const action = useMpgAction();
+  const [createOpen, setCreateOpen] = useState(false);
+  const [selectedId, setSelectedId] = useState("");
+  const selected = people.find(person => person.id === selectedId) ?? people[0] ?? null;
+  const columns: DataTableColumn<Person>[] = [
+    { id: "person", label: "Person", render: person => <><strong>{person.name}</strong><small>Geboren am {displayDate(person.birthDate)}</small></>, sortValue: person => person.name },
+    { id: "account", label: "Benutzerkonto", render: person => person.user ? `${person.user.displayName} · ${person.user.email}` : "Nicht verknüpft", sortValue: person => person.user?.displayName ?? "" },
+    { id: "instructor", label: "Einweisungsberechtigung", render: person => person.instructorAuthorized ? "Dokumentiert" : "Nein", sortValue: person => person.instructorAuthorized ? 1 : 0, width: "190px" },
+    { id: "status", label: "Status", render: person => <span className={person.active ? "mpg-status mpg-status-ready" : "mpg-status mpg-status-neutral"}>{person.active ? "Aktiv" : "Inaktiv"}</span>, sortValue: person => person.active ? 1 : 0, width: "120px" }
+  ];
+  const createFields = [textField("name", "Name"), dateField("birthDate", "Geburtsdatum", true), { name: "userId", label: "Benutzerkonto (optional)", options: users.map(user => ({ value: user.id, label: `${user.displayName} · ${user.email}` })) }, { name: "active", label: "Aktiv", type: "checkbox" as const }];
+  const remove = () => selected && window.confirm(`Person „${selected.name}“ wirklich löschen? Personen mit Nachweisen können nur deaktiviert werden.`) && action.mutate({ path: `/people/${selected.id}`, method: "DELETE", body: {} });
+  return <section className="mpg-section"><header className="mpg-section-header"><div><h2>Personen</h2><p>{people.length} Personen · unabhängig von Benutzerkonten</p></div><Button onClick={() => setCreateOpen(true)} type="button"><Plus data-icon="inline-start" />Person anlegen</Button></header>
+    <MpgDataTable columns={columns} emptyMessage="Noch keine Personen angelegt." getRowId={person => person.id} onRowClick={person => setSelectedId(person.id)} rows={people} selectedRowId={selected?.id} />
+    {selected ? <PersonDetail person={selected} users={users} onDelete={remove} /> : null}
+    <MpgFormDialog fields={createFields} initial={{ active: true }} intent="create" onClose={() => setCreateOpen(false)} onSubmit={body => action.mutateAsync({ path: "/people", body })} open={createOpen} submitLabel="Person anlegen" title="Person anlegen" />
   </section>;
 }

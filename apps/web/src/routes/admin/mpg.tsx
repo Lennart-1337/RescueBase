@@ -1,5 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { AdminRoute } from "../../app/admin-route";
+import { ErrorPanel } from "../../components/state-panels";
 import { MpgPage, type MpgView } from "../../pages/mpg/mpg-page";
 
 const views = new Set<MpgView>(["devices", "deadlines", "trainings", "people", "cylinders"]);
@@ -12,5 +13,7 @@ export const Route = createFileRoute("/admin/mpg")({
 });
 function MpgRoute() {
   const search = Route.useSearch(), navigate = useNavigate({ from: "/admin/mpg" });
-  return <AdminRoute>{user => <MpgPage deviceId={search.device} isAdmin={user.role === "ADMIN"} view={search.view} onView={view => void navigate({ search: { view, device: undefined } })} />}</AdminRoute>;
+  return <AdminRoute>{user => user.role === "ADMIN" || user.medicalDevicesManage === true
+    ? <MpgPage deviceId={search.device} view={search.view} onView={view => void navigate({ search: { view, device: undefined } })} />
+    : <ErrorPanel error={new Error("Für die MPG-Verwaltung ist die Berechtigung „Medizinprodukte verwalten“ erforderlich.")} onRetry={() => window.location.reload()} />}</AdminRoute>;
 }

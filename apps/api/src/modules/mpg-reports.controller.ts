@@ -7,8 +7,7 @@ import { MpgReportsService } from "../services/mpg-reports.service.js";
 @UseGuards(MpgGuard)
 export class MpgReportsController {
   constructor(private readonly reports: MpgReportsService) {}
-  @Get("inventory.csv") async csv(@Res() r: Response) { send(r, await this.reports.inventory("csv"), "text/csv; charset=utf-8", "bestandsverzeichnis.csv"); }
-  @Get("inventory.pdf") async inventory(@Res() r: Response) { send(r, await this.reports.inventory("pdf"), "application/pdf", "bestandsverzeichnis.pdf"); }
+  @Get("inventory.pdf") async inventory(@Res() r: Response) { send(r, await this.reports.inventory(), "application/pdf", "bestandsverzeichnis.pdf"); }
   @Get("devices/:id.pdf") async device(@Param("id") id: string, @Res() r: Response) { send(r, await this.reports.deviceBook(id), "application/pdf", "medizinproduktebuch.pdf"); }
   @Get("devices/:id.zip") async archive(@Param("id") id: string, @Res() r: Response) { send(r, await this.reports.archive(id), "application/zip", "geraeteakte.zip"); }
   @Get("devices/:id/label.pdf") async label(@Param("id") id: string, @Res() r: Response) { send(r, await this.reports.label(id), "application/pdf", "geraeteetikett.pdf"); }

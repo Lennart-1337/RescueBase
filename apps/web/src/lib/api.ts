@@ -23,7 +23,8 @@ import type {
   UpdateUserProfileRequest,
   UpdateLocationRequest,
   UpdatePurchaseOrderRequest,
-  UpsertInventoryTargetRequest
+  UpsertInventoryTargetRequest,
+  MedicalDevicePermissionUser
 } from "./types";
 
 export { ApiError };
@@ -61,6 +62,9 @@ export const rescueBaseApi = {
   revokeUserSessions: (id: string) => openApiClient.post("/auth/users/{id}/sessions/revoke", { params: { id } }),
   resetUserTwoFactor: (id: string) => openApiClient.post("/auth/users/{id}/2fa/reset", { params: { id } }),
   deleteUser: (id: string) => openApiClient.delete("/auth/users/{id}", { params: { id } }),
+  medicalDevicePermissionUsers: () => openApiClient.get("/mpg-permissions/users") as Promise<MedicalDevicePermissionUser[]>,
+  updateMedicalDevicePermission: (id: string, medicalDevicesManage: boolean) =>
+    openApiClient.put("/mpg-permissions/users/{id}", { medicalDevicesManage }, { params: { id } }),
   articles: () => openApiClient.get("/catalog/articles"),
   suppliers: () => openApiClient.get("/catalog/suppliers"),
   locations: () => openApiClient.get("/catalog/locations"),

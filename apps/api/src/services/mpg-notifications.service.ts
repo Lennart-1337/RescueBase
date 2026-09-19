@@ -21,13 +21,13 @@ export class MpgNotificationsService implements OnApplicationBootstrap, OnModule
     if (process.env.NODE_ENV !== 'production' || this.running) return;
     this.running = true;
     try {
-      const devices = await this.db.medicalDevice.findMany({ where: { retiredAt: null }, include: deviceInclude });
-      const subscriptions = await this.db.alertSubscription.findMany({ where: { category: 'MPG_DUE', user: { active: true, deletedAt: null, OR: [{ role: 'ADMIN' }, { medicalDevicesManage: true }] } }, include: { user: true } });
+      const devices = await this.db.mpgDevice.findMany({ where: { retiredAt: null }, include: deviceInclude });
+      const recipients = await this.db.user.findMany({ where: { active: true, deletedAt: null,
+        OR: [{ role: 'ADMIN' }, { medicalDevicesManage: true }] } });
       for (const device of devices) {
         const state = deviceState(device, now);
         for (const event of buildMpgReminders(state, now.toISOString().slice(0, 10))) {
-          const recipients = new Map(subscriptions.filter(s => !s.locationId || s.locationId === event.locationId).map(s => [s.user.id, s.user]));
-          for (const user of recipients.values()) {
+          for (const user of recipients) {
             const path = `/admin/mpg?view=devices&device=${encodeURIComponent(event.deviceId)}`;
             if (process.env.RESEND_API_KEY?.trim()) await this.deliver(event, user.id, 'EMAIL', () => this.mail.sendImmediateAlert(user.email, { category: 'MPG_DUE', details: event.details, dueAt: event.dueAt, recipientName: user.displayName, title: event.title }, `${process.env.APP_PUBLIC_URL ?? 'http://localhost:5173'}${path}`));
             if (this.push.configuration()) await this.deliver(event, user.id, 'PUSH', () => this.push.sendToUsers([user.id], { title: event.title, body: event.details, tag: event.key, url: path }));

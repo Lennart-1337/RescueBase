@@ -1,24 +1,26 @@
 import { addCalendarMonths, evaluateMpgDevice } from "@rescuebase/domain";
 import type { Prisma } from "@prisma/client";
-export const deviceInclude = { mpgModel: { include: { requirements: true } }, location: true, kit: true,
+
+export const deviceInclude = { mpgModel: { include: { requirements: true } }, requirements: true, location: true, kit: true,
   inspections: { include: { requirement: true } }, glucoseControls: true, incidents: true, assignments: true } as const;
-export type DeviceRecord = Prisma.MedicalDeviceGetPayload<{ include: typeof deviceInclude }>;
+export type DeviceRecord = Prisma.MpgDeviceGetPayload<{ include: typeof deviceInclude }>;
 const day = (value: Date) => value.toISOString().slice(0, 10);
+
 export function deviceState(device: DeviceRecord, now = new Date()) {
-  const corrected = new Set(device.inspections.filter(i => i.finalizedAt).map(i => i.correctionOfId));
-  const inspections = device.inspections.filter(i => !corrected.has(i.id));
-  const requirements = (device.mpgModel?.requirements ?? []).filter(r => r.active).map(r => {
-    const latest = inspections.filter(i => i.requirementId === r.id && i.finalizedAt)
+  const corrected = new Set(device.inspections.filter((row) => row.finalizedAt).map((row) => row.correctionOfId));
+  const inspections = device.inspections.filter((row) => !corrected.has(row.id));
+  const requirements = [...(device.mpgModel?.requirements ?? []), ...device.requirements].filter((row) => row.active).map((requirement) => {
+    const latest = inspections.filter((row) => row.requirementId === requirement.id && row.finalizedAt)
       .sort((a, b) => b.performedAt.getTime() - a.performedAt.getTime())[0];
     const base = latest?.performedAt ?? device.commissionedAt;
-    const dueDate = latest?.nextDueAt ? day(latest.nextDueAt) : r.intervalMonths && base
-      ? addCalendarMonths(day(base), r.intervalMonths) : r.firstDueAt ? day(r.firstDueAt) : null;
-    return { ...r, dueDate };
+    const dueDate = latest?.nextDueAt ? day(latest.nextDueAt) : requirement.intervalMonths && base
+      ? addCalendarMonths(day(base), requirement.intervalMonths) : requirement.firstDueAt ? day(requirement.firstDueAt) : null;
+    return { ...requirement, dueDate };
   });
   return { ...device, requirements, ...evaluateMpgDevice({ requirementsReviewed: Boolean(device.mpgModel?.requirementsReviewedAt),
     releasedAt: device.releasedAt?.toISOString(), retiredAt: device.retiredAt?.toISOString(), requirements,
-    inspections: inspections.map(i => ({ ...i, result: i.result as "PASSED" | "FAILED", performedAt: i.performedAt.toISOString(), finalizedAt: i.finalizedAt?.toISOString() })),
-    incidents: device.incidents.map(i => ({ ...i, resolvedAt: i.resolvedAt?.toISOString() })),
-    glucoseControls: device.glucoseControls.map(g => ({ ...g, performedAt: g.performedAt.toISOString(), resolution: g.resolvedAt ? g.clarification : null }))
+    inspections: inspections.map((row) => ({ ...row, result: row.result as "PASSED" | "FAILED", performedAt: row.performedAt.toISOString(), finalizedAt: row.finalizedAt?.toISOString() })),
+    incidents: device.incidents.map((row) => ({ ...row, resolvedAt: row.resolvedAt?.toISOString() })),
+    glucoseControls: device.glucoseControls.map((row) => ({ ...row, performedAt: row.performedAt.toISOString(), resolution: row.resolvedAt ? row.clarification : null })),
   }, day(now)) };
 }
