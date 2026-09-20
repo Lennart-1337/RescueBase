@@ -13,6 +13,7 @@ describe('MPG release', () => {
     expect(evaluateMpgDevice(input,'2026-01-02').status).toBe('BLOCKED');
   });
   test('missing mandatory due date blocks',()=>expect(evaluateMpgDevice({...clear,requirements:[{id:'a',mandatory:true}]},'2026-01-01').status).toBe('BLOCKED'));
+  test('uses the documented requirement name in overdue reasons',()=>expect(evaluateMpgDevice({...clear,requirements:[{id:'internal-id',title:'STK nach Gebrauchsanweisung',mandatory:true,dueDate:'2025-12-31'}]},'2026-01-01').reasons).toContain('Pflichtprüfung STK nach Gebrauchsanweisung ist überfällig.'));
   test('draft passing inspection cannot clear finalized failure',()=>expect(evaluateMpgDevice({...clear,inspections:[{requirementId:'a',result:'FAILED',performedAt:'2025-01-01',finalizedAt:'2025-01-01'},{requirementId:'a',result:'PASSED',performedAt:'2026-01-01'}]},'2026-01-01').status).toBe('BLOCKED'));
   test('resolved defect clears but unresolved safety defect blocks',()=>{
     expect(evaluateMpgDevice({...clear,incidents:[{id:'a',safetyRelevant:true}]},'2026-01-01').status).toBe('BLOCKED');
