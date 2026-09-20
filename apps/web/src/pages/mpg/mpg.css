@@ -41,5 +41,18 @@
 .mpg-meta { display: grid; gap: var(--space-4); grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); }
 .mpg-meta dt { color: var(--color-text-muted); font-size: var(--font-size-sm); }
 .mpg-meta dd { margin: var(--space-1) 0 0; }
-@media (max-width: 640px) { .mpg-section-header, .mpg-detail-section > header, .mpg-record-header, .mpg-selected-detail { align-items: stretch; flex-direction: column; }.mpg-section-actions { align-items: stretch; flex-direction: column; }.mpg-search { min-width: 0; }.mpg-fields, .mpg-definition { grid-template-columns: 1fr; }.mpg-row-actions .button { flex: 1; } }
+@media (max-width: 640px) { .mpg-section-header, .mpg-detail-section > header, .mpg-record-header, .mpg-selected-detail, .mpg-model-workspace-header, .mpg-model-pane > header, .mpg-model-review { align-items: stretch; flex-direction: column; }.mpg-section-actions { align-items: stretch; flex-direction: column; }.mpg-search { min-width: 0; }.mpg-fields, .mpg-definition, .mpg-model-summary dl { grid-template-columns: 1fr; }.mpg-row-actions .button { flex: 1; } }
 @media print { .sidebar, .dashboard-footer, .mpg-no-print { display: none !important; }.mpg-qr-label { break-inside: avoid; } }
+.mpg-selection-hint { color: var(--color-text-muted); margin: var(--space-5) 0 0; }
+.mpg-model-workspace { margin-top: var(--space-5); }
+.mpg-model-workspace-header, .mpg-model-pane > header { align-items: start; display: flex; gap: var(--space-4); justify-content: space-between; }
+.mpg-model-workspace-header h3, .mpg-model-pane h4 { margin: 0; }
+.mpg-model-workspace-header p, .mpg-model-pane header p { color: var(--color-text-muted); margin: var(--space-1) 0 0; }
+.mpg-model-workspace > .tabs { margin-top: var(--space-4); }
+.mpg-model-pane { margin-top: var(--space-4); }
+.mpg-model-pane .mpg-subsection { border-top: 0; margin-top: 0; padding-top: 0; }
+.mpg-model-summary dl { display: grid; gap: var(--space-4); grid-template-columns: repeat(3, minmax(0, 1fr)); margin: 0; }
+.mpg-model-summary dt { color: var(--color-text-muted); font-size: var(--font-size-sm); }
+.mpg-model-summary dd { margin: var(--space-1) 0 0; }
+.mpg-model-review { align-items: start; background: var(--color-surface-subtle); display: flex; gap: var(--space-4); justify-content: space-between; margin-top: var(--space-5); padding: var(--space-4); }
+.mpg-model-review p { color: var(--color-text-muted); margin: var(--space-1) 0 0; max-width: 680px; }
