@@ -20,7 +20,8 @@ Nach dem Anmelden öffnen Sie in der Hauptnavigation **MPG**. Dort stehen diese 
 
 | Bereich | Zweck |
 | --- | --- |
-| Geräte | Geräte, Modelle, Prüfanforderungen und Geräteakten |
+| Geräte | Einzelgeräte, Zuordnungen und Geräteakten |
+| Modelle | Modellstammdaten, Gebrauchsanweisungen und Prüfanforderungen |
 | Termine | Alle ermittelten Prüffälligkeiten |
 | Einweisungen | Modellbezogene Einweisungsnachweise |
 | Personen | Personenregister und Einweisungsberechtigungen |
@@ -39,7 +40,7 @@ Alte Geräte aus der bisherigen Geräteverwaltung werden nicht übernommen. Sie 
 
 ## Modelle verwalten
 
-Öffnen Sie **Geräte** und wählen Sie **Modelle verwalten**. Modelle bündeln Angaben, die bei mehreren baugleichen Geräten gleich sind.
+Öffnen Sie den Bereich **Modelle**. Modelle bündeln Angaben, die bei mehreren baugleichen Geräten gleich sind.
 
 ### Modell anlegen
 

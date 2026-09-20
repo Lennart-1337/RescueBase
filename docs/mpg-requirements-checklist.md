@@ -25,8 +25,8 @@ Dieses Dokument ist die verbindliche Grundlage für die MPG-Überarbeitung. Bei 
 ## Navigation und Oberfläche
 
 - [x] Der Navigationspunkt `MPG` verwendet die normale App-Navigation.
-- [x] Die Bereiche heißen Geräte, Termine, Einweisungen, Personen und Sauerstoffflaschen.
-- [x] Die Modellverwaltung ist innerhalb des Bereichs Geräte erreichbar.
+- [x] Die Bereiche heißen Geräte, Modelle, Termine, Einweisungen, Personen und Sauerstoffflaschen.
+- [x] Die Modellverwaltung ist über den eigenen Bereich Modelle erreichbar.
 - [x] Die Geräte-Startseite zeigt zunächst nur die Gerätetabelle; zusätzliche Listen für überfällige Prüfungen, Sperren oder unvollständige Akten entfallen.
 - [x] Die neue Tabellenkomponente der Benutzerverwaltung wird verwendet.
 - [x] Suche und Filter umfassen Name, Inventarnummer, Seriennummer, Standort, Rucksack, Gerätetyp, Status und Prüffälligkeit.

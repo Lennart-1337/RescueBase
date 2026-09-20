@@ -3,7 +3,7 @@ import { AdminRoute } from "../../app/admin-route";
 import { ErrorPanel } from "../../components/state-panels";
 import { MpgPage, type MpgView } from "../../pages/mpg/mpg-page";
 
-const views = new Set<MpgView>(["devices", "deadlines", "trainings", "people", "cylinders"]);
+const views = new Set<MpgView>(["devices", "models", "deadlines", "trainings", "people", "cylinders"]);
 export const Route = createFileRoute("/admin/mpg")({
   validateSearch: (search: Record<string, unknown>) => ({
     view: views.has(search.view as MpgView) ? search.view as MpgView : "devices" as MpgView,

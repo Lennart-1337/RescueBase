@@ -1,8 +1,13 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { fireEvent, render, screen } from "@testing-library/react";
 import { Devices } from "./devices";
+import { mpgTabs } from "./mpg-page";
 
 describe("MPG page structure", () => {
+  it("places devices and models in separate top-level tabs", () => {
+    expect(mpgTabs.map(tab => tab.value)).toEqual(["devices", "models", "deadlines", "trainings", "people", "cylinders"]);
+  });
+
   it("opens device creation in a standard dialog without disclosure forms", () => {
     const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
     render(<QueryClientProvider client={client}><Devices catalog={{ kits: [], locations: [], models: [], people: [], users: [] }} devices={[]} /></QueryClientProvider>);
@@ -16,12 +21,10 @@ describe("MPG page structure", () => {
     expect(screen.getByLabelText("Loscode")).toBeInTheDocument();
   });
 
-  it("opens models from the device area only on request", () => {
+  it("keeps model management out of the device tab", () => {
     const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
     render(<QueryClientProvider client={client}><Devices catalog={{ kits: [], locations: [], models: [], people: [], users: [] }} devices={[]} /></QueryClientProvider>);
-    fireEvent.click(screen.getByRole("button", { name: "Modelle verwalten" }));
-    expect(screen.getByRole("heading", { name: "Modelle und Prüfanforderungen" })).toBeInTheDocument();
-    fireEvent.click(screen.getByRole("button", { name: "Zurück zu Geräten" }));
+    expect(screen.queryByRole("button", { name: "Modelle verwalten" })).not.toBeInTheDocument();
     expect(screen.queryByRole("heading", { name: "Modelle und Prüfanforderungen" })).not.toBeInTheDocument();
   });
 });
