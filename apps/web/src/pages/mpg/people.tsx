@@ -16,7 +16,7 @@ export function People({ people, users }: { people: Person[]; users: UserSummary
   const [selectedId, setSelectedId] = useState("");
   const selected = people.find(person => person.id === selectedId) ?? people[0] ?? null;
   const columns: DataTableColumn<Person>[] = [
-    { id: "person", label: "Person", render: person => <><strong>{person.name}</strong><small>Geboren am {displayDate(person.birthDate)}</small></>, sortValue: person => person.name },
+    { id: "person", label: "Person", render: person => <><strong>{person.name}</strong><small>{person.birthDate ? `Geboren am ${displayDate(person.birthDate)}` : "Geburtsdatum fehlt"}</small></>, sortValue: person => person.name },
     { id: "account", label: "Benutzerkonto", render: person => person.user ? `${person.user.displayName} · ${person.user.email}` : "Nicht verknüpft", sortValue: person => person.user?.displayName ?? "" },
     { id: "instructor", label: "Einweisungsberechtigung", render: person => person.instructorAuthorized ? "Dokumentiert" : "Nein", sortValue: person => person.instructorAuthorized ? 1 : 0, width: "190px" },
     { id: "status", label: "Status", render: person => <span className={person.active ? "mpg-status mpg-status-ready" : "mpg-status mpg-status-neutral"}>{person.active ? "Aktiv" : "Inaktiv"}</span>, sortValue: person => person.active ? 1 : 0, width: "120px" }

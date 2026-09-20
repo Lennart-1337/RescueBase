@@ -21,6 +21,14 @@ describe("corrected MPG workflows", () => {
     expect(screen.queryByLabelText("Zugehörigkeit")).not.toBeInTheDocument();
   });
 
+  it("keeps an incomplete legacy person editable instead of crashing the people view", () => {
+    setup(<People people={[{ id: "legacy-person", name: "Alte Person", birthDate: null, active: true, instructorAuthorized: false, version: 0 }]} users={[]} />);
+    expect(screen.getAllByText("Alte Person")).toHaveLength(2);
+    expect(screen.getAllByText(/Geburtsdatum fehlt/)).not.toHaveLength(0);
+    fireEvent.click(screen.getByRole("button", { name: "Bearbeiten" }));
+    expect(screen.getByLabelText("Geburtsdatum")).toBeRequired();
+  });
+
   it("captures required cylinder dates without supplier or reducer assignment", () => {
     setup(<Cylinders cylinders={[]} locations={[]} />);
     fireEvent.click(screen.getByRole("button", { name: "Tauschflasche erfassen" }));
