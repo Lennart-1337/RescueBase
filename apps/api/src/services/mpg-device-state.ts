@@ -13,7 +13,8 @@ export function deviceState(device: DeviceRecord, now = new Date()) {
     const latest = inspections.filter((row) => row.requirementId === requirement.id && row.finalizedAt)
       .sort((a, b) => b.performedAt.getTime() - a.performedAt.getTime())[0];
     const base = latest?.performedAt ?? device.commissionedAt;
-    const dueDate = latest?.nextDueAt ? day(latest.nextDueAt) : requirement.intervalMonths && base
+    const dueDate = latest ? (latest.nextDueAt ? day(latest.nextDueAt) : requirement.intervalMonths
+      ? addCalendarMonths(day(latest.performedAt), requirement.intervalMonths) : null) : requirement.intervalMonths && base
       ? addCalendarMonths(day(base), requirement.intervalMonths) : requirement.firstDueAt ? day(requirement.firstDueAt) : null;
     return { ...requirement, dueDate };
   });

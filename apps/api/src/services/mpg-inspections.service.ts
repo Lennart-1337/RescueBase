@@ -1,7 +1,7 @@
 import { BadRequestException, Injectable } from "@nestjs/common";
 import { addCalendarMonths } from "@rescuebase/domain";
 import { PrismaService } from "../persistence/prisma.service.js";
-import { audit, choice, date, isFutureCalendarDate, optional, optionalDate, revision, text, type Input } from "./mpg-validation.js";
+import { audit, choice, date, isFutureCalendarDate, optional, revision, text, type Input } from "./mpg-validation.js";
 @Injectable()
 export class MpgInspectionsService {
   constructor(private readonly db: PrismaService) {}
@@ -24,8 +24,8 @@ export class MpgInspectionsService {
       if (personId) await tx.mpgPerson.findFirstOrThrow({ where: { id: personId, active: true } });
       const reportDocumentId = optional(b.reportDocumentId);
       if (reportDocumentId) await tx.mpgDocument.findFirstOrThrow({ where: { id: reportDocumentId, OR: [{ deviceId }, ...(id ? [{ inspectionId: id }] : [])] } });
-      const performedAt = date(b.performedAt), nextDueAt = optionalDate(b.nextDueAt);
-      if (isFutureCalendarDate(performedAt) || (nextDueAt && nextDueAt <= performedAt)) throw new BadRequestException("Prüfdatum oder nächste Fälligkeit ungültig.");
+      const performedAt = date(b.performedAt), nextDueAt = date(b.nextDueAt);
+      if (isFutureCalendarDate(performedAt) || nextDueAt <= performedAt) throw new BadRequestException("Prüfdatum oder nächste Fälligkeit ungültig.");
       if (nextDueAt && requirement.intervalMonths) {
         const maximum = new Date(`${addCalendarMonths(performedAt.toISOString().slice(0, 10), requirement.intervalMonths)}T23:59:59.999Z`);
         if (nextDueAt > maximum) throw new BadRequestException("Die nächste Fälligkeit darf das festgelegte Intervall nicht verlängern.");
