@@ -37,7 +37,7 @@
 .mpg-selected-detail { align-items: start; display: flex; gap: var(--space-4); justify-content: space-between; }
 .mpg-selected-detail p { color: var(--color-text-muted); margin: var(--space-1) 0 0; }
 .mpg-reasons { background: var(--color-danger-soft); border-left: 3px solid var(--color-danger-text); padding: var(--space-3) var(--space-5); }
-.mpg-signature { background: #fff; border: 1px solid #98a2b3; height: 180px; max-width: 600px; touch-action: none; width: 100%; }
+.mpg-signature { background: var(--color-surface); border: 1px solid var(--color-border-default); height: 180px; max-width: 600px; touch-action: none; width: 100%; }
 .mpg-meta { display: grid; gap: var(--space-4); grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); }
 .mpg-meta dt { color: var(--color-text-muted); font-size: var(--font-size-sm); }
 .mpg-meta dd { margin: var(--space-1) 0 0; }

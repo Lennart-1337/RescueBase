@@ -76,6 +76,12 @@ describe("MPG module", () => {
     expect(record.body.reasons.join(" ")).toContain("Sicherheitsrelevanter Defekt");
     const pdf = await agent.get(`/mpg/exports/devices/${device.body.id}.pdf`).expect(200).expect("Content-Type", /pdf/);
     expect(pdf.body.subarray(0, 5).toString()).toBe("%PDF-");
+    expect(pdf.body.length).toBeGreaterThan(3_000);
+    const inventoryPdf = await agent.get("/mpg/exports/inventory.pdf").expect(200).expect("Content-Type", /pdf/);
+    const labelPdf = await agent.get(`/mpg/exports/devices/${device.body.id}/label.pdf`).expect(200).expect("Content-Type", /pdf/);
+    const trainingPdf = await agent.get(`/mpg/exports/trainings/${training.body.id}.pdf`).expect(200).expect("Content-Type", /pdf/);
+    const personPdf = await agent.get(`/mpg/exports/people/${person.body.id}.pdf`).expect(200).expect("Content-Type", /pdf/);
+    [inventoryPdf, labelPdf, trainingPdf, personPdf].forEach((report) => expect(report.body.length).toBeGreaterThan(1_000));
     await agent.get("/mpg/exports/inventory.csv").expect(404);
 
     await agent.post("/mpg/cylinders").send({ supplier: "Nicht zulässig", cylinderNumber: "O2-001", sizeLiters: 2,
