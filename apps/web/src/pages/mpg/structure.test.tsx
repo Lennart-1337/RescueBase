@@ -1,8 +1,14 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { fireEvent, render, screen } from "@testing-library/react";
+import type { ReactNode } from "react";
 import { Devices } from "./devices";
 import { mpgTabs } from "./mpg-page";
 import { Models } from "./models";
+
+vi.mock("@tanstack/react-router", async (importOriginal) => ({
+  ...await importOriginal<typeof import("@tanstack/react-router")>(),
+  Link: ({ children }: { children: ReactNode }) => <a href="#">{children}</a>
+}));
 
 describe("MPG page structure", () => {
   it("places devices and models in separate top-level tabs", () => {
@@ -27,6 +33,19 @@ describe("MPG page structure", () => {
     render(<QueryClientProvider client={client}><Devices catalog={{ kits: [], locations: [], models: [], people: [], users: [] }} devices={[]} /></QueryClientProvider>);
     expect(screen.queryByRole("button", { name: "Modelle verwalten" })).not.toBeInTheDocument();
     expect(screen.queryByRole("heading", { name: "Modelle und Prüfanforderungen" })).not.toBeInTheDocument();
+  });
+
+  it("filters devices in the shared toolbar and resets every filter", () => {
+    const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+    const catalog = { kits: [], locations: [{ id: "loc-1", name: "Wache" }], models: [], people: [], users: [] };
+    const devices = [{ id: "device-1", name: "AED", locationId: "loc-1", status: "DRAFT" }] as never;
+    render(<QueryClientProvider client={client}><Devices catalog={catalog} devices={devices} /></QueryClientProvider>);
+    expect(screen.getByRole("search", { name: "Geräte filtern" })).toBeInTheDocument();
+    fireEvent.change(screen.getByRole("searchbox", { name: "Suche" }), { target: { value: "Thermometer" } });
+    expect(screen.getByText("0/1 sichtbar")).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Filter zurücksetzen" }));
+    expect(screen.getByRole("searchbox", { name: "Suche" })).toHaveValue("");
+    expect(screen.getByText("1/1 sichtbar")).toBeInTheDocument();
   });
 
   it("opens the model workspace only after a model is selected", () => {
