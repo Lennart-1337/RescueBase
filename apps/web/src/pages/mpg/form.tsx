@@ -1,5 +1,5 @@
 import { useState, type ReactNode } from "react";
-import { Button, Field } from "../../components/ui";
+import { Button, CheckboxField, Field } from "../../components/ui";
 
 export type FormValues = Record<string, string | number | boolean | string[]>;
 export type FormField = { name: string; label: string; type?: "text" | "date" | "datetime-local" | "number" | "textarea" | "checkbox"; required?: boolean; min?: number; max?: number; multiple?: boolean; options?: { value: string; label: string }[] };
@@ -22,11 +22,10 @@ export function MpgForm({ title, fields, initial = {}, onSubmit, children, formI
     } catch (cause) { setError(cause instanceof Error ? cause.message : "Speichern fehlgeschlagen."); }
     finally { setPending(false); onPendingChange?.(false); }
   }}>
-    {showHeader ? <h3>{title}</h3> : null}<div className="mpg-fields">{fields.map((field) => <Field key={field.name} label={field.label} required={field.required}>
+    {showHeader ? <h3>{title}</h3> : null}<div className="mpg-fields">{fields.map((field) => field.type === "checkbox" ? <CheckboxField checked={Boolean(values[field.name])} key={field.name} label={field.label} layout="split" onChange={(event) => setValues({ ...values, [field.name]: event.target.checked })} /> : <Field key={field.name} label={field.label} required={field.required}>
       {field.options ? <select multiple={field.multiple} required={field.required} value={field.multiple ? (values[field.name] as string[] ?? []) : String(values[field.name] ?? "")} onChange={(event) => setValues({ ...values, [field.name]: field.multiple ? [...event.target.selectedOptions].map(option => option.value) : event.target.value })}>{!field.multiple ? <option value="">Bitte auswählen</option> : null}{field.options.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}</select>
         : field.type === "textarea" ? <textarea required={field.required} value={String(values[field.name] ?? "")} onChange={(event) => setValues({ ...values, [field.name]: event.target.value })} />
-          : field.type === "checkbox" ? <input type="checkbox" checked={Boolean(values[field.name])} onChange={(event) => setValues({ ...values, [field.name]: event.target.checked })} />
-            : <input type={field.type ?? "text"} min={field.min} max={field.max} step={field.type === "number" ? "any" : undefined} required={field.required} value={String(values[field.name] ?? "")} onChange={(event) => setValues({ ...values, [field.name]: event.target.value })} />}
+          : <input type={field.type ?? "text"} min={field.min} max={field.max} step={field.type === "number" ? "any" : undefined} required={field.required} value={String(values[field.name] ?? "")} onChange={(event) => setValues({ ...values, [field.name]: event.target.value })} />}
     </Field>)}</div>{children}{error ? <p role="alert" className="mpg-error">{error}</p> : null}{showSubmit ? <Button type="submit" loading={pending}>{submitLabel}</Button> : null}
   </form>;
 }

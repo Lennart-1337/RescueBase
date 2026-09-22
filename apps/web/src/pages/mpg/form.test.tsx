@@ -18,3 +18,8 @@ describe("MPG forms", () => {
     expect(screen.getByLabelText("Name")).toHaveValue("STK");
   });
 });
+
+it("renders MPG boolean fields as the shared checkslider", () => {
+  render(<MpgForm title="Prüfanforderung" fields={[{ name: "mandatory", label: "Pflichtprüfung", type: "checkbox" }]} initial={{ mandatory: true }} onSubmit={async () => undefined} />);
+  expect(screen.getByRole("checkbox", { name: "Pflichtprüfung" }).closest(".checkbox-field")).not.toBeNull();
+});
