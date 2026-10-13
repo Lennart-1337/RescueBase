@@ -362,12 +362,9 @@ export class CatalogController {
     const activeKitCount = await this.prisma.kit.count({
       where: { locationId: id, deletedAt: null },
     });
-    const medicalDeviceCount = await this.prisma.medicalDevice.count({
-      where: { locationId: id },
-    });
-    if (activeBatchCount > 0 || activeKitCount > 0 || medicalDeviceCount > 0) {
+    if (activeBatchCount > 0 || activeKitCount > 0) {
       throw new BadRequestException(
-        "Lagerort kann erst gelöscht werden, wenn keine aktiven Chargen, Rucksäcke oder Geräte darauf verweisen.",
+        "Lagerort kann erst gelöscht werden, wenn keine aktiven Chargen oder Rucksäcke darauf verweisen.",
       );
     }
     const deletedAt = new Date();
@@ -654,10 +651,6 @@ export class CatalogController {
         template: { include: { positions: templatePositionsInclude } },
       },
     });
-    await this.prisma.medicalDevice.updateMany({
-      where: { kitId: id },
-      data: { locationId: kit.locationId },
-    });
     await this.audit.record({
       actorType: "USER",
       actorLabel: "Admin",
@@ -719,17 +712,9 @@ export class CatalogController {
     if (!kit) {
       throw new NotFoundException("Rucksack nicht gefunden.");
     }
-    const medicalDeviceCount = await this.prisma.medicalDevice.count({
-      where: { kitId: id },
-    });
     const openOrderCount = await this.prisma.replenishmentOrder.count({
       where: { kitId: id, status: "OPEN" },
     });
-    if (medicalDeviceCount > 0) {
-      throw new BadRequestException(
-        "Rucksack kann erst gelöscht werden, wenn keine Geräte mehr darauf verweisen.",
-      );
-    }
     if (openOrderCount > 0) {
       throw new BadRequestException(
         "Rucksack kann erst gelöscht werden, wenn keine offenen Nachfüllaufträge existieren.",

@@ -1,6 +1,13 @@
 import { rescueBaseOpenApiDocument } from "../src/openapi/document";
 
 describe("RescueBase OpenAPI contract", () => {
+  it("removes the legacy device catalogue while preserving MPG", () => {
+    const schemas = rescueBaseOpenApiDocument.components?.schemas ?? {};
+    expect(Object.keys(schemas).filter((name) => name.startsWith("MedicalDevice"))).toEqual([]);
+    expect(rescueBaseOpenApiDocument.paths["/catalog/devices"]).toBeUndefined();
+    expect(rescueBaseOpenApiDocument.paths["/mpg/devices"]?.get).toBeDefined();
+  });
+
   it("defines JSON schemas for generated frontend types", () => {
     expect(
       Object.keys(rescueBaseOpenApiDocument.components?.schemas ?? {}),

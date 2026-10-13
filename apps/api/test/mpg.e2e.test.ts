@@ -36,14 +36,13 @@ describe("MPG module", () => {
       name: instructor.body.name, birthDate: "1982-02-03", active: true, instructorAuthorized: true,
       instructorAuthorization: "Schriftliche Beauftragung vom 01.09.2026", qualificationDocumentId: qualification.body.id }).expect(200);
 
-    const legacy = await agent.post("/catalog/devices").send({ name: "Legacy AED", articleId: "article-tourniquet", locationId: "loc-main", active: true }).expect(201);
+    await agent.post("/catalog/devices").send({ name: "Legacy AED", articleId: "article-tourniquet", locationId: "loc-main", active: true }).expect(404);
     const device = await agent.post("/mpg/devices").send({ name: "AED 1", mpgModelId: model.body.id,
       inventoryNumber: "MP-0001", serialNumber: "SN-001", acquisitionYear: 2026, commissionedAt: "2026-09-01", locationId: "loc-main" }).expect(201);
     expect(device.body).not.toHaveProperty("articleId");
     expect(device.body).not.toHaveProperty("responsiblePersonId");
     const devices = await agent.get("/mpg/devices").expect(200);
     expect(devices.body.map((entry: { id: string }) => entry.id)).toContain(device.body.id);
-    expect(devices.body.map((entry: { id: string }) => entry.id)).not.toContain(legacy.body.id);
     await agent.post("/mpg/devices").send({ name: "Ungültig", articleId: "article-tourniquet", locationId: "loc-main" }).expect(400);
     const released = await agent.post(`/mpg/devices/${device.body.id}/release`).send({ version: device.body.version }).expect(201);
     expect(released.body.releasedAt).toBeTruthy();

@@ -11,8 +11,6 @@ import "./account-alerts-panel.css";
 
 const categories: AlertCategoryOption[] = [
   { key: "EXPIRY", label: "Ablauf" },
-  { key: "STK_DUE", label: "STK" },
-  { key: "MTK_DUE", label: "MTK" },
   { key: "SHORTAGE", label: "Fehlbestand" },
   { key: "KIT_CHECK_DUE", label: "Rucksackprüfung" },
   { key: "MPG_DUE", label: "Medizinprodukte" }
@@ -26,7 +24,9 @@ export function AccountAlertsPanel() {
 
   useEffect(() => {
     if (!subscriptions.data) return;
-    setSelected(new Set(subscriptions.data.map((subscription) => subscriptionKey(subscription.category, subscription.locationId))));
+    setSelected(new Set(subscriptions.data
+      .filter((subscription) => categories.some((category) => category.key === subscription.category))
+      .map((subscription) => subscriptionKey(subscription.category, subscription.locationId))));
   }, [subscriptions.data]);
 
   const save = useMutation({

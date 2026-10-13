@@ -1,11 +1,10 @@
 import { fireEvent, screen } from "@testing-library/react";
-import { renderAppAt, resetTestBrowser, stubFetch } from "../test-support/app-test-helpers";
+import { renderAppAt, resetTestBrowser, stubFetch, wasRequested } from "../test-support/app-test-helpers";
 
 const routes = {
   "/api/auth/setup/status": { initialized: true },
   "/api/auth/session": { user: { id: "user-admin", email: "admin@rescuebase.local", displayName: "Admin", role: "ADMIN", twoFactorEnabled: false } },
-  "/api/auth/users": [{ id: "user-admin", email: "admin@rescuebase.local", displayName: "Admin", role: "ADMIN", active: true, twoFactorEnabled: false }],
-  "/api/alerts/subscriptions": []
+  "/api/auth/users": [{ id: "user-admin", email: "admin@rescuebase.local", displayName: "Admin", role: "ADMIN", active: true, twoFactorEnabled: false }]
 };
 
 describe("user management routes", () => {
@@ -17,17 +16,19 @@ describe("user management routes", () => {
 
     expect(await screen.findByRole("heading", { name: "Benutzerverwaltung" })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Benutzerverwaltung" })).toHaveAttribute("href", "/admin/user-management");
+    expect(screen.queryByRole("link", { name: /Legacy/ })).toBeNull();
     expect(screen.getByText("Einladungen offen")).toBeInTheDocument();
     expect(screen.getByRole("navigation", { name: "Benutzerseiten" })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Kontodetails" })).toBeInTheDocument();
+    expect(wasRequested("/api/alerts/subscriptions", "GET")).toBe(false);
   });
 
-  it("keeps the prior view available and visibly marks it as legacy", async () => {
+  it("returns not found for the removed legacy user management route", async () => {
     stubFetch(routes);
     await renderAppAt("/admin/users");
 
-    expect(await screen.findByRole("heading", { name: "Benutzerverwaltung (Legacy)" })).toBeInTheDocument();
-    expect(screen.getByText(/wird nach der Abnahme dieser Release-Phase entfernt/i)).toBeInTheDocument();
+    expect(await screen.findByRole("heading", { name: "Dieser Bestandseintrag existiert nicht." })).toBeInTheDocument();
+    expect(screen.queryByRole("heading", { name: /Benutzerverwaltung/ })).toBeNull();
   });
 
   it("paginates user accounts", async () => {

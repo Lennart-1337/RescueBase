@@ -24,7 +24,14 @@ describe("alerts pipeline", () => {
     await closeApp?.();
   });
 
-  it("stores alert subscriptions and emits expiry plus STK warnings immediately", async () => {
+  it("removes the legacy admin recipient endpoints", async () => {
+    const agent = request.agent(app.getHttpServer());
+    await agent.post("/auth/login").send({ email: "admin@rescuebase.local", password: "rescuebase-admin" }).expect(201);
+    await agent.get("/alerts/subscriptions").expect(404);
+    await agent.post("/alerts/subscriptions/user-lager").send({ subscriptions: [] }).expect(404);
+  });
+
+  it("stores alert subscriptions and emits expiry warnings immediately", async () => {
     const server = app.getHttpServer();
     const agent = request.agent(server);
     await agent.post("/auth/login").send({ email: "admin@rescuebase.local", password: "rescuebase-admin" }).expect(201);
@@ -38,14 +45,13 @@ describe("alerts pipeline", () => {
       .put("/alerts/subscriptions/me")
       .send({
         subscriptions: [
-          { category: "EXPIRY" },
-          { category: "STK_DUE", locationId: "loc-main" }
+          { category: "EXPIRY" }
         ]
       })
       .expect(200);
 
     const subscriptions = await agent.get("/alerts/subscriptions/me").expect(200);
-    expect(subscriptions.body).toHaveLength(2);
+    expect(subscriptions.body).toHaveLength(1);
 
     const expiryDate = daysFromNow(14);
     await agent
@@ -70,28 +76,11 @@ describe("alerts pipeline", () => {
       expect.objectContaining({ title: expect.any(String), url: expect.stringContaining("/admin/inventory") })
     );
 
-    const deviceDate = daysAgo(330);
-    const prisma = app.get(PrismaService);
-    await prisma.medicalDevice.create({
-      data: {
-        name: "Defibrillator A",
-        articleId: "article-tourniquet",
-        locationId: "loc-main",
-        serialNumber: "SN-99",
-        inventoryNumber: "INV-99",
-        lastStkAt: deviceDate,
-        stkIntervalMonths: 12,
-        active: true
-      }
-    });
-
     const warnings = await agent.get("/alerts/warnings").expect(200);
     expect(warnings.body.summary.expiry).toBeGreaterThanOrEqual(1);
-    expect(warnings.body.summary.stkDue).toBeGreaterThanOrEqual(1);
     expect(warnings.body.warnings).toEqual(
       expect.arrayContaining([
-        expect.objectContaining({ category: "EXPIRY" }),
-        expect.objectContaining({ category: "STK_DUE" })
+        expect.objectContaining({ category: "EXPIRY" })
       ])
     );
   });

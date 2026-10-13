@@ -2386,61 +2386,6 @@ export interface components {
             name: string;
             kind: string;
         };
-        MedicalDeviceArticle: {
-            id: string;
-            name: string;
-            stkRequired: boolean;
-            mtkRequired: boolean;
-            stkIntervalMonths?: number;
-            mtkIntervalMonths?: number;
-        };
-        MedicalDeviceLocation: {
-            id: string;
-            name: string;
-        };
-        MedicalDeviceKit: {
-            id: string;
-            name: string;
-            code: string;
-            locationId: string;
-            locationName: string;
-        };
-        MedicalDevice: {
-            id: string;
-            name: string;
-            articleId: string;
-            locationId: string;
-            kitId?: string;
-            serialNumber?: string;
-            inventoryNumber?: string;
-            /** Format: date-time */
-            lastStkAt?: string;
-            /** Format: date-time */
-            lastMtkAt?: string;
-            stkIntervalMonths?: number;
-            mtkIntervalMonths?: number;
-            active: boolean;
-            notes?: string;
-            article: components["schemas"]["MedicalDeviceArticle"];
-            location: components["schemas"]["MedicalDeviceLocation"];
-            kit?: components["schemas"]["MedicalDeviceKit"];
-        };
-        MedicalDeviceWriteRequest: {
-            name: string;
-            articleId: string;
-            locationId?: string;
-            kitId?: string;
-            serialNumber?: string;
-            inventoryNumber?: string;
-            /** Format: date-time */
-            lastStkAt?: string;
-            /** Format: date-time */
-            lastMtkAt?: string;
-            stkIntervalMonths?: number;
-            mtkIntervalMonths?: number;
-            active?: boolean;
-            notes?: string;
-        };
         TemplatePosition: {
             id: string;
             articleId: string;
