@@ -804,6 +804,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/mpg/models/{id}/glucose-ranges": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["MpgController_glucoseRange"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/mpg/models/{id}/review": {
         parameters: {
             query?: never;
@@ -1028,22 +1044,6 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/mpg/trainings/{id}/finalize": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post: operations["MpgController_trainingFinalize"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/mpg/devices/{id}/glucose-controls": {
         parameters: {
             query?: never;
@@ -1166,6 +1166,22 @@ export interface paths {
         get?: never;
         put?: never;
         post: operations["MpgController_cylinderReturn"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/mpg/cylinders/{id}/swap": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["MpgController_cylinderSwap"];
         delete?: never;
         options?: never;
         head?: never;
@@ -4331,6 +4347,32 @@ export interface operations {
             };
         };
     };
+    MpgController_glucoseRange: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MpgInput"];
+            };
+        };
+        responses: {
+            /** @description Glucose control range documented */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MpgRecord"];
+                };
+            };
+        };
+    };
     MpgController_modelReview: {
         parameters: {
             query?: never;
@@ -4767,32 +4809,6 @@ export interface operations {
             };
         };
     };
-    MpgController_trainingFinalize: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["MpgInput"];
-            };
-        };
-        responses: {
-            /** @description Training finalized */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["MpgRecord"];
-                };
-            };
-        };
-    };
     MpgController_glucose: {
         parameters: {
             query?: never;
@@ -5009,6 +5025,32 @@ export interface operations {
         };
         responses: {
             /** @description Cylinder returned */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MpgRecord"];
+                };
+            };
+        };
+    };
+    MpgController_cylinderSwap: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MpgInput"];
+            };
+        };
+        responses: {
+            /** @description Cylinder swapped */
             201: {
                 headers: {
                     [name: string]: unknown;

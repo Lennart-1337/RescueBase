@@ -45,7 +45,9 @@ export class MpgReportsService {
         `Ergebnis: ${inspection.result === "PASSED" ? "Bestanden" : "Nicht bestanden"} · Abgeschlossen: ${day(inspection.finalizedAt)}`,
         `Prüfende Stelle: ${inspection.externalCompany ? `${inspection.externalName ?? "—"}, ${inspection.externalCompany}` : inspection.personId ?? "Interne Person"}`,
         `Qualifikation / Nachweis: ${inspection.qualification ?? "—"} · Nächste Fälligkeit: ${day(inspection.nextDueAt)}`,
-        `Prüfbericht: ${inspection.reportDocumentId ?? "Nicht hinterlegt"} · Bemerkungen: ${inspection.notes ?? "—"}`
+        `Prüfprotokoll: ${inspection.reportDocumentId ?? "Nicht hinterlegt"} · Vollständigkeit bestätigt: ${day(inspection.protocolVerifiedAt)}`,
+        `Kennzeichnung am Gerät bestätigt: ${day(inspection.markingConfirmedAt)} · Bemerkungen: ${inspection.notes ?? "—"}`,
+        `Abweichende Fälligkeit: ${inspection.nextDueReason ?? "—"} · Quelle: ${inspection.nextDueSource ?? "—"}`
       ])); else reportNote(doc, "Es liegen noch keine abgeschlossenen Prüfungen oder Wartungen vor.");
       reportSection(doc, "Einweisungen");
       const trainings = device.trainings.filter((training) => training.finalizedAt);
@@ -57,6 +59,7 @@ export class MpgReportsService {
       if (device.glucoseControls.length) device.glucoseControls.forEach((control) => reportEntry(doc, `${day(control.performedAt)} · ${control.passed ? "Bestanden" : "Nicht bestanden"}`, [
         `Messwert: ${control.value} ${control.unit} · Sollbereich: ${control.targetMin}–${control.targetMax} ${control.targetUnit}`,
         `Kontrollmittel: ${control.solutionName}, Charge ${control.solutionLot}, Verfall ${day(control.solutionExpiresAt)} · Teststreifencharge: ${control.stripLot}`,
+        `Quelle des Sollbereichs: ${control.rangeSource ?? "Nicht dokumentiert (älterer Eintrag)"}`,
         `Kontrollniveau: ${control.controlLevel} · Klärung: ${control.clarification ?? "—"} · Behoben: ${day(control.resolvedAt)}`
       ])); else reportNote(doc, "Für dieses Gerät sind keine BZ-Qualitätskontrollen dokumentiert.");
       reportSection(doc, "Vorkommnisse und Maßnahmen");

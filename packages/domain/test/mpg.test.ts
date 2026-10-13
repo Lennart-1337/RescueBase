@@ -1,8 +1,22 @@
-import { addCalendarMonths, evaluateMpgDevice, evaluateGlucoseControl } from '../src/index.js';
+import { addCalendarMonths, calculateMpgDueDate, evaluateMpgDevice, evaluateGlucoseControl } from '../src/index.js';
 const clear = { requirementsReviewed: true, releasedAt: '2026-01-01', requirements: [], inspections: [], incidents: [] };
 describe('MPG calendar deadlines', () => {
   test.each([['2024-01-31',1,'2024-02-29'],['2025-01-31',1,'2025-02-28'],['2024-02-29',12,'2025-02-28'],['2025-12-31',2,'2026-02-28']])('%s plus %s months', (date,months,expected) => expect(addCalendarMonths(date as string, months as number)).toBe(expected));
   test('rejects impossible dates and invalid intervals', () => { expect(() => addCalendarMonths('2025-02-30',1)).toThrow(); expect(() => addCalendarMonths('2025-01-01',-1)).toThrow(); });
+  test('STK interval ends with the month of the last inspection', () => {
+    expect(calculateMpgDueDate('STK', '2026-01-03', 24)).toBe('2028-01-31');
+    expect(calculateMpgDueDate('STK', '2024-02-29', 12)).toBe('2025-02-28');
+  });
+  test('MTK interval ends with the calendar year of the last inspection', () => {
+    expect(calculateMpgDueDate('MTK', '2026-01-03', 24)).toBe('2028-12-31');
+    expect(calculateMpgDueDate('MTK', '2026-12-31', 24)).toBe('2028-12-31');
+  });
+  test('other documented requirements retain their exact interval date', () => {
+    expect(calculateMpgDueDate('MAINTENANCE', '2025-01-31', 1)).toBe('2025-02-28');
+    expect(() => calculateMpgDueDate('STK', '2026-01-01', 25)).toThrow();
+    expect(() => calculateMpgDueDate('MTK', '2026-01-01', 0)).toThrow();
+    expect(() => calculateMpgDueDate('MTK', '2026-01-01', 18)).toThrow();
+  });
 });
 describe('MPG release', () => {
   test('unknown requirements never imply clearance', () => expect(evaluateMpgDevice({...clear,requirementsReviewed:false},'2026-01-01').status).toBe('DRAFT'));

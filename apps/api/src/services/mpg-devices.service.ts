@@ -69,6 +69,8 @@ export class MpgDevicesService {
       if (device.retiredAt) throw new BadRequestException("Gerät ist außer Betrieb.");
       const kind = text(body.kind, "Prüfart");
       const intervalMonths = body.intervalMonths == null ? null : integer(body.intervalMonths, 1);
+      if (kind === "STK" && intervalMonths && intervalMonths > 24) throw new BadRequestException("STK darf höchstens alle 24 Monate fällig werden.");
+      if (kind === "MTK" && intervalMonths && intervalMonths % 12 !== 0) throw new BadRequestException("MTK-Intervalle müssen in ganzen Jahren dokumentiert werden.");
       const firstDueAt = optionalDate(body.firstDueAt);
       if (!intervalMonths && !firstDueAt) throw new BadRequestException("Intervall oder konkrete Fälligkeit fehlt.");
       const modelIntervals = (device.mpgModel?.requirements ?? []).filter((row) => row.kind === kind && row.intervalMonths).map((row) => row.intervalMonths!);

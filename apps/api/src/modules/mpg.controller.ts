@@ -23,6 +23,7 @@ export class MpgController {
   @Post("models") modelsCreate(@Body() b: Input, @Req() r: AuthenticatedRequest) { return this.changed(this.models.save(null, b, actor(r))); }
   @Patch("models/:id") modelsUpdate(@Param("id") id: string, @Body() b: Input, @Req() r: AuthenticatedRequest) { return this.changed(this.models.save(id, b, actor(r))); }
   @Post("models/:id/requirements") requirement(@Param("id") id: string, @Body() b: Input, @Req() r: AuthenticatedRequest) { return this.changed(this.models.requirement(id, b, actor(r))); }
+  @Post("models/:id/glucose-ranges") glucoseRange(@Param("id") id: string, @Body() b: Input, @Req() r: AuthenticatedRequest) { return this.changed(this.models.glucoseRange(id, b, actor(r))); }
   @Post("models/:id/review") modelReview(@Param("id") id: string, @Body() b: Input, @Req() r: AuthenticatedRequest) { return this.changed(this.models.review(id, b, actor(r))); }
 
   @Get("devices") devicesList() { return this.devices.list(); }
@@ -48,7 +49,6 @@ export class MpgController {
   @Get("trainings/:id") training(@Param("id") id: string) { return this.trainings.get(id); }
   @Post("trainings") trainingCreate(@Body() b: Input, @Req() r: AuthenticatedRequest) { return this.changed(this.trainings.create(b, actor(r))); }
   @Post("trainings/:id/confirm") trainingConfirm(@Param("id") id: string, @Body() b: Input, @Req() r: AuthenticatedRequest) { return this.changed(this.trainings.confirm(id, b, actor(r))); }
-  @Post("trainings/:id/finalize") trainingFinalize(@Param("id") id: string, @Body() b: Input, @Req() r: AuthenticatedRequest) { return this.changed(this.trainings.finalize(id, b, actor(r))); }
 
   @Post("devices/:id/glucose-controls") glucose(@Param("id") id: string, @Body() b: Input, @Req() r: AuthenticatedRequest) { return this.changed(this.operations.glucose(id, b, actor(r))); }
   @Post("glucose-controls/:id/resolve") glucoseResolve(@Param("id") id: string, @Body() b: Input, @Req() r: AuthenticatedRequest) { return this.changed(this.operations.resolveGlucose(id, b, actor(r))); }
@@ -59,6 +59,7 @@ export class MpgController {
   @Post("cylinders") cylinderCreate(@Body() b: Input, @Req() r: AuthenticatedRequest) { return this.changed(this.cylinders.save(null, b, actor(r))); }
   @Patch("cylinders/:id") cylinderUpdate(@Param("id") id: string, @Body() b: Input, @Req() r: AuthenticatedRequest) { return this.changed(this.cylinders.save(id, b, actor(r))); }
   @Post("cylinders/:id/return") cylinderReturn(@Param("id") id: string, @Body() b: Input, @Req() r: AuthenticatedRequest) { return this.changed(this.cylinders.return(id, b, actor(r))); }
+  @Post("cylinders/:id/swap") cylinderSwap(@Param("id") id: string, @Body() b: Input, @Req() r: AuthenticatedRequest) { return this.changed(this.cylinders.swap(id, b, actor(r))); }
 
   private async changed<T>(operation: Promise<T>) {
     const result = await operation;

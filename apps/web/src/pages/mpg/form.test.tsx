@@ -27,6 +27,20 @@ describe("MPG forms", () => {
     fireEvent.submit(screen.getByRole("form", { name: "Gerät" }));
     await waitFor(() => expect(submit).toHaveBeenCalledWith({ name: "AED" }));
   });
+
+  it("shows conditional evidence only for the selected inspection kind", async () => {
+    const submit = vi.fn().mockResolvedValue(undefined);
+    render(<MpgForm title="Prüfung" fields={[
+      { name: "kind", label: "Art", options: [{ value: "STK", label: "STK" }, { value: "OTHER", label: "Andere" }] },
+      { name: "protocolConfirmed", label: "Protokoll geprüft", type: "checkbox", showWhen: values => values.kind === "STK" }
+    ]} onSubmit={submit} />);
+    expect(screen.queryByRole("checkbox", { name: "Protokoll geprüft" })).not.toBeInTheDocument();
+    fireEvent.change(screen.getByLabelText("Art"), { target: { value: "STK" } });
+    fireEvent.click(screen.getByRole("checkbox", { name: "Protokoll geprüft" }));
+    fireEvent.change(screen.getByLabelText("Art"), { target: { value: "OTHER" } });
+    fireEvent.submit(screen.getByRole("form", { name: "Prüfung" }));
+    await waitFor(() => expect(submit).toHaveBeenCalledWith({ kind: "OTHER" }));
+  });
 });
 
 it("renders MPG boolean fields as the shared checkslider", () => {

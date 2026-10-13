@@ -1,6 +1,6 @@
 # MPG-Anforderungen und Abnahmecheckliste
 
-Stand: 20. September 2026
+Stand: 22. September 2026
 
 Dieses Dokument ist die verbindliche Grundlage für die MPG-Überarbeitung. Bei Widersprüchen zu früheren Plänen gilt dieses Dokument. Eine Anforderung wird erst abgehakt, wenn Umsetzung und passende automatisierte Prüfung nachweislich vorhanden sind. Bereits vorhandener Code gilt bis zur erneuten Prüfung als nicht abgenommen.
 
@@ -53,15 +53,25 @@ Dieses Dokument ist die verbindliche Grundlage für die MPG-Überarbeitung. Bei 
 - [x] Das Einzelgerät erhält daraus seine individuellen Fälligkeiten und Prüfnachweise.
 - [x] Zusätzliche oder strengere gerätespezifische Anforderungen benötigen Begründung und Quelle.
 - [x] Eine Modellpflicht kann am Einzelgerät nicht frei deaktiviert oder verlängert werden.
-- [x] Prüfungen werden zunächst als bearbeitbarer Entwurf gespeichert.
+- [x] Prüfungen können als bearbeitbarer Entwurf oder mit vollständigem Nachweis direkt abgeschlossen werden.
 - [x] Eine Prüfung enthält mindestens Datum, Prüfart, Ergebnis und prüfende Person oder externe Stelle.
-- [x] Bei internen Prüfungen genügt ein vollständiger strukturierter Nachweis; eine Berichtsdatei ist optional.
+- [x] Bei sonstigen internen Kontrollen genügt ein vollständiger strukturierter Nachweis; eine Berichtsdatei ist optional. Für STK und MTK wird beim Abschluss ein Prüfprotokoll verlangt.
 - [x] Externe Prüfer werden direkt mit Name, Firma und optionalem Qualifikationsnachweis erfasst; es gibt kein Dienstleisterkonto oder Dienstleisterregister.
 - [x] Abgeschlossene Prüfungen sind unveränderlich.
 - [x] Korrekturen erfolgen als begründeter Nachtrag mit Bezug zum ursprünglichen Nachweis, Benutzer und Zeitpunkt.
 - [x] Überfällige Pflichtprüfungen, nicht bestandene Prüfungen, sicherheitsrelevante Defekte und nicht bestandene BZ-Kontrollen sperren automatisch.
 - [x] Es gibt keine manuelle Übersteuerung einer Sperre.
 - [x] Eine Sperre endet erst, wenn alle Ursachen fachlich behoben und die erforderlichen erfolgreichen Nachweise abgeschlossen sind.
+
+## Vereinfachte Abläufe
+
+- [x] Dokumentierte Prüfintervalle berechnen die nächste Fälligkeit automatisch: STK zum Monatsende, MTK zum Jahresende. Eine frühere Abweichung benötigt Begründung und Quelle.
+- [x] Eine ältere, zu spät gespeicherte Fälligkeit verlängert kein inzwischen dokumentiertes kürzeres Intervall.
+- [x] STK und MTK benötigen beim Abschluss ein hinterlegtes Prüfprotokoll und die Bestätigung seines Inhalts; bei bestandenem Ergebnis auch die Bestätigung der Gerätekennzeichnung.
+- [x] Die Gerätefreigabe zeigt alle aktuell erkennbaren offenen Voraussetzungen und bleibt je Einzelgerät dokumentiert.
+- [x] Eine Einweisung wird mit der letzten erforderlichen persönlichen Bestätigung automatisch abgeschlossen; ein weiterer Abschlussklick entfällt.
+- [x] BZ-Sollbereiche werden je dokumentierter Kontrollmittel- und Teststreifencharge am Modell hinterlegt und bei der Kontrollmessung als unveränderliche Momentaufnahme übernommen.
+- [x] Der Flaschentausch gibt die bisherige Flasche zurück und legt die neue Flasche in einer gemeinsamen Transaktion separat an.
 
 ## Personen und Einweisungen
 
@@ -152,6 +162,7 @@ Dieses Dokument ist die verbindliche Grundlage für die MPG-Überarbeitung. Bei 
 - [x] Berechtigungen für API, Dateien, QR-Ziele und Exporte sind getestet.
 - [x] Bestehende Lager-, Rucksack-, Artikel- und Geräteabläufe bestehen ihre Regressionstests unverändert.
 - [x] Lint, Typprüfung, Backendtests, Frontendtests und Produktions-Build laufen erfolgreich.
+- [ ] Die neuen Datenbankmigrationen und MPG-End-to-End-Tests wurden mit einer laufenden MariaDB ausgeführt. Die lokale Testumgebung hatte bei dieser Prüfung keine Docker-Laufzeit; dieser Nachweis bleibt offen.
 
 ## Endabnahme
 

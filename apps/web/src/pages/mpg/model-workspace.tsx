@@ -4,11 +4,11 @@ import type { DataTableColumn } from "../../components/data-table/data-table";
 import { Button, Tabs } from "../../components/ui";
 import { MpgDataTable } from "./data-table";
 import { Documents } from "./documents";
-import type { Model, Requirement } from "./types";
+import { displayDate, type GlucoseRange, type Model, type Requirement } from "./types";
 
-type ModelWorkspaceProps = { model: Model; onAddRequirement: () => void; onEdit: () => void; onInstructionsUploaded: (id: string) => Promise<unknown>; onReview: () => void };
+type ModelWorkspaceProps = { model: Model; onAddGlucoseRange: () => void; onAddRequirement: () => void; onEdit: () => void; onInstructionsUploaded: (id: string) => Promise<unknown>; onReview: () => void };
 
-export function ModelWorkspace({ model, onAddRequirement, onEdit, onInstructionsUploaded, onReview }: ModelWorkspaceProps) {
+export function ModelWorkspace({ model, onAddGlucoseRange, onAddRequirement, onEdit, onInstructionsUploaded, onReview }: ModelWorkspaceProps) {
   const [tab, setTab] = useState("overview");
   const requirementColumns: DataTableColumn<Requirement>[] = [
     { id: "requirement", label: "Prüfanforderung", render: requirement => <><strong>{requirement.kind} · {requirement.title}</strong><small>{requirement.justification}</small></>, sortValue: requirement => requirement.title },
@@ -16,11 +16,19 @@ export function ModelWorkspace({ model, onAddRequirement, onEdit, onInstructions
     { id: "cycle", label: "Fälligkeit", render: requirement => requirement.intervalMonths ? `Alle ${requirement.intervalMonths} Monate` : requirement.firstDueAt ?? "Offen", sortValue: requirement => requirement.intervalMonths ?? requirement.firstDueAt ?? "", width: "190px" },
     { id: "mandatory", label: "Art", render: requirement => requirement.mandatory ? "Pflicht" : "Optional", sortValue: requirement => requirement.mandatory ? 1 : 0, width: "110px" }
   ];
+  const rangeColumns: DataTableColumn<GlucoseRange>[] = [
+    { id: "medium", label: "Kontrollmittel", render: range => <><strong>{range.solutionName} · {range.controlLevel}</strong><small>Charge {range.solutionLot} · Teststreifen {range.stripLot}</small></>, sortValue: range => range.solutionName },
+    { id: "range", label: "Sollbereich", render: range => `${range.targetMin}–${range.targetMax} ${range.unit}`, sortValue: range => range.targetMin },
+    { id: "expiry", label: "Verfall", render: range => displayDate(range.solutionExpiresAt), sortValue: range => range.solutionExpiresAt },
+    { id: "source", label: "Quelle", render: range => range.source, sortValue: range => range.source }
+  ];
+  const isGlucoseModel = /blutzucker|\bbz\b/i.test(`${model.productType} ${model.name}`);
   return <section aria-label="Modellarbeitsbereich" className="mpg-model-workspace">
     <header className="mpg-model-workspace-header"><div><h3>{model.manufacturer} · {model.name}</h3><p>{model.productType}</p></div><Button onClick={onEdit} type="button" variant="secondary"><Pencil data-icon="inline-start" />Stammdaten bearbeiten</Button></header>
-    <Tabs label="Bereiche des Modells" value={tab} onChange={setTab} items={[{ value: "overview", label: "Übersicht" }, { value: "requirements", label: "Prüfanforderungen" }, { value: "documents", label: "Dokumente" }]} />
+    <Tabs label="Bereiche des Modells" value={tab} onChange={setTab} items={[{ value: "overview", label: "Übersicht" }, { value: "requirements", label: "Prüfanforderungen" }, ...(isGlucoseModel ? [{ value: "glucose", label: "BZ-Sollbereiche" }] : []), { value: "documents", label: "Dokumente" }]} />
     {tab === "overview" ? <Overview model={model} onReview={onReview} /> : null}
     {tab === "requirements" ? <section className="mpg-model-pane"><header><div><h4>Prüfanforderungen</h4><p>Gemeinsame Anforderungen für alle Geräte dieses Modells.</p></div><Button onClick={onAddRequirement} type="button"><Plus data-icon="inline-start" />Prüfanforderung hinzufügen</Button></header><MpgDataTable columns={requirementColumns} emptyMessage="Für dieses Modell sind noch keine Prüfanforderungen dokumentiert." getRowId={requirement => requirement.id} rows={model.requirements} /></section> : null}
+    {tab === "glucose" && isGlucoseModel ? <section className="mpg-model-pane"><header><div><h4>Dokumentierte BZ-Sollbereiche</h4><p>Je Kontrollmittel und Charge; die Quelle bleibt mit jeder Messung erhalten.</p></div><Button onClick={onAddGlucoseRange} type="button"><Plus data-icon="inline-start" />Kontrollmittel hinzufügen</Button></header><MpgDataTable columns={rangeColumns} emptyMessage="Noch kein chargenbezogener Sollbereich dokumentiert." getRowId={range => range.id} rows={model.glucoseRanges ?? []} /></section> : null}
     {tab === "documents" ? <section className="mpg-model-pane"><Documents owner={{ modelId: model.id }} onUploaded={onInstructionsUploaded} /></section> : null}
   </section>;
 }

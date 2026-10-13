@@ -791,6 +791,7 @@ model MpgModel {
   version                  Int              @default(0)
   devices                  MpgDevice[]
   requirements             MpgRequirement[]
+  glucoseRanges            MpgGlucoseRange[]
   trainings                MpgTraining[]
   createdAt                DateTime         @default(now())
   updatedAt                DateTime         @updatedAt
@@ -864,8 +865,14 @@ model MpgInspection {
   externalCompany    String?
   qualification      String?         @db.Text
   reportDocumentId   String?
+  protocolVerifiedAt DateTime?
+  protocolVerifiedBy String?
+  markingConfirmedAt DateTime?
+  markingConfirmedBy String?
   notes              String?         @db.Text
   nextDueAt          DateTime?
+  nextDueReason      String?         @db.Text
+  nextDueSource      String?         @db.Text
   finalizedAt        DateTime?
   finalizedBy        String?
   correctionOfId     String?         @unique
@@ -944,6 +951,9 @@ model MpgGlucoseControl {
   targetUnit String
   targetMin Float
   targetMax Float
+  rangeSource String? @db.Text
+  glucoseRangeId String?
+  glucoseRange MpgGlucoseRange? @relation(fields: [glucoseRangeId], references: [id])
   value Float
   passed Boolean
   clarification String? @db.Text
@@ -952,6 +962,23 @@ model MpgGlucoseControl {
   finalizedBy String
   createdAt DateTime @default(now())
   @@index([deviceId, performedAt])
+}
+model MpgGlucoseRange {
+  id String @id @default(cuid())
+  modelId String
+  model MpgModel @relation(fields: [modelId], references: [id])
+  solutionName String
+  solutionLot String
+  solutionExpiresAt DateTime
+  stripLot String
+  controlLevel String
+  unit String
+  targetMin Float
+  targetMax Float
+  source String @db.Text
+  controls MpgGlucoseControl[]
+  createdAt DateTime @default(now())
+  @@index([modelId])
 }
 model MpgIncident {
   id String @id @default(cuid())

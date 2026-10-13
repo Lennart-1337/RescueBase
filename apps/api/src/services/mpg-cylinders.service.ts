@@ -34,4 +34,24 @@ export class MpgCylindersService {
       return row;
     });
   }
+  async swap(id: string, body: Input, actor: string) {
+    return this.db.$transaction(async tx => {
+      const old = await tx.mpgCylinder.findUniqueOrThrow({ where: { id } });
+      revision(old.version, body.version);
+      if (old.status === "RETURNED") throw new BadRequestException("Zurückgegebene Flaschen können nicht erneut getauscht werden.");
+      if ("supplier" in body || "deviceId" in body) throw new BadRequestException("Lieferant und Druckminderer-Zuordnung werden nicht geführt.");
+      const locationId = text(body.locationId, "Standort");
+      await tx.location.findFirstOrThrow({ where: { id: locationId, deletedAt: null } });
+      const inspectedAt = date(body.inspectedAt), inspectionDueAt = date(body.inspectionDueAt), expiresAt = date(body.expiresAt);
+      if (inspectionDueAt <= inspectedAt) throw new BadRequestException("Prüffälligkeit muss nach der Prüfung liegen.");
+      const cylinderNumber = text(body.cylinderNumber, "Flaschennummer");
+      if (cylinderNumber === old.cylinderNumber) throw new BadRequestException("Die neue Flasche benötigt eine andere Flaschennummer.");
+      const replacement = await tx.mpgCylinder.create({ data: { cylinderNumber,
+        sizeLiters: finiteNumber(body.sizeLiters, 0.01), locationId, status: "FULL", inspectedAt, inspectionDueAt, expiresAt } });
+      const returned = await tx.mpgCylinder.update({ where: { id, version: old.version }, data: { status: "RETURNED", version: { increment: 1 } } });
+      await audit(tx, actor, "MpgCylinder", id, "MPG_CYLINDER_SWAPPED", { returned, replacementId: replacement.id });
+      await audit(tx, actor, "MpgCylinder", replacement.id, "MPG_CYLINDER_RECEIVED", { replacement, returnedId: id });
+      return { returned, replacement };
+    });
+  }
 }

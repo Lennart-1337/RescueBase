@@ -45,16 +45,13 @@ export class MpgTrainingsService {
           !Buffer.from(signature.split(",")[1] ?? "", "base64").subarray(0, 8).equals(Buffer.from([137,80,78,71,13,10,26,10]))) throw new BadRequestException("Ungültige PNG-Unterschrift.");
       const result = await tx.mpgTrainingConfirmation.update({ where: { id: confirmation.id }, data: { signaturePngDataUrl: signature,
         signatureHash: createHash("sha256").update(signature).digest("hex"), confirmationText: text(b.confirmationText, "Bestätigungstext"), confirmedAt: new Date(), confirmedBy: actor } });
-      await tx.mpgTraining.update({ where: { id, version: training.version }, data: { version: { increment: 1 } } });
-      await audit(tx, actor, "MpgTraining", id, "MPG_TRAINING_CONFIRMED", { confirmationId: result.id, signatureHash: result.signatureHash }); return this.getWith(tx, id);
-    });
-  }
-  finalize(id: string, b: Input, actor: string) {
-    return this.db.$transaction(async tx => {
-      const t = await tx.mpgTraining.findUniqueOrThrow({ where: { id }, include: { confirmations: true } }); revision(t.version, b.version);
-      if (t.finalizedAt || !t.confirmations.length || t.confirmations.some(c => !c.confirmedAt)) throw new BadRequestException("Alle Beteiligten müssen separat bestätigen.");
-      const result = await tx.mpgTraining.update({ where: { id, version: t.version }, data: { finalizedAt: new Date(), finalizedBy: actor, version: { increment: 1 } }, include: { confirmations: true } });
-      await audit(tx, actor, "MpgTraining", id, "MPG_TRAINING_FINALIZED", { id }); return result;
+      const remaining = await tx.mpgTrainingConfirmation.count({ where: { trainingId: id, confirmedAt: null } });
+      await tx.mpgTraining.update({ where: { id, version: training.version }, data: {
+        version: { increment: 1 }, ...(remaining === 0 ? { finalizedAt: new Date(), finalizedBy: actor } : {})
+      } });
+      await audit(tx, actor, "MpgTraining", id, "MPG_TRAINING_CONFIRMED", { confirmationId: result.id, signatureHash: result.signatureHash });
+      if (remaining === 0) await audit(tx, actor, "MpgTraining", id, "MPG_TRAINING_FINALIZED", { id });
+      return this.getWith(tx, id);
     });
   }
   private getWith(tx: import("@prisma/client").Prisma.TransactionClient, id: string) { return tx.mpgTraining.findUniqueOrThrow({ where: { id }, include: { confirmations: true } }); }

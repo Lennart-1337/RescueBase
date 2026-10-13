@@ -2,7 +2,7 @@ import { useState, type ReactNode } from "react";
 import { Button, CheckboxField, Field } from "../../components/ui";
 
 export type FormValues = Record<string, string | number | boolean | string[]>;
-export type FormField = { name: string; label: string; group?: string; type?: "text" | "date" | "datetime-local" | "number" | "textarea" | "checkbox"; required?: boolean; min?: number; max?: number; multiple?: boolean; options?: { value: string; label: string }[] };
+export type FormField = { name: string; label: string; group?: string; type?: "text" | "date" | "datetime-local" | "number" | "textarea" | "checkbox"; required?: boolean; min?: number; max?: number; multiple?: boolean; options?: { value: string; label: string }[]; showWhen?: (values: FormValues) => boolean };
 type FormProps = { title: string; fields: FormField[]; initial?: FormValues; onSubmit: (values: FormValues) => Promise<unknown>; children?: ReactNode; formId?: string; onPendingChange?: (pending: boolean) => void; onSuccess?: () => void; showHeader?: boolean; showSubmit?: boolean; submitLabel?: string };
 
 export function MpgForm({ title, fields, initial = {}, onSubmit, children, formId, onPendingChange, onSuccess, showHeader = true, showSubmit = true, submitLabel = "Speichern" }: FormProps) {
@@ -10,7 +10,7 @@ export function MpgForm({ title, fields, initial = {}, onSubmit, children, formI
   const [error, setError] = useState("");
   const [pending, setPending] = useState(false);
   const groups = new Map<string, FormField[]>();
-  fields.forEach(field => groups.set(field.group ?? "", [...(groups.get(field.group ?? "") ?? []), field]));
+  fields.filter(field => !field.showWhen || field.showWhen(values)).forEach(field => groups.set(field.group ?? "", [...(groups.get(field.group ?? "") ?? []), field]));
 
   function renderField(field: FormField) {
     const update = (value: FormValues[string]) => setValues(current => ({ ...current, [field.name]: value }));
@@ -26,7 +26,7 @@ export function MpgForm({ title, fields, initial = {}, onSubmit, children, formI
     event.preventDefault(); setPending(true); onPendingChange?.(true); setError("");
     try {
       const body: FormValues = {};
-      for (const field of fields) {
+      for (const field of fields.filter(entry => !entry.showWhen || entry.showWhen(values))) {
         const value = values[field.name];
         if (value !== undefined && value !== "") body[field.name] = field.type === "number" ? Number(value) : value;
       }
