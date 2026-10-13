@@ -1,0 +1,93 @@
+name: Dependabot Staging CI
+
+on:
+  workflow_dispatch:
+    inputs:
+      pull_request:
+        description: Dependabot pull request number targeting staging
+        required: true
+        type: string
+
+permissions:
+  contents: read
+  pull-requests: read
+
+concurrency:
+  group: dependabot-staging-ci-${{ inputs.pull_request }}
+  cancel-in-progress: false
+
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read
+      statuses: write
+    outputs:
+      head: ${{ steps.prepare.outputs.head }}
+      base: ${{ steps.prepare.outputs.base }}
+      merge: ${{ steps.prepare.outputs.merge }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8
+        id: prepare
+        env:
+          PR_NUMBER: ${{ inputs.pull_request }}
+        with:
+          script: |
+            const { eligible, prepareValidation } = require('./scripts/ci/dependabot-staging.cjs');
+            if (!/^[1-9]\d*$/.test(process.env.PR_NUMBER)) throw new Error('Invalid PR number');
+            const { data: pull } = await github.rest.pulls.get({ ...context.repo,
+              pull_number: Number(process.env.PR_NUMBER) });
+            if (!eligible(pull, context.repo, 'staging')) throw new Error('PR is not eligible');
+            let result;
+            try {
+              result = await prepareValidation(github, context.repo, process.env.PR_NUMBER);
+            } catch (error) {
+              await github.rest.repos.createCommitStatus({ ...context.repo, sha: pull.head.sha,
+                context: 'Staging validation', state: 'failure',
+                description: 'Cannot test staging merge; resolve conflicts or rerun',
+                target_url: `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}` });
+              throw error;
+            }
+            for (const [name, value] of Object.entries(result)) core.setOutput(name, value);
+            await github.rest.repos.createCommitStatus({ ...context.repo, sha: result.head,
+              context: 'Staging validation', state: 'pending',
+              description: 'Testing the merged staging state',
+              target_url: `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}` });
+
+  validate:
+    needs: prepare
+    uses: ./.github/workflows/ci.yml
+    with:
+      checkout_ref: ${{ needs.prepare.outputs.merge }}
+
+  report:
+    if: always() && needs.prepare.result == 'success'
+    needs: [prepare, validate]
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: read
+      statuses: write
+    steps:
+      - uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8
+        env:
+          PR_NUMBER: ${{ inputs.pull_request }}
+          TESTED_HEAD: ${{ needs.prepare.outputs.head }}
+          TESTED_BASE: ${{ needs.prepare.outputs.base }}
+          RESULT: ${{ needs.validate.result }}
+        with:
+          script: |
+            const { data: pull } = await github.rest.pulls.get({ ...context.repo,
+              pull_number: Number(process.env.PR_NUMBER) });
+            const current = pull.state === 'open' && pull.base.ref === 'staging' &&
+              pull.head.sha === process.env.TESTED_HEAD && pull.base.sha === process.env.TESTED_BASE;
+            const success = current && process.env.RESULT === 'success';
+            await github.rest.repos.createCommitStatus({ ...context.repo,
+              sha: process.env.TESTED_HEAD, context: 'Staging validation',
+              state: success ? 'success' : 'failure',
+              description: !current ? 'PR or staging changed; rerun validation' :
+                success ? 'All staging checks passed' : 'Staging checks did not pass',
+              target_url: `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}` });
