@@ -2,6 +2,7 @@ import { useLayoutEffect, useEffect, useId, useMemo, useRef, useState, type Keyb
 import { createPortal } from "react-dom";
 import { Check, ChevronDown } from "lucide-react";
 import { computeSearchableSelectPosition, type SearchableSelectPosition } from "./searchable-select-position";
+import { useSelectedHelp } from "./searchable-select-help";
 import { cn } from "./ui";
 import "./searchable-select.css";
 
@@ -16,12 +17,14 @@ export function SearchableSelect(props: {
   options: Option[];
   placeholder?: string;
   value: string;
+  showSelectedHelp?: boolean;
 }) {
   const listboxId = useId();
   const inputRef = useRef<HTMLInputElement | null>(null);
   const rootRef = useRef<HTMLDivElement | null>(null);
   const listRef = useRef<HTMLDivElement | null>(null);
   const selected = props.options.find((option) => option.value === props.value) ?? null;
+  const help = useSelectedHelp(props.showSelectedHelp ? selected?.label : undefined, rootRef);
   const [open, setOpen] = useState(false);
   const [position, setPosition] = useState<SearchableSelectPosition | null>(null);
   const [search, setSearch] = useState("");
@@ -95,6 +98,7 @@ export function SearchableSelect(props: {
       commit(filteredOptions[activeIndex]);
     }
     if (event.key === "Escape") {
+      help.dismiss();
       setOpen(false);
     }
   }
@@ -112,7 +116,8 @@ export function SearchableSelect(props: {
   }
 
   return (
-    <div className="searchable-select-root" ref={rootRef}>
+    <div className="searchable-select-root" ref={rootRef} onMouseEnter={help.onMouseEnter} onMouseLeave={help.onMouseLeave}>
+      {help.tooltip}
       <div
         className={cn(
           "searchable-select",
@@ -123,6 +128,7 @@ export function SearchableSelect(props: {
       >
         <input
           aria-label={props.ariaLabel}
+          aria-describedby={help.descriptionId}
           aria-autocomplete="list"
           aria-controls={listboxId}
           aria-expanded={open}
@@ -134,7 +140,8 @@ export function SearchableSelect(props: {
             setOpen(true);
             if (!nextValue.trim()) props.onChange("");
           }}
-          onFocus={openWithBlankSearch}
+          onFocus={() => { help.onFocus(); openWithBlankSearch(); }}
+          onBlur={help.onBlur}
           onKeyDown={handleKeyDown}
           onMouseDown={handleTriggerMouseDown}
           placeholder={props.placeholder ?? props.emptyLabel ?? "Auswählen"}

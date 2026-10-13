@@ -1,0 +1,20 @@
+.searchable-select-help {
+  position: fixed;
+  z-index: 90;
+  max-width: min(560px, calc(100vw - 16px));
+  padding-block: 6px;
+  color: var(--color-text-primary);
+  font-size: 13px;
+  line-height: 1.5;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+.searchable-select-help span {
+  display: block;
+  padding: 9px 12px;
+  border: 1px solid var(--color-border-strong);
+  border-radius: 8px;
+  background: var(--color-surface-overlay-strong);
+  box-shadow: var(--shadow-float);
+}

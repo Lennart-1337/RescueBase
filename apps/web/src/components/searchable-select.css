@@ -113,3 +113,13 @@
   color: var(--color-text-muted);
   font-weight: 600;
 }
+
+.searchable-select-option > span {
+  min-width: 0;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+.searchable-select-option-check {
+  flex-shrink: 0;
+}
