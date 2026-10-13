@@ -4558,7 +4558,7 @@ export interface operations {
             };
         };
         responses: {
-            /** @description Inspection draft */
+            /** @description Inspection draft or finalized evidence */
             201: {
                 headers: {
                     [name: string]: unknown;

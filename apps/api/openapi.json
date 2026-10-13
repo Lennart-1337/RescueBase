@@ -5677,7 +5677,7 @@
         },
         "responses": {
           "201": {
-            "description": "Inspection draft",
+            "description": "Inspection draft or finalized evidence",
             "content": {
               "application/json": {
                 "schema": {
