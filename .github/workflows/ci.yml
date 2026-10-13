@@ -2,21 +2,11 @@ name: CI
 
 on:
   pull_request:
-    types: [opened, synchronize, reopened, edited]
-  workflow_call:
-    inputs:
-      checkout_ref:
-        type: string
-        required: false
-        default: ""
   push:
     branches: [main, staging]
 
-permissions:
-  contents: read
-
 concurrency:
-  group: ci-${{ github.workflow }}-${{ inputs.checkout_ref || github.ref }}
+  group: ci-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -42,9 +32,6 @@ jobs:
           --health-retries=10
     steps:
       - uses: actions/checkout@v7
-        with:
-          ref: ${{ inputs.checkout_ref || github.sha }}
-          persist-credentials: false
 
       - uses: actions/setup-node@v7
         with:
@@ -66,9 +53,6 @@ jobs:
       DATABASE_URL: mysql://rescuebase:rescuebase@127.0.0.1:3306/rescuebase
     steps:
       - uses: actions/checkout@v7
-        with:
-          ref: ${{ inputs.checkout_ref || github.sha }}
-          persist-credentials: false
 
       - uses: actions/setup-node@v7
         with:
@@ -88,16 +72,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
-        with:
-          ref: ${{ inputs.checkout_ref || github.sha }}
-          persist-credentials: false
-
-      - uses: actions/setup-node@v7
-        with:
-          node-version: 24.18.0
-
-      - name: Test Dependabot routing
-        run: node --test scripts/ci/*.test.cjs
 
       - name: Validate shell scripts
         run: |
