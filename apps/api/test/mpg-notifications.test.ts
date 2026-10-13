@@ -7,7 +7,7 @@ import { MpgNotificationsService } from "../src/services/mpg-notifications.servi
 describe("MPG notification delivery", () => {
   it("does not access recipients or send messages outside production", async () => {
     const findMany = jest.fn();
-    const database = { medicalDevice: { findMany } } as unknown as PrismaService;
+    const database = { mpgDevice: { findMany } } as unknown as PrismaService;
     const service = new MpgNotificationsService(database, {} as MailService, {} as PushService);
 
     await service.scan();

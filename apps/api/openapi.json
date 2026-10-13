@@ -5370,6 +5370,46 @@
         }
       }
     },
+    "/mpg/models/{id}/glucose-ranges": {
+      "post": {
+        "tags": [
+          "MPG"
+        ],
+        "operationId": "MpgController_glucoseRange",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MpgInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Glucose control range documented",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MpgRecord"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/mpg/models/{id}/review": {
       "post": {
         "tags": [
@@ -5637,7 +5677,7 @@
         },
         "responses": {
           "201": {
-            "description": "Inspection draft",
+            "description": "Inspection draft or finalized evidence",
             "content": {
               "application/json": {
                 "schema": {
@@ -5981,46 +6021,6 @@
         }
       }
     },
-    "/mpg/trainings/{id}/finalize": {
-      "post": {
-        "tags": [
-          "MPG"
-        ],
-        "operationId": "MpgController_trainingFinalize",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/MpgInput"
-              }
-            }
-          }
-        },
-        "responses": {
-          "201": {
-            "description": "Training finalized",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/MpgRecord"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "/mpg/devices/{id}/glucose-controls": {
       "post": {
         "tags": [
@@ -6341,6 +6341,46 @@
         "responses": {
           "201": {
             "description": "Cylinder returned",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MpgRecord"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/mpg/cylinders/{id}/swap": {
+      "post": {
+        "tags": [
+          "MPG"
+        ],
+        "operationId": "MpgController_cylinderSwap",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MpgInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Cylinder swapped",
             "content": {
               "application/json": {
                 "schema": {

@@ -3,7 +3,7 @@ export interface MpgDeviceEvaluationInput {
   requirementsReviewed: boolean;
   releasedAt?: string | null;
   retiredAt?: string | null;
-  requirements: { id: string; mandatory: boolean; dueDate?: string | null }[];
+  requirements: { id: string; title?: string; mandatory: boolean; dueDate?: string | null }[];
   inspections: { requirementId: string; result: 'PASSED' | 'FAILED'; performedAt: string; finalizedAt?: string | null }[];
   incidents: { id: string; safetyRelevant: boolean; resolvedAt?: string | null }[];
   glucoseControls?: { id: string; performedAt: string; passed: boolean; resolution?: string | null }[];

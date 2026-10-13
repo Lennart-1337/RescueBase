@@ -44,10 +44,8 @@ services:
       DATABASE_URL: mysql://${MARIADB_USER}:${MARIADB_PASSWORD}@mariadb:3306/${MARIADB_DATABASE}
       BACKUP_AGE_RECIPIENT: ${BACKUP_AGE_RECIPIENT}
       RETENTION_DAYS: ${RETENTION_DAYS:-14}
-      MPG_DOCUMENT_DIR: /app/var/mpg-documents
     volumes:
       - ./backups:/backups
-      - mpg-documents:/app/var/mpg-documents:ro
     depends_on:
       mariadb:
         condition: service_healthy
@@ -62,11 +60,9 @@ services:
       DATABASE_URL: mysql://${MARIADB_USER}:${MARIADB_PASSWORD}@mariadb:3306/${MARIADB_DATABASE}
       AGE_IDENTITY_FILE: ${AGE_IDENTITY_FILE:-/run/secrets/staging.agekey}
       BACKUP_FILE: ${BACKUP_FILE:-}
-      MPG_DOCUMENT_DIR: /app/var/mpg-documents
     volumes:
       - ./backups:/backups
       - ${AGE_IDENTITY_HOST_FILE:-./keys/restore-disabled.txt}:${AGE_IDENTITY_FILE:-/run/secrets/staging.agekey}:ro
-      - mpg-documents:/app/var/mpg-documents
     depends_on:
       mariadb:
         condition: service_healthy

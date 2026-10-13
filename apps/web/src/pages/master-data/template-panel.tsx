@@ -1,11 +1,10 @@
 import { useEffect, useState } from "react";
 import { Plus, Save, X } from "lucide-react";
 import { PanelHeader } from "../../components/panel-header";
-import { SearchableSelect } from "../../components/searchable-select";
 import { InlineError } from "../../components/state-panels";
-import { Button, CheckboxField, Dialog, Field, Panel } from "../../components/ui";
+import { Button, Dialog, Field, Panel } from "../../components/ui";
 import type { Article, CreateTemplateRequest, KitTemplate, ReviseTemplateRequest } from "../../lib/types";
-import { ReorderControls } from "./reorder-controls";
+import { TemplatePositionRow } from "./template-position-row";
 import { moveItem, type ReorderDirection } from "./reorder";
 import { TemplateListRow } from "./template-list-row";
 import "./template-panel.css";
@@ -133,19 +132,12 @@ export function TemplatePanel(props: {
           />
         ))}
       </div>
-      <Dialog actions={<><Button disabled={props.isSubmitting} onClick={requestClose} type="button" variant="ghost"><X data-icon="inline-start" />Abbrechen</Button><Button disabled={!canSubmit} loading={props.isSubmitting} onClick={() => void submit()} type="button">{editingTemplateId ? <Save data-icon="inline-start" /> : <Plus data-icon="inline-start" />}{editingTemplateId ? "Neue Version speichern" : "Vorlage speichern"}</Button></>} onClose={requestClose} open={isOpen} title={editingTemplateId ? "Rucksackvorlage bearbeiten" : "Rucksackvorlage anlegen"}>
+      <Dialog className="template-editor-dialog" actions={<><Button disabled={props.isSubmitting} onClick={requestClose} type="button" variant="ghost"><X data-icon="inline-start" />Abbrechen</Button><Button disabled={!canSubmit} loading={props.isSubmitting} onClick={() => void submit()} type="button">{editingTemplateId ? <Save data-icon="inline-start" /> : <Plus data-icon="inline-start" />}{editingTemplateId ? "Neue Version speichern" : "Vorlage speichern"}</Button></>} onClose={requestClose} open={isOpen} title={editingTemplateId ? "Rucksackvorlage bearbeiten" : "Rucksackvorlage anlegen"}>
         <div className="template-form">
           <Field label="Vorlagenname"><input autoFocus={!editingTemplateId} disabled={Boolean(editingTemplateId)} onChange={(event) => setName(event.target.value)} value={name} /></Field>
           <div className="template-position-list">
             {positions.map((position, index) => (
-              <div className="template-position-row" key={position.draftId}>
-                <Field label="Artikel"><SearchableSelect disabled={props.articles.length === 0} onChange={(value) => updatePosition(index, { articleId: value })} options={props.articles.map((article) => ({ label: article.name, value: article.id }))} value={position.articleId || props.articles[0]?.id || ""} /></Field>
-                <Field label="Modul"><input autoFocus={Boolean(editingTemplateId) && index === 0} onChange={(event) => updatePosition(index, { moduleName: event.target.value })} value={position.moduleName} /></Field>
-                <Field label="Sollmenge"><input min="1" onChange={(event) => updatePosition(index, { requiredQuantity: Number(event.target.value) })} type="number" value={position.requiredQuantity} /></Field>
-                <CheckboxField checked={position.critical} className="template-critical" label="Kritisch" onChange={(event) => updatePosition(index, { critical: event.target.checked })} />
-                <ReorderControls disabled={props.isSubmitting} isFirst={index === 0} isLast={index === positions.length - 1} label={`Position ${index + 1}`} onMove={(direction) => movePosition(index, direction)} />
-                <Button disabled={positions.length === 1} onClick={() => setPositions((current) => current.filter((_, currentIndex) => currentIndex !== index))} type="button" variant="ghost">Entfernen</Button>
-              </div>
+              <TemplatePositionRow key={position.draftId} articles={props.articles} position={position} index={index} count={positions.length} isSubmitting={props.isSubmitting} autoFocus={Boolean(editingTemplateId) && index === 0} onUpdate={(patch) => updatePosition(index, patch)} onMove={(direction) => movePosition(index, direction)} onRemove={() => setPositions((current) => current.filter((_, currentIndex) => currentIndex !== index))} />
             ))}
           </div>
           <Button onClick={() => setPositions((current) => [...current, createPositionDraft(props.articles[0]?.id ?? "")])} type="button" variant="secondary"><Plus data-icon="inline-start" />Position hinzufügen</Button>

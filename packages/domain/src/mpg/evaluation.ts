@@ -6,10 +6,12 @@ export function evaluateMpgDevice(input: MpgDeviceEvaluationInput, today: string
   const reasons: string[] = [];
   if (input.retiredAt) return { status: 'RETIRED', reasons: [] };
   if (!input.requirementsReviewed) reasons.push('Prüfanforderungen sind noch nicht geprüft.');
+  const requirementNames = new Map(input.requirements.map((requirement) => [requirement.id, requirement.title?.trim() || requirement.id]));
   for (const requirement of input.requirements) {
     if (!requirement.mandatory) continue;
-    if (!requirement.dueDate) reasons.push(`Pflichtprüfung ${requirement.id}: Fälligkeit fehlt.`);
-    else if (calendarDate(requirement.dueDate) < today) reasons.push(`Pflichtprüfung ${requirement.id} ist überfällig.`);
+    const name = requirementNames.get(requirement.id)!;
+    if (!requirement.dueDate) reasons.push(`Pflichtprüfung ${name}: Fälligkeit fehlt.`);
+    else if (calendarDate(requirement.dueDate) < today) reasons.push(`Pflichtprüfung ${name} ist überfällig.`);
   }
   const latest = new Map<string, MpgDeviceEvaluationInput['inspections'][number]>();
   for (const inspection of input.inspections) {
@@ -21,7 +23,7 @@ export function evaluateMpgDevice(input: MpgDeviceEvaluationInput, today: string
     }
   }
   for (const inspection of latest.values()) {
-    if (inspection.result === 'FAILED') reasons.push(`Prüfung ${inspection.requirementId} wurde nicht bestanden.`);
+    if (inspection.result === 'FAILED') reasons.push(`Prüfung ${requirementNames.get(inspection.requirementId) ?? inspection.requirementId} wurde nicht bestanden.`);
   }
   for (const incident of input.incidents) {
     if (incident.safetyRelevant && !incident.resolvedAt) reasons.push(`Sicherheitsrelevanter Defekt ${incident.id} ist offen.`);

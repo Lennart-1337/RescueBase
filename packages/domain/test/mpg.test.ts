@@ -1,8 +1,22 @@
-import { addCalendarMonths, evaluateMpgDevice, evaluateGlucoseControl } from '../src/index.js';
+import { addCalendarMonths, calculateMpgDueDate, evaluateMpgDevice, evaluateGlucoseControl } from '../src/index.js';
 const clear = { requirementsReviewed: true, releasedAt: '2026-01-01', requirements: [], inspections: [], incidents: [] };
 describe('MPG calendar deadlines', () => {
   test.each([['2024-01-31',1,'2024-02-29'],['2025-01-31',1,'2025-02-28'],['2024-02-29',12,'2025-02-28'],['2025-12-31',2,'2026-02-28']])('%s plus %s months', (date,months,expected) => expect(addCalendarMonths(date as string, months as number)).toBe(expected));
   test('rejects impossible dates and invalid intervals', () => { expect(() => addCalendarMonths('2025-02-30',1)).toThrow(); expect(() => addCalendarMonths('2025-01-01',-1)).toThrow(); });
+  test('STK interval ends with the month of the last inspection', () => {
+    expect(calculateMpgDueDate('STK', '2026-01-03', 24)).toBe('2028-01-31');
+    expect(calculateMpgDueDate('STK', '2024-02-29', 12)).toBe('2025-02-28');
+  });
+  test('MTK interval ends with the calendar year of the last inspection', () => {
+    expect(calculateMpgDueDate('MTK', '2026-01-03', 24)).toBe('2028-12-31');
+    expect(calculateMpgDueDate('MTK', '2026-12-31', 24)).toBe('2028-12-31');
+  });
+  test('other documented requirements retain their exact interval date', () => {
+    expect(calculateMpgDueDate('MAINTENANCE', '2025-01-31', 1)).toBe('2025-02-28');
+    expect(() => calculateMpgDueDate('STK', '2026-01-01', 25)).toThrow();
+    expect(() => calculateMpgDueDate('MTK', '2026-01-01', 0)).toThrow();
+    expect(() => calculateMpgDueDate('MTK', '2026-01-01', 18)).toThrow();
+  });
 });
 describe('MPG release', () => {
   test('unknown requirements never imply clearance', () => expect(evaluateMpgDevice({...clear,requirementsReviewed:false},'2026-01-01').status).toBe('DRAFT'));
@@ -13,10 +27,16 @@ describe('MPG release', () => {
     expect(evaluateMpgDevice(input,'2026-01-02').status).toBe('BLOCKED');
   });
   test('missing mandatory due date blocks',()=>expect(evaluateMpgDevice({...clear,requirements:[{id:'a',mandatory:true}]},'2026-01-01').status).toBe('BLOCKED'));
+  test('uses the documented requirement name in overdue reasons',()=>expect(evaluateMpgDevice({...clear,requirements:[{id:'internal-id',title:'STK nach Gebrauchsanweisung',mandatory:true,dueDate:'2025-12-31'}]},'2026-01-01').reasons).toContain('Pflichtprüfung STK nach Gebrauchsanweisung ist überfällig.'));
   test('draft passing inspection cannot clear finalized failure',()=>expect(evaluateMpgDevice({...clear,inspections:[{requirementId:'a',result:'FAILED',performedAt:'2025-01-01',finalizedAt:'2025-01-01'},{requirementId:'a',result:'PASSED',performedAt:'2026-01-01'}]},'2026-01-01').status).toBe('BLOCKED'));
   test('resolved defect clears but unresolved safety defect blocks',()=>{
     expect(evaluateMpgDevice({...clear,incidents:[{id:'a',safetyRelevant:true}]},'2026-01-01').status).toBe('BLOCKED');
     expect(evaluateMpgDevice({...clear,incidents:[{id:'a',safetyRelevant:true,resolvedAt:'2025-12-01'}]},'2026-01-01').status).toBe('RELEASED');
+  });
+  test('remains blocked until every independent cause is resolved',()=>{
+    const overdue={...clear,requirements:[{id:'stk',mandatory:true,dueDate:'2025-12-31'}],incidents:[{id:'defect',safetyRelevant:true}]};
+    expect(evaluateMpgDevice(overdue,'2026-01-01').reasons).toHaveLength(2);
+    expect(evaluateMpgDevice({...overdue,incidents:[{id:'defect',safetyRelevant:true,resolvedAt:'2026-01-01'}]},'2026-01-01').status).toBe('BLOCKED');
   });
   test('inspection ordering uses instants across time zones',()=>expect(evaluateMpgDevice({...clear,inspections:[{requirementId:'a',result:'FAILED',performedAt:'2026-01-01T10:00:00Z',finalizedAt:'2026-01-01T10:00:00Z'},{requirementId:'a',result:'PASSED',performedAt:'2026-01-01T10:30:00+02:00',finalizedAt:'2026-01-01T11:00:00Z'}]},'2026-01-01').status).toBe('BLOCKED'));
   test('glucose failure requires clarification and a strictly later passing retry',()=>{
@@ -30,5 +50,5 @@ describe('glucose assessment',()=>{
  const input={measuredAt:'2026-01-01',unit:'mg/dL',rangeUnit:'mg/dL',lower:80,upper:120,value:80,solutionExpiresOn:'2026-01-01'};
  test('bounds and expiration day are inclusive',()=>{expect(evaluateGlucoseControl(input).passed).toBe(true);expect(evaluateGlucoseControl({...input,value:120}).passed).toBe(true);});
  test('outside range and expired materials fail',()=>{expect(evaluateGlucoseControl({...input,value:121}).passed).toBe(false);expect(evaluateGlucoseControl({...input,solutionExpiresOn:'2025-12-31'}).passed).toBe(false);});
- test('rejects mismatched units, nonfinite values and reversed ranges',()=>{expect(()=>evaluateGlucoseControl({...input,rangeUnit:'mmol/L'})).toThrow();expect(()=>evaluateGlucoseControl({...input,value:NaN})).toThrow();expect(()=>evaluateGlucoseControl({...input,lower:130})).toThrow();});
+ test('documents mismatched units as failed and rejects malformed values',()=>{const result=evaluateGlucoseControl({...input,rangeUnit:'mmol/L'});expect(result.passed).toBe(false);expect(result.reasons).toContain('Messwert und Sollbereich verwenden unterschiedliche Einheiten.');expect(()=>evaluateGlucoseControl({...input,value:NaN})).toThrow();expect(()=>evaluateGlucoseControl({...input,lower:130})).toThrow();});
 });

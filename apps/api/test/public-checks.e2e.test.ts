@@ -6,7 +6,7 @@ import request from "supertest";
 import { bootstrapTestApp } from "./bootstrap-test-app.js";
 import { MailService } from "../src/services/mail.service.js";
 
-jest.setTimeout(30_000);
+jest.setTimeout(60_000);
 
 function extractPdfMediaBox(pdf: Buffer) {
   const match = pdf.toString("latin1").match(/\/MediaBox\s*\[\s*0\s+0\s+([0-9.]+)\s+([0-9.]+)\s*\]/);

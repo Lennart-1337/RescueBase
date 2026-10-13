@@ -17,4 +17,33 @@ describe("MPG forms", () => {
     expect(await screen.findByRole("alert")).toHaveTextContent("Versionskonflikt");
     expect(screen.getByLabelText("Name")).toHaveValue("STK");
   });
+
+  it("groups related fields without changing submitted values", async () => {
+    const submit = vi.fn().mockResolvedValue(undefined);
+    render(<MpgForm title="Gerät" fields={[{ name: "name", label: "Name", group: "Stammdaten" }, { name: "location", label: "Standort", group: "Zuordnung" }]} onSubmit={submit} />);
+    expect(screen.getByRole("group", { name: "Stammdaten" })).toContainElement(screen.getByLabelText("Name"));
+    expect(screen.getByRole("group", { name: "Zuordnung" })).toContainElement(screen.getByLabelText("Standort"));
+    fireEvent.change(screen.getByLabelText("Name"), { target: { value: "AED" } });
+    fireEvent.submit(screen.getByRole("form", { name: "Gerät" }));
+    await waitFor(() => expect(submit).toHaveBeenCalledWith({ name: "AED" }));
+  });
+
+  it("shows conditional evidence only for the selected inspection kind", async () => {
+    const submit = vi.fn().mockResolvedValue(undefined);
+    render(<MpgForm title="Prüfung" fields={[
+      { name: "kind", label: "Art", options: [{ value: "STK", label: "STK" }, { value: "OTHER", label: "Andere" }] },
+      { name: "protocolConfirmed", label: "Protokoll geprüft", type: "checkbox", showWhen: values => values.kind === "STK" }
+    ]} onSubmit={submit} />);
+    expect(screen.queryByRole("checkbox", { name: "Protokoll geprüft" })).not.toBeInTheDocument();
+    fireEvent.change(screen.getByLabelText("Art"), { target: { value: "STK" } });
+    fireEvent.click(screen.getByRole("checkbox", { name: "Protokoll geprüft" }));
+    fireEvent.change(screen.getByLabelText("Art"), { target: { value: "OTHER" } });
+    fireEvent.submit(screen.getByRole("form", { name: "Prüfung" }));
+    await waitFor(() => expect(submit).toHaveBeenCalledWith({ kind: "OTHER" }));
+  });
+});
+
+it("renders MPG boolean fields as the shared checkslider", () => {
+  render(<MpgForm title="Prüfanforderung" fields={[{ name: "mandatory", label: "Pflichtprüfung", type: "checkbox" }]} initial={{ mandatory: true }} onSubmit={async () => undefined} />);
+  expect(screen.getByRole("checkbox", { name: "Pflichtprüfung" }).closest(".checkbox-field")).not.toBeNull();
 });
