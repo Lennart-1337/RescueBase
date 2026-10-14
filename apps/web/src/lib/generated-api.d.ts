@@ -676,6 +676,38 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/catalog/articles/{id}/meier-preview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["CatalogArticleReconciliationController_preview"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/catalog/articles/{id}/meier-apply": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["CatalogArticleReconciliationController_apply"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/catalog/articles/reorder": {
         parameters: {
             query?: never;
@@ -2414,6 +2446,43 @@ export interface components {
             data: components["schemas"]["ArticleImportData"];
             warnings: string[];
         };
+        MeierReconciliationCurrent: {
+            name: string;
+            unit: string;
+            articleUrl: string | null;
+            manufacturer: string | null;
+            manufacturerPartNumber: string | null;
+            supplierArticleNumber: string | null;
+            barcode: string | null;
+            unitsPerPackage: number | null;
+            defaultGrossPriceCents: number | null;
+            medicalDevice: boolean;
+        };
+        MeierReconciliationPreview: {
+            articleId: string;
+            /** Format: date-time */
+            expectedUpdatedAt: string;
+            current: components["schemas"]["MeierReconciliationCurrent"];
+            preview: components["schemas"]["ArticleImportPreview"];
+        };
+        MeierReconciliationChanges: {
+            name?: string;
+            unit?: string;
+            manufacturer?: string;
+            manufacturerPartNumber?: string;
+            supplierArticleNumber?: string;
+            barcode?: string;
+            /** Format: uri */
+            articleUrl?: string;
+            unitsPerPackage?: number;
+            defaultGrossPriceCents?: number;
+            medicalDevice?: boolean;
+        };
+        MeierReconciliationApplyRequest: {
+            /** Format: date-time */
+            expectedUpdatedAt: string;
+            changes: components["schemas"]["MeierReconciliationChanges"];
+        };
         ReorderArticlesRequest: {
             articleIds: string[];
         };
@@ -4009,6 +4078,61 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["ArticleImportPreview"];
                 };
+            };
+        };
+    };
+    CatalogArticleReconciliationController_preview: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Existing article and supplier preview */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MeierReconciliationPreview"];
+                };
+            };
+        };
+    };
+    CatalogArticleReconciliationController_apply: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MeierReconciliationApplyRequest"];
+            };
+        };
+        responses: {
+            /** @description Selected changes applied */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OkResponse"];
+                };
+            };
+            /** @description Article changed since preview; fetch a new preview before applying */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
         };
     };

@@ -1,4 +1,5 @@
 import type { ArticleImportPreview } from "./article-import";
+import type { MeierArticleApplyRequest } from "./article-reconciliation";
 import { ApiError, openApiClient, reportUrl } from "./openapi-client";
 import { adminSettingsApi } from "./admin-settings-api";
 import type {
@@ -68,6 +69,8 @@ export const rescueBaseApi = {
     openApiClient.put("/mpg-permissions/users/{id}", { medicalDevicesManage }, { params: { id } }),
   articles: () => openApiClient.get("/catalog/articles"),
   articleImportPreview: (url: string) => openApiClient.post("/catalog/articles/import-preview", { url }) as Promise<ArticleImportPreview>,
+  meierArticlePreview: (id: string) => openApiClient.post("/catalog/articles/{id}/meier-preview", { params: { id } }),
+  meierArticleApply: (id: string, body: MeierArticleApplyRequest) => openApiClient.post("/catalog/articles/{id}/meier-apply", body, { params: { id } }),
   suppliers: () => openApiClient.get("/catalog/suppliers"),
   locations: () => openApiClient.get("/catalog/locations"),
   templates: () => openApiClient.get("/catalog/templates"),
