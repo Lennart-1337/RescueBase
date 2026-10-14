@@ -6,6 +6,7 @@ import type { Article } from "../../lib/types";
 import { ArticleListRow } from "./article-list-row";
 import { ArticleFilters } from "./article-filters";
 import { ArticleEditorDialog } from "./article-editor/dialog";
+import { ArticleSearch } from "./article-search/search";
 import { useArticleEditor } from "./article-editor/use-article-editor";
 import type { ArticlePanelProps } from "./article-panel-types";
 import type { ReorderDirection } from "./reorder";
@@ -36,6 +37,17 @@ export function ArticlePanel(props: ArticlePanelProps) {
           actions={
             <div className="article-panel-actions">
               {props.reconciliationAction}
+              <ArticleSearch
+                articles={props.allArticles ?? props.articles}
+                onSelect={(url, existingArticleId) =>
+                  editor.openForImport(
+                    url,
+                    (props.allArticles ?? props.articles).find(
+                      (article) => article.id === existingArticleId,
+                    ),
+                  )
+                }
+              />
               <Button onClick={editor.openForCreate} type="button">
                 <Plus data-icon="inline-start" />
                 Artikel hinzufügen

@@ -8,6 +8,7 @@ import type {
 import type { ReorderDirection } from "./reorder";
 export type ArticlePanelProps = {
   articles: Article[];
+  allArticles?: Article[];
   error: Error | null;
   filters: {
     category: string;

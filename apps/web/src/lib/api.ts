@@ -1,5 +1,6 @@
 import type { ArticleImportPreview } from "./article-import";
 import type { MeierArticleApplyRequest } from "./article-reconciliation";
+import type { MeierSearchResult } from "./article-search";
 import { ApiError, openApiClient, reportUrl } from "./openapi-client";
 import { adminSettingsApi } from "./admin-settings-api";
 import type {
@@ -70,6 +71,7 @@ export const rescueBaseApi = {
   articles: () => openApiClient.get("/catalog/articles"),
   articleImportPreview: (url: string) => openApiClient.post("/catalog/articles/import-preview", { url }) as Promise<ArticleImportPreview>,
   meierArticlePreview: (id: string) => openApiClient.post("/catalog/articles/{id}/meier-preview", { params: { id } }),
+  meierArticleSearch: (body: { query: string; page?: number }) => openApiClient.post("/catalog/articles/meier-search", { ...body, page: body.page ?? 1 }) as Promise<MeierSearchResult>,
   meierArticleApply: (id: string, body: MeierArticleApplyRequest) => openApiClient.post("/catalog/articles/{id}/meier-apply", body, { params: { id } }),
   suppliers: () => openApiClient.get("/catalog/suppliers"),
   locations: () => openApiClient.get("/catalog/locations"),

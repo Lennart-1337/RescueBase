@@ -1,5 +1,6 @@
 import { parseCents } from "../../purchase-orders/format";
 export type ArticleDraft = {
+  importOnOpen?: boolean;
   isOpen: boolean;
   editingId: string | null;
   name: string;

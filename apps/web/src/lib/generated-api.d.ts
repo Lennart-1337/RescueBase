@@ -708,6 +708,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/catalog/articles/meier-search": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["CatalogMeierSearchController_search"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/catalog/articles/reorder": {
         parameters: {
             query?: never;
@@ -2483,6 +2499,27 @@ export interface components {
             expectedUpdatedAt: string;
             changes: components["schemas"]["MeierReconciliationChanges"];
         };
+        MeierSearchRequest: {
+            query: string;
+            /** @default 1 */
+            page: number;
+        };
+        MeierSearchItem: {
+            name: string;
+            /** Format: uri */
+            url: string;
+            supplierArticleNumber?: string;
+            manufacturer?: string;
+            /** @description Displayed shop price, possibly a starting price; final product preview supplies the import value. */
+            priceLabel?: string;
+        };
+        MeierSearchResult: {
+            query: string;
+            page: number;
+            totalPages: number;
+            items: components["schemas"]["MeierSearchItem"][];
+            warnings: string[];
+        };
         ReorderArticlesRequest: {
             articleIds: string[];
         };
@@ -4129,6 +4166,51 @@ export interface operations {
             };
             /** @description Article changed since preview; fetch a new preview before applying */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    CatalogMeierSearchController_search: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MeierSearchRequest"];
+            };
+        };
+        responses: {
+            /** @description Paginated public Meier store search results */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MeierSearchResult"];
+                };
+            };
+            /** @description Invalid search query or page */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Supplier search response unavailable or invalid */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Supplier request timed out */
+            504: {
                 headers: {
                     [name: string]: unknown;
                 };

@@ -1,8 +1,9 @@
 import type { ArticleImportPreview } from "../../../lib/article-import";
-import { useState } from "react";
+import { StrictMode, useState } from "react";
 import { act, fireEvent, render, screen } from "@testing-library/react";
 import { rescueBaseApi } from "../../../lib/api";
 import { emptyDraft } from "./draft";
+import type { ArticleDraft } from "./draft";
 import { ArticleImport } from "./import";
 const url = "https://www.meier-medizintechnik.de/p/1";
 const preview: ArticleImportPreview = {
@@ -17,11 +18,12 @@ const preview: ArticleImportPreview = {
     supplierArticleNumber: "2009068",
   },
 };
-function Editor() {
-  const [draft, setDraft] = useState({
+function Editor({ importOnOpen = false }: { importOnOpen?: boolean } = {}) {
+  const [draft, setDraft] = useState<ArticleDraft>({
     ...emptyDraft(),
     isOpen: true,
     articleUrl: url,
+    importOnOpen,
   });
   return (
     <>
@@ -45,6 +47,20 @@ function Editor() {
 }
 afterEach(() => vi.restoreAllMocks());
 describe("article import UI", () => {
+  it("automatically loads a search selection for review without applying it", async () => {
+    const load = vi
+      .spyOn(rescueBaseApi, "articleImportPreview")
+      .mockResolvedValue(preview);
+    render(
+      <StrictMode>
+        <Editor importOnOpen />
+      </StrictMode>,
+    );
+    await screen.findByRole("button", { name: "Ausgewählte Daten übernehmen" });
+    expect(load).toHaveBeenCalledTimes(1);
+    expect(load).toHaveBeenCalledWith(url);
+    expect(screen.getByLabelText("Name")).toHaveValue("");
+  });
   it("loads a review and only applies explicitly, retaining later manual edits", async () => {
     const load = vi
       .spyOn(rescueBaseApi, "articleImportPreview")

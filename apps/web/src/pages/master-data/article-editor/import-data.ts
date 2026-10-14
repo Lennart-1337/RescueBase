@@ -70,7 +70,10 @@ export function importCandidates(
     key,
     value: values[key]!,
     label: key === "defaultSupplierId" ? supplier!.name : String(values[key]),
-    selected: draft[key] === "" || draft[key] === values[key],
+    selected:
+      Boolean(draft.importOnOpen && !draft.editingId) ||
+      draft[key] === "" ||
+      draft[key] === values[key],
   }));
 }
 export function mergeImport(

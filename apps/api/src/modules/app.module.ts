@@ -5,6 +5,7 @@ import { AccountActivationController } from "./account-activation.controller.js"
 import { AdminSettingsController } from "./admin-settings.controller.js";
 import { AlertsController } from "./alerts.controller.js";
 import { AuditController } from "./audit.controller.js";
+import { CatalogMeierSearchController } from "./catalog/meier-search.controller.js";
 import { CatalogArticleImportController } from "./catalog/article-import.controller.js";
 import { CatalogArticleReconciliationController } from "./catalog/article-reconciliation.controller.js";
 import { CatalogController } from "./catalog.controller.js";
@@ -59,6 +60,7 @@ import { MpgTrainingsService } from "../services/mpg-trainings.service.js";
     CheckRecordsController,
     CatalogController,
     CatalogArticleImportController,
+    CatalogMeierSearchController,
     CatalogArticleReconciliationController,
     MpgPermissionsController,
     MpgController,
