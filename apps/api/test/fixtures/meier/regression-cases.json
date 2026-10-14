@@ -1,0 +1,70 @@
+[
+  {
+    "fixture": "braun-syringes",
+    "data": {
+      "name": "B. Braun Injekt® Luer Solo Einmalspritzen 5 ml | Packung á 100 Stück",
+      "articleUrl": "https://www.meier-medizintechnik.de/b.-braun-injekt-luer-solo-einmalspritzen-5-ml-packung-a-100-stueck/4606051v",
+      "supplierArticleNumber": "4606051v",
+      "manufacturer": "B. Braun Melsungen AG",
+      "manufacturerPartNumber": "4606051v",
+      "barcode": "04022495250773",
+      "unit": "Stück",
+      "unitsPerPackage": 100,
+      "medicalDevice": true,
+      "defaultGrossPriceCents": 660
+    }
+  },
+  {
+    "fixture": "aerosuc-catheter",
+    "data": {
+      "name": "AEROsuc® Absaugkatheter CH 12 | Farbe: Weiß",
+      "articleUrl": "https://www.meier-medizintechnik.de/aerosuc-absaugkatheter-ch-12-farbe-weiss/hak11-50-12",
+      "supplierArticleNumber": "HAK11-50-12",
+      "manufacturer": "HUM GmbH",
+      "manufacturerPartNumber": "HAK11-50-12",
+      "barcode": "4251233803777",
+      "medicalDevice": true,
+      "defaultGrossPriceCents": 28
+    }
+  },
+  {
+    "fixture": "aerofusion-tourniquet",
+    "data": {
+      "name": "AEROfusion Einhand Venenstauer Standard | Farbe: Blau",
+      "articleUrl": "https://www.meier-medizintechnik.de/aerofusion-einhand-venenstauer-standard-farbe-blau/hvs01-25w-b-v2.0",
+      "supplierArticleNumber": "HVS01-25W/B-V2.0",
+      "manufacturer": "HUM GmbH",
+      "manufacturerPartNumber": "HVS01-25W/B-V2.0",
+      "medicalDevice": true,
+      "defaultGrossPriceCents": 350
+    }
+  },
+  {
+    "fixture": "hartmann-bandage",
+    "data": {
+      "name": "Hartmann Idealast®-haft kohäsive Idealbinde latexfrei | Farbe: Blau | Größe: 4 Meter",
+      "articleUrl": "https://www.meier-medizintechnik.de/hartmann-idealast-haft-kohaesive-idealbinde-latexfrei-farbe-blau-groesse-4-meter/9310910",
+      "supplierArticleNumber": "9310910",
+      "manufacturer": "PAUL HARTMANN AG",
+      "manufacturerPartNumber": "9310910",
+      "barcode": "4052199208909",
+      "medicalDevice": true,
+      "defaultGrossPriceCents": 590
+    }
+  },
+  {
+    "fixture": "ambu-bag",
+    "data": {
+      "name": "Ambu® Spur® II Einweg Beatmungsbeutel | Kinder",
+      "articleUrl": "https://www.meier-medizintechnik.de/ambu-spur-ii-einweg-beatmungsbeutel-kinder/330-023-000",
+      "supplierArticleNumber": "330 023 000",
+      "manufacturer": "Ambu GmbH",
+      "manufacturerPartNumber": "330023000",
+      "barcode": "05707480043736",
+      "unit": "Stück",
+      "unitsPerPackage": 1,
+      "medicalDevice": true,
+      "defaultGrossPriceCents": 1250
+    }
+  }
+]
