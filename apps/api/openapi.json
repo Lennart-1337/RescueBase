@@ -987,6 +987,9 @@
           "manufacturerPartNumber": {
             "type": "string"
           },
+          "supplierArticleNumber": {
+            "type": "string"
+          },
           "category": {
             "type": "string"
           },
@@ -1071,6 +1074,9 @@
           "manufacturerPartNumber": {
             "type": "string"
           },
+          "supplierArticleNumber": {
+            "type": "string"
+          },
           "category": {
             "type": "string"
           },
@@ -1143,6 +1149,9 @@
           "manufacturerPartNumber": {
             "type": "string"
           },
+          "supplierArticleNumber": {
+            "type": "string"
+          },
           "category": {
             "type": "string"
           },
@@ -1197,6 +1206,106 @@
           "unit",
           "sterile",
           "criticalDefault"
+        ],
+        "additionalProperties": false
+      },
+      "ArticleImportPreviewRequest": {
+        "type": "object",
+        "properties": {
+          "url": {
+            "type": "string",
+            "format": "uri",
+            "maxLength": 2048
+          }
+        },
+        "required": [
+          "url"
+        ],
+        "additionalProperties": false
+      },
+      "ArticleImportData": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "unit": {
+            "type": "string"
+          },
+          "manufacturer": {
+            "type": "string"
+          },
+          "manufacturerPartNumber": {
+            "type": "string"
+          },
+          "supplierArticleNumber": {
+            "type": "string"
+          },
+          "barcode": {
+            "type": "string"
+          },
+          "articleUrl": {
+            "type": "string",
+            "format": "uri"
+          },
+          "unitsPerPackage": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "defaultGrossPriceCents": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "medicalDevice": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "name",
+          "articleUrl"
+        ],
+        "additionalProperties": false
+      },
+      "ArticleImportPreview": {
+        "type": "object",
+        "properties": {
+          "source": {
+            "type": "string",
+            "enum": [
+              "MEIER_MEDIZINTECHNIK"
+            ]
+          },
+          "sourceUrl": {
+            "type": "string",
+            "format": "uri"
+          },
+          "fetchedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "supplierName": {
+            "type": "string",
+            "enum": [
+              "Meier Medizintechnik"
+            ]
+          },
+          "data": {
+            "$ref": "#/components/schemas/ArticleImportData"
+          },
+          "warnings": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "source",
+          "sourceUrl",
+          "fetchedAt",
+          "supplierName",
+          "data",
+          "warnings"
         ],
         "additionalProperties": false
       },
@@ -4709,6 +4818,36 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/Article"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/catalog/articles/import-preview": {
+      "post": {
+        "tags": [
+          "Stammdaten"
+        ],
+        "operationId": "CatalogArticleImportController_importPreview",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ArticleImportPreviewRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Supplier article preview",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ArticleImportPreview"
                 }
               }
             }

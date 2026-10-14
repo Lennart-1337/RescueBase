@@ -853,6 +853,7 @@ type ArticleWriteBody = {
   unit: string;
   manufacturer?: string;
   manufacturerPartNumber?: string;
+  supplierArticleNumber?: string;
   category?: string;
   barcode?: string;
   articleUrl?: string;
@@ -912,6 +913,7 @@ function toArticleWriteData(
     unit: body.unit.trim(),
     manufacturer: optionalText(body.manufacturer),
     manufacturerPartNumber: optionalText(body.manufacturerPartNumber),
+    supplierArticleNumber: optionalText(body.supplierArticleNumber),
     category: optionalText(body.category),
     barcode: optionalText(body.barcode),
     articleUrl: optionalUrl(body.articleUrl),
@@ -1049,6 +1051,7 @@ function mapArticle(
     unit: article.unit,
     manufacturer: article.manufacturer ?? undefined,
     manufacturerPartNumber: article.manufacturerPartNumber ?? undefined,
+    supplierArticleNumber: article.supplierArticleNumber ?? undefined,
     category: article.category ?? undefined,
     barcode: article.barcode ?? undefined,
     articleUrl: article.articleUrl ?? undefined,

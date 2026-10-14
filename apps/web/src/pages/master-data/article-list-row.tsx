@@ -22,6 +22,12 @@ export function ArticleListRow(props: {
   const details = [
     article.unit,
     article.unitsPerPackage ? `VE ${article.unitsPerPackage}` : null,
+    article.manufacturerPartNumber
+      ? `Hersteller-Art.-Nr. ${article.manufacturerPartNumber}`
+      : null,
+    article.supplierArticleNumber
+      ? `Lieferanten-Art.-Nr. ${article.supplierArticleNumber}`
+      : null,
     article.barcode,
     article.defaultSupplierName,
   ]

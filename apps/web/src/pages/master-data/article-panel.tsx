@@ -1,3 +1,14 @@
+import { ArticleFields } from "./article-editor/fields";
+import { ArticleFlags } from "./article-editor/flags";
+import {
+  emptyDraft,
+  intervalsValid,
+  unitsPerPackageValid,
+  optionalText,
+  optionalPositiveInteger,
+  optionalCents,
+  intervalValue,
+} from "./article-editor/draft";
 import { useState } from "react";
 import { Plus, Save, X } from "lucide-react";
 import { ListFilterBar } from "../../components/list-filter-bar";
@@ -19,33 +30,9 @@ import {
   Panel,
 } from "../../components/ui";
 import { ArticleListRow } from "./article-list-row";
-import { centsInput, parseCents } from "../purchase-orders/format";
+import { centsInput } from "../purchase-orders/format";
 import type { ReorderDirection } from "./reorder";
 import "./article-panel.css";
-
-type ArticleDraft = {
-  isOpen: boolean;
-  editingId: string | null;
-  name: string;
-  unit: string;
-  manufacturer: string;
-  manufacturerPartNumber: string;
-  category: string;
-  barcode: string;
-  articleUrl: string;
-  defaultSupplierId: string;
-  unitsPerPackage: string;
-  defaultGrossPrice: string;
-  sterile: boolean;
-  medicalDevice: boolean;
-  stkRequired: boolean;
-  stkIntervalMonths: string;
-  mtkRequired: boolean;
-  mtkIntervalMonths: string;
-  storageNotes: string;
-  notes: string;
-  criticalDefault: boolean;
-};
 
 export function ArticlePanel(props: {
   articles: Article[];
@@ -106,6 +93,7 @@ export function ArticlePanel(props: {
       unit: article.unit,
       manufacturer: article.manufacturer ?? "",
       manufacturerPartNumber: article.manufacturerPartNumber ?? "",
+      supplierArticleNumber: article.supplierArticleNumber ?? "",
       category: article.category ?? "",
       barcode: article.barcode ?? "",
       articleUrl: article.articleUrl ?? "",
@@ -131,6 +119,7 @@ export function ArticlePanel(props: {
       unit: draft.unit,
       manufacturer: optionalText(draft.manufacturer),
       manufacturerPartNumber: optionalText(draft.manufacturerPartNumber),
+      supplierArticleNumber: optionalText(draft.supplierArticleNumber),
       category: optionalText(draft.category),
       barcode: optionalText(draft.barcode),
       articleUrl: optionalText(draft.articleUrl),
@@ -315,342 +304,16 @@ export function ArticlePanel(props: {
           title={draft.editingId ? "Artikel bearbeiten" : "Artikel anlegen"}
         >
           <div className="article-editor-layout">
-            <div className="article-editor-fields">
-              <Field className="article-editor-field-name" label="Name">
-                <input
-                  autoFocus
-                  onChange={(event) =>
-                    setDraft((current) => ({
-                      ...current,
-                      name: event.target.value,
-                    }))
-                  }
-                  value={draft.name}
-                />
-              </Field>
-              <Field label="Einheit">
-                <input
-                  onChange={(event) =>
-                    setDraft((current) => ({
-                      ...current,
-                      unit: event.target.value,
-                    }))
-                  }
-                  value={draft.unit}
-                />
-              </Field>
-              <Field label="Kategorie">
-                <input
-                  onChange={(event) =>
-                    setDraft((current) => ({
-                      ...current,
-                      category: event.target.value,
-                    }))
-                  }
-                  value={draft.category}
-                />
-              </Field>
-              <Field label="Hersteller">
-                <input
-                  onChange={(event) =>
-                    setDraft((current) => ({
-                      ...current,
-                      manufacturer: event.target.value,
-                    }))
-                  }
-                  value={draft.manufacturer}
-                />
-              </Field>
-              <Field label="Hersteller-Art.-Nr.">
-                <input
-                  onChange={(event) =>
-                    setDraft((current) => ({
-                      ...current,
-                      manufacturerPartNumber: event.target.value,
-                    }))
-                  }
-                  value={draft.manufacturerPartNumber}
-                />
-              </Field>
-              <Field label="Barcode/DataMatrix">
-                <input
-                  onChange={(event) =>
-                    setDraft((current) => ({
-                      ...current,
-                      barcode: event.target.value,
-                    }))
-                  }
-                  value={draft.barcode}
-                />
-              </Field>
-              <Field label="Artikel-Link">
-                <input
-                  onChange={(event) =>
-                    setDraft((current) => ({
-                      ...current,
-                      articleUrl: event.target.value,
-                    }))
-                  }
-                  placeholder="https://…"
-                  type="url"
-                  value={draft.articleUrl}
-                />
-              </Field>
-              <Field label="Standard-Lieferant">
-                <SearchableSelect
-                  emptyLabel="Kein Standard-Lieferant"
-                  onChange={(value) =>
-                    setDraft((current) => ({
-                      ...current,
-                      defaultSupplierId: value,
-                    }))
-                  }
-                  options={[
-                    { label: "Kein Standard-Lieferant", value: "" },
-                    ...props.suppliers.map((supplier) => ({
-                      label: supplier.name,
-                      value: supplier.id,
-                    })),
-                  ]}
-                  value={draft.defaultSupplierId}
-                />
-              </Field>
-              <Field label="VE (Einheiten pro Packung)">
-                <input
-                  inputMode="numeric"
-                  min="1"
-                  onChange={(event) =>
-                    setDraft((current) => ({
-                      ...current,
-                      unitsPerPackage: event.target.value,
-                    }))
-                  }
-                  type="number"
-                  value={draft.unitsPerPackage}
-                />
-              </Field>
-              <Field
-                label={
-                  draft.unitsPerPackage
-                    ? "Standardpreis je VE brutto"
-                    : "Standardpreis je Stück brutto"
-                }
-              >
-                <input
-                  inputMode="decimal"
-                  onChange={(event) =>
-                    setDraft((current) => ({
-                      ...current,
-                      defaultGrossPrice: event.target.value,
-                    }))
-                  }
-                  placeholder="0,00"
-                  value={draft.defaultGrossPrice}
-                />
-              </Field>
-              <Field
-                className="article-editor-field-storage"
-                label="Lagerhinweise"
-              >
-                <input
-                  onChange={(event) =>
-                    setDraft((current) => ({
-                      ...current,
-                      storageNotes: event.target.value,
-                    }))
-                  }
-                  value={draft.storageNotes}
-                />
-              </Field>
-              <Field className="article-editor-field-notes" label="Hinweise">
-                <textarea
-                  onChange={(event) =>
-                    setDraft((current) => ({
-                      ...current,
-                      notes: event.target.value,
-                    }))
-                  }
-                  rows={3}
-                  value={draft.notes}
-                />
-              </Field>
-            </div>
-            <section
-              aria-label="Artikelmerkmale"
-              className="article-editor-flags"
-            >
-              <h3>Merkmale</h3>
-              <CheckboxField
-                checked={draft.sterile}
-                className="article-editor-toggle"
-                label="Steril"
-                onChange={(event) =>
-                  setDraft((current) => ({
-                    ...current,
-                    sterile: event.target.checked,
-                  }))
-                }
-              />
-              <CheckboxField
-                checked={draft.medicalDevice}
-                className="article-editor-toggle"
-                label="Medizinprodukt (MPDG)"
-                onChange={(event) =>
-                  setDraft((current) => ({
-                    ...current,
-                    medicalDevice: event.target.checked,
-                  }))
-                }
-              />
-              <div className="article-editor-toggle-group">
-                <CheckboxField
-                  checked={draft.stkRequired}
-                  className="article-editor-toggle"
-                  label="STK erforderlich"
-                  onChange={(event) =>
-                    setDraft((current) => ({
-                      ...current,
-                      stkRequired: event.target.checked,
-                      stkIntervalMonths: event.target.checked
-                        ? current.stkIntervalMonths || "12"
-                        : "",
-                    }))
-                  }
-                />
-                {draft.stkRequired ? (
-                  <Field
-                    className="article-editor-interval"
-                    label="STK-Intervall (Monate)"
-                  >
-                    <input
-                      inputMode="numeric"
-                      min="1"
-                      onChange={(event) =>
-                        setDraft((current) => ({
-                          ...current,
-                          stkIntervalMonths: event.target.value,
-                        }))
-                      }
-                      type="number"
-                      value={draft.stkIntervalMonths}
-                    />
-                  </Field>
-                ) : null}
-              </div>
-              <div className="article-editor-toggle-group">
-                <CheckboxField
-                  checked={draft.mtkRequired}
-                  className="article-editor-toggle"
-                  label="MTK erforderlich"
-                  onChange={(event) =>
-                    setDraft((current) => ({
-                      ...current,
-                      mtkRequired: event.target.checked,
-                      mtkIntervalMonths: event.target.checked
-                        ? current.mtkIntervalMonths || "12"
-                        : "",
-                    }))
-                  }
-                />
-                {draft.mtkRequired ? (
-                  <Field
-                    className="article-editor-interval"
-                    label="MTK-Intervall (Monate)"
-                  >
-                    <input
-                      inputMode="numeric"
-                      min="1"
-                      onChange={(event) =>
-                        setDraft((current) => ({
-                          ...current,
-                          mtkIntervalMonths: event.target.value,
-                        }))
-                      }
-                      type="number"
-                      value={draft.mtkIntervalMonths}
-                    />
-                  </Field>
-                ) : null}
-              </div>
-              <CheckboxField
-                checked={draft.criticalDefault}
-                className="article-editor-toggle"
-                label="Kritisch als Standard"
-                onChange={(event) =>
-                  setDraft((current) => ({
-                    ...current,
-                    criticalDefault: event.target.checked,
-                  }))
-                }
-              />
-            </section>
+            <ArticleFields
+              draft={draft}
+              setDraft={setDraft}
+              suppliers={props.suppliers}
+            />
+            <ArticleFlags draft={draft} setDraft={setDraft} />
           </div>
           {props.error ? <InlineError error={props.error} /> : null}
         </Dialog>
       </Panel>
     </>
-  );
-}
-
-function emptyDraft(): ArticleDraft {
-  return {
-    isOpen: false,
-    editingId: null,
-    name: "",
-    unit: "Stück",
-    manufacturer: "",
-    manufacturerPartNumber: "",
-    category: "",
-    barcode: "",
-    articleUrl: "",
-    defaultSupplierId: "",
-    unitsPerPackage: "",
-    defaultGrossPrice: "",
-    sterile: false,
-    medicalDevice: false,
-    stkRequired: false,
-    stkIntervalMonths: "",
-    mtkRequired: false,
-    mtkIntervalMonths: "",
-    storageNotes: "",
-    notes: "",
-    criticalDefault: false,
-  };
-}
-
-function optionalText(value: string) {
-  const normalized = value.trim();
-  return normalized ? normalized : undefined;
-}
-
-function intervalValue(required: boolean, value: string) {
-  if (!required) return undefined;
-  return Number.parseInt(value, 10);
-}
-
-function optionalCents(value: string) {
-  return value.trim() ? parseCents(value) : undefined;
-}
-
-function optionalPositiveInteger(value: string) {
-  const normalized = value.trim();
-  return normalized ? Number.parseInt(normalized, 10) : undefined;
-}
-
-function intervalsValid(draft: ArticleDraft) {
-  return (
-    (!draft.stkRequired ||
-      (Number.isInteger(Number(draft.stkIntervalMonths)) &&
-        Number(draft.stkIntervalMonths) > 0)) &&
-    (!draft.mtkRequired ||
-      (Number.isInteger(Number(draft.mtkIntervalMonths)) &&
-        Number(draft.mtkIntervalMonths) > 0))
-  );
-}
-
-function unitsPerPackageValid(value: string) {
-  return (
-    value.trim() === "" ||
-    (Number.isInteger(Number(value)) && Number(value) > 0)
   );
 }

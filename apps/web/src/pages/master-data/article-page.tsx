@@ -24,7 +24,7 @@ export function MasterDataArticlePage({ filters }: { filters: ArticleFilters }) 
   if (articles.isError || suppliers.isError || !articles.data || !suppliers.data) return <ErrorPanel error={toError(articles.error ?? suppliers.error)} onRetry={() => void Promise.all([articles.refetch(), suppliers.refetch()])} />;
 
   const allArticles = articles.data;
-  const filteredArticles = allArticles.filter((entry) => (!filters.category || entry.category === filters.category) && (!filters.medicalDevice || entry.medicalDevice) && (!filters.stkRequired || entry.stkRequired) && (!filters.mtkRequired || entry.mtkRequired) && (!filters.criticalDefault || entry.criticalDefault) && matchesFilterText(filters.q, entry.name, entry.manufacturer, entry.manufacturerPartNumber, entry.barcode));
+  const filteredArticles = allArticles.filter((entry) => (!filters.category || entry.category === filters.category) && (!filters.medicalDevice || entry.medicalDevice) && (!filters.stkRequired || entry.stkRequired) && (!filters.mtkRequired || entry.mtkRequired) && (!filters.criticalDefault || entry.criticalDefault) && matchesFilterText(filters.q, entry.name, entry.manufacturer, entry.manufacturerPartNumber, entry.supplierArticleNumber, entry.barcode));
   const mutationError = createArticle.error ?? updateArticle.error ?? reorderArticles.error ?? deleteArticle.error;
 
   function moveArticle(articleId: string, direction: ReorderDirection) {

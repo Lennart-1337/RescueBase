@@ -960,7 +960,7 @@ describe("MasterDataPage", () => {
     expect(screen.getAllByText("Lagerhinweise")).toHaveLength(1);
     expect(
       within(row as HTMLElement).getByText(
-        "Stück · VE 10 · 040000000001 · MediSafe Einkauf",
+        "Stück · VE 10 · Hersteller-Art.-Nr. VB-1000 · 040000000001 · MediSafe Einkauf",
       ),
     ).toBeInTheDocument();
     expect(
