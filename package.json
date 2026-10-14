@@ -29,6 +29,25 @@
     "prisma:seed": "npm run prisma:seed -w @rescuebase/api",
     "push:keys": "npm run vapid:generate -w @rescuebase/api"
   },
+  "overrides": {
+    "mysql2": "^3.24.6",
+    "@prisma/adapter-mariadb": {
+      "mariadb": "^3.5.4"
+    },
+    "@prisma/config": {
+      "deepmerge-ts": "^8.0.0"
+    },
+    "@prisma/dev": {
+      "find-my-way": "^9.7.0",
+      "valibot": "^1.4.2"
+    },
+    "@istanbuljs/load-nyc-config": {
+      "js-yaml": "^4.3.2"
+    },
+    "@nestjs/swagger": {
+      "js-yaml": "^5.4.3"
+    }
+  },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
     "@playwright/test": "^1.62.0",
