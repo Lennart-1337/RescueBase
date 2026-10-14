@@ -7,6 +7,7 @@ function records(value: unknown): StructuredProduct[] {
   return [record, ...records(record["@graph"])];
 }
 export function findProduct($: CheerioAPI, sku: string) {
+  const normalizedSku = sku.toLowerCase();
   const products: StructuredProduct[] = [];
   $('script[type="application/ld+json"]').each((_, element) => {
     try {
@@ -16,7 +17,9 @@ export function findProduct($: CheerioAPI, sku: string) {
     }
   });
   const matches = products.filter(
-    (value) => value["@type"] === "Product" && text(value.sku) === sku,
+    (value) =>
+      value["@type"] === "Product" &&
+      text(value.sku)?.toLowerCase() === normalizedSku,
   );
   return matches.length === 1 ? matches[0] : undefined;
 }

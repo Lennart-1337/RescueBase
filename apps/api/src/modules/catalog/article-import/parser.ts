@@ -18,8 +18,8 @@ export function parseMeierProduct(
     !product ||
     !name ||
     (canonical &&
-      validateMeierUrl(canonical).pathname.replace(/\/$/u, "") !==
-        url.pathname.replace(/\/$/u, ""))
+      validateMeierUrl(canonical).pathname.replace(/\/$/u, "").toLowerCase() !==
+        url.pathname.replace(/\/$/u, "").toLowerCase())
   )
     throw new BadGatewayException(
       "Auf dieser Seite wurde kein eindeutig passender Artikel gefunden.",
@@ -33,7 +33,7 @@ export function parseMeierProduct(
     data: {
       name,
       articleUrl: url.toString(),
-      supplierArticleNumber: sku,
+      supplierArticleNumber: text(product.sku) ?? sku,
       manufacturer: text(brand?.name),
       manufacturerPartNumber:
         text($(".twt-product-detail-manufacturernumber").first().text()) ??

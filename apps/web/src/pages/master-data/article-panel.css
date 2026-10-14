@@ -16,6 +16,12 @@
   align-items: center;
 }
 
+.article-panel-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
 .article-panel-heading {
   display: grid;
   gap: 4px;

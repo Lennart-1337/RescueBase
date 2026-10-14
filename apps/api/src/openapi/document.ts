@@ -1,4 +1,6 @@
 import type { OpenAPIObject } from "@nestjs/swagger";
+import { meierReconciliationSchemas } from "./meier-reconciliation/schemas.js";
+import { meierReconciliationPaths } from "./meier-reconciliation/paths.js";
 
 type OpenApiFragment = Record<string, unknown>;
 
@@ -507,6 +509,7 @@ const rescueBaseOpenApiDocumentDefinition = {
         supplierName: { type: "string", enum: ["Meier Medizintechnik"] },
         data: ref("ArticleImportData"), warnings: arrayOf({ type: "string" }),
       }, ["source", "sourceUrl", "fetchedAt", "supplierName", "data", "warnings"]),
+      ...meierReconciliationSchemas,
       ReorderArticlesRequest: objectSchema(
         {
           articleIds: arrayOf({ type: "string" }),
@@ -1846,6 +1849,7 @@ const rescueBaseOpenApiDocumentDefinition = {
       post: operation("Stammdaten", "CatalogArticleImportController_importPreview",
         request("ArticleImportPreviewRequest"), response(201, "Supplier article preview", ref("ArticleImportPreview"))),
     },
+    ...meierReconciliationPaths,
     "/catalog/articles/reorder": {
       post: operation(
         "Stammdaten",
