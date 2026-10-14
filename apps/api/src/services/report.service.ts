@@ -22,6 +22,8 @@ import {
   fitSingleLine,
   reportPalette as palette,
 } from "./report-theme.js";
+import { drawKitTemplate } from "./reports/kit-template/renderer.js";
+import type { KitTemplatePdfRecord } from "./reports/kit-template/positions.js";
 
 type QrPdfFormat = "a4" | "label";
 type ProcurementPdfFilters = {
@@ -81,17 +83,6 @@ type PurchaseOrderPdfRecord = {
     note: string | null;
   }>;
 };
-type KitTemplatePdfRecord = {
-  id: string;
-  name: string;
-  version: number;
-  positions: Array<{
-    moduleName: string | null;
-    requiredQuantity: number;
-    critical: boolean;
-    article: { name: string; unit: string };
-  }>;
-};
 
 @Injectable()
 export class ReportService {
@@ -101,90 +92,14 @@ export class ReportService {
     const template: KitTemplatePdfRecord | null =
       await this.prisma.kitTemplate.findFirst({
         where: { id: templateId, deletedAt: null },
-        include: { positions: { include: { article: true } } },
+        include: {
+          positions: { include: { article: true }, orderBy: { sortOrder: "asc" } },
+        },
       });
     if (!template)
       throw new NotFoundException("Rucksackvorlage nicht gefunden.");
 
-    const groups = groupTemplatePositions(template.positions);
-    return this.renderPdf((doc) => {
-      this.drawDocumentHeader(
-        doc,
-        "Rucksackvorlage",
-        template.name,
-        `Version ${template.version} · ${template.positions.length} Positionen`,
-      );
-      this.drawSummaryLine(doc, [
-        `${groups.length} Module`,
-        `${template.positions.length} Positionen`,
-        `${template.positions.filter((position) => position.critical).length} kritisch`,
-      ]);
-
-      let y = doc.y + 12;
-      for (const group of groups) {
-        if (
-          needsPageBreak({
-            currentY: y,
-            requiredHeight: 46,
-            pageHeight: doc.page.height,
-            bottomMargin: doc.page.margins.bottom,
-            reserve: 8,
-          })
-        ) {
-          doc.addPage();
-          this.drawContinuationHeader(
-            doc,
-            template.name,
-            `Version ${template.version} · Inhaltsliste`,
-          );
-          y = doc.y + 12;
-        }
-        y = this.drawTemplateModuleHeader(doc, y, group.name);
-        for (const position of group.positions) {
-          const rowHeight = this.templatePositionRowHeight(doc, position);
-          if (
-            needsPageBreak({
-              currentY: y,
-              requiredHeight: rowHeight + 10,
-              pageHeight: doc.page.height,
-              bottomMargin: doc.page.margins.bottom,
-              reserve: 8,
-            })
-          ) {
-            doc.addPage();
-            this.drawContinuationHeader(
-              doc,
-              template.name,
-              `Version ${template.version} · ${group.name}`,
-            );
-            y = this.drawTemplateModuleHeader(doc, doc.y + 12, group.name);
-          }
-          doc
-            .fillColor(palette.ink)
-            .font("Helvetica")
-            .fontSize(9)
-            .text(position.article.name, 48, y, { width: 290 });
-          doc.text(String(position.requiredQuantity), 344, y, {
-            width: 48,
-            align: "right",
-          });
-          doc.text(position.article.unit, 402, y, { width: 78 });
-          if (position.critical)
-            doc
-              .fillColor(palette.critical)
-              .font("Helvetica-Bold")
-              .fontSize(8)
-              .text("Kritisch", 486, y + 1, { width: 50 });
-          doc
-            .moveTo(48, y + rowHeight + 5)
-            .lineTo(doc.page.width - 48, y + rowHeight + 5)
-            .strokeColor(palette.line)
-            .stroke();
-          y += rowHeight + 10;
-        }
-        y += 12;
-      }
-    });
+    return this.renderPdf((doc) => drawKitTemplate(doc, template));
   }
 
   async procurementPdf(filters: ProcurementPdfFilters): Promise<Buffer> {
@@ -1228,52 +1143,6 @@ export class ReportService {
     });
   }
 
-  private templatePositionRowHeight(
-    doc: PDFKit.PDFDocument,
-    position: KitTemplatePdfRecord["positions"][number],
-  ) {
-    return Math.max(
-      14,
-      doc
-        .font("Helvetica")
-        .fontSize(9)
-        .heightOfString(position.article.name, { width: 290 }),
-    );
-  }
-
-  private drawTemplateModuleHeader(
-    doc: PDFKit.PDFDocument,
-    y: number,
-    moduleName: string,
-  ) {
-    doc
-      .fillColor(palette.ink)
-      .font("Helvetica-Bold")
-      .fontSize(10)
-      .text(moduleName, 48, y, { width: 300 });
-    return drawTableHeader(doc, y + 15, [
-      { label: "Artikel", x: 48, width: 290 },
-      { label: "Soll", x: 344, width: 48, align: "right" },
-      { label: "Einheit", x: 402, width: 78 },
-      { label: "Hinweis", x: 486, width: 50 },
-    ]);
-  }
-}
-
-function groupTemplatePositions(positions: KitTemplatePdfRecord["positions"]) {
-  const groups = new Map<string, KitTemplatePdfRecord["positions"]>();
-  for (const position of positions) {
-    const name = position.moduleName?.trim() || "Ohne Modul";
-    groups.set(name, [...(groups.get(name) ?? []), position]);
-  }
-  return [...groups.entries()]
-    .sort(([left], [right]) => left.localeCompare(right, "de"))
-    .map(([name, modulePositions]) => ({
-      name,
-      positions: [...modulePositions].sort((left, right) =>
-        left.article.name.localeCompare(right.article.name, "de"),
-      ),
-    }));
 }
 
 function formatReason(reason: string) {
