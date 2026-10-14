@@ -4,7 +4,6 @@ import { alertKeys, alertQueries } from "./alerts";
 import { authKeys, authQueries } from "./auth";
 import { catalogKeys, catalogQueries } from "./catalog";
 import { checkKeys, checkQueries } from "./checks";
-import { deviceKeys } from "./devices";
 import { inventoryKeys, inventoryQueries } from "./inventory";
 import { orderKeys, orderQueries } from "./orders";
 import { queryStaleTimes } from "./policies";
@@ -22,7 +21,6 @@ describe("query options", () => {
     expect(checkKeys.protocols({ page: "2", q: "Mara" })).toEqual(["checks", "protocols", { page: "2", q: "Mara" }]);
     expect(alertKeys.subscriptionsMe()).toEqual(["alerts", "subscriptions", "me"]);
     expect(userKeys.list()).toEqual(["users", "list"]);
-    expect(deviceKeys.list()).toEqual(["medical-devices", "list"]);
     expect(publicKeys.publicKit("token-1")).toEqual(["public", "kit", "token-1"]);
   });
 

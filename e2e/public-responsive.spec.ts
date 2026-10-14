@@ -40,7 +40,7 @@ test.describe("public/auth responsive smoke", () => {
     const adminContext = await browser.newContext({ storageState: "e2e/.auth/admin.json", viewport: page.viewportSize() ?? { width: 375, height: 667 } });
     const adminPage = await adminContext.newPage();
     await mockSetupStatus(adminPage);
-    await adminPage.goto("/admin/users");
+    await adminPage.goto("/admin/user-management");
     await adminPage.getByRole("button", { name: "Benutzer einladen" }).click();
     await adminPage.getByLabel("Name").fill("Mobile Test");
     await adminPage.getByLabel("E-Mail").fill(`mobile-smoke-${Date.now()}@rescuebase.local`);

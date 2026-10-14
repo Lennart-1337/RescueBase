@@ -2,12 +2,11 @@ import { Download, Upload } from "lucide-react";
 import { useRef, useState } from "react";
 import { CheckboxField, Button, Dialog } from "../../components/ui";
 import { rescueBaseApi } from "../../lib/api";
-import { createMedicalDevice, listMedicalDevices, updateMedicalDevice, type MedicalDevice } from "../../lib/extra-api";
 import type { Article, KitTemplate, Location, Supplier } from "../../lib/types";
 import { bundleCounts, importSectionOrder, masterDataSections, parseMasterDataBundle, type MasterDataBundle, type MasterDataSection } from "./master-data-transfer";
 import "./master-data-transfer-actions.css";
 
-const labels: Record<MasterDataSection, string> = { articles: "Artikel", suppliers: "Lieferanten", locations: "Lagerorte", templates: "Rucksackvorlagen", devices: "Geräte" };
+const labels: Record<MasterDataSection, string> = { articles: "Artikel", suppliers: "Lieferanten", locations: "Lagerorte", templates: "Rucksackvorlagen" };
 const defaultSections = new Set<MasterDataSection>(masterDataSections);
 
 export function MasterDataTransferActions() {
@@ -77,7 +76,7 @@ function SectionChoices(props: { available?: MasterDataBundle["data"]; sections:
 }
 
 async function loadSection(section: MasterDataSection) {
-  if (section === "articles") return rescueBaseApi.articles(); if (section === "suppliers") return rescueBaseApi.suppliers(); if (section === "locations") return rescueBaseApi.locations(); if (section === "templates") return rescueBaseApi.templates(); return listMedicalDevices();
+  if (section === "articles") return rescueBaseApi.articles(); if (section === "suppliers") return rescueBaseApi.suppliers(); if (section === "locations") return rescueBaseApi.locations(); return rescueBaseApi.templates();
 }
 
 async function importSection(section: MasterDataSection, entries: unknown[]) {
@@ -85,7 +84,6 @@ async function importSection(section: MasterDataSection, entries: unknown[]) {
   if (section === "locations") return upsertEntries(await rescueBaseApi.locations(), entries as Location[], (item) => rescueBaseApi.updateLocation(item.id, locationBody(item)), (item) => rescueBaseApi.createLocation(locationBody(item)));
   if (section === "articles") return upsertEntries(await rescueBaseApi.articles(), entries as Article[], (item) => rescueBaseApi.updateArticle(item.id, articleBody(item)), (item) => rescueBaseApi.createArticle(articleBody(item)));
   if (section === "templates") return upsertEntries(await rescueBaseApi.templates(), entries as KitTemplate[], (item) => rescueBaseApi.reviseTemplate(item.id, { positions: templatePositions(item) }), (item) => rescueBaseApi.createTemplate({ name: item.name, version: item.version, positions: templatePositions(item) }));
-  return upsertEntries(await listMedicalDevices(), entries as MedicalDevice[], (item) => updateMedicalDevice(item.id, deviceBody(item)), (item) => createMedicalDevice(deviceBody(item)));
 }
 
 async function upsertEntries<T extends { id: string }>(existing: T[], entries: T[], update: (entry: T) => Promise<unknown>, create: (entry: T) => Promise<unknown>) {
@@ -97,19 +95,4 @@ function supplierBody({ id: _id, createdAt: _createdAt, updatedAt: _updatedAt, .
 function locationBody({ id: _id, createdAt: _createdAt, updatedAt: _updatedAt, ...body }: Location) { return body; }
 function articleBody({ id: _id, defaultSupplierName: _defaultSupplierName, createdAt: _createdAt, updatedAt: _updatedAt, ...body }: Article) { return body; }
 function templatePositions(template: KitTemplate) { return template.positions.map(({ articleId, critical, moduleName, requiredQuantity }) => ({ articleId, critical, moduleName, requiredQuantity })); }
-function deviceBody(device: MedicalDevice) { return {
-    name: device.name,
-    articleId: device.articleId,
-    locationId: device.kitId ? undefined : device.locationId,
-    kitId: device.kitId ?? undefined,
-    serialNumber: device.serialNumber ?? undefined,
-    inventoryNumber: device.inventoryNumber ?? undefined,
-    lastStkAt: device.lastStkAt,
-    lastMtkAt: device.lastMtkAt,
-    stkIntervalMonths: device.stkIntervalMonths,
-    mtkIntervalMonths: device.mtkIntervalMonths,
-    active: device.active,
-    notes: device.notes ?? undefined
-  }; }
-
 function message(reason: unknown) { return reason instanceof Error ? reason.message : "Die Daten konnten nicht verarbeitet werden."; }

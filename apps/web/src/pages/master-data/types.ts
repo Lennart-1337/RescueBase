@@ -6,10 +6,3 @@ export type ArticleFilters = {
   q: string;
   stkRequired: boolean;
 };
-
-export type DeviceFilters = {
-  active: string;
-  articleId: string;
-  locationId: string;
-  q: string;
-};

@@ -17,7 +17,7 @@ describe("AdminDashboard", () => {
       ],
       "/api/replenishment-orders": [order],
       "/api/replenishment-orders/order-1001/fulfill": { ok: true },
-      "/api/alerts/warnings": { generatedAt: "2026-06-17T00:00:00.000Z", warnings: [], summary: { expiry: 0, stkDue: 0, mtkDue: 0, shortage: 0, kitCheckDue: 0 } }
+      "/api/alerts/warnings": { generatedAt: "2026-06-17T00:00:00.000Z", warnings: [], summary: { expiry: 0, shortage: 0, kitCheckDue: 0 } }
     });
     await renderAppAt("/");
     await screen.findByRole("heading", { name: "Nachfüllaufträge" });
@@ -25,6 +25,8 @@ describe("AdminDashboard", () => {
     expect(screen.getByRole("region", { name: "Nachfüllaufträge" })).toBeInTheDocument();
     expect(screen.getByRole("complementary", { name: "Warnungen" })).toBeInTheDocument();
     expect(await screen.findByRole("heading", { name: "Warnungen" })).toBeInTheDocument();
+    expect(screen.queryByText(/^STK/)).toBeNull();
+    expect(screen.queryByText(/^MTK/)).toBeNull();
     await clickElement(screen.getByRole("button", { name: /Rucksack Fahrzeug 1/ }));
     const dialog = await screen.findByRole("dialog", { name: "Nachfüllauftrag" });
     const batchSelect = within(dialog).getByRole("combobox", { name: "Charge für Verbandpäckchen mittel" });
@@ -51,7 +53,7 @@ describe("AdminDashboard", () => {
       "/api/inventory/batches": [batch],
       "/api/replenishment-orders": [order],
       "/api/replenishment-orders/order-1001/cancel": { ...order, status: "CANCELLED" },
-      "/api/alerts/warnings": { generatedAt: "2026-06-17T00:00:00.000Z", warnings: [], summary: { expiry: 0, stkDue: 0, mtkDue: 0, shortage: 0, kitCheckDue: 0 } }
+      "/api/alerts/warnings": { generatedAt: "2026-06-17T00:00:00.000Z", warnings: [], summary: { expiry: 0, shortage: 0, kitCheckDue: 0 } }
     });
     await renderAppAt("/");
     await screen.findByRole("heading", { name: "Nachfüllaufträge" });
@@ -68,7 +70,7 @@ describe("AdminDashboard", () => {
       "/api/catalog/kits": [kit],
       "/api/inventory/batches": [batch],
       "/api/replenishment-orders": [{ ...order, status: "DONE" }],
-      "/api/alerts/warnings": { generatedAt: "2026-06-17T00:00:00.000Z", warnings: [], summary: { expiry: 0, stkDue: 0, mtkDue: 0, shortage: 0, kitCheckDue: 0 } }
+      "/api/alerts/warnings": { generatedAt: "2026-06-17T00:00:00.000Z", warnings: [], summary: { expiry: 0, shortage: 0, kitCheckDue: 0 } }
     });
     await renderAppAt("/");
     await screen.findByRole("heading", { name: "Nachfüllaufträge" });
@@ -84,7 +86,7 @@ describe("AdminDashboard", () => {
       "/api/catalog/kits": [kit, { ...kit, id: "kit-rucksack-2", name: "Reserve Rucksack", locationId: "loc-alt", location: { id: "loc-alt", name: "Außenlager" }, publicToken: "SAN-RS-002" }],
       "/api/inventory/batches": [batch],
       "/api/replenishment-orders": [order, { ...order, id: "order-1002", kitId: "kit-rucksack-2", kit: { id: "kit-rucksack-2", name: "Reserve Rucksack", code: "SAN-RS-001", status: "READY", publicToken: "SAN-RS-002" } }],
-      "/api/alerts/warnings": { generatedAt: "2026-06-17T00:00:00.000Z", warnings: [], summary: { expiry: 0, stkDue: 0, mtkDue: 0, shortage: 0, kitCheckDue: 0 } }
+      "/api/alerts/warnings": { generatedAt: "2026-06-17T00:00:00.000Z", warnings: [], summary: { expiry: 0, shortage: 0, kitCheckDue: 0 } }
     });
     await renderAppAt("/?orderLocationId=loc-alt");
     await screen.findByRole("heading", { name: "Nachfüllaufträge" });
@@ -103,7 +105,7 @@ describe("AdminDashboard", () => {
       "/api/catalog/kits": [kit],
       "/api/inventory/batches": [batch],
       "/api/replenishment-orders": [{ ...order, status: "DONE" }, { ...order, id: "order-1002", status: "CANCELLED" }],
-      "/api/alerts/warnings": { generatedAt: "2026-06-17T00:00:00.000Z", warnings: [], summary: { expiry: 0, stkDue: 0, mtkDue: 0, shortage: 0, kitCheckDue: 0 } }
+      "/api/alerts/warnings": { generatedAt: "2026-06-17T00:00:00.000Z", warnings: [], summary: { expiry: 0, shortage: 0, kitCheckDue: 0 } }
     });
     await renderAppAt("/?orderStatus=DONE");
     await screen.findByRole("heading", { name: "Nachfüllaufträge" });
@@ -123,7 +125,7 @@ describe("AdminDashboard", () => {
       "/api/catalog/kits": [kit],
       "/api/inventory/batches": [batch],
       "/api/replenishment-orders": [order],
-      "/api/alerts/warnings": { generatedAt: "2026-06-17T00:00:00.000Z", warnings: [], summary: { expiry: 0, stkDue: 0, mtkDue: 0, shortage: 0, kitCheckDue: 0 } }
+      "/api/alerts/warnings": { generatedAt: "2026-06-17T00:00:00.000Z", warnings: [], summary: { expiry: 0, shortage: 0, kitCheckDue: 0 } }
     });
     await renderAppAt("/");
     await screen.findByRole("heading", { name: "Nachfüllaufträge" });

@@ -21,6 +21,25 @@ import {
 describe("MasterDataPage", () => {
   afterEach(resetTestBrowser);
 
+  it("removes the legacy device tab and transfer option", async () => {
+    stubFetch(baseAdminRoutes());
+    await renderAppAt("/admin/master-data/articles");
+    await screen.findByRole("heading", { name: "Stammdaten" });
+    expect(screen.queryByRole("tab", { name: "Geräte" })).toBeNull();
+    await clickElement(screen.getByRole("button", { name: "Export" }));
+    const dialog = await screen.findByRole("dialog", { name: "Stammdaten exportieren" });
+    expect(within(dialog).queryByLabelText("Geräte")).toBeNull();
+    expect(within(dialog).getByLabelText("Artikel")).toBeInTheDocument();
+    expect(wasRequested("/api/catalog/devices", "GET")).toBe(false);
+  });
+
+  it("returns not found for the removed legacy device route", async () => {
+    stubFetch(baseAdminRoutes());
+    await renderAppAt("/admin/master-data/devices");
+    expect(await screen.findByRole("heading", { name: "Dieser Bestandseintrag existiert nicht." })).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Gerät hinzufügen" })).toBeNull();
+  });
+
   it("submits new articles from the admin master data screen", async () => {
     stubFetch(baseAdminRoutes());
     await renderAppAt("/admin/master-data/articles");
@@ -1012,6 +1031,5 @@ function baseAdminRoutes() {
     "/api/catalog/locations": [location],
     "/api/catalog/kits": [kit],
     "/api/catalog/templates": [kit.template],
-    "/api/catalog/devices": [],
   };
 }

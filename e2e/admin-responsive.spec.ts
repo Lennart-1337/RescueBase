@@ -10,8 +10,7 @@ const routes = [
   { path: "/admin/master-data/articles", heading: "Stammdaten", action: "Artikel hinzufügen", actionRole: "button", hasToolbar: true },
   { path: "/admin/master-data/locations", heading: "Stammdaten", action: "Lagerort hinzufügen", actionRole: "button", hasToolbar: false },
   { path: "/admin/master-data/templates", heading: "Stammdaten", action: "Vorlage hinzufügen", actionRole: "button", hasToolbar: false },
-  { path: "/admin/master-data/devices", heading: "Stammdaten", action: "Gerät hinzufügen", actionRole: "button", hasToolbar: true },
-  { path: "/admin/users", heading: "Benutzer", action: "Benutzer einladen", actionRole: "button", hasToolbar: false }
+  { path: "/admin/user-management", heading: "Benutzerverwaltung", action: "Benutzer einladen", actionRole: "button", hasToolbar: false }
 ] as const;
 
 const secondaryRoutes = [
@@ -136,16 +135,6 @@ test.describe("admin responsive smoke", () => {
     await expect(page.locator(".purchase-order-line-price").first()).toBeVisible();
   });
 
-  test("tablet landscape keeps the device dialog date fields inside the modal", async ({ page }, testInfo) => {
-    test.skip(testInfo.project.name !== "tablet-landscape");
-    await page.goto("/admin/master-data/devices");
-    await page.getByRole("button", { name: "Gerät hinzufügen" }).click();
-    const dialog = page.getByRole("dialog", { name: "Gerät anlegen" });
-    await expect(dialog).toBeVisible();
-    const overflow = await dialog.evaluate((element) => element.scrollWidth - element.clientWidth);
-    expect(overflow).toBeLessThanOrEqual(1);
-  });
-
   test("purchase order detail rail actions stay reachable on narrow viewports", async ({ page }) => {
     await page.goto("/admin/purchase-orders");
     await page.getByRole("link", { name: "Bearbeiten" }).first().click();
@@ -155,7 +144,7 @@ test.describe("admin responsive smoke", () => {
   });
 
   test("core admin dialogs stay usable on narrow viewports", async ({ page }) => {
-    await page.goto("/admin/users");
+    await page.goto("/admin/user-management");
     await page.getByRole("button", { name: "Benutzer einladen" }).click();
     await expect(page.getByRole("dialog", { name: "Benutzer einladen" })).toBeVisible();
     await page.getByRole("button", { name: "Dialog schließen" }).click();

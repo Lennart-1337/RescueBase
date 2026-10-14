@@ -4,6 +4,27 @@ import { changeValue, clickElement, renderAppAt, requestBody, resetTestBrowser, 
 describe("AccountPage", () => {
   afterEach(resetTestBrowser);
 
+  it("ignores legacy device alert rules while retaining medical product preferences", async () => {
+    stubFetch({
+      "/api/auth/setup/status": { initialized: true },
+      "/api/auth/session": { user: { id: "user-admin", email: "admin@rescuebase.local", displayName: "Admin", role: "ADMIN", twoFactorEnabled: false } },
+      "/api/catalog/locations": [],
+      "/api/alerts/subscriptions/me": [
+        { category: "STK_DUE", locationId: null },
+        { category: "MTK_DUE", locationId: "old-location" },
+        { category: "MPG_DUE", locationId: null }
+      ]
+    });
+    await renderAppAt("/admin/account");
+    const panel = (await screen.findByRole("heading", { name: "Alarm-E-Mails" })).closest("section") as HTMLElement;
+    expect(within(panel).queryByRole("group", { name: "STK" })).toBeNull();
+    expect(within(panel).queryByRole("group", { name: "MTK" })).toBeNull();
+    expect(within(panel).getByText("1 Regel aktiv")).toBeInTheDocument();
+    expect(within(within(panel).getByRole("group", { name: "Medizinprodukte" })).getByRole("checkbox", { name: /Alle Standorte/ })).toBeChecked();
+    await clickElement(within(panel).getByRole("button", { name: "Speichern" }));
+    expect(requestBody("/api/alerts/subscriptions/me", "PUT")).toEqual({ subscriptions: [{ category: "MPG_DUE" }] });
+  });
+
   it("renders a TOTP QR code after preparing 2FA", async () => {
     stubFetch({
       "/api/auth/setup/status": { initialized: true },

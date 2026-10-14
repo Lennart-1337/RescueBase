@@ -26,27 +26,8 @@ export type AlertSubscription = {
   user: { id: string; email: string; displayName: string };
 };
 
-export type MedicalDevice = {
-  id: string;
-  name: string;
-  articleId: string;
-  locationId: string;
-  kitId: string | null;
-  serialNumber: string | null;
-  inventoryNumber: string | null;
-  lastStkAt: string | null;
-  lastMtkAt: string | null;
-  stkIntervalMonths: number | null;
-  mtkIntervalMonths: number | null;
-  active: boolean;
-  notes: string | null;
-  article: { id: string; name: string; stkRequired: boolean; mtkRequired: boolean; stkIntervalMonths: number | null; mtkIntervalMonths: number | null };
-  location: { id: string; name: string };
-  kit: null | { id: string; name: string; code: string; locationId: string; locationName: string };
-};
-
 export async function getAlertOverview() {
-  return requestJson<{ generatedAt: string; warnings: AlertWarning[]; summary: { expiry: number; stkDue: number; mtkDue: number; shortage: number; kitCheckDue: number } }>("/alerts/warnings");
+  return requestJson<{ generatedAt: string; warnings: AlertWarning[]; summary: { expiry: number; shortage: number; kitCheckDue: number } }>("/alerts/warnings");
 }
 
 export async function getMyAlertSubscriptions() {
@@ -59,10 +40,6 @@ export async function saveMyAlertSubscriptions(subscriptions: Array<{ category: 
     headers: { "content-type": "application/json" },
     body: JSON.stringify({ subscriptions })
   });
-}
-
-export async function getAlertSubscriptions() {
-  return requestJson<AlertSubscription[]>("/alerts/subscriptions");
 }
 
 export type PushConfiguration = { enabled: boolean; publicKey?: string };
@@ -83,45 +60,6 @@ export function savePushSubscription(subscription: BrowserPushSubscription) {
 export function deletePushSubscription(endpoint: string) {
   return requestJson<{ ok: true }>("/push/subscriptions", { method: "DELETE", headers: { "content-type": "application/json" }, body: JSON.stringify({ endpoint }) });
 }
-
-export async function listMedicalDevices() {
-  return requestJson<MedicalDevice[]>("/catalog/devices");
-}
-
-export async function createMedicalDevice(body: MedicalDeviceWriteBody) {
-  return requestJson<MedicalDevice>("/catalog/devices", {
-    method: "POST",
-    headers: { "content-type": "application/json" },
-    body: JSON.stringify(body)
-  });
-}
-
-export async function updateMedicalDevice(id: string, body: MedicalDeviceWriteBody) {
-  return requestJson<MedicalDevice>(`/catalog/devices/${encodeURIComponent(id)}`, {
-    method: "PATCH",
-    headers: { "content-type": "application/json" },
-    body: JSON.stringify(body)
-  });
-}
-
-export async function deleteMedicalDevice(id: string) {
-  return requestJson<{ ok: true }>(`/catalog/devices/${encodeURIComponent(id)}`, { method: "DELETE" });
-}
-
-export type MedicalDeviceWriteBody = {
-  name: string;
-  articleId: string;
-  locationId?: string;
-  kitId?: string;
-  serialNumber?: string;
-  inventoryNumber?: string;
-  lastStkAt?: string | null;
-  lastMtkAt?: string | null;
-  stkIntervalMonths?: number | null;
-  mtkIntervalMonths?: number | null;
-  active?: boolean;
-  notes?: string;
-};
 
 async function requestJson<T>(path: string, init?: RequestInit): Promise<T> {
   let response: Response;

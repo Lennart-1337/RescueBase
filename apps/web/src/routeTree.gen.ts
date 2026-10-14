@@ -19,7 +19,6 @@ import { Route as AdminMpgRouteImport } from './routes/admin/mpg'
 import { Route as AdminPurchaseOrdersRouteImport } from './routes/admin/purchase-orders'
 import { Route as AdminSettingsRouteImport } from './routes/admin/settings'
 import { Route as AdminUserManagementRouteImport } from './routes/admin/user-management'
-import { Route as AdminUsersRouteImport } from './routes/admin/users'
 import { Route as CheckTokenRouteImport } from './routes/check/$token'
 import { Route as EmailChangeTokenRouteImport } from './routes/email-change/$token'
 import { Route as InvitationTokenRouteImport } from './routes/invitation/$token'
@@ -29,7 +28,6 @@ import { Route as PasswordResetIndexRouteImport } from './routes/password-reset/
 import { Route as PasswordResetTokenRouteImport } from './routes/password-reset/$token'
 import { Route as AdminMasterDataIndexRouteImport } from './routes/admin/master-data/index'
 import { Route as AdminMasterDataArticlesRouteImport } from './routes/admin/master-data/articles'
-import { Route as AdminMasterDataDevicesRouteImport } from './routes/admin/master-data/devices'
 import { Route as AdminMasterDataLocationsRouteImport } from './routes/admin/master-data/locations'
 import { Route as AdminMasterDataSuppliersRouteImport } from './routes/admin/master-data/suppliers'
 import { Route as AdminMasterDataTemplatesRouteImport } from './routes/admin/master-data/templates'
@@ -87,11 +85,6 @@ const AdminUserManagementRoute = AdminUserManagementRouteImport.update({
   path: '/admin/user-management',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AdminUsersRoute = AdminUsersRouteImport.update({
-  id: '/admin/users',
-  path: '/admin/users',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const CheckTokenRoute = CheckTokenRouteImport.update({
   id: '/check/$token',
   path: '/check/$token',
@@ -135,11 +128,6 @@ const AdminMasterDataIndexRoute = AdminMasterDataIndexRouteImport.update({
 const AdminMasterDataArticlesRoute = AdminMasterDataArticlesRouteImport.update({
   id: '/articles',
   path: '/articles',
-  getParentRoute: () => AdminMasterDataRoute,
-} as any)
-const AdminMasterDataDevicesRoute = AdminMasterDataDevicesRouteImport.update({
-  id: '/devices',
-  path: '/devices',
   getParentRoute: () => AdminMasterDataRoute,
 } as any)
 const AdminMasterDataLocationsRoute =
@@ -189,7 +177,6 @@ export interface FileRoutesByFullPath {
   '/admin/purchase-orders': typeof AdminPurchaseOrdersRouteWithChildren
   '/admin/settings': typeof AdminSettingsRoute
   '/admin/user-management': typeof AdminUserManagementRoute
-  '/admin/users': typeof AdminUsersRoute
   '/check/$token': typeof CheckTokenRoute
   '/email-change/$token': typeof EmailChangeTokenRoute
   '/invitation/$token': typeof InvitationTokenRoute
@@ -198,7 +185,6 @@ export interface FileRoutesByFullPath {
   '/password-reset/$token': typeof PasswordResetTokenRoute
   '/password-reset/': typeof PasswordResetIndexRoute
   '/admin/master-data/articles': typeof AdminMasterDataArticlesRoute
-  '/admin/master-data/devices': typeof AdminMasterDataDevicesRoute
   '/admin/master-data/locations': typeof AdminMasterDataLocationsRoute
   '/admin/master-data/suppliers': typeof AdminMasterDataSuppliersRoute
   '/admin/master-data/templates': typeof AdminMasterDataTemplatesRoute
@@ -216,7 +202,6 @@ export interface FileRoutesByTo {
   '/admin/mpg': typeof AdminMpgRoute
   '/admin/settings': typeof AdminSettingsRoute
   '/admin/user-management': typeof AdminUserManagementRoute
-  '/admin/users': typeof AdminUsersRoute
   '/check/$token': typeof CheckTokenRoute
   '/email-change/$token': typeof EmailChangeTokenRoute
   '/invitation/$token': typeof InvitationTokenRoute
@@ -225,7 +210,6 @@ export interface FileRoutesByTo {
   '/password-reset/$token': typeof PasswordResetTokenRoute
   '/password-reset': typeof PasswordResetIndexRoute
   '/admin/master-data/articles': typeof AdminMasterDataArticlesRoute
-  '/admin/master-data/devices': typeof AdminMasterDataDevicesRoute
   '/admin/master-data/locations': typeof AdminMasterDataLocationsRoute
   '/admin/master-data/suppliers': typeof AdminMasterDataSuppliersRoute
   '/admin/master-data/templates': typeof AdminMasterDataTemplatesRoute
@@ -246,7 +230,6 @@ export interface FileRoutesById {
   '/admin/purchase-orders': typeof AdminPurchaseOrdersRouteWithChildren
   '/admin/settings': typeof AdminSettingsRoute
   '/admin/user-management': typeof AdminUserManagementRoute
-  '/admin/users': typeof AdminUsersRoute
   '/check/$token': typeof CheckTokenRoute
   '/email-change/$token': typeof EmailChangeTokenRoute
   '/invitation/$token': typeof InvitationTokenRoute
@@ -255,7 +238,6 @@ export interface FileRoutesById {
   '/password-reset/$token': typeof PasswordResetTokenRoute
   '/password-reset/': typeof PasswordResetIndexRoute
   '/admin/master-data/articles': typeof AdminMasterDataArticlesRoute
-  '/admin/master-data/devices': typeof AdminMasterDataDevicesRoute
   '/admin/master-data/locations': typeof AdminMasterDataLocationsRoute
   '/admin/master-data/suppliers': typeof AdminMasterDataSuppliersRoute
   '/admin/master-data/templates': typeof AdminMasterDataTemplatesRoute
@@ -277,7 +259,6 @@ export interface FileRouteTypes {
     | '/admin/purchase-orders'
     | '/admin/settings'
     | '/admin/user-management'
-    | '/admin/users'
     | '/check/$token'
     | '/email-change/$token'
     | '/invitation/$token'
@@ -286,7 +267,6 @@ export interface FileRouteTypes {
     | '/password-reset/$token'
     | '/password-reset/'
     | '/admin/master-data/articles'
-    | '/admin/master-data/devices'
     | '/admin/master-data/locations'
     | '/admin/master-data/suppliers'
     | '/admin/master-data/templates'
@@ -304,7 +284,6 @@ export interface FileRouteTypes {
     | '/admin/mpg'
     | '/admin/settings'
     | '/admin/user-management'
-    | '/admin/users'
     | '/check/$token'
     | '/email-change/$token'
     | '/invitation/$token'
@@ -313,7 +292,6 @@ export interface FileRouteTypes {
     | '/password-reset/$token'
     | '/password-reset'
     | '/admin/master-data/articles'
-    | '/admin/master-data/devices'
     | '/admin/master-data/locations'
     | '/admin/master-data/suppliers'
     | '/admin/master-data/templates'
@@ -333,7 +311,6 @@ export interface FileRouteTypes {
     | '/admin/purchase-orders'
     | '/admin/settings'
     | '/admin/user-management'
-    | '/admin/users'
     | '/check/$token'
     | '/email-change/$token'
     | '/invitation/$token'
@@ -342,7 +319,6 @@ export interface FileRouteTypes {
     | '/password-reset/$token'
     | '/password-reset/'
     | '/admin/master-data/articles'
-    | '/admin/master-data/devices'
     | '/admin/master-data/locations'
     | '/admin/master-data/suppliers'
     | '/admin/master-data/templates'
@@ -363,7 +339,6 @@ export interface RootRouteChildren {
   AdminPurchaseOrdersRoute: typeof AdminPurchaseOrdersRouteWithChildren
   AdminSettingsRoute: typeof AdminSettingsRoute
   AdminUserManagementRoute: typeof AdminUserManagementRoute
-  AdminUsersRoute: typeof AdminUsersRoute
   CheckTokenRoute: typeof CheckTokenRoute
   EmailChangeTokenRoute: typeof EmailChangeTokenRoute
   InvitationTokenRoute: typeof InvitationTokenRoute
@@ -445,13 +420,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminUserManagementRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/admin/users': {
-      id: '/admin/users'
-      path: '/admin/users'
-      fullPath: '/admin/users'
-      preLoaderRoute: typeof AdminUsersRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/check/$token': {
       id: '/check/$token'
       path: '/check/$token'
@@ -515,13 +483,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminMasterDataArticlesRouteImport
       parentRoute: typeof AdminMasterDataRoute
     }
-    '/admin/master-data/devices': {
-      id: '/admin/master-data/devices'
-      path: '/devices'
-      fullPath: '/admin/master-data/devices'
-      preLoaderRoute: typeof AdminMasterDataDevicesRouteImport
-      parentRoute: typeof AdminMasterDataRoute
-    }
     '/admin/master-data/locations': {
       id: '/admin/master-data/locations'
       path: '/locations'
@@ -569,7 +530,6 @@ declare module '@tanstack/react-router' {
 
 interface AdminMasterDataRouteChildren {
   AdminMasterDataArticlesRoute: typeof AdminMasterDataArticlesRoute
-  AdminMasterDataDevicesRoute: typeof AdminMasterDataDevicesRoute
   AdminMasterDataLocationsRoute: typeof AdminMasterDataLocationsRoute
   AdminMasterDataSuppliersRoute: typeof AdminMasterDataSuppliersRoute
   AdminMasterDataTemplatesRoute: typeof AdminMasterDataTemplatesRoute
@@ -578,7 +538,6 @@ interface AdminMasterDataRouteChildren {
 
 const AdminMasterDataRouteChildren: AdminMasterDataRouteChildren = {
   AdminMasterDataArticlesRoute: AdminMasterDataArticlesRoute,
-  AdminMasterDataDevicesRoute: AdminMasterDataDevicesRoute,
   AdminMasterDataLocationsRoute: AdminMasterDataLocationsRoute,
   AdminMasterDataSuppliersRoute: AdminMasterDataSuppliersRoute,
   AdminMasterDataTemplatesRoute: AdminMasterDataTemplatesRoute,
@@ -615,7 +574,6 @@ const rootRouteChildren: RootRouteChildren = {
   AdminPurchaseOrdersRoute: AdminPurchaseOrdersRouteWithChildren,
   AdminSettingsRoute: AdminSettingsRoute,
   AdminUserManagementRoute: AdminUserManagementRoute,
-  AdminUsersRoute: AdminUsersRoute,
   CheckTokenRoute: CheckTokenRoute,
   EmailChangeTokenRoute: EmailChangeTokenRoute,
   InvitationTokenRoute: InvitationTokenRoute,

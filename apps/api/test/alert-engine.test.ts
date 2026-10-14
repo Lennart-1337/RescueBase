@@ -1,4 +1,4 @@
-import { buildAlertWarnings, computeControlDueDate, type AlertSource } from "../src/alerts/alert-engine.js";
+import { buildAlertWarnings, type AlertSource } from "../src/alerts/alert-engine.js";
 
 describe("alert engine", () => {
   it("creates expiry warnings for batches inside the warning window", () => {
@@ -16,7 +16,6 @@ describe("alert engine", () => {
             quantity: 4
           }
         ],
-        devices: []
       },
       new Date("2026-06-15T00:00:00.000Z"),
       30
@@ -33,41 +32,10 @@ describe("alert engine", () => {
     ]);
   });
 
-  it("creates STK and MTK warnings from the latest control date and interval", () => {
-    const warnings = buildAlertWarnings(
-      {
-        batches: [],
-        devices: [
-          {
-            id: "device-1",
-            articleId: "article-2",
-            articleName: "Defibrillator",
-            locationId: "loc-2",
-            locationName: "Fahrzeug 1",
-            name: "DEF-01",
-            serialNumber: "SN-1",
-            inventoryNumber: "INV-1",
-            lastStkAt: new Date("2025-07-01T00:00:00.000Z"),
-            lastMtkAt: new Date("2025-07-01T00:00:00.000Z"),
-            stkIntervalMonths: 12,
-            mtkIntervalMonths: 12,
-            article: { stkRequired: true, mtkRequired: true, stkIntervalMonths: 12, mtkIntervalMonths: 12 }
-          }
-        ]
-      },
-      new Date("2026-06-15T00:00:00.000Z"),
-      90
-    );
-
-    expect(warnings.map((warning) => warning.category)).toEqual(expect.arrayContaining(["STK_DUE", "MTK_DUE"]));
-    expect(warnings.find((warning) => warning.category === "STK_DUE")?.dueAt).toBe("2026-07-01T00:00:00.000Z");
-  });
-
   it("creates shortage warnings for uncovered inventory targets", () => {
     const warnings = buildAlertWarnings(
       {
         batches: [],
-        devices: [],
         targets: [
           {
             id: "target-1",
@@ -103,21 +71,16 @@ describe("alert engine", () => {
     });
   });
 
-  it("calculates due dates by month with a missing control date falling back to now", () => {
-    expect(computeControlDueDate(null, 12, new Date("2026-06-15T00:00:00.000Z"))).toBe("2026-06-15T00:00:00.000Z");
-    expect(computeControlDueDate(new Date("2026-01-31T00:00:00.000Z"), 1, new Date("2026-06-15T00:00:00.000Z"))).toBe("2026-02-28T00:00:00.000Z");
-  });
-
   it("warns only after a kit's monthly check is overdue", () => {
     const kit = { id: "kit-1", name: "Notfallrucksack 1", code: "NR-01", locationId: "loc-1", locationName: "Hauptlager", createdAt: new Date("2026-05-31T00:00:00.000Z"), lastCheckedAt: new Date("2026-05-31T00:00:00.000Z") };
-    const warnings = buildAlertWarnings({ batches: [], devices: [], kits: [kit] }, new Date("2026-07-01T00:00:00.000Z"));
+    const warnings = buildAlertWarnings({ batches: [], kits: [kit] }, new Date("2026-07-01T00:00:00.000Z"));
 
     expect(warnings).toEqual([expect.objectContaining({ category: "KIT_CHECK_DUE", sourceType: "KIT", sourceId: "kit-1", dueAt: "2026-06-30T00:00:00.000Z" })]);
   });
 
   it("uses the configured kit check interval and warning lead time", () => {
     const kit = { id: "kit-1", name: "Notfallrucksack 1", code: "NR-01", locationId: "loc-1", locationName: "Hauptlager", createdAt: new Date("2026-05-01T00:00:00.000Z"), lastCheckedAt: new Date("2026-05-01T00:00:00.000Z") };
-    const input = { batches: [], devices: [], kits: [kit], kitCheckSchedule: { enabled: true, intervalMonths: 2, warningLeadDays: 7 } };
+    const input = { batches: [], kits: [kit], kitCheckSchedule: { enabled: true, intervalMonths: 2, warningLeadDays: 7 } };
 
     expect(buildAlertWarnings(input, new Date("2026-06-23T00:00:00.000Z"))).toHaveLength(0);
     expect(buildAlertWarnings(input, new Date("2026-06-24T00:00:00.000Z"))).toHaveLength(1);

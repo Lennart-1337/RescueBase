@@ -1,15 +1,14 @@
 import type { Article, KitTemplate, Location, Supplier } from "../../lib/types";
-import type { MedicalDevice } from "../../lib/extra-api";
 
-export const masterDataSections = ["articles", "suppliers", "locations", "templates", "devices"] as const;
-export const importSectionOrder = ["suppliers", "locations", "articles", "templates", "devices"] as const;
+export const masterDataSections = ["articles", "suppliers", "locations", "templates"] as const;
+export const importSectionOrder = ["suppliers", "locations", "articles", "templates"] as const;
 export type MasterDataSection = typeof masterDataSections[number];
 
 export type MasterDataBundle = {
   format: "rescuebase-master-data";
   version: 1;
   exportedAt: string;
-  data: Partial<Record<MasterDataSection, Article[] | Supplier[] | Location[] | KitTemplate[] | MedicalDevice[]>>;
+  data: Partial<Record<MasterDataSection, Article[] | Supplier[] | Location[] | KitTemplate[]>>;
 };
 
 export function parseMasterDataBundle(value: unknown): MasterDataBundle {

@@ -283,7 +283,6 @@ model Location {
   inventoryTargets InventoryTarget[]
   procurementOrders InventoryProcurementOrder[]
   purchaseOrders PurchaseOrder[]
-  medicalDevices MedicalDevice[]
   mpgDevices MpgDevice[]
   mpgCylinders MpgCylinder[]
   mpgDeviceAssignments MpgDeviceAssignment[]
@@ -344,7 +343,6 @@ model Article {
   inventoryTargets     InventoryTarget[]
   procurementOrders    InventoryProcurementOrder[]
   purchaseOrderLines   PurchaseOrderLine[]
-  medicalDevices       MedicalDevice[]
   templateItems        TemplatePosition[]
   deletedAt            DateTime?
   createdAt            DateTime           @default(now())
@@ -537,7 +535,6 @@ model Kit {
   tokenRotatedAt DateTime             @default(now())
   location       Location             @relation(fields: [locationId], references: [id])
   template       KitTemplate          @relation(fields: [templateId], references: [id])
-  medicalDevices MedicalDevice[]
   mpgDevices MpgDevice[]
   mpgDeviceAssignments MpgDeviceAssignment[]
   checks         Check[]
@@ -700,30 +697,6 @@ model AuditEvent {
   @@index([createdAt])
 }
 
-model MedicalDevice {
-  id                String   @id @default(cuid())
-  articleId         String
-  locationId        String
-  kitId             String?
-  name              String
-  serialNumber      String?
-  inventoryNumber   String?
-  lastStkAt         DateTime?
-  lastMtkAt         DateTime?
-  stkIntervalMonths Int?
-  mtkIntervalMonths Int?
-  active            Boolean  @default(true)
-  notes             String?  @db.Text
-  article           Article  @relation(fields: [articleId], references: [id])
-  location          Location @relation(fields: [locationId], references: [id])
-  kit               Kit?     @relation(fields: [kitId], references: [id])
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
-
-  @@index([articleId])
-  @@index([kitId])
-  @@index([locationId])
-}
 
 model AlertSubscription {
   id         String      @id @default(cuid())

@@ -1,7 +1,7 @@
 import { screen, waitFor, within } from "@testing-library/react";
 import { changeValue, clickElement, mouseDownElement, postedBody, renderAppAt, requestBody, resetTestBrowser, stubFetch, wasRequested } from "../test-support/app-test-helpers";
 
-describe("UsersPage", () => {
+describe("UserManagementPage", () => {
   afterEach(resetTestBrowser);
 
   it("invites users from a modal dialog", async () => {
@@ -9,8 +9,7 @@ describe("UsersPage", () => {
       "/api/auth/setup/status": { initialized: true },
       "/api/auth/session": { user: { id: "user-admin", email: "admin@rescuebase.local", displayName: "Admin", role: "ADMIN", twoFactorEnabled: false } },
       "/api/auth/users": [{ id: "user-admin", email: "admin@rescuebase.local", displayName: "Admin", role: "ADMIN", active: true, twoFactorEnabled: false }],
-      "/api/auth/invite": { invitationUrl: "https://example.test/invite", debugUrl: "http://localhost/debug-invite" },
-      "/api/alerts/subscriptions": []
+      "/api/auth/invite": { invitationUrl: "https://example.test/invite", debugUrl: "http://localhost/debug-invite" }
     });
     await renderAppAt("/admin/user-management");
     await screen.findByRole("heading", { name: "Benutzerverwaltung" });
@@ -35,8 +34,7 @@ describe("UsersPage", () => {
         { id: "user-admin", email: "admin@rescuebase.local", displayName: "Admin", role: "ADMIN", active: true, twoFactorEnabled: false },
         { id: "user-lager", email: "lager@rescuebase.local", displayName: "Lagerteam", role: "WAREHOUSE", active: true, twoFactorEnabled: false }
       ],
-      "/api/auth/users/user-lager": { ok: true },
-      "/api/alerts/subscriptions": []
+      "/api/auth/users/user-lager": { ok: true }
     });
     await renderAppAt("/admin/user-management");
     await screen.findByRole("heading", { name: "Benutzerverwaltung" });
@@ -54,8 +52,7 @@ describe("UsersPage", () => {
         { id: "user-admin", email: "admin@rescuebase.local", displayName: "Admin", role: "ADMIN", active: true, twoFactorEnabled: false },
         { id: "user-lager", email: "lager@rescuebase.local", displayName: "Lagerteam", role: "WAREHOUSE", active: true, twoFactorEnabled: false }
       ],
-      "/api/auth/users/user-lager/role": { ok: true },
-      "/api/alerts/subscriptions": []
+      "/api/auth/users/user-lager/role": { ok: true }
     });
     await renderAppAt("/admin/user-management");
     await screen.findByRole("heading", { name: "Benutzerverwaltung" });
@@ -82,8 +79,7 @@ describe("UsersPage", () => {
         { id: "user-admin", email: "admin@rescuebase.local", displayName: "Admin", role: "ADMIN", active: true, twoFactorEnabled: false },
         { id: "user-lager", email: "lager@rescuebase.local", displayName: "Lagerteam", role: "WAREHOUSE", active: true, twoFactorEnabled: false },
         { id: "user-pending", email: "pending@rescuebase.local", displayName: "Mobile Test", role: "WAREHOUSE", active: false, twoFactorEnabled: false }
-      ],
-      "/api/alerts/subscriptions": []
+      ]
     });
 
     await renderAppAt("/admin/user-management");
@@ -106,8 +102,7 @@ describe("UsersPage", () => {
         { id: "user-managed", email: "managed@rescuebase.local", displayName: "Managed User", role: "WAREHOUSE", active: false, twoFactorEnabled: true, twoFactorMethod: "TOTP", sessionCount: 2, invitationStatus: "OPEN", pendingEmail: "managed-new@rescuebase.local" }
       ],
       "/api/auth/users/user-managed/profile": { ok: true, emailChangeRequested: true },
-      "/api/auth/users/user-managed/sessions/revoke": { ok: true },
-      "/api/alerts/subscriptions": []
+      "/api/auth/users/user-managed/sessions/revoke": { ok: true }
     });
 
     await renderAppAt("/admin/user-management");
@@ -130,21 +125,13 @@ describe("UsersPage", () => {
     await waitFor(() => expect(wasRequested("/api/auth/users/user-managed/sessions/revoke", "POST")).toBe(true));
   });
 
-  it("renders roles and alert recipients in the account overview", async () => {
+  it("renders roles and account details in the account overview", async () => {
     stubFetch({
       "/api/auth/setup/status": { initialized: true },
       "/api/auth/session": { user: { id: "user-admin", email: "admin@rescuebase.local", displayName: "Admin", role: "ADMIN", twoFactorEnabled: false } },
       "/api/auth/users": [
         { id: "user-admin", email: "admin@rescuebase.local", displayName: "Admin", role: "ADMIN", active: true, twoFactorEnabled: false },
         { id: "user-lager", email: "lager@rescuebase.local", displayName: "Lagerteam", role: "WAREHOUSE", active: true, twoFactorEnabled: false }
-      ],
-      "/api/alerts/subscriptions": [
-        {
-          id: "subscription-expiry",
-          category: "SHORTAGE",
-          locationName: null,
-          user: { id: "user-admin", displayName: "Admin", email: "admin@rescuebase.local" }
-        }
       ]
     });
 
@@ -168,8 +155,7 @@ describe("UsersPage", () => {
         { id: "user-admin", email: "admin@rescuebase.local", displayName: "Admin", role: "ADMIN", medicalDevicesManage: false },
         { id: "user-lager", email: "lager@rescuebase.local", displayName: "Lagerteam", role: "WAREHOUSE", medicalDevicesManage: false }
       ],
-      "/api/mpg-permissions/users/user-lager": { medicalDevicesManage: true },
-      "/api/alerts/subscriptions": []
+      "/api/mpg-permissions/users/user-lager": { medicalDevicesManage: true }
     });
 
     await renderAppAt("/admin/user-management");

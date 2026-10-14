@@ -9,10 +9,10 @@ import { isScheduleDue } from "../settings/settings-schedule.js";
 import { defaultTimezone } from "../settings/default-timezone.js";
 
 const configId = "singleton";
+const subscriptionCategories: AlertCategory[] = [AlertCategory.EXPIRY, AlertCategory.SHORTAGE, AlertCategory.KIT_CHECK_DUE, AlertCategory.MPG_DUE];
 
 type WarningInput = Parameters<typeof buildAlertWarnings>[0];
 type BatchWarningInput = WarningInput["batches"][number];
-type DeviceWarningInput = WarningInput["devices"][number];
 type TargetWarningInput = NonNullable<WarningInput["targets"]>[number];
 type KitWarningInput = NonNullable<WarningInput["kits"]>[number];
 
@@ -89,8 +89,6 @@ export class AlertsService implements OnApplicationBootstrap, OnModuleDestroy {
       warnings: warnings.map((warning) => this.toWarningView(warning, locationMap.get(warning.locationId ?? "") ?? null)),
       summary: {
         expiry: warnings.filter((warning) => warning.category === AlertCategory.EXPIRY).length,
-        stkDue: warnings.filter((warning) => warning.category === AlertCategory.STK_DUE).length,
-        mtkDue: warnings.filter((warning) => warning.category === AlertCategory.MTK_DUE).length,
         shortage: warnings.filter((warning) => warning.category === AlertCategory.SHORTAGE).length,
         kitCheckDue: warnings.filter((warning) => warning.category === AlertCategory.KIT_CHECK_DUE).length
       }
@@ -99,10 +97,6 @@ export class AlertsService implements OnApplicationBootstrap, OnModuleDestroy {
 
   async listMySubscriptions(userId: string) {
     return this.listSubscriptions({ userId });
-  }
-
-  async listAdminSubscriptions() {
-    return this.listSubscriptions();
   }
 
   async replaceMySubscriptions(userId: string, subscriptions: Array<{ category: AlertCategory; locationId?: string | null }>) {
@@ -133,11 +127,6 @@ export class AlertsService implements OnApplicationBootstrap, OnModuleDestroy {
       include: { article: true, location: true },
       orderBy: [{ expiresAt: "asc" }]
     });
-    const deviceRows = await this.prisma.medicalDevice.findMany({
-      where: { active: true },
-      include: { article: true, location: true },
-      orderBy: [{ name: "asc" }]
-    });
     const targetRows = await this.prisma.inventoryTarget.findMany({
       include: { article: true, location: true },
       orderBy: [{ article: { name: "asc" } }, { location: { name: "asc" } }]
@@ -159,26 +148,6 @@ export class AlertsService implements OnApplicationBootstrap, OnModuleDestroy {
           lotNumber: row.lotNumber,
           expiresAt: row.expiresAt,
           quantity: row.quantity
-        })),
-        devices: deviceRows.map((row): DeviceWarningInput => ({
-          id: row.id,
-          articleId: row.articleId,
-          articleName: row.article.name,
-          locationId: row.locationId,
-          locationName: row.location.name,
-          name: row.name,
-          serialNumber: row.serialNumber,
-          inventoryNumber: row.inventoryNumber,
-          lastStkAt: row.lastStkAt,
-          lastMtkAt: row.lastMtkAt,
-          stkIntervalMonths: row.stkIntervalMonths,
-          mtkIntervalMonths: row.mtkIntervalMonths,
-          article: {
-            stkRequired: row.article.stkRequired,
-            mtkRequired: row.article.mtkRequired,
-            stkIntervalMonths: row.article.stkIntervalMonths,
-            mtkIntervalMonths: row.article.mtkIntervalMonths
-          }
         })),
         targets: targetRows.map((row): TargetWarningInput => {
           const currentQuantity = usableStock.get(targetKey(row.articleId, row.locationId)) ?? 0;
@@ -387,7 +356,7 @@ export class AlertsService implements OnApplicationBootstrap, OnModuleDestroy {
     const locations = await this.prisma.location.findMany({ select: { id: true } });
     const locationIds = new Set(locations.map((location: { id: string }) => location.id));
     const normalized = subscriptions.map((subscription): { userId: string; category: AlertCategory; locationId: string | null } => {
-      if (!Object.values(AlertCategory).includes(subscription.category)) {
+      if (!subscriptionCategories.includes(subscription.category)) {
         throw new BadRequestException("Ungültige Alarmkategorie.");
       }
       if (subscription.locationId && !locationIds.has(subscription.locationId)) {
@@ -408,7 +377,7 @@ export class AlertsService implements OnApplicationBootstrap, OnModuleDestroy {
 
   private async listSubscriptions(filters: { userId?: string } = {}) {
     const subscriptions = (await this.prisma.alertSubscription.findMany({
-      where: { userId: filters.userId },
+      where: { userId: filters.userId, category: { in: subscriptionCategories } },
       include: { user: true, location: true },
       orderBy: [{ user: { email: "asc" } }, { category: "asc" }, { locationId: "asc" }]
     })) as AlertSubscriptionRecord[];
