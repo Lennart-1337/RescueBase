@@ -16,7 +16,7 @@ export function validateMeierUrl(value: unknown): URL {
       url.port ||
       url.username ||
       url.password ||
-      !/^\/[a-z0-9-]+\/[a-z0-9._-]+\/?$/iu.test(url.pathname)
+      !/^\/[a-z0-9._-]+\/[a-z0-9._-]+\/?$/iu.test(url.pathname)
     )
       throw new Error();
     url.hash = "";
