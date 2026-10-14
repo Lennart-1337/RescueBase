@@ -1,10 +1,16 @@
 import type { CheerioAPI } from "cheerio";
 export type StructuredProduct = Record<string, unknown>;
-function records(value: unknown): StructuredProduct[] {
-  if (Array.isArray(value)) return value.flatMap(records);
+function records(value: unknown, sharedBrand?: unknown): StructuredProduct[] {
+  if (Array.isArray(value))
+    return value.flatMap((entry) => records(entry, sharedBrand));
   if (!value || typeof value !== "object") return [];
   const record = value as StructuredProduct;
-  return [record, ...records(record["@graph"])];
+  const brand = record.brand ?? sharedBrand;
+  return [
+    { ...record, brand },
+    ...records(record["@graph"]),
+    ...records(record.hasVariant, brand),
+  ];
 }
 export function findProduct($: CheerioAPI, sku: string) {
   const normalizedSku = sku.toLowerCase();
@@ -19,7 +25,7 @@ export function findProduct($: CheerioAPI, sku: string) {
   const matches = products.filter(
     (value) =>
       value["@type"] === "Product" &&
-      text(value.sku)?.toLowerCase().replaceAll("/", "-") === normalizedSku,
+      text(value.sku)?.toLowerCase().replace(/[ /]/gu, "-") === normalizedSku,
   );
   return matches.length === 1 ? matches[0] : undefined;
 }
