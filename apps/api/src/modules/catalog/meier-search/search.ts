@@ -1,6 +1,7 @@
 import { BadRequestException, BadGatewayException } from "@nestjs/common";
 import { fetchMeierHtml } from "../meier-fetch.js";
 import { parseMeierSearch } from "./parser.js";
+import { expandMeierQuery } from "./query.js";
 export async function searchMeierArticles(
   body: { query?: unknown; page?: unknown },
   request: typeof fetch = fetch,
@@ -18,8 +19,9 @@ export async function searchMeierArticles(
     throw new BadRequestException(
       "Bitte einen Suchbegriff mit 2 bis 120 Zeichen und eine gültige Seite eingeben.",
     );
+  const expandedQuery = expandMeierQuery(query);
   const url = new URL("https://www.meier-medizintechnik.de/search");
-  url.searchParams.set("search", query);
+  url.searchParams.set("search", expandedQuery);
   url.searchParams.set("p", String(page));
   const validate = (value: string) => {
     const target = new URL(value);
@@ -29,7 +31,7 @@ export async function searchMeierArticles(
       target.username ||
       target.password ||
       target.hash ||
-      target.searchParams.get("search") !== query ||
+      target.searchParams.get("search") !== expandedQuery ||
       target.searchParams.get("p") !== String(page) ||
       [...target.searchParams.keys()].some(
         (key) => !["search", "p"].includes(key),

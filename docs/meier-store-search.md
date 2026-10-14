@@ -5,6 +5,19 @@ Produkte anhand eines Namens oder einer Artikelnummer suchen. Der Suchbegriff
 muss 2 bis 120 Zeichen enthalten. Weitere Ergebnisse sind über die Seitennavigation
 erreichbar; die Suche ist nicht auf die erste Ergebnisseite begrenzt.
 
+Die Treffer müssen zum Suchbegriff im Produktnamen, beim Hersteller oder in der
+Artikelnummer passen. Reine Beschreibungstreffer, etwa gefüllte Taschen statt
+einzelner Kanülen, werden ausgeblendet. Die Shop-Seitennavigation bleibt erhalten;
+eine Seite ohne passende Treffer bedeutet nicht, dass spätere Seiten leer sind.
+„Braunüle“ und „Braunuele“ werden als „Venenverweilkanüle“ gesucht, auch in der
+Mehrzahl. Zusätzliche Angaben im Suchbegriff bleiben erhalten. Der tatsächlich
+verwendete Begriff wird als Hinweis angezeigt.
+
+Bei einer genauen Artikelnummer wird eine passende, vom Shop tatsächlich verlinkte
+Variante gewählt. Die Nummer und Variantenbezeichnung werden angezeigt. Der Preis
+der Standardvariante wird dabei nicht übernommen; der Variantenpreis wird erst
+beim Laden der Produktdaten ermittelt.
+
 **Daten prüfen** öffnet das Artikelformular und lädt die bestehende Importvorschau.
 Bei neuen Artikeln sind die verfügbaren Shop-Felder zunächst zur Übernahme ausgewählt.
 Die Auswahl kann geändert werden. Erst **Ausgewählte Daten übernehmen** überträgt die

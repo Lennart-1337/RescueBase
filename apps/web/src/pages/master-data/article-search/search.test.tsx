@@ -168,6 +168,21 @@ it("blocks ambiguous existing matches and displays empty search results", async 
   load.mockResolvedValue({ ...result, totalPages: 1, items: [] });
   fireEvent.click(screen.getByRole("button", { name: "Suchen" }));
   expect(
-    await screen.findByText(/Keine Produkte gefunden/),
+    await screen.findByText(/Keine passenden Produkte gefunden/),
+  ).toBeInTheDocument();
+});
+
+it("keeps later pages accessible when the current page has no direct matches", async () => {
+  vi.spyOn(rescueBaseApi, "meierArticleSearch").mockResolvedValue({
+    ...result,
+    items: [],
+    warnings: ["Suchbegriff: Venenverweilkanüle (für Braunüle)."],
+  });
+  render(<ArticleSearch articles={[]} onSelect={select} />);
+  start();
+  expect(await screen.findByText(/Auf dieser Seite/)).toBeInTheDocument();
+  expect(screen.getByRole("button", { name: "Nächste Seite" })).toBeEnabled();
+  expect(
+    screen.getByText(/Suchbegriff: Venenverweilkanüle/),
   ).toBeInTheDocument();
 });

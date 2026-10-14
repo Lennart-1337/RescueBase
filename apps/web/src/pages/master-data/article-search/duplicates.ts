@@ -19,11 +19,8 @@ function identifier(url: string) {
   }
 }
 export function matchingArticles(articles: Article[], item: MeierSearchItem) {
-  const keys = new Set(
-    [identifier(item.url), normalize(item.supplierArticleNumber ?? "")].filter(
-      Boolean,
-    ),
-  );
+  // A listing's group SKU can differ from the linked concrete variant.
+  const keys = new Set([identifier(item.url)].filter(Boolean));
   return articles.filter((article) => {
     const trustedLink = isMeierArticle(article);
     const trustedSupplier = [

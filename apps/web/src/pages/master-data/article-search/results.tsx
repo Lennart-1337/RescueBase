@@ -22,7 +22,9 @@ export function SearchResults({
       ))}
       {!result.items.length ? (
         <p role="status">
-          Keine Produkte gefunden. Bitte einen anderen Suchbegriff versuchen.
+          {result.totalPages > 1
+            ? "Auf dieser Seite wurden keine passenden Produkte gefunden. Bitte weitere Seiten prüfen oder den Suchbegriff anpassen."
+            : "Keine passenden Produkte gefunden. Bitte einen anderen Suchbegriff versuchen."}
         </p>
       ) : null}
       <ul className="meier-search-results">
