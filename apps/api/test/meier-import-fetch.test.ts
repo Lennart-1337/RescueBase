@@ -7,6 +7,16 @@ const url = "https://www.meier-medizintechnik.de/test-product/2009068";
 const html = () =>
   new Response("<html></html>", { headers: { "content-type": "text/html" } });
 describe("bounded Meier supplier fetch", () => {
+  it("accepts product slugs containing punctuation used in manufacturer names", async () => {
+    const sourceUrl =
+      "https://www.meier-medizintechnik.de/b.-braun-injekt-luer-solo-einmalspritzen-5-ml-packung-a-100-stueck/4606051v";
+    const request = jest.fn<typeof fetch>().mockResolvedValue(html());
+    const result = await fetchMeierProduct(sourceUrl, request);
+    expect(result.url).toBe(sourceUrl);
+    expect(request).toHaveBeenCalledTimes(1);
+    expect(request.mock.calls[0]?.[0].toString()).toBe(sourceUrl);
+  });
+
   it.each([
     undefined,
     "not a URL",
