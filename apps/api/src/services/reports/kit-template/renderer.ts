@@ -1,6 +1,6 @@
 import { needsPageBreak } from "../../report-layout.js";
 import { drawContinuationHeader, drawDocumentHeader, drawStatStrip, reportPalette as palette } from "../../report-theme.js";
-import { drawTemplateModuleHeader, templateModuleHeaderHeight, templatePositionRowHeight } from "./layout.js";
+import { drawTemplateModuleHeader, drawTemplateTableHeader, templateModuleStartHeight, templatePositionRowHeight, templatePageReserve, templateContinuationTop } from "./layout.js";
 import { groupTemplatePositions, type KitTemplatePdfRecord } from "./positions.js";
 
 export function drawKitTemplate(doc: PDFKit.PDFDocument, template: KitTemplatePdfRecord) {
@@ -22,10 +22,10 @@ export function drawKitTemplate(doc: PDFKit.PDFDocument, template: KitTemplatePd
     if (
       needsPageBreak({
         currentY: y,
-        requiredHeight: templateModuleHeaderHeight + templatePositionRowHeight(doc, group.positions[0]!) + 10,
+        requiredHeight: templateModuleStartHeight(doc, group.positions),
         pageHeight: doc.page.height,
         bottomMargin: doc.page.margins.bottom,
-        reserve: 8,
+        reserve: templatePageReserve,
       })
     ) {
       doc.addPage();
@@ -34,7 +34,7 @@ export function drawKitTemplate(doc: PDFKit.PDFDocument, template: KitTemplatePd
         template.name,
         `Version ${template.version} · Inhaltsliste`,
       );
-      y = doc.y + 12;
+      y = templateContinuationTop;
     }
     y = drawTemplateModuleHeader(doc, y, group.name);
     for (const position of group.positions) {
@@ -45,7 +45,7 @@ export function drawKitTemplate(doc: PDFKit.PDFDocument, template: KitTemplatePd
           requiredHeight: rowHeight + 10,
           pageHeight: doc.page.height,
           bottomMargin: doc.page.margins.bottom,
-          reserve: 8,
+          reserve: templatePageReserve,
         })
       ) {
         doc.addPage();
@@ -54,7 +54,7 @@ export function drawKitTemplate(doc: PDFKit.PDFDocument, template: KitTemplatePd
           template.name,
           `Version ${template.version} · Inhaltsliste`,
         );
-        y = drawTemplateModuleHeader(doc, doc.y + 12, group.name);
+        y = drawTemplateTableHeader(doc, templateContinuationTop);
       }
       doc
         .fillColor(palette.ink)

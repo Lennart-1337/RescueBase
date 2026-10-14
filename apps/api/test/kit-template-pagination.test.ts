@@ -16,6 +16,21 @@ async function render(positions: ReturnType<typeof position>[]) {
 }
 
 describe("kit template PDF pagination", () => {
+  it("moves a complete module to the next page when its remaining rows would otherwise split", async () => {
+    const positions = Array.from({ length: 20 }, (_, index) => position("Diagnostik", `Messgerät ${index + 1}`));
+    const masks = [
+      "Ambu® Einweg Beatmungsmaske / Gesichtsmaske PLUS | Erwachsene | Größe: Groß",
+      "Ambu® Einweg Beatmungsmaske / Gesichtsmaske PLUS | Kleinkinder",
+      "Ambu® Einweg Beatmungsmaske / Gesichtsmaske PLUS | Neugeborene",
+    ];
+    positions.push(...masks.map((name) => position("Beatmung", name)));
+    const { text, pages } = await render(positions);
+    expect(pages).toBe(2);
+    expect(text.match(/beatmung(?=artikel)/g)).toHaveLength(1);
+    expect(text.indexOf("beatmungartikel")).toBeGreaterThan(text.lastIndexOf("neuergroßersanrucksack"));
+    for (const mask of masks) expect(text).toContain(normalizePdfText(mask));
+  });
+
   it("moves a module heading together with its first wrapped article to the next page", async () => {
     const positions = Array.from({ length: 21 }, (_, index) => position("Diagnostik", `Messgerät ${index + 1}`));
     positions.push(position("Dokumentation", "Läufer Formularhalter / Klemmbrett Safety mit Aufbewahrungsfach | Farbe: Neonorange"));
@@ -27,9 +42,11 @@ describe("kit template PDF pagination", () => {
     expect(text).toContain("thieme");
   });
 
-  it("prints the continued module once on each page instead of repeating it in the page subtitle", async () => {
+  it("continues oversized modules with table headings without repeating the module name", async () => {
     const { text, pages } = await render(Array.from({ length: 60 }, (_, index) => position("Dokumentation", `Formular ${index + 1}`)));
     expect(pages).toBeGreaterThan(1);
-    expect(text.match(/dokumentation/g)).toHaveLength(pages);
+    expect(text.match(/dokumentation/g)).toHaveLength(1);
+    expect(text.match(/artikelsolleinheithinweis/g)).toHaveLength(pages);
+    expect(text).toContain("formular60");
   });
 });
