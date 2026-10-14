@@ -89,7 +89,7 @@ describe("Public auth pages", () => {
     const codeInputs = screen.getAllByRole("textbox", { name: /Ziffer \d von 6/ });
     const firstCodeInput = codeInputs.at(0)!;
     expect(codeInputs).toHaveLength(6);
-    expect(firstCodeInput).toHaveFocus();
+    await waitFor(() => expect(firstCodeInput).toHaveFocus());
     fireEvent.paste(firstCodeInput, { clipboardData: { getData: () => "12 34 56" } });
     expect(codeInputs.map((input) => input.getAttribute("value"))).toEqual(["1", "2", "3", "4", "5", "6"]);
     expect(codeInputs[5]).toHaveFocus();
@@ -106,7 +106,8 @@ describe("Public auth pages", () => {
       "/api/auth/session": {}
     });
     await renderAppAt("/");
-    expect(await screen.findByRole("textbox", { name: "Ziffer 1 von 6" })).toHaveFocus();
+    const restoredCodeInput = await screen.findByRole("textbox", { name: "Ziffer 1 von 6" });
+    await waitFor(() => expect(restoredCodeInput).toHaveFocus());
     expect(screen.queryByLabelText("Passwort")).not.toBeInTheDocument();
     expect(screen.queryByLabelText("E-Mail")).toBeNull();
     expect(screen.getByRole("textbox", { name: "Ziffer 1 von 6" })).toHaveAttribute("autocomplete", "one-time-code");
