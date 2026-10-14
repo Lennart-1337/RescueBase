@@ -2,6 +2,16 @@ import { drawTableHeader, reportPalette as palette } from "../../report-theme.js
 import type { KitTemplatePdfRecord } from "./positions.js";
 
 export const templateModuleHeaderHeight = 39;
+export const templatePageReserve = 8;
+// Continuation document header ends at 102 pt, followed by a 12 pt gap.
+export const templateContinuationTop = 114;
+
+export function templateModuleStartHeight(doc: PDFKit.PDFDocument, positions: KitTemplatePdfRecord["positions"]) {
+  const rowHeights = positions.map((position) => templatePositionRowHeight(doc, position) + 10);
+  const fullHeight = templateModuleHeaderHeight + rowHeights.reduce((sum, height) => sum + height, 0);
+  const pageCapacity = doc.page.height - doc.page.margins.bottom - templatePageReserve - templateContinuationTop;
+  return fullHeight <= pageCapacity ? fullHeight : templateModuleHeaderHeight + (rowHeights[0] ?? 0);
+}
 
 export function templatePositionRowHeight(
   doc: PDFKit.PDFDocument,
@@ -26,7 +36,11 @@ export function drawTemplateModuleHeader(
     .font("Helvetica-Bold")
     .fontSize(10)
     .text(moduleName, 48, y, { width: 300 });
-  return drawTableHeader(doc, y + 15, [
+  return drawTemplateTableHeader(doc, y + 15);
+}
+
+export function drawTemplateTableHeader(doc: PDFKit.PDFDocument, y: number) {
+  return drawTableHeader(doc, y, [
     { label: "Artikel", x: 48, width: 290 },
     { label: "Soll", x: 344, width: 48, align: "right" },
     { label: "Einheit", x: 402, width: 78 },
