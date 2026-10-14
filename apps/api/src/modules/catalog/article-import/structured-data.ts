@@ -19,7 +19,7 @@ export function findProduct($: CheerioAPI, sku: string) {
   const matches = products.filter(
     (value) =>
       value["@type"] === "Product" &&
-      text(value.sku)?.toLowerCase() === normalizedSku,
+      text(value.sku)?.toLowerCase().replaceAll("/", "-") === normalizedSku,
   );
   return matches.length === 1 ? matches[0] : undefined;
 }
