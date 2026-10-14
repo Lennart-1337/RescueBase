@@ -1,6 +1,8 @@
 import { drawTableHeader, reportPalette as palette } from "../../report-theme.js";
 import type { KitTemplatePdfRecord } from "./positions.js";
 
+export const templateModuleHeaderHeight = 39;
+
 export function templatePositionRowHeight(
   doc: PDFKit.PDFDocument,
   position: KitTemplatePdfRecord["positions"][number],

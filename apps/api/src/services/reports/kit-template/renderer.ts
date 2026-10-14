@@ -1,6 +1,6 @@
 import { needsPageBreak } from "../../report-layout.js";
 import { drawContinuationHeader, drawDocumentHeader, drawStatStrip, reportPalette as palette } from "../../report-theme.js";
-import { drawTemplateModuleHeader, templatePositionRowHeight } from "./layout.js";
+import { drawTemplateModuleHeader, templateModuleHeaderHeight, templatePositionRowHeight } from "./layout.js";
 import { groupTemplatePositions, type KitTemplatePdfRecord } from "./positions.js";
 
 export function drawKitTemplate(doc: PDFKit.PDFDocument, template: KitTemplatePdfRecord) {
@@ -22,7 +22,7 @@ export function drawKitTemplate(doc: PDFKit.PDFDocument, template: KitTemplatePd
     if (
       needsPageBreak({
         currentY: y,
-        requiredHeight: 46,
+        requiredHeight: templateModuleHeaderHeight + templatePositionRowHeight(doc, group.positions[0]!) + 10,
         pageHeight: doc.page.height,
         bottomMargin: doc.page.margins.bottom,
         reserve: 8,
@@ -52,7 +52,7 @@ export function drawKitTemplate(doc: PDFKit.PDFDocument, template: KitTemplatePd
         drawContinuationHeader(
           doc,
           template.name,
-          `Version ${template.version} · ${group.name}`,
+          `Version ${template.version} · Inhaltsliste`,
         );
         y = drawTemplateModuleHeader(doc, doc.y + 12, group.name);
       }
