@@ -16,6 +16,13 @@ export function useArticleEditor(
   const close = () => setDraft(emptyDraft());
   const openForCreate = () => setDraft({ ...emptyDraft(), isOpen: true });
   const openForEdit = (article: Article) => setDraft(articleDraft(article));
+  const openForImport = (articleUrl: string, article?: Article) =>
+    setDraft({
+      ...(article ? articleDraft(article) : emptyDraft()),
+      isOpen: true,
+      articleUrl,
+      importOnOpen: true,
+    });
   async function submit() {
     if (!canSubmit) return;
     const body = articleBody(draft);
@@ -35,6 +42,7 @@ export function useArticleEditor(
     close,
     openForCreate,
     openForEdit,
+    openForImport,
     submit,
   };
 }

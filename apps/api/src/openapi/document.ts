@@ -1,3 +1,5 @@
+import { meierSearchSchemas } from "./meier-search/schemas.js";
+import { meierSearchPaths } from "./meier-search/paths.js";
 import type { OpenAPIObject } from "@nestjs/swagger";
 import { meierReconciliationSchemas } from "./meier-reconciliation/schemas.js";
 import { meierReconciliationPaths } from "./meier-reconciliation/paths.js";
@@ -510,6 +512,7 @@ const rescueBaseOpenApiDocumentDefinition = {
         data: ref("ArticleImportData"), warnings: arrayOf({ type: "string" }),
       }, ["source", "sourceUrl", "fetchedAt", "supplierName", "data", "warnings"]),
       ...meierReconciliationSchemas,
+      ...meierSearchSchemas,
       ReorderArticlesRequest: objectSchema(
         {
           articleIds: arrayOf({ type: "string" }),
@@ -1850,6 +1853,7 @@ const rescueBaseOpenApiDocumentDefinition = {
         request("ArticleImportPreviewRequest"), response(201, "Supplier article preview", ref("ArticleImportPreview"))),
     },
     ...meierReconciliationPaths,
+    ...meierSearchPaths,
     "/catalog/articles/reorder": {
       post: operation(
         "Stammdaten",

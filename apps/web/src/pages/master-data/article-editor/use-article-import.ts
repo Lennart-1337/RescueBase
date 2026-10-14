@@ -41,6 +41,13 @@ export function useArticleImport({
     setError("");
     setNotice("");
     setLoading(false);
+    const token = generation.current;
+    queueMicrotask(() => {
+      if (token === generation.current && current.current.importOnOpen) {
+        setDraft((value) => ({ ...value, importOnOpen: false }));
+        void load();
+      }
+    });
     return () => {
       generation.current++;
     };
