@@ -7,6 +7,25 @@ const item = {
 };
 const article = (id: string, articleUrl: string, supplierArticleNumber = "") =>
   ({ id, articleUrl, supplierArticleNumber }) as Article;
+it("does not confuse a selected variant with the listing's group article number", () => {
+  const selected = {
+    name: "Binde",
+    url: "https://www.meier-medizintechnik.de/binde/9310910",
+    supplierArticleNumber: "9310900",
+  };
+  expect(
+    matchingArticles(
+      [
+        article(
+          "other",
+          "https://www.meier-medizintechnik.de/binde/9310900",
+          "9310900",
+        ),
+      ],
+      selected,
+    ),
+  ).toEqual([]);
+});
 it("matches source identifiers across case, spaces, slashes and renamed slugs", () => {
   expect(
     matchingArticles(

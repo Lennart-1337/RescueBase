@@ -1,11 +1,8 @@
 import { BadGatewayException } from "@nestjs/common";
 import { loadBuffer } from "cheerio";
-import { validateMeierUrl } from "../article-import/fetch.js";
+import { parseMeierSearchCard } from "./card.js";
+import { expandMeierQuery, matchesMeierQuery } from "./query.js";
 import type { MeierSearchItem, MeierSearchResult } from "./types.js";
-const text = (value: unknown) =>
-  typeof value === "string"
-    ? value.replace(/\s+/gu, " ").trim() || undefined
-    : undefined;
 export function parseMeierSearch(
   html: string | Buffer,
   query: string,
@@ -34,42 +31,20 @@ export function parseMeierSearch(
   const items: MeierSearchItem[] = [];
   const seen = new Set<string>();
   let skipped = 0;
+  let irrelevant = 0;
+  const expandedQuery = expandMeierQuery(query);
   $(".search-page [data-listing] .product-box").each((_, element) => {
     const card = $(element);
     try {
-      const link = card.find("a.productbox-name").first();
-      const name = text(link.text());
-      const href =
-        link.attr("href") ??
-        card.find("a.product-image-link").first().attr("href");
-      if (!name || !href) throw new Error();
-      const url = validateMeierUrl(
-        new URL(href, "https://www.meier-medizintechnik.de").toString(),
-      ).toString();
+      const item = parseMeierSearchCard($, card, expandedQuery);
+      const { url } = item;
       if (seen.has(url)) return;
-      let metadata: Record<string, unknown> = {};
-      try {
-        metadata = JSON.parse(card.attr("data-product-information") ?? "{}");
-      } catch {
-        /* Visible product data remains usable. */
-      }
-      const supplierArticleNumber = text(metadata?.sku);
-      const manufacturer = text(
-        typeof metadata?.brand === "string"
-          ? metadata.brand.replace(/\\u([a-f0-9]{4})/giu, (_, code: string) =>
-              String.fromCharCode(Number.parseInt(code, 16)),
-            )
-          : undefined,
-      );
-      const priceLabel = text(card.find(".product-price").first().text());
-      items.push({
-        name,
-        url,
-        ...(supplierArticleNumber ? { supplierArticleNumber } : {}),
-        ...(manufacturer ? { manufacturer } : {}),
-        ...(priceLabel ? { priceLabel } : {}),
-      });
       seen.add(url);
+      if (!matchesMeierQuery(item, expandedQuery)) {
+        irrelevant++;
+        return;
+      }
+      items.push(item);
     } catch {
       skipped++;
     }
@@ -83,10 +58,20 @@ export function parseMeierSearch(
     page,
     totalPages: Math.max(page, ...pages),
     items,
-    warnings: skipped
-      ? [
-          `${skipped} Suchtreffer konnten nicht sicher gelesen werden und wurden ausgelassen.`,
-        ]
-      : [],
+    warnings: [
+      ...(expandedQuery !== query.normalize("NFC")
+        ? [`Meier wird nach „${expandedQuery}“ durchsucht.`]
+        : []),
+      ...(irrelevant
+        ? [
+            `${irrelevant} unpassende Suchtreffer auf dieser Seite wurden ausgeblendet. Die Seitenanzahl entspricht weiterhin der Meier-Suche.`,
+          ]
+        : []),
+      ...(skipped
+        ? [
+            `${skipped} Suchtreffer konnten nicht sicher gelesen werden und wurden ausgelassen.`,
+          ]
+        : []),
+    ],
   };
 }
