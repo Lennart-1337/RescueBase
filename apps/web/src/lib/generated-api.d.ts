@@ -660,6 +660,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/catalog/articles/import-preview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["CatalogArticleImportController_importPreview"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/catalog/articles/reorder": {
         parameters: {
             query?: never;
@@ -2300,6 +2316,7 @@ export interface components {
             unit: string;
             manufacturer?: string;
             manufacturerPartNumber?: string;
+            supplierArticleNumber?: string;
             category?: string;
             barcode?: string;
             /** Format: uri */
@@ -2327,6 +2344,7 @@ export interface components {
             unit: string;
             manufacturer?: string;
             manufacturerPartNumber?: string;
+            supplierArticleNumber?: string;
             category?: string;
             barcode?: string;
             /** Format: uri */
@@ -2349,6 +2367,7 @@ export interface components {
             unit: string;
             manufacturer?: string;
             manufacturerPartNumber?: string;
+            supplierArticleNumber?: string;
             category?: string;
             barcode?: string;
             /** Format: uri */
@@ -2365,6 +2384,35 @@ export interface components {
             storageNotes?: string;
             notes?: string;
             criticalDefault: boolean;
+        };
+        ArticleImportPreviewRequest: {
+            /** Format: uri */
+            url: string;
+        };
+        ArticleImportData: {
+            name: string;
+            unit?: string;
+            manufacturer?: string;
+            manufacturerPartNumber?: string;
+            supplierArticleNumber?: string;
+            barcode?: string;
+            /** Format: uri */
+            articleUrl: string;
+            unitsPerPackage?: number;
+            defaultGrossPriceCents?: number;
+            medicalDevice?: boolean;
+        };
+        ArticleImportPreview: {
+            /** @enum {string} */
+            source: "MEIER_MEDIZINTECHNIK";
+            /** Format: uri */
+            sourceUrl: string;
+            /** Format: date-time */
+            fetchedAt: string;
+            /** @enum {string} */
+            supplierName: "Meier Medizintechnik";
+            data: components["schemas"]["ArticleImportData"];
+            warnings: string[];
         };
         ReorderArticlesRequest: {
             articleIds: string[];
@@ -3936,6 +3984,30 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["Article"];
+                };
+            };
+        };
+    };
+    CatalogArticleImportController_importPreview: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ArticleImportPreviewRequest"];
+            };
+        };
+        responses: {
+            /** @description Supplier article preview */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ArticleImportPreview"];
                 };
             };
         };

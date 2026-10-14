@@ -420,6 +420,7 @@ const rescueBaseOpenApiDocumentDefinition = {
           unit: { type: "string" },
           manufacturer: { type: "string" },
           manufacturerPartNumber: { type: "string" },
+          supplierArticleNumber: { type: "string" },
           category: { type: "string" },
           barcode: { type: "string" },
           articleUrl: { type: "string", format: "uri" },
@@ -447,6 +448,7 @@ const rescueBaseOpenApiDocumentDefinition = {
           unit: { type: "string" },
           manufacturer: { type: "string" },
           manufacturerPartNumber: { type: "string" },
+          supplierArticleNumber: { type: "string" },
           category: { type: "string" },
           barcode: { type: "string" },
           articleUrl: { type: "string", format: "uri" },
@@ -471,6 +473,7 @@ const rescueBaseOpenApiDocumentDefinition = {
           unit: { type: "string" },
           manufacturer: { type: "string" },
           manufacturerPartNumber: { type: "string" },
+          supplierArticleNumber: { type: "string" },
           category: { type: "string" },
           barcode: { type: "string" },
           articleUrl: { type: "string", format: "uri" },
@@ -489,6 +492,21 @@ const rescueBaseOpenApiDocumentDefinition = {
         },
         ["name", "unit", "sterile", "criticalDefault"],
       ),
+      ArticleImportPreviewRequest: objectSchema({ url: { type: "string", format: "uri", maxLength: 2048 } }, ["url"]),
+      ArticleImportData: objectSchema({
+        name: { type: "string" }, unit: { type: "string" },
+        manufacturer: { type: "string" }, manufacturerPartNumber: { type: "string" },
+        supplierArticleNumber: { type: "string" }, barcode: { type: "string" },
+        articleUrl: { type: "string", format: "uri" },
+        unitsPerPackage: { type: "integer", minimum: 1 },
+        defaultGrossPriceCents: { type: "integer", minimum: 0 }, medicalDevice: { type: "boolean" },
+      }, ["name", "articleUrl"]),
+      ArticleImportPreview: objectSchema({
+        source: { type: "string", enum: ["MEIER_MEDIZINTECHNIK"] },
+        sourceUrl: { type: "string", format: "uri" }, fetchedAt: { type: "string", format: "date-time" },
+        supplierName: { type: "string", enum: ["Meier Medizintechnik"] },
+        data: ref("ArticleImportData"), warnings: arrayOf({ type: "string" }),
+      }, ["source", "sourceUrl", "fetchedAt", "supplierName", "data", "warnings"]),
       ReorderArticlesRequest: objectSchema(
         {
           articleIds: arrayOf({ type: "string" }),
@@ -1823,6 +1841,10 @@ const rescueBaseOpenApiDocumentDefinition = {
         request("CreateArticleRequest"),
         response(201, "Article created", ref("Article")),
       ),
+    },
+    "/catalog/articles/import-preview": {
+      post: operation("Stammdaten", "CatalogArticleImportController_importPreview",
+        request("ArticleImportPreviewRequest"), response(201, "Supplier article preview", ref("ArticleImportPreview"))),
     },
     "/catalog/articles/reorder": {
       post: operation(

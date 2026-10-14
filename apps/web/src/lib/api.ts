@@ -1,3 +1,4 @@
+import type { ArticleImportPreview } from "./article-import";
 import { ApiError, openApiClient, reportUrl } from "./openapi-client";
 import { adminSettingsApi } from "./admin-settings-api";
 import type {
@@ -66,6 +67,7 @@ export const rescueBaseApi = {
   updateMedicalDevicePermission: (id: string, medicalDevicesManage: boolean) =>
     openApiClient.put("/mpg-permissions/users/{id}", { medicalDevicesManage }, { params: { id } }),
   articles: () => openApiClient.get("/catalog/articles"),
+  articleImportPreview: (url: string) => openApiClient.post("/catalog/articles/import-preview", { url }) as Promise<ArticleImportPreview>,
   suppliers: () => openApiClient.get("/catalog/suppliers"),
   locations: () => openApiClient.get("/catalog/locations"),
   templates: () => openApiClient.get("/catalog/templates"),

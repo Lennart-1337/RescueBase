@@ -428,6 +428,7 @@ export class PurchaseOrdersService {
         articleNameSnapshot: article.name,
         supplierArticleNumberSnapshot:
           optionalNullableText(line.supplierArticleNumber) ??
+          article.supplierArticleNumber ??
           article.manufacturerPartNumber,
         articleUrlSnapshot: article.articleUrl,
         manufacturerPartNumberSnapshot: article.manufacturerPartNumber,

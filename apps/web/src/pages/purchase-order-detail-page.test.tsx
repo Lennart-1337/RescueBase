@@ -1,8 +1,25 @@
 import { screen, within } from "@testing-library/react";
-import { purchaseOrder, supplier } from "../test-support/fixtures";
+import { article, location, purchaseOrder, supplier } from "../test-support/fixtures";
 import { changeValue, clickElement, mouseDownElement, renderAppAt, requestBody, stubFetch, wasRequested } from "../test-support/app-test-helpers";
 
 describe("Purchase order detail", () => {
+  it("uses the supplier number when selecting an article in a draft", async () => {
+    stubFetch({
+      "/api/auth/setup/status": { initialized: true },
+      "/api/auth/session": { user: { id: "user-admin", email: "admin@rescuebase.local", displayName: "Admin", role: "ADMIN", twoFactorEnabled: false } },
+      "/api/purchase-orders/purchase-order-1": purchaseOrder,
+      "/api/catalog/articles": [{ ...article, supplierArticleNumber: "MEIER-2009068" }],
+      "/api/catalog/suppliers": [supplier],
+      "/api/catalog/locations": [location],
+    });
+    await renderAppAt("/admin/purchase-orders/purchase-order-1");
+    await clickElement(await screen.findByRole("button", { name: "Bestellung bearbeiten" }));
+    const dialog = await screen.findByRole("dialog", { name: "Bestellung bearbeiten" });
+    await changeValue(within(dialog).getByLabelText("Artikel"), "Verband");
+    await mouseDownElement(await screen.findByRole("option", { name: "Verbandpäckchen mittel" }));
+    expect(within(dialog).getByLabelText("Art.-Nr.")).toHaveValue("MEIER-2009068");
+  });
+
   it("submits a full draft update before approval", async () => {
     stubFetch({
       "/api/auth/setup/status": { initialized: true, appName: "RescueBase Pro", appSubtitle: "Bereitschaft Nord" },

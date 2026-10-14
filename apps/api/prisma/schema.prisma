@@ -322,6 +322,7 @@ model Article {
   sortOrder             Int                @default(0)
   unit                  String
   manufacturer          String?
+  supplierArticleNumber String?
   manufacturerPartNumber String?
   category              String?
   barcode               String?

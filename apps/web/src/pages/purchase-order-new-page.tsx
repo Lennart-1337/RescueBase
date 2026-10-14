@@ -19,6 +19,7 @@ import { orderKeys } from "../queries/orders";
 import type { Article, InventoryTarget, Supplier } from "../lib/types";
 import type { PurchaseOrderMode } from "./purchase-order-mode-selector";
 import { centsInput, parseCents } from "./purchase-orders/format";
+import { supplierArticleNumberFor } from "./purchase-orders/article-order-defaults";
 import { PurchaseOrderModeSelector } from "./purchase-order-mode-selector";
 import "./purchase-orders-page.css";
 import "./purchase-order-new-page.css";
@@ -411,8 +412,7 @@ function ManualLine(props: {
                   ? String(defaultUnitsPerPackage)
                   : props.line.quantity,
                 packageCount: defaultUnitsPerPackage ? "1" : "",
-                supplierArticleNumber:
-                  selectedArticle?.manufacturerPartNumber ?? "",
+                supplierArticleNumber: supplierArticleNumberFor(selectedArticle),
               });
             }}
             options={props.articles.map((entry) => ({
