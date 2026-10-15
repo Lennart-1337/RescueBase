@@ -9,6 +9,7 @@ export async function fetchMeierHtml(
   validate: (value: string) => URL,
   request: typeof fetch = fetch,
   pageLabel = "Produktseite",
+  headers: Record<string, string> = {},
 ) {
   let url = value;
   const signal = AbortSignal.timeout(10_000);
@@ -21,6 +22,7 @@ export async function fetchMeierHtml(
         headers: {
           Accept: "text/html",
           "User-Agent": "RescueBase product import",
+          ...headers,
         },
       });
       if ([301, 302, 303, 307, 308].includes(response.status)) {

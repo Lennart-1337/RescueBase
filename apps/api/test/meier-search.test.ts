@@ -52,14 +52,17 @@ describe("Meier shop search", () => {
     const calls: URL[] = [];
     const result = await searchMeierArticles(
       { query: "  Ambu & blau  ", page: 2 },
-      async (input) => {
+      async (input, options) => {
         calls.push(new URL(String(input)));
+        expect(new Headers(options?.headers).get("X-Requested-With")).toBe(
+          "XMLHttpRequest",
+        );
         return new Response(page, { headers: { "content-type": "text/html" } });
       },
     );
     expect(calls).toHaveLength(1);
     expect(calls[0].hostname).toBe("www.meier-medizintechnik.de");
-    expect(calls[0].pathname).toBe("/search");
+    expect(calls[0].pathname).toBe("/widgets/search");
     expect(calls[0].searchParams.get("search")).toBe("Ambu & blau");
     expect(calls[0].searchParams.get("p")).toBe("2");
     expect(result.page).toBe(2);

@@ -134,7 +134,7 @@ describe("Meier search relevance", () => {
   });
   it("validates redirects against the expanded query", async () => {
     const location =
-      "https://www.meier-medizintechnik.de/search?search=Venenverweilkan%C3%BCle&p=2";
+      "https://www.meier-medizintechnik.de/widgets/search?search=Venenverweilkan%C3%BCle&p=2";
     let calls = 0;
     const result = await searchMeierArticles(
       { query: "Braunüle", page: 2 },

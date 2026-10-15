@@ -41,10 +41,20 @@ verfügbaren Bruttoverkaufspreis und die Verkaufseinheit.
 Suchtreffer, Seitenzahl und Hinweise. Der Endpunkt ist auf Administratoren beschränkt
 und begrenzt auf 20 Anfragen pro Minute. Suchanfragen speichern keine Daten.
 
-Die Suche liest öffentliche Shop-Ergebnisse mit festen Zieladressen, Zeitlimit,
-Größenbegrenzung und geprüften Weiterleitungen. Kundenkonten werden nicht benötigt.
+Die Suche nutzt denselben öffentlichen AJAX-Endpunkt wie die Ergebnisliste der
+Meier-Webseite: `GET /widgets/search?search=…&p=…` mit
+`X-Requested-With: XMLHttpRequest`. Dieser liefert ein HTML-Fragment mit Treffern
+und Seitennavigation, keine JSON-Produktdaten. Die vollständige Suchseite wird
+nicht mehr geladen. `/suggest` dient im Shop nur den kurzen Suchvorschlägen und
+würde die vollständige Ergebnisliste nicht ersetzen.
+
+Der Abruf verwendet feste Zieladressen, Zeitlimit, Größenbegrenzung und geprüfte
+Weiterleitungen. API-Schlüssel, Kundenkonten und Cookies werden nicht benötigt.
+Die separate Shopware Store API unter `/store-api/search` wird nicht verwendet.
 Die Produktlink-Prüfung des bestehenden Imports bleibt unverändert streng.
 
 Regressionstests verwenden kompakte echte Suchseiten sowie Fehler- und Grenzfälle.
+Die Widget-Fixtures `widget-ambu.html` und `widget-empty.html` wurden am 15.10.2026
+anonym vom öffentlichen AJAX-Endpunkt geladen und auf relevante Elemente gekürzt.
 Frontend-Tests prüfen Seitennavigation, Wiederholung, veraltete Antworten,
 Dublettenerkennung und die getrennten Schritte Laden, Übernehmen und Speichern.

@@ -11,18 +11,21 @@ export function parseMeierSearch(
   const $ = loadBuffer(typeof html === "string" ? Buffer.from(html) : html, {
     encoding: { defaultEncoding: "utf8" },
   });
-  if (
-    !$(".search-page .search-headline").length ||
-    !$(".search-page [data-listing]").length
-  )
+  const scope = $(".search-page").length
+    ? $(".search-page")
+    : $(".cms-element-product-listing-wrapper[data-listing]");
+  const listing = scope.is("[data-listing]")
+    ? scope
+    : scope.find("[data-listing]");
+  if (!listing.length)
     throw new BadGatewayException(
       "Die Meier-Suchergebnisse konnten nicht gelesen werden. Bitte später erneut versuchen.",
     );
-  const cards = $(".search-page [data-listing] .product-box");
+  const cards = listing.find(".product-box");
   if (
     !cards.length &&
     !/Keine Produkte gefunden/iu.test(
-      $(".search-page [data-listing] .alert-content-container").text(),
+      listing.find(".alert-content-container").text(),
     )
   )
     throw new BadGatewayException(
@@ -33,7 +36,7 @@ export function parseMeierSearch(
   let skipped = 0;
   let irrelevant = 0;
   const expandedQuery = expandMeierQuery(query);
-  $(".search-page [data-listing] .product-box").each((_, element) => {
+  cards.each((_, element) => {
     const card = $(element);
     try {
       const item = parseMeierSearchCard($, card, expandedQuery);
@@ -49,7 +52,8 @@ export function parseMeierSearch(
       skipped++;
     }
   });
-  const pages = $(".search-page .pagination .page-link[data-page]")
+  const pages = scope
+    .find(".page-link[data-page]")
     .map((_, element) => Number($(element).attr("data-page")))
     .get()
     .filter((value) => Number.isInteger(value) && value > 0 && value <= 10000);
