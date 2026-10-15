@@ -2,26 +2,8 @@
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
-.inventory-workspace .workspace-main,
-.inventory-workspace .inventory-planning-grid {
+.inventory-workspace .workspace-main {
   grid-column: 1 / -1;
-}
-
-.inventory-workspace .inventory-planning-grid {
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-}
-
-.inventory-planning-grid .panel-header {
-  flex-direction: row;
-}
-
-.inventory-planning-grid .inventory-planning-row {
-  grid-template-columns: minmax(0, 1fr) auto;
-}
-
-.inventory-planning-grid .inventory-planning-actions {
-  flex-wrap: nowrap;
-  justify-content: flex-end;
 }
 
 .inventory-filter-grid {
@@ -58,18 +40,8 @@
 }
 
 @media (max-width: 1200px) {
-  .inventory-workspace,
-  .inventory-workspace .inventory-planning-grid {
+  .inventory-workspace {
     grid-template-columns: 1fr;
-  }
-
-  .inventory-planning-grid .inventory-planning-row {
-    grid-template-columns: 1fr;
-  }
-
-  .inventory-planning-grid .inventory-planning-actions {
-    flex-wrap: wrap;
-    justify-content: flex-start;
   }
 }
 

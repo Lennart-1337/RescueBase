@@ -1,0 +1,49 @@
+.target-grid-editor { min-width: 0; }
+.target-grid-title { display: flex; align-items: baseline; gap: 16px; margin-bottom: 18px; }
+.target-grid-title h2 { margin: 0; font-size: 20px; }
+.target-grid-title p, .target-grid-help { color: var(--color-text-muted); margin: 0; font-size: 13px; }
+.target-grid-toolbar { display: flex; align-items: end; gap: 20px; padding: 0 0 14px; }
+.target-grid-toolbar .field { width: min(320px, 100%); }
+.target-grid-toolbar .field select { min-height: 40px; }
+.target-grid-status { flex: 1; font-size: 13px; color: var(--color-text-muted); padding-bottom: 12px; }
+.target-grid-actions { display: flex; gap: 8px; }
+.target-grid-help { margin-bottom: 12px; line-height: 1.6; }
+.target-grid-error { color: var(--color-brand-strong); padding: 12px 0; }
+.target-sheet-scroll { max-height: 68vh; overflow: auto; border: 1px solid var(--color-border-strong); background: var(--color-surface); }
+.target-sheet { table-layout: fixed; border-collapse: separate; border-spacing: 0; min-width: 900px; width: 100%; font-size: 13px; font-variant-numeric: tabular-nums; }
+.target-sheet .sheet-number { width: 42px; }
+.target-sheet .sheet-article { width: 29%; }
+.target-sheet .sheet-category { width: 21%; }
+.target-sheet .sheet-unit { width: 90px; }
+.target-sheet .sheet-quantity { width: 120px; }
+.target-sheet th, .target-sheet td { border-right: 1px solid var(--color-border-default); border-bottom: 1px solid var(--color-border-default); height: 39px; padding: 0 12px; text-align: left; vertical-align: middle; }
+.target-sheet thead th { position: sticky; top: 0; z-index: 3; background: var(--color-surface-subtle); color: var(--color-text-strong); font-weight: 650; height: 42px; box-shadow: 0 1px 0 var(--color-border-strong); }
+.target-sheet tbody tr:last-child > * { border-bottom: 0; }
+.target-sheet tr > :last-child { border-right: 0; }
+.target-sheet .sheet-row-number, .target-sheet tr > :first-child { text-align: center; color: var(--color-text-muted); padding: 0; background: var(--color-surface-subtle); }
+.target-sheet .sheet-name { position: sticky; left: 0; z-index: 1; background: var(--color-surface); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 550; }
+.target-sheet thead th:nth-child(2) { left: 0; z-index: 4; }
+.target-sheet .sheet-category-value { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--color-text-muted); }
+.target-sheet .sheet-numeric { text-align: right; }
+.target-sheet .sheet-edit-header { text-align: right; background: var(--color-brand-soft); }
+.target-sheet .sheet-edit-cell { padding: 0; position: relative; background: var(--color-surface); }
+.target-sheet .sheet-edit-cell input { display: block; width: 100%; border: 0; border-radius: 0; box-shadow: none; background: transparent; height: 38px; min-height: 0; text-align: right; padding: 0 12px; color: var(--color-text-strong); font: inherit; }
+.target-sheet .sheet-edit-cell input:focus { outline: 2px solid var(--color-focus-border); outline-offset: -2px; background: var(--color-brand-soft); }
+.target-sheet tr[data-edited] .sheet-edit-cell { background: var(--color-brand-soft); box-shadow: inset 3px 0 0 var(--color-brand-solid); }
+.target-sheet .sheet-edit-cell input[aria-invalid="true"] { outline: 2px solid var(--color-brand-solid); outline-offset: -2px; }
+.target-sheet .sheet-deficit { color: var(--color-brand-strong); font-weight: 650; }
+.target-sheet .sheet-cell-error { display: block; padding: 4px 8px 8px; font-size: 11px; line-height: 1.4; color: var(--color-brand-strong); }
+.target-sheet tbody tr:focus-within > :not(.sheet-edit-cell) { background: var(--color-surface-subtle); }
+@media (max-width: 900px) {
+  .target-grid-title { display: block; }
+  .target-grid-title p { margin-top: 6px; }
+  .target-grid-toolbar { flex-wrap: wrap; gap: 12px; }
+  .target-grid-status { flex: 1; min-width: 150px; padding-bottom: 0; }
+  .target-grid-actions { width: 100%; justify-content: flex-end; }
+  .target-sheet-scroll { max-height: 65vh; }
+}
+@media (max-width: 600px) {
+  .target-sheet .sheet-article { width: 145px; }
+  .target-sheet .sheet-category { width: 180px; }
+  .target-grid-actions .button { font-size: 12px; gap: 5px; padding-inline: 9px; white-space: nowrap; }
+}

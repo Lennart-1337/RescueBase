@@ -1,6 +1,6 @@
 import { screen, waitFor, within } from "@testing-library/react";
 import { article, batch, inventoryTarget, location } from "../test-support/fixtures";
-import { changeValue, clickElement, getActiveRouter, postedBody, renderAppAt, requestBody, resetTestBrowser, stubFetch, wasRequested } from "../test-support/app-test-helpers";
+import { changeValue, clickElement, getActiveRouter, postedBody, renderAppAt, resetTestBrowser, stubFetch, wasRequested } from "../test-support/app-test-helpers";
 
 describe("InventoryPage", () => {
   afterEach(resetTestBrowser);
@@ -45,16 +45,22 @@ describe("InventoryPage", () => {
     expect(within(dialog).queryByText("Bestände werden ausschließlich als neue Charge angelegt, nicht direkt auf vorhandene Chargen addiert.")).toBeNull();
   });
 
-  it("opens the target dialog without filler helper copy", async () => {
-    stubFetch(baseInventoryRoutes());
-    await renderAppAt("/admin/inventory");
-    await screen.findByRole("heading", { name: "Lager" });
-    await clickElement(screen.getByRole("tab", { name: "Sollbestände" }));
+  it("shows every article in the target grid despite stock search and article URL filters", async () => {
+    stubFetch(baseInventoryRoutes({
+      "/api/catalog/articles": [article, ...Array.from({ length: 30 }, (_, index) => ({ ...article, id: `article-syringe-${index}`, name: `Spritze ${index + 1}ml` }))],
+      "/api/inventory/targets": []
+    }));
+    await renderAppAt("/admin/inventory?view=targets&q=unrelated&articleId=article-bandage&locationId=loc-main");
 
-    await clickElement(screen.getByRole("button", { name: /Soll hinzufügen/ }));
-    const dialog = await screen.findByRole("dialog", { name: "Sollbestand" });
-
-    expect(within(dialog).queryByText("Sollbestand pro Artikel und Standort festlegen.")).toBeNull();
+    const targets = await screen.findByRole("region", { name: "Sollbestände" });
+    expect(within(targets).getByText("Verbandpäckchen mittel")).toBeInTheDocument();
+    expect(within(targets).getByText("Spritze 5ml")).toBeInTheDocument();
+    expect(within(targets).getByText("Spritze 30ml")).toBeInTheDocument();
+    expect(within(targets).getByRole("table")).toBeInTheDocument();
+    expect(within(targets).getAllByRole("row")).toHaveLength(32);
+    expect(screen.queryByRole("search", { name: "Bestand filtern" })).toBeNull();
+    expect(screen.queryByRole("button", { name: /Soll hinzufügen|Charge hinzufügen/ })).toBeNull();
+    expect(screen.queryByRole("dialog", { name: "Sollbestand" })).toBeNull();
   });
 
   it("submits batch corrections with reason and tracks history loading", async () => {
@@ -211,23 +217,6 @@ describe("InventoryPage", () => {
     await screen.findByRole("heading", { name: "Lager" });
     await clickElement(screen.getByRole("button", { name: /Charge VB-2026-04 löschen/ }));
     await waitFor(() => expect(wasRequested("/api/inventory/batches/batch-bandage-1", "DELETE")).toBe(true));
-  });
-
-  it("sets and clears Soll targets in Lager", async () => {
-    vi.spyOn(window, "confirm").mockReturnValue(true);
-    stubFetch(baseInventoryRoutes());
-    await renderAppAt("/admin/inventory");
-    await screen.findByRole("heading", { name: "Lager" });
-    await clickElement(screen.getByRole("tab", { name: "Sollbestände" }));
-
-    await clickElement(screen.getByRole("button", { name: /Soll hinzufügen/ }));
-    const dialog = await screen.findByRole("dialog", { name: "Sollbestand" });
-    await changeValue(within(dialog).getByLabelText("Soll"), "160");
-    await clickElement(within(dialog).getByRole("button", { name: /Soll speichern/ }));
-    await waitFor(() => expect(requestBody("/api/inventory/targets/article-bandage/loc-main", "PUT")).toEqual({ targetQuantity: 160 }));
-
-    await clickElement(screen.getByRole("button", { name: /Löschen/ }));
-    await waitFor(() => expect(wasRequested("/api/inventory/targets/article-bandage/loc-main", "DELETE")).toBe(true));
   });
 
   it("does not show the automation panel in Lager", async () => {

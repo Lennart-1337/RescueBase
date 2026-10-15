@@ -35,6 +35,11 @@ export class InventoryController {
     return this.procurement.listTargets();
   }
 
+  @Put("targets/bulk")
+  async updateTargets(@Body() body: unknown) {
+    return this.procurement.updateTargets(body);
+  }
+
   @Put("targets/:articleId/:locationId")
   async upsertTarget(
     @Param("articleId") articleId: string,

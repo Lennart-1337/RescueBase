@@ -724,6 +724,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/inventory/targets/bulk": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** @description Atomically saves minimum quantities for one location. Stale values cause a conflict without saving any changes. */
+        put: operations["InventoryController_updateTargets"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/catalog/articles/reorder": {
         parameters: {
             query?: never;
@@ -2088,6 +2105,17 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        InventoryTargetChange: {
+            articleId: string;
+            /** @description 0 removes the minimum target and cancels OPEN procurement orders. */
+            targetQuantity: number;
+            /** @description Previously loaded target quantity; null means no target exists. */
+            expectedTargetQuantity: number | null;
+        };
+        BulkInventoryTargetRequest: {
+            locationId: string;
+            changes: components["schemas"]["InventoryTargetChange"][];
+        };
         MpgInput: {
             [key: string]: unknown;
         };
@@ -4215,6 +4243,44 @@ export interface operations {
             };
             /** @description Supplier request timed out */
             504: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    InventoryController_updateTargets: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["BulkInventoryTargetRequest"];
+            };
+        };
+        responses: {
+            /** @description All inventory targets after saving */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InventoryTarget"][];
+                };
+            };
+            /** @description Invalid quantities, duplicate articles or inactive references */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description A target changed since loading; no changes saved */
+            409: {
                 headers: {
                     [name: string]: unknown;
                 };
