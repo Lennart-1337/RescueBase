@@ -15,6 +15,15 @@ type Props = {
   onPaste: (row: number, text: string) => boolean;
 };
 
+function focusQuantity(input: HTMLInputElement) {
+  const article = input.closest("tr")?.querySelector("th");
+  input.style.scrollMarginInlineStart = `${(article?.getBoundingClientRect().width ?? 0) + 12}px`;
+  input.style.scrollMarginInlineEnd = "12px";
+  input.style.scrollMarginBlockStart = "48px";
+  input.scrollIntoView?.({ block: "nearest", inline: "nearest" });
+  input.select();
+}
+
 export function TargetSheetRow(props: Props) {
   const { article, index, current, text, error } = props;
   const name = article.shortName?.trim() || article.name;
@@ -38,7 +47,7 @@ export function TargetSheetRow(props: Props) {
           autoComplete="off"
           spellCheck={false}
           value={text}
-          onFocus={(event) => event.target.select()}
+          onFocus={(event) => focusQuantity(event.currentTarget)}
           onKeyDown={props.onKeyDown}
           onChange={(event) => props.onChange(article.id, event.target.value)}
           onPaste={(event) => {
