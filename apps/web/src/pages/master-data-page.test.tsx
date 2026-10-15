@@ -54,6 +54,7 @@ describe("MasterDataPage", () => {
       name: "Artikel anlegen",
     });
     await changeValue(within(dialog).getByLabelText("Name"), "Rettungsdecke");
+    await changeValue(within(dialog).getByLabelText("Kurzbezeichnung (optional)", { exact: false }), "  Wärmedecke  ");
     await changeValue(within(dialog).getByLabelText("Einheit"), "Stück");
     await changeValue(
       within(dialog).getByLabelText("Hersteller"),
@@ -100,6 +101,7 @@ describe("MasterDataPage", () => {
     await waitFor(() =>
       expect(postedBody("/api/catalog/articles")).toEqual({
         name: "Rettungsdecke",
+        shortName: "Wärmedecke",
         unit: "Stück",
         manufacturer: "Acme Medical",
         category: "Verbrauchsmaterial",
@@ -121,9 +123,11 @@ describe("MasterDataPage", () => {
   it("edits existing articles from the admin master data screen", async () => {
     stubFetch({
       ...baseAdminRoutes(),
+      "/api/catalog/articles": [{ ...article, shortName: "Verbandpäckchen M" }],
       "/api/catalog/articles/article-bandage": {
         ...article,
         name: "Verbandpäckchen groß",
+        shortName: "",
         barcode: "040000000099",
       },
     });
@@ -135,6 +139,9 @@ describe("MasterDataPage", () => {
     const dialog = await screen.findByRole("dialog", {
       name: "Artikel bearbeiten",
     });
+    const shortNameInput = within(dialog).getByLabelText("Kurzbezeichnung (optional)", { exact: false });
+    expect(shortNameInput).toHaveValue("Verbandpäckchen M");
+    await changeValue(shortNameInput, "");
     expect(
       within(dialog).queryByText(
         "Pflegen Sie Materialstammdaten für Medizinprodukte und Verbrauchsmaterial.",
@@ -194,6 +201,7 @@ describe("MasterDataPage", () => {
         requestBody("/api/catalog/articles/article-bandage", "PATCH"),
       ).toEqual({
         name: "Verbandpäckchen groß",
+        shortName: "",
         unit: "Stück",
         manufacturer: "MediSafe",
         manufacturerPartNumber: "VB-2000",
@@ -430,9 +438,10 @@ describe("MasterDataPage", () => {
     expect(
       row?.querySelectorAll(".template-row-actions .button-label"),
     ).toHaveLength(4);
-    expect(
-      within(row as HTMLElement).getByRole("link", { name: /als PDF exportieren/ }),
-    ).toHaveAttribute("href", "/api/reports/templates/template-san-a-v1.pdf");
+    await clickElement(within(row as HTMLElement).getByRole("button", { name: /als PDF exportieren/ }));
+    const exportDialog = await screen.findByRole("dialog", { name: "PDF exportieren" });
+    await changeValue(within(exportDialog).getByLabelText("Artikelbezeichnung"), "both");
+    expect(within(exportDialog).getByRole("link", { name: "PDF öffnen" })).toHaveAttribute("href", "/api/reports/templates/template-san-a-v1.pdf?articleNameMode=both");
   });
 
   it("reorders template positions before saving a new version", async () => {

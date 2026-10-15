@@ -12,6 +12,7 @@ export function articleDraft(article: Article): ArticleDraft {
     isOpen: true,
     editingId: article.id,
     name: article.name,
+    shortName: article.shortName ?? "",
     unit: article.unit,
     manufacturer: article.manufacturer ?? "",
     manufacturerPartNumber: article.manufacturerPartNumber ?? "",
@@ -36,6 +37,7 @@ export function articleDraft(article: Article): ArticleDraft {
 export function articleBody(draft: ArticleDraft) {
   return {
     name: draft.name,
+    shortName: draft.shortName.trim(),
     unit: draft.unit,
     manufacturer: optionalText(draft.manufacturer),
     manufacturerPartNumber: optionalText(draft.manufacturerPartNumber),

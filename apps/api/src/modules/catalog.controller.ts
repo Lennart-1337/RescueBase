@@ -850,6 +850,7 @@ export class CatalogController {
 
 type ArticleWriteBody = {
   name: string;
+  shortName?: string | null;
   unit: string;
   manufacturer?: string;
   manufacturerPartNumber?: string;
@@ -910,6 +911,7 @@ function toArticleWriteData(
   const mtkRequired = Boolean(body.mtkRequired);
   return {
     name: body.name.trim(),
+    ...(body.shortName === undefined ? {} : { shortName: normalizeArticleShortName(body.shortName) }),
     unit: body.unit.trim(),
     manufacturer: optionalText(body.manufacturer),
     manufacturerPartNumber: optionalText(body.manufacturerPartNumber),
@@ -941,6 +943,14 @@ function toArticleWriteData(
     notes: optionalText(body.notes),
     criticalDefault: Boolean(body.criticalDefault),
   };
+}
+
+function normalizeArticleShortName(value: string | null) {
+  if (value === null) return null;
+  if (typeof value !== "string" || value.trim().length > 191) {
+    throw new BadRequestException("Kurzbezeichnung muss ein Text mit höchstens 191 Zeichen sein.");
+  }
+  return value.trim() || null;
 }
 
 function normalizeControlInterval(
@@ -1048,6 +1058,7 @@ function mapArticle(
   return {
     id: article.id,
     name: article.name,
+    shortName: article.shortName ?? undefined,
     unit: article.unit,
     manufacturer: article.manufacturer ?? undefined,
     manufacturerPartNumber: article.manufacturerPartNumber ?? undefined,

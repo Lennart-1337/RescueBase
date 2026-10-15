@@ -1,9 +1,10 @@
+import { templateArticleName, type ArticleNameMode } from "./article-name.js";
 import { needsPageBreak } from "../../report-layout.js";
 import { drawContinuationHeader, drawDocumentHeader, drawStatStrip, reportPalette as palette } from "../../report-theme.js";
 import { drawTemplateModuleHeader, drawTemplateTableHeader, templateModuleStartHeight, templatePositionRowHeight, templatePageReserve, templateContinuationTop } from "./layout.js";
 import { groupTemplatePositions, type KitTemplatePdfRecord } from "./positions.js";
 
-export function drawKitTemplate(doc: PDFKit.PDFDocument, template: KitTemplatePdfRecord) {
+export function drawKitTemplate(doc: PDFKit.PDFDocument, template: KitTemplatePdfRecord, mode: ArticleNameMode = "short") {
   const groups = groupTemplatePositions(template.positions);
   drawDocumentHeader(
     doc,
@@ -22,7 +23,7 @@ export function drawKitTemplate(doc: PDFKit.PDFDocument, template: KitTemplatePd
     if (
       needsPageBreak({
         currentY: y,
-        requiredHeight: templateModuleStartHeight(doc, group.positions),
+        requiredHeight: templateModuleStartHeight(doc, group.positions, mode),
         pageHeight: doc.page.height,
         bottomMargin: doc.page.margins.bottom,
         reserve: templatePageReserve,
@@ -38,7 +39,7 @@ export function drawKitTemplate(doc: PDFKit.PDFDocument, template: KitTemplatePd
     }
     y = drawTemplateModuleHeader(doc, y, group.name);
     for (const position of group.positions) {
-      const rowHeight = templatePositionRowHeight(doc, position);
+      const rowHeight = templatePositionRowHeight(doc, position, mode);
       if (
         needsPageBreak({
           currentY: y,
@@ -60,7 +61,7 @@ export function drawKitTemplate(doc: PDFKit.PDFDocument, template: KitTemplatePd
         .fillColor(palette.ink)
         .font("Helvetica")
         .fontSize(9)
-        .text(position.article.name, 48, y, { width: 290 });
+        .text(templateArticleName(position.article, mode), 48, y, { width: 290 });
       doc.text(String(position.requiredQuantity), 344, y, {
         width: 48,
         align: "right",

@@ -41,8 +41,15 @@ export class ReportsController {
   }
 
   @Get("templates/:templateId.pdf")
-  async kitTemplate(@Param("templateId") templateId: string, @Res() response: Response): Promise<void> {
-    const pdf = await this.reports.kitTemplatePdf(templateId);
+  async kitTemplate(
+    @Param("templateId") templateId: string,
+    @Query("articleNameMode") articleNameMode: string | undefined,
+    @Res() response: Response,
+  ): Promise<void> {
+    if (articleNameMode !== undefined && articleNameMode !== "short" && articleNameMode !== "full" && articleNameMode !== "both") {
+      throw new BadRequestException("Artikelbezeichnung muss short, full oder both sein.");
+    }
+    const pdf = await this.reports.kitTemplatePdf(templateId, articleNameMode ?? "short");
     response.setHeader("content-type", "application/pdf");
     response.setHeader("content-disposition", `inline; filename="rucksackvorlage-${templateId}.pdf"`);
     response.setHeader("cache-control", "no-store, max-age=0");

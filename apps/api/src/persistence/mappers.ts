@@ -8,7 +8,7 @@ export type TemplateRecord = {
     moduleName: string | null;
     requiredQuantity: number;
     critical: boolean;
-    article: { name: string; unit: string };
+    article: { name: string; shortName?: string | null; unit: string };
   }>;
 };
 
@@ -89,6 +89,7 @@ export function mapTemplate(template: TemplateRecord) {
       id: position.id,
       articleId: position.articleId,
       articleName: position.article.name,
+      articleShortName: position.article.shortName ?? undefined,
       moduleName: position.moduleName ?? undefined,
       requiredQuantity: position.requiredQuantity,
       unit: position.article.unit,

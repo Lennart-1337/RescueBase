@@ -319,6 +319,7 @@ model Supplier {
 model Article {
   id                    String             @id @default(cuid())
   name                  String
+  shortName             String?
   sortOrder             Int                @default(0)
   unit                  String
   manufacturer          String?

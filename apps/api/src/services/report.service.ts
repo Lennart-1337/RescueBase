@@ -22,6 +22,7 @@ import {
   fitSingleLine,
   reportPalette as palette,
 } from "./report-theme.js";
+import type { ArticleNameMode } from "./reports/kit-template/article-name.js";
 import { drawKitTemplate } from "./reports/kit-template/renderer.js";
 import type { KitTemplatePdfRecord } from "./reports/kit-template/positions.js";
 
@@ -88,7 +89,7 @@ type PurchaseOrderPdfRecord = {
 export class ReportService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async kitTemplatePdf(templateId: string): Promise<Buffer> {
+  async kitTemplatePdf(templateId: string, articleNameMode: ArticleNameMode = "short"): Promise<Buffer> {
     const template: KitTemplatePdfRecord | null =
       await this.prisma.kitTemplate.findFirst({
         where: { id: templateId, deletedAt: null },
@@ -99,7 +100,7 @@ export class ReportService {
     if (!template)
       throw new NotFoundException("Rucksackvorlage nicht gefunden.");
 
-    return this.renderPdf((doc) => drawKitTemplate(doc, template));
+    return this.renderPdf((doc) => drawKitTemplate(doc, template, articleNameMode));
   }
 
   async procurementPdf(filters: ProcurementPdfFilters): Promise<Buffer> {

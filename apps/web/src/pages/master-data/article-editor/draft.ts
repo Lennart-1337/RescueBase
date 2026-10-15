@@ -4,6 +4,7 @@ export type ArticleDraft = {
   isOpen: boolean;
   editingId: string | null;
   name: string;
+  shortName: string;
   unit: string;
   manufacturer: string;
   manufacturerPartNumber: string;
@@ -30,6 +31,7 @@ export function emptyDraft(): ArticleDraft {
     isOpen: false,
     editingId: null,
     name: "",
+    shortName: "",
     unit: "Stück",
     manufacturer: "",
     manufacturerPartNumber: "",

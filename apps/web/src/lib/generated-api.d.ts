@@ -2361,6 +2361,7 @@ export interface components {
         Article: {
             id: string;
             name: string;
+            shortName?: string;
             unit: string;
             manufacturer?: string;
             manufacturerPartNumber?: string;
@@ -2389,6 +2390,7 @@ export interface components {
         };
         CreateArticleRequest: {
             name: string;
+            shortName?: string | null;
             unit: string;
             manufacturer?: string;
             manufacturerPartNumber?: string;
@@ -2412,6 +2414,7 @@ export interface components {
         };
         UpdateArticleRequest: {
             name: string;
+            shortName?: string | null;
             unit: string;
             manufacturer?: string;
             manufacturerPartNumber?: string;
@@ -2544,6 +2547,7 @@ export interface components {
             id: string;
             articleId: string;
             articleName: string;
+            articleShortName?: string;
             moduleName?: string;
             requiredQuantity: number;
             unit: string;
@@ -6608,7 +6612,9 @@ export interface operations {
     };
     ReportsController_kitTemplate: {
         parameters: {
-            query?: never;
+            query?: {
+                articleNameMode?: "short" | "full" | "both";
+            };
             header?: never;
             path: {
                 templateId: string;

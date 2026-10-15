@@ -406,4 +406,34 @@ describe("public check flow", () => {
       expect.objectContaining({ id: article.body.id })
     ]));
   });
+  it("persists short names through exported article payloads and keeps full check snapshots", async () => {
+    const server = app.getHttpServer();
+    const agent = request.agent(server);
+    await agent.post("/auth/login").send({ email: "admin@rescuebase.local", password: "rescuebase-admin" }).expect(201);
+    const exported = (await agent.get("/catalog/articles").expect(200)).body.find((article: { id: string }) => article.id === "article-bandage");
+    await agent.patch("/catalog/articles/article-bandage").send({ ...exported, shortName: "  Verband groß  " }).expect(200);
+    const readArticle = async () => (await agent.get("/catalog/articles").expect(200)).body.find((article: { id: string }) => article.id === "article-bandage");
+    const roundTrip = JSON.parse(JSON.stringify(await readArticle()));
+    expect(roundTrip.shortName).toBe("Verband groß");
+    await agent.patch("/catalog/articles/article-bandage").send(roundTrip).expect(200);
+    const legacyPayload = { ...roundTrip };
+    delete legacyPayload.shortName;
+    await agent.patch("/catalog/articles/article-bandage").send(legacyPayload).expect(200);
+    expect((await readArticle()).shortName).toBe("Verband groß");
+
+    const publicKit = await request(server).get("/public/kits/SAN-RS-001-ZUGANG-2026").expect(200);
+    expect(publicKit.body.template.positions).toEqual(expect.arrayContaining([
+      expect.objectContaining({ articleId: exported.id, articleName: exported.name, articleShortName: "Verband groß" })
+    ]));
+    const completed = await request(server).post("/public/kits/SAN-RS-001-ZUGANG-2026/checks").send({
+      checkerName: "Kurzname Test", signaturePngDataUrl: "data:image/png;base64,abc", positions: []
+    }).expect(201);
+    const protocol = await agent.get(`/checks/${completed.body.check.id}`).expect(200);
+    expect(protocol.body.positions).toEqual(expect.arrayContaining([
+      expect.objectContaining({ articleId: exported.id, articleName: exported.name })
+    ]));
+    await agent.patch("/catalog/articles/article-bandage").send({ ...roundTrip, shortName: "" }).expect(200);
+    expect(await readArticle()).not.toHaveProperty("shortName");
+  });
+
 });

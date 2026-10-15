@@ -421,6 +421,7 @@ const rescueBaseOpenApiDocumentDefinition = {
         {
           id: { type: "string" },
           name: { type: "string" },
+          shortName: { type: "string", maxLength: 191 },
           unit: { type: "string" },
           manufacturer: { type: "string" },
           manufacturerPartNumber: { type: "string" },
@@ -449,6 +450,7 @@ const rescueBaseOpenApiDocumentDefinition = {
       CreateArticleRequest: objectSchema(
         {
           name: { type: "string" },
+          shortName: { type: "string", maxLength: 191, nullable: true },
           unit: { type: "string" },
           manufacturer: { type: "string" },
           manufacturerPartNumber: { type: "string" },
@@ -474,6 +476,7 @@ const rescueBaseOpenApiDocumentDefinition = {
       UpdateArticleRequest: objectSchema(
         {
           name: { type: "string" },
+          shortName: { type: "string", maxLength: 191, nullable: true },
           unit: { type: "string" },
           manufacturer: { type: "string" },
           manufacturerPartNumber: { type: "string" },
@@ -548,6 +551,7 @@ const rescueBaseOpenApiDocumentDefinition = {
           id: { type: "string" },
           articleId: { type: "string" },
           articleName: { type: "string" },
+          articleShortName: { type: "string", maxLength: 191 },
           moduleName: { type: "string" },
           requiredQuantity: { type: "integer", minimum: 1 },
           unit: { type: "string" },
@@ -2405,6 +2409,12 @@ const rescueBaseOpenApiDocumentDefinition = {
         "ReportsController_kitTemplate",
         pdf,
         "templateId",
+        [{
+          name: "articleNameMode",
+          in: "query",
+          required: false,
+          schema: { ...stringEnum(["short", "full", "both"]), default: "short" },
+        }],
       ),
     },
     "/reports/replenishment/{orderId}.pdf": {

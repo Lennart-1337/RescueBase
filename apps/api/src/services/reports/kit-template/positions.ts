@@ -6,7 +6,7 @@ export type KitTemplatePdfRecord = {
     moduleName: string | null;
     requiredQuantity: number;
     critical: boolean;
-    article: { name: string; unit: string };
+    article: { name: string; shortName?: string | null; unit: string };
   }>;
 };
 

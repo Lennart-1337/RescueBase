@@ -978,6 +978,10 @@
           "name": {
             "type": "string"
           },
+          "shortName": {
+            "type": "string",
+            "maxLength": 191
+          },
           "unit": {
             "type": "string"
           },
@@ -1065,6 +1069,11 @@
           "name": {
             "type": "string"
           },
+          "shortName": {
+            "type": "string",
+            "maxLength": 191,
+            "nullable": true
+          },
           "unit": {
             "type": "string"
           },
@@ -1139,6 +1148,11 @@
         "properties": {
           "name": {
             "type": "string"
+          },
+          "shortName": {
+            "type": "string",
+            "maxLength": 191,
+            "nullable": true
           },
           "unit": {
             "type": "string"
@@ -1629,6 +1643,10 @@
           },
           "articleName": {
             "type": "string"
+          },
+          "articleShortName": {
+            "type": "string",
+            "maxLength": 191
           },
           "moduleName": {
             "type": "string"
@@ -8553,6 +8571,20 @@
             "required": true,
             "schema": {
               "type": "string"
+            }
+          },
+          {
+            "name": "articleNameMode",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "short",
+                "full",
+                "both"
+              ],
+              "default": "short"
             }
           }
         ],
