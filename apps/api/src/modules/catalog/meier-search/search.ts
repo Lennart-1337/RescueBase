@@ -20,14 +20,14 @@ export async function searchMeierArticles(
       "Bitte einen Suchbegriff mit 2 bis 120 Zeichen und eine gültige Seite eingeben.",
     );
   const expandedQuery = expandMeierQuery(query);
-  const url = new URL("https://www.meier-medizintechnik.de/search");
+  const url = new URL("https://www.meier-medizintechnik.de/widgets/search");
   url.searchParams.set("search", expandedQuery);
   url.searchParams.set("p", String(page));
   const validate = (value: string) => {
     const target = new URL(value);
     if (
       target.origin !== url.origin ||
-      target.pathname !== "/search" ||
+      target.pathname !== url.pathname ||
       target.username ||
       target.password ||
       target.hash ||
@@ -42,6 +42,8 @@ export async function searchMeierArticles(
       );
     return target;
   };
-  const result = await fetchMeierHtml(url, validate, request, "Suchseite");
+  const result = await fetchMeierHtml(url, validate, request, "Suchliste", {
+    "X-Requested-With": "XMLHttpRequest",
+  });
   return parseMeierSearch(result.body, query, page);
 }
