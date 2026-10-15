@@ -7,12 +7,6 @@ export type InventoryFilters = {
   showExpired: boolean;
 };
 
-export type TargetDraft = {
-  articleId: string;
-  locationId: string;
-  targetQuantity: string;
-};
-
 export type ReceiptDraftItem = {
   lotNumber: string;
   expiresAt: string;

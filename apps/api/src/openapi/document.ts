@@ -1,5 +1,7 @@
 import { meierSearchSchemas } from "./meier-search/schemas.js";
 import { meierSearchPaths } from "./meier-search/paths.js";
+import { inventoryTargetPaths } from "./inventory-targets/paths.js";
+import { inventoryTargetSchemas } from "./inventory-targets/schemas.js";
 import type { OpenAPIObject } from "@nestjs/swagger";
 import { meierReconciliationSchemas } from "./meier-reconciliation/schemas.js";
 import { meierReconciliationPaths } from "./meier-reconciliation/paths.js";
@@ -41,6 +43,7 @@ const rescueBaseOpenApiDocumentDefinition = {
       },
     },
     schemas: {
+      ...inventoryTargetSchemas,
       MpgInput: { type: "object", additionalProperties: true },
       MpgRecord: { type: "object", additionalProperties: true },
       UserRole: stringEnum(["ADMIN", "WAREHOUSE"]),
@@ -1858,6 +1861,7 @@ const rescueBaseOpenApiDocumentDefinition = {
     },
     ...meierReconciliationPaths,
     ...meierSearchPaths,
+    ...inventoryTargetPaths,
     "/catalog/articles/reorder": {
       post: operation(
         "Stammdaten",

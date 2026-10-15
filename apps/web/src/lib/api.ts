@@ -95,6 +95,8 @@ export const rescueBaseApi = {
   correctBatch: (id: string, body: BatchCorrectionRequest) => openApiClient.post("/inventory/batches/{id}/corrections", body, { params: { id } }),
   deleteBatch: (id: string) => openApiClient.delete("/inventory/batches/{id}", { params: { id } }),
   inventoryTargets: () => openApiClient.get("/inventory/targets"),
+  updateInventoryTargets: (body: { locationId: string; changes: Array<{ articleId: string; targetQuantity: number; expectedTargetQuantity: number | null }> }) =>
+    openApiClient.put("/inventory/targets/bulk", body),
   upsertInventoryTarget: (articleId: string, locationId: string, body: UpsertInventoryTargetRequest) =>
     openApiClient.put("/inventory/targets/{articleId}/{locationId}", body, { params: { articleId, locationId } }),
   clearInventoryTarget: (articleId: string, locationId: string) =>

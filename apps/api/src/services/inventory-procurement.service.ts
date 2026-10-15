@@ -5,6 +5,7 @@ import { PrismaService } from "../persistence/prisma.service.js";
 import { toIsoDate, toIsoDateTime } from "../persistence/mappers.js";
 import { isScheduleDue } from "../settings/settings-schedule.js";
 import { defaultTimezone } from "../settings/default-timezone.js";
+import { updateInventoryTargets } from "./inventory-targets/bulk-update.js";
 
 const configId = "singleton";
 const activeOrderStatuses: InventoryProcurementStatus[] = [
@@ -84,6 +85,11 @@ export class InventoryProcurementService implements OnApplicationBootstrap, OnMo
         procurementOrder: orderMap.get(key)
       };
     });
+  }
+
+  async updateTargets(body: unknown) {
+    await updateInventoryTargets(this.prisma, this.audit, body);
+    return this.listTargets();
   }
 
   async upsertTarget(articleId: string, locationId: string, targetQuantity: number) {
