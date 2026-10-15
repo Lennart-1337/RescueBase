@@ -1,4 +1,5 @@
 import { drawTableHeader, reportPalette as palette } from "../../report-theme.js";
+import { templateArticleName, type ArticleNameMode } from "./article-name.js";
 import type { KitTemplatePdfRecord } from "./positions.js";
 
 export const templateModuleHeaderHeight = 39;
@@ -6,8 +7,8 @@ export const templatePageReserve = 8;
 // Continuation document header ends at 102 pt, followed by a 12 pt gap.
 export const templateContinuationTop = 114;
 
-export function templateModuleStartHeight(doc: PDFKit.PDFDocument, positions: KitTemplatePdfRecord["positions"]) {
-  const rowHeights = positions.map((position) => templatePositionRowHeight(doc, position) + 10);
+export function templateModuleStartHeight(doc: PDFKit.PDFDocument, positions: KitTemplatePdfRecord["positions"], mode: ArticleNameMode) {
+  const rowHeights = positions.map((position) => templatePositionRowHeight(doc, position, mode) + 10);
   const fullHeight = templateModuleHeaderHeight + rowHeights.reduce((sum, height) => sum + height, 0);
   const pageCapacity = doc.page.height - doc.page.margins.bottom - templatePageReserve - templateContinuationTop;
   return fullHeight <= pageCapacity ? fullHeight : templateModuleHeaderHeight + (rowHeights[0] ?? 0);
@@ -16,13 +17,14 @@ export function templateModuleStartHeight(doc: PDFKit.PDFDocument, positions: Ki
 export function templatePositionRowHeight(
   doc: PDFKit.PDFDocument,
   position: KitTemplatePdfRecord["positions"][number],
+  mode: ArticleNameMode,
 ) {
   return Math.max(
     14,
     doc
       .font("Helvetica")
       .fontSize(9)
-      .heightOfString(position.article.name, { width: 290 }),
+      .heightOfString(templateArticleName(position.article, mode), { width: 290 }),
   );
 }
 

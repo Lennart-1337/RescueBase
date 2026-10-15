@@ -1,0 +1,1 @@
+ALTER TABLE `Article` ADD COLUMN `shortName` VARCHAR(191) NULL;

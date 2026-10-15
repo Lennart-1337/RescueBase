@@ -8,6 +8,7 @@ export interface TemplatePosition {
   id: string;
   articleId: string;
   articleName: string;
+  articleShortName?: string;
   moduleName?: string;
   requiredQuantity: number;
   unit: string;

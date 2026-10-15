@@ -41,6 +41,14 @@ export function ArticleFields({
           />
         </Field>
       ))}
+      <Field label="Kurzbezeichnung (optional)">
+        <input
+          maxLength={191}
+          value={draft.shortName}
+          onChange={(event) => update("shortName", event.target.value)}
+        />
+        <small>Hauptname in Checklisten. Ohne Kurzbezeichnung wird der vollständige Name verwendet.</small>
+      </Field>
       <Field label="Artikel-Link">
         <input
           type="url"

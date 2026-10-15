@@ -15,12 +15,14 @@ export function CheckGroups(props: {
           <div className="check-group-header"><h2>{group.title}</h2><span>{group.positions.length} Positionen</span></div>
           {group.positions.map((position) => {
             const line = props.linesById.get(position.id);
+            const name = position.articleShortName?.trim() || position.articleName;
             return (
               <Panel className="check-item" key={position.id}>
                 <div className="check-item-header">
                   <div>
                     <span>Materialposition</span>
-                    <h3>{position.articleName}</h3>
+                    <h3>{name}</h3>
+                    {name !== position.articleName ? <p>{position.articleName}</p> : null}
                     <p>Soll: {position.requiredQuantity} {position.unit}{position.critical ? " · kritisch" : ""}</p>
                   </div>
                 </div>
