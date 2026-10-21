@@ -1,8 +1,20 @@
+export type ArticleBooleanFilter = boolean | "";
 export type ArticleFilters = {
-  category: string;
-  criticalDefault: boolean;
-  medicalDevice: boolean;
-  mtkRequired: boolean;
   q: string;
-  stkRequired: boolean;
+  category: string | string[];
+  manufacturer?: string[];
+  supplier?: string[];
+  unit?: string[];
+  missing?: string[];
+  sterile?: ArticleBooleanFilter;
+  criticalDefault: ArticleBooleanFilter;
+  medicalDevice: ArticleBooleanFilter;
+  mtkRequired: ArticleBooleanFilter;
+  stkRequired: ArticleBooleanFilter;
+  priceMin?: string;
+  priceMax?: string;
+  priceBasis?: "" | "unit" | "package";
+  packageMin?: string;
+  packageMax?: string;
+  packageMissing?: boolean;
 };

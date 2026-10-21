@@ -6,29 +6,14 @@ import type {
   UpdateArticleRequest,
 } from "../../lib/types";
 import type { ReorderDirection } from "./reorder";
+import type { ArticleFilters } from "./types";
 export type ArticlePanelProps = {
   articles: Article[];
   allArticles?: Article[];
   error: Error | null;
-  filters: {
-    category: string;
-    criticalDefault: boolean;
-    medicalDevice: boolean;
-    mtkRequired: boolean;
-    q: string;
-    stkRequired: boolean;
-  };
+  filters: ArticleFilters;
   isSubmitting: boolean;
-  onFilterChange: (
-    patch: Partial<{
-      category: string;
-      criticalDefault: boolean;
-      medicalDevice: boolean;
-      mtkRequired: boolean;
-      q: string;
-      stkRequired: boolean;
-    }>,
-  ) => void;
+  onFilterChange: (patch: Partial<ArticleFilters>) => void;
   onResetFilters: () => void;
   onCreate: (body: CreateArticleRequest) => Promise<unknown>;
   onDelete: (id: string) => void;

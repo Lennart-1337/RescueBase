@@ -1,86 +1,29 @@
 import { ListFilterBar } from "../../components/list-filter-bar";
 import { PageToolbar } from "../../components/page-layout";
-import { SearchableSelect } from "../../components/searchable-select";
-import { CheckboxField, Field } from "../../components/ui";
+import { Field } from "../../components/ui";
 import type { ArticlePanelProps } from "./article-panel-types";
-export function ArticleFilters(
-  props: Pick<
-    ArticlePanelProps,
-    "articles" | "filters" | "totalCount" | "onFilterChange" | "onResetFilters"
-  >,
-) {
-  const categories = [
-    ...new Set(
-      props.articles
-        .map((entry) => entry.category)
-        .filter((entry): entry is string => Boolean(entry)),
-    ),
-  ].sort((left, right) => left.localeCompare(right, "de-DE"));
-  return (
-    <PageToolbar label="Artikel filtern">
-      <ListFilterBar
-        countLabel={`${props.articles.length}/${props.totalCount} sichtbar`}
-        fieldsClassName="article-filter-grid"
-        onReset={props.onResetFilters}
-      >
-        <Field label="Suche">
-          <input
-            onChange={(event) =>
-              props.onFilterChange({ q: event.target.value })
-            }
-            placeholder="Name, Hersteller oder Barcode"
-            value={props.filters.q}
-          />
-        </Field>
-        <Field label="Kategorie">
-          <SearchableSelect
-            emptyLabel="Alle Kategorien"
-            onChange={(value) => props.onFilterChange({ category: value })}
-            options={[
-              { label: "Alle Kategorien", value: "" },
-              ...categories.map((category) => ({
-                label: category,
-                value: category,
-              })),
-            ]}
-            value={props.filters.category}
-          />
-        </Field>
-        <div aria-label="Artikelmerkmale" className="article-filter-checks">
-          <CheckboxField
-            compact
-            checked={props.filters.medicalDevice}
-            label="MPDG"
-            onChange={(event) =>
-              props.onFilterChange({ medicalDevice: event.target.checked })
-            }
-          />
-          <CheckboxField
-            compact
-            checked={props.filters.stkRequired}
-            label="STK"
-            onChange={(event) =>
-              props.onFilterChange({ stkRequired: event.target.checked })
-            }
-          />
-          <CheckboxField
-            compact
-            checked={props.filters.mtkRequired}
-            label="MTK"
-            onChange={(event) =>
-              props.onFilterChange({ mtkRequired: event.target.checked })
-            }
-          />
-          <CheckboxField
-            compact
-            checked={props.filters.criticalDefault}
-            label="Kritisch"
-            onChange={(event) =>
-              props.onFilterChange({ criticalDefault: event.target.checked })
-            }
-          />
-        </div>
-      </ListFilterBar>
-    </PageToolbar>
-  );
+import { ActiveFilters } from "./article-filter-controls/active-filters";
+import { AdvancedFilters } from "./article-filter-controls/advanced-filters";
+import { MultiFilter } from "./article-filter-controls/multi-filter";
+import { arrayValue, articleOptions } from "./article-filter-controls/options";
+import "./article-filter-controls/filters.css";
+export function ArticleFilters(props: Pick<ArticlePanelProps,
+  "articles" | "allArticles" | "suppliers" | "filters" | "totalCount" | "onFilterChange" | "onResetFilters"
+>) {
+  const options = articleOptions(props.allArticles ?? props.articles, props.suppliers);
+  return <PageToolbar label="Artikel filtern">
+    <ListFilterBar countLabel={`${props.articles.length}/${props.totalCount} sichtbar`}
+      fieldsClassName="article-filter-grid" onReset={props.onResetFilters}>
+      <Field label="Suche"><input onChange={(event) => props.onFilterChange({ q: event.target.value })}
+        placeholder="Name, Hersteller oder Barcode" value={props.filters.q} /></Field>
+      <MultiFilter label="Kategorie" emptyLabel="Alle Kategorien" options={options.category}
+        value={arrayValue(props.filters.category)} onChange={(category) => props.onFilterChange({ category })} />
+      <MultiFilter label="Hersteller" emptyLabel="Alle Hersteller" options={options.manufacturer}
+        value={props.filters.manufacturer ?? []} onChange={(manufacturer) => props.onFilterChange({ manufacturer })} />
+      <MultiFilter label="Standard-Lieferant" emptyLabel="Alle Lieferanten" options={options.supplier}
+        value={props.filters.supplier ?? []} onChange={(supplier) => props.onFilterChange({ supplier })} />
+      <AdvancedFilters filters={props.filters} onChange={props.onFilterChange} units={options.unit} />
+      <ActiveFilters filters={props.filters} onChange={props.onFilterChange} options={options} />
+    </ListFilterBar>
+  </PageToolbar>;
 }

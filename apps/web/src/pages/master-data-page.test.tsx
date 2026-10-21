@@ -632,6 +632,7 @@ describe("MasterDataPage", () => {
     await screen.findByRole("heading", { name: "Stammdaten" });
 
     await clickElement(screen.getByRole("tab", { name: "Lieferanten" }));
+    await screen.findByRole("search", { name: "Lieferanten filtern" });
 
     const row = (await screen.findByText("MediSafe Einkauf")).closest(
       ".compact-list-row",
@@ -1008,18 +1009,17 @@ describe("MasterDataPage", () => {
     ).toHaveLength(4);
   });
 
-  it("renders article filters in a compact checkbox group", async () => {
+  it("keeps advanced article filters collapsed and offers all, yes and no", async () => {
     stubFetch(baseAdminRoutes());
     await renderAppAt("/admin/master-data/articles");
-
-    const filters = await screen.findByRole("search", {
-      name: "Artikel filtern",
-    });
-    const checkboxGroup = within(filters).getByLabelText("Artikelmerkmale");
-    expect(checkboxGroup).toHaveClass("article-filter-checks");
-    expect(
-      within(checkboxGroup).getByLabelText("MPDG").closest(".check-field"),
-    ).toHaveClass("check-field-compact");
+    const filters = await screen.findByRole("search", { name: "Artikel filtern" });
+    const disclosure = within(filters).getByText("Weitere Filter").closest("details");
+    expect(disclosure).not.toHaveAttribute("open");
+    await clickElement(within(filters).getByText("Weitere Filter"));
+    const select = within(filters).getByLabelText("MPDG");
+    expect(within(select).getAllByRole("option").map((option) => option.textContent)).toEqual(["Alle", "Ja", "Nein"]);
+    await changeValue(select, "no");
+    expect(getActiveRouter()?.state.location.search.medicalDevice).toBe(false);
   });
 });
 
