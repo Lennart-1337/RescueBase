@@ -1,6 +1,7 @@
 import { useNavigate } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { matchesFilterText, toOptionalBoolean, toOptionalString, withPrunedSearch } from "../../app/filter-utils";
+import { matchesArticleFilters } from "./article-filtering/matches";
+import { serializeArticleFilters } from "./article-filtering/search";
 import { toError } from "../../app/formatters";
 import { ErrorPanel, LoadingPanel } from "../../components/state-panels";
 import { rescueBaseApi } from "../../lib/api";
@@ -25,7 +26,7 @@ export function MasterDataArticlePage({ filters }: { filters: ArticleFilters }) 
   if (articles.isError || suppliers.isError || !articles.data || !suppliers.data) return <ErrorPanel error={toError(articles.error ?? suppliers.error)} onRetry={() => void Promise.all([articles.refetch(), suppliers.refetch()])} />;
 
   const allArticles = articles.data;
-  const filteredArticles = allArticles.filter((entry) => (!filters.category || entry.category === filters.category) && (!filters.medicalDevice || entry.medicalDevice) && (!filters.stkRequired || entry.stkRequired) && (!filters.mtkRequired || entry.mtkRequired) && (!filters.criticalDefault || entry.criticalDefault) && matchesFilterText(filters.q, entry.name, entry.shortName, entry.manufacturer, entry.manufacturerPartNumber, entry.supplierArticleNumber, entry.barcode));
+  const filteredArticles = allArticles.filter((entry) => matchesArticleFilters(entry, filters));
   const mutationError = createArticle.error ?? updateArticle.error ?? reorderArticles.error ?? deleteArticle.error;
 
   function moveArticle(articleId: string, direction: ReorderDirection) {
@@ -33,5 +34,5 @@ export function MasterDataArticlePage({ filters }: { filters: ArticleFilters }) 
     return reorderArticles.mutateAsync({ articleIds });
   }
 
-  return <ArticlePanel allArticles={allArticles} reconciliationAction={<ArticleReconciliation articles={allArticles} onApplied={() => queryClient.invalidateQueries({ queryKey: catalogKeys.articles() })} />} articles={filteredArticles} error={mutationError ? toError(mutationError) : null} filters={filters} isSubmitting={createArticle.isPending || updateArticle.isPending || reorderArticles.isPending || deleteArticle.isPending} onCreate={createArticle.mutateAsync} onDelete={deleteArticle.mutate} onFilterChange={(patch) => void navigate({ replace: true, search: withPrunedSearch({ category: toOptionalString(patch.category ?? filters.category), criticalDefault: toOptionalBoolean(patch.criticalDefault ?? filters.criticalDefault), medicalDevice: toOptionalBoolean(patch.medicalDevice ?? filters.medicalDevice), mtkRequired: toOptionalBoolean(patch.mtkRequired ?? filters.mtkRequired), q: toOptionalString(patch.q ?? filters.q), stkRequired: toOptionalBoolean(patch.stkRequired ?? filters.stkRequired) }), to: "/admin/master-data/articles" })} onMoveArticle={moveArticle} onResetFilters={() => void navigate({ replace: true, search: {}, to: "/admin/master-data/articles" })} onSave={(id, body) => updateArticle.mutateAsync({ id, body })} suppliers={suppliers.data} totalCount={allArticles.length} />;
+  return <ArticlePanel allArticles={allArticles} reconciliationAction={<ArticleReconciliation articles={allArticles} onApplied={() => queryClient.invalidateQueries({ queryKey: catalogKeys.articles() })} />} articles={filteredArticles} error={mutationError ? toError(mutationError) : null} filters={filters} isSubmitting={createArticle.isPending || updateArticle.isPending || reorderArticles.isPending || deleteArticle.isPending} onCreate={createArticle.mutateAsync} onDelete={deleteArticle.mutate} onFilterChange={(patch) => void navigate({ replace: true, search: serializeArticleFilters({ ...filters, ...patch }), to: "/admin/master-data/articles" })} onMoveArticle={moveArticle} onResetFilters={() => void navigate({ replace: true, search: {}, to: "/admin/master-data/articles" })} onSave={(id, body) => updateArticle.mutateAsync({ id, body })} suppliers={suppliers.data} totalCount={allArticles.length} />;
 }
