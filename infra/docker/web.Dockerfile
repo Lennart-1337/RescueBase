@@ -8,6 +8,7 @@ RUN npm ci
 
 FROM deps AS build
 COPY . .
+RUN npm run build -w @rescuebase/domain
 RUN npm run build -w @rescuebase/web
 
 FROM caddy:2.11 AS runtime
