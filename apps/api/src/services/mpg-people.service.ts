@@ -23,7 +23,10 @@ export class MpgPeopleService {
       if (instructorAuthorized && (!instructorAuthorization || !qualificationDocumentId)) throw new BadRequestException("Beauftragung und Qualifikationsnachweis müssen vollständig dokumentiert sein.");
       const birthDate = date(body.birthDate);
       if (birthDate >= new Date()) throw new BadRequestException("Geburtsdatum muss in der Vergangenheit liegen.");
-      const data = { name: text(body.name, "Name"), birthDate, userId, active: body.active !== false, instructorAuthorized,
+      const sharedData = { name: text(body.name, "Name"), active: body.active !== false, userId };
+      const existingIdentity = old?.personId ? await tx.person.findUnique({ where: { id: old.personId } }) : userId ? await tx.person.findUnique({ where: { userId } }) : null;
+      const identity = existingIdentity ? await tx.person.update({ where: { id: existingIdentity.id }, data: { ...sharedData, version: { increment: 1 } } }) : await tx.person.create({ data: { ...(old ? { id: old.id } : {}), ...sharedData } });
+      const data = { personId: identity.id, name: text(body.name, "Name"), birthDate, userId, active: body.active !== false, instructorAuthorized,
         instructorAuthorization, qualificationDocumentId, authorizationValidUntil: optionalDate(body.authorizationValidUntil) };
       const result = old ? await tx.mpgPerson.update({ where: { id: id!, version: old.version }, data: { ...data, version: { increment: 1 } } as Prisma.MpgPersonUncheckedUpdateInput }) : await tx.mpgPerson.create({ data: data as Prisma.MpgPersonUncheckedCreateInput });
       await audit(tx, actor, "MpgPerson", result.id, "MPG_PERSON_SAVED", { old, result });

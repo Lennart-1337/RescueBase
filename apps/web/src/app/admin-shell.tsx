@@ -1,7 +1,8 @@
+import { NavigationList, useAdminNavigation } from "./admin-navigation";
 import { useState, type ReactNode } from "react";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Link, useRouterState } from "@tanstack/react-router";
-import { Archive, ClipboardCheck, ClipboardList, Cog, HeartPulse, LogOut, Menu, PackageCheck, Settings, ShieldCheck, ShoppingCart, Users, X } from "lucide-react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useRouterState } from "@tanstack/react-router";
+import { LogOut, Menu, X } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { Button } from "../components/ui";
 import { fadeVariants, slideLeftVariants } from "../motion/presets";
@@ -18,24 +19,12 @@ import { APP_VERSION } from "./version";
 import "./admin-shell.css";
 import "./brand-mark.css";
 
-type NavigationItem = {
-  icon: typeof ClipboardList;
-  label: string;
-  search?: Record<string, never>;
-  to: "/" | "/admin/kits" | "/admin/inventory" | "/admin/purchase-orders" | "/admin/check-protocols" | "/admin/mpg" | "/admin/master-data/articles" | "/admin/user-management" | "/admin/settings" | "/admin/account";
-};
-
 export function AdminShell({ children, user, branding }: { children: ReactNode; user: AuthenticatedUser; branding: AppBranding }) {
   const queryClient = useQueryClient();
   const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
   const motionMode = useMotionMode();
   const pathname = useRouterState({ select: (state) => state.location.pathname });
-  const mpgPermission = useQuery({ queryKey: ["mpg-permission", user.id], enabled: user.role !== "ADMIN", queryFn: async () => {
-    const response = await fetch("/api/mpg-permissions/me", { credentials: "include" });
-    if (!response.ok) return { medicalDevicesManage: false };
-    return response.json() as Promise<{ medicalDevicesManage: boolean }>;
-  } });
-  const canManageMpg = user.role === "ADMIN" || mpgPermission.data?.medicalDevicesManage === true;
+  const navigationItems = useAdminNavigation(user);
   const routeKey = pathname.startsWith("/admin/master-data/") ? "/admin/master-data" : pathname;
   const logout = useMutation({
     mutationFn: rescueBaseApi.logout,
@@ -44,20 +33,7 @@ export function AdminShell({ children, user, branding }: { children: ReactNode; 
       setSignedOutSession(queryClient);
     }
   });
-  const navigationItems = [
-    { icon: ClipboardList, label: "Aufträge", search: {}, to: "/" },
-    { icon: PackageCheck, label: "Rucksäcke", search: {}, to: "/admin/kits" },
-    { icon: Archive, label: "Lager", search: {}, to: "/admin/inventory" },
-    { icon: ShoppingCart, label: "Bestellungen", search: {}, to: "/admin/purchase-orders" },
-    { icon: ClipboardCheck, label: "Check-Protokolle", search: {}, to: "/admin/check-protocols" },
-    ...(canManageMpg ? [{ icon: HeartPulse, label: "MPG", search: {}, to: "/admin/mpg" as const }] : []),
-    ...(user.role === "ADMIN" ? [{ icon: Settings, label: "Stammdaten", search: {}, to: "/admin/master-data/articles" as const }] : []),
-    ...(user.role === "ADMIN" ? [
-      { icon: Users, label: "Benutzerverwaltung", to: "/admin/user-management" as const }
-    ] : []),
-    ...(user.role === "ADMIN" ? [{ icon: Cog, label: "Einstellungen", to: "/admin/settings" as const }] : []),
-    { icon: ShieldCheck, label: "Sicherheit", to: "/admin/account" }
-  ] as const;
+
 
   return (
     <div className="app-shell">
@@ -143,34 +119,5 @@ export function AdminShell({ children, user, branding }: { children: ReactNode; 
         </div>
       </main>
     </div>
-  );
-}
-
-function NavigationList({
-  items,
-  onNavigate
-}: {
-  items: ReadonlyArray<NavigationItem>;
-  onNavigate?: () => void;
-}) {
-  return (
-    <nav className="nav-list" aria-label="Hauptnavigation">
-      {items.map((item) => {
-        const Icon = item.icon;
-        return (
-          <Link
-            activeOptions={{ exact: item.to === "/" }}
-            activeProps={{ className: "active" }}
-            key={item.to}
-            onClick={onNavigate}
-            search={item.search}
-            to={item.to}
-          >
-            <Icon />
-            {item.label}
-          </Link>
-        );
-      })}
-    </nav>
   );
 }

@@ -19,7 +19,8 @@
     "motion": "^12.42.0",
     "qrcode": "^1.5.4",
     "react": "^19.2.0",
-    "react-dom": "^19.2.8"
+    "react-dom": "^19.2.8",
+    "@rescuebase/domain": "file:../../packages/domain"
   },
   "devDependencies": {
     "@tanstack/react-router-devtools": "^1.167.0",

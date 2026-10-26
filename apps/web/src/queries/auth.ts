@@ -11,6 +11,8 @@ type RescueBaseSessionUser = {
   twoFactorEnabled?: boolean | null;
   twoFactorMethod?: "EMAIL" | "TOTP" | null;
   newOrderNotificationsEnabled?: boolean | null;
+  medicalDevicesManage?: boolean | null;
+  servicesManage?: boolean | null;
 };
 
 export const authKeys = {
@@ -38,7 +40,9 @@ async function getSession() {
       role: user.role === "ADMIN" ? "ADMIN" as const : "WAREHOUSE" as const,
       twoFactorEnabled: user.twoFactorEnabled === true,
       twoFactorMethod: user.twoFactorMethod ?? undefined,
-      newOrderNotificationsEnabled: user.newOrderNotificationsEnabled === true
+      newOrderNotificationsEnabled: user.newOrderNotificationsEnabled === true,
+      medicalDevicesManage: user.role === "ADMIN" || user.medicalDevicesManage === true,
+      servicesManage: user.role === "ADMIN" || user.servicesManage === true
     }
   };
 }

@@ -203,3 +203,24 @@ Pushes to the `staging` branch run CI first. When CI succeeds, the `Publish Stag
 - `ghcr.io/<owner>/rescuebase-web:staging-latest`
 
 Each staging image includes an SBOM and maximum-mode BuildKit provenance. To release it, manually run `Promote Staging Images to Production` and pass the immutable `staging-<UTCYYYYMMDDHHmm>-<shortsha>` tag. The action retags the existing image manifests as `prod-...` without rebuilding them.
+
+## Dienstplanung
+
+Der Bereich **Dienste** integriert Sanitätsdienste von der Anfrage bis zur Nachbereitung. Admins besitzen Zugriff;
+weitere Benutzer benötigen das Recht **Dienste verwalten** unter Benutzerverwaltung → Zugang. Dieses Recht umfasst
+auch Personalstammdaten, geschützte Einsatzunterlagen und Finanzdaten. Helfer benötigen keinen Benutzerzugang.
+
+Maurer und Köln liefern versionierte Planungsvorschläge mit Quellen und Rechenweg. Örtliche Anforderungen und der
+eigene Kräfteansatz werden separat dokumentiert. Unterbesetzung, ungültige Qualifikationen und Doppelbelegungen
+bleiben Warnungen; eine Freigabe mit offenen Warnungen benötigt eine Begründung. Relevante Planungsänderungen
+heben die Freigabe auf. Abgeschlossene oder abgesagte Dienste müssen vor einer Änderung begründet geöffnet werden.
+
+`SERVICE_DOCUMENT_DIR` bestimmt den privaten Speicherort der Einsatzunterlagen (lokal standardmäßig
+`./var/service-documents`, im Compose-Stack `/app/var/service-documents`). Der neue Docker-Volume `service-documents`
+muss zusammen mit der Datenbank gesichert werden. Die vorhandenen Backup-/Restore-Operationen speichern nun
+Datenbank, MPG-Nachweise und Dienstunterlagen gemeinsam als `rescuebase-<Zeitpunkt>.tar.gz`, optional `.age`-verschlüsselt.
+Die Restore-Operation unterstützt weiterhin ältere `.sql.gz`-Sicherungen; diese enthalten ausschließlich die Datenbank.
+Während Sicherung und Wiederherstellung muss die API wie in den vorhandenen Wrapper-Skripten gestoppt sein.
+
+Angebots- und Rechnungserzeugung bleiben bis zur Bereitstellung der Vorlagen deaktiviert. Kalkulationen verwenden EUR,
+Tarifkopien je Dienst und kaufmännische Rundung je Position; es erfolgen keine Steuerberechnung oder Lagerbuchungen.

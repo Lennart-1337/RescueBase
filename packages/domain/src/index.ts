@@ -262,3 +262,6 @@ export * from './mpg/types.js';
 export * from './mpg/calendar.js';
 export * from './mpg/evaluation.js';
 export * from './mpg/glucose.js';
+export * from './services/staffing.js';
+export * from './services/costs.js';
+export * from './services/personnel.js';

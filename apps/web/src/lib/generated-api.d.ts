@@ -4,6 +4,326 @@
  */
 
 export interface paths {
+    "/service-permissions/me": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["Services_permission"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/service-permissions/users": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["Services_permissions"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/service-permissions/users/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: operations["Services_permission_update"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/services": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["Services_list"];
+        put?: never;
+        post: operations["Services_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/services/catalog": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["Services_catalog"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/services/statistics": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["Services_statistics"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/services/statistics.csv": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["Services_statistics_csv"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/services/people": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["Services_create_people"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/services/people/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: operations["Services_update_people"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/services/vehicles": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["Services_create_vehicles"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/services/vehicles/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: operations["Services_update_vehicles"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/services/tariffs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["Services_create_tariffs"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/services/tariffs/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: operations["Services_update_tariffs"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/services/checklists": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["Services_create_checklists"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/services/checklists/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: operations["Services_update_checklists"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/services/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["Services_detail"];
+        put: operations["Services_update"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/services/{id}/transition": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["Services_transition"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/services/{id}/calculations": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["Services_calculation"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/services/{id}/documents": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["Services_documents"];
+        put?: never;
+        post: operations["Services_upload"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/services/{id}/documents/{documentId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["Services_download"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/admin/settings": {
         parameters: {
             query?: never;
@@ -2105,6 +2425,551 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        /** @enum {string} */
+        ServiceQualification: "SANITARIAN" | "RESCUE_HELPER" | "PARAMEDIC" | "EMERGENCY_PARAMEDIC" | "PHYSICIAN";
+        ServicePersonQualification: {
+            id?: string;
+            personId?: string;
+            /** @enum {string} */
+            qualification: "SANITARIAN" | "RESCUE_HELPER" | "PARAMEDIC" | "EMERGENCY_PARAMEDIC" | "PHYSICIAN";
+            /** Format: date */
+            validUntil: string | null;
+            recognizedQualifications: ("SANITARIAN" | "RESCUE_HELPER" | "PARAMEDIC" | "EMERGENCY_PARAMEDIC" | "PHYSICIAN")[];
+        };
+        ServicePerson: {
+            name: string;
+            active: boolean;
+            leader: boolean;
+            userId: string | null;
+            qualifications: components["schemas"]["ServicePersonQualification"][];
+            id: string;
+            version: number;
+            /** Format: date-time */
+            createdAt?: string;
+            /** Format: date-time */
+            updatedAt?: string;
+        };
+        ServiceVehicle: {
+            name: string;
+            registration: string;
+            type: string;
+            ready: boolean;
+            notes: string;
+            active: boolean;
+            id: string;
+            version: number;
+            /** Format: date-time */
+            createdAt?: string;
+            /** Format: date-time */
+            updatedAt?: string;
+        };
+        ServiceTariff: {
+            name: string;
+            /** @enum {string} */
+            category: "PERSONNEL" | "VEHICLE" | "MATERIAL" | "OTHER";
+            unit: string;
+            costRate: string;
+            saleRate: string;
+            active: boolean;
+            id: string;
+            version: number;
+            /** Format: date-time */
+            createdAt?: string;
+            /** Format: date-time */
+            updatedAt?: string;
+        };
+        ServiceChecklist: {
+            name: string;
+            tasks: string[];
+            active: boolean;
+            id: string;
+            version: number;
+            /** Format: date-time */
+            createdAt?: string;
+            /** Format: date-time */
+            updatedAt?: string;
+        };
+        ServicePersonWrite: {
+            name: string;
+            active?: boolean;
+            leader?: boolean;
+            userId?: string | null;
+            qualifications?: components["schemas"]["ServicePersonQualification"][];
+            version?: number;
+        };
+        ServiceVehicleWrite: {
+            name: string;
+            registration?: string;
+            type?: string;
+            ready?: boolean;
+            notes?: string;
+            active?: boolean;
+            version?: number;
+        };
+        ServiceTariffWrite: {
+            name: string;
+            /** @enum {string} */
+            category: "PERSONNEL" | "VEHICLE" | "MATERIAL" | "OTHER";
+            unit: string;
+            costRate: string;
+            saleRate: string;
+            active?: boolean;
+            version?: number;
+        };
+        ServiceChecklistWrite: {
+            name: string;
+            tasks: string[];
+            active?: boolean;
+            version?: number;
+        };
+        ServicePermission: {
+            servicesManage: boolean;
+        };
+        ServicePermissionUser: {
+            id: string;
+            displayName: string;
+            email: string;
+            /** @enum {string} */
+            role: "ADMIN" | "WAREHOUSE";
+            servicesManage: boolean;
+        };
+        ServiceResourceOption: {
+            id: string;
+            name: string;
+            status: string;
+            kitId?: string | null;
+        };
+        ServiceCatalog: {
+            people: components["schemas"]["ServicePerson"][];
+            vehicles: components["schemas"]["ServiceVehicle"][];
+            tariffs: components["schemas"]["ServiceTariff"][];
+            checklists: components["schemas"]["ServiceChecklist"][];
+            kits: components["schemas"]["ServiceResourceOption"][];
+            devices: components["schemas"]["ServiceResourceOption"][];
+            users: {
+                id: string;
+                displayName: string;
+            }[];
+        };
+        MaurerInput: {
+            eventCategory?: string;
+            capacity?: number;
+            expectedVisitors?: number;
+            indoor?: boolean;
+            eventFactor?: number;
+            protectedVipCount?: number;
+            policeViolenceRisk?: boolean;
+        };
+        CologneZone: {
+            id: string;
+            expectedVisitors: number;
+            riskFactor: number;
+        };
+        CologneInput: {
+            durationHours?: number;
+            expectedVisitors?: number;
+            riskFactor?: number;
+            responseTimeMinutes?: number;
+            /** @enum {string} */
+            crowdMovement?: "SEATED" | "STANDING" | "DENSE";
+            regularAmbulanceTransports?: number;
+            regularEmergencyDoctorCalls?: number;
+            ambulanceBusyHours?: number;
+            emergencyDoctorBusyHours?: number;
+            zones?: components["schemas"]["CologneZone"][];
+            weatherFactor?: number;
+            audienceFactor?: number;
+            crowdFactor?: number;
+            venueFactor?: number;
+            experienceFactor?: number;
+            coverageDescription?: string;
+        };
+        ServiceAssessment: {
+            /** @enum {string} */
+            method: "MAURER" | "COLOGNE";
+            methodVersion: string;
+            sourceUrls: string[];
+            /** @enum {string} */
+            status: "COMPLETE" | "INCOMPLETE";
+            missingFields: string[];
+            warnings: string[];
+            requiresProfessionalReview: boolean;
+            steps: {
+                key: string;
+                value: number;
+                formula: string;
+            }[];
+            recommendation?: {
+                helpers: number;
+                paramedics?: number;
+                advancedProviders?: number;
+                emergencyDoctors: number;
+                ktw: number;
+                rtw: number;
+                /** @enum {string} */
+                command: "NONE" | "REDUCED_STAFF" | "FULL_STAFF" | "UNDETERMINED";
+                additionalCrewRequired: boolean;
+                treatmentStation?: {
+                    helpers: number;
+                    paramedics: number;
+                    advancedProviders: number;
+                    emergencyDoctors: number;
+                    treatmentPlaces: number;
+                    restPlaces: number;
+                };
+            };
+            metrics: {
+                [key: string]: number;
+            };
+            zones?: {
+                id: string;
+                presentationsPerHour: number;
+                responseTeamCount: number;
+                /** @enum {string} */
+                treatmentStation?: "MOBILE_1_1" | "UHS_1_5" | "UHS_1_1_8";
+                considerAdditionalHelperTeam: boolean;
+                staffing: {
+                    helpers: number;
+                    paramedics: number;
+                    advancedProviders: number;
+                    emergencyDoctors: number;
+                };
+            }[];
+        };
+        ServiceCalculationWrite: {
+            version: number;
+            /** @enum {string} */
+            method: "MAURER" | "COLOGNE";
+            input: components["schemas"]["MaurerInput"] | components["schemas"]["CologneInput"];
+            reason?: string;
+        };
+        ServiceStatistics: {
+            totals: {
+                requiredPersonnelMinutes: number;
+                coveredPersonnelMinutes: number;
+                breakCoverageUncertain: boolean;
+                /** @enum {string} */
+                coverageBasis: "NOMINAL_ASSIGNMENTS";
+                occupancyRate: number | null;
+                services: number;
+                requiredPersonnel: number;
+                assignedPersonnel: number;
+                plannedMinutes: number;
+                actualMinutes: number | null;
+                actualTimeMissing: number;
+                plannedCost: string | null;
+                plannedRevenue: string | null;
+                plannedResult: string | null;
+                actualCost: string | null;
+                actualRevenue: string | null;
+                actualResult: string | null;
+                medical: {
+                    visitors: {
+                        total: number | null;
+                        knownTotal: number;
+                        missing: number;
+                    };
+                    treatments: {
+                        total: number | null;
+                        knownTotal: number;
+                        missing: number;
+                    };
+                    transports: {
+                        total: number | null;
+                        knownTotal: number;
+                        missing: number;
+                    };
+                    emergencyPhysicians: {
+                        total: number | null;
+                        knownTotal: number;
+                        missing: number;
+                    };
+                };
+            };
+            qualifications: {
+                qualification: components["schemas"]["ServiceQualification"];
+                plannedMinutes: number;
+                actualMinutes: number | null;
+                actualTimeMissing: number;
+            }[];
+            rows: components["schemas"]["ServiceStatisticRow"][];
+        };
+        ServiceStatisticRow: {
+            requiredPersonnelMinutes: number;
+            coveredPersonnelMinutes: number;
+            breakCoverageUncertain: boolean;
+            /** @enum {string} */
+            coverageBasis: "NOMINAL_ASSIGNMENTS";
+            occupancyRate: number | null;
+            id: string;
+            title: string;
+            status: components["schemas"]["ServiceStatus"];
+            /** Format: date-time */
+            startsAt: string;
+            eventType: string;
+            customer: string;
+            supportOnly: boolean;
+            requiredPersonnel: number;
+            assignedPersonnel: number;
+            plannedMinutes: number;
+            actualMinutes: number | null;
+            actualTimeMissing: number;
+            costs: components["schemas"]["ServiceCosts"];
+            outcome: components["schemas"]["ServiceOutcome"];
+            forecastComparable: boolean;
+            forecasts: {
+                method: string;
+                /** Format: date-time */
+                createdAt: string;
+                metrics: {
+                    [key: string]: number;
+                };
+            }[];
+        };
+        /** @enum {string} */
+        ServiceStatus: "INQUIRY" | "PLANNING" | "RELEASED" | "ACTIVE" | "REVIEW" | "COMPLETED" | "CANCELLED";
+        ServicePosition: {
+            serviceId?: string;
+            id: string;
+            name: string;
+            /** @enum {string} */
+            qualification: "SANITARIAN" | "RESCUE_HELPER" | "PARAMEDIC" | "EMERGENCY_PARAMEDIC" | "PHYSICIAN";
+            leader: boolean;
+            quantity: number;
+            team: string | null;
+        };
+        ServiceAssignment: {
+            serviceId?: string;
+            id: string;
+            personId: string;
+            positionId: string;
+            /** Format: date-time */
+            startsAt: string;
+            /** Format: date-time */
+            endsAt: string;
+            breakMinutes: number;
+            /** Format: date-time */
+            actualStartsAt: string | null;
+            /** Format: date-time */
+            actualEndsAt: string | null;
+            actualBreakMinutes: number;
+            /** @enum {string} */
+            qualification: "SANITARIAN" | "RESCUE_HELPER" | "PARAMEDIC" | "EMERGENCY_PARAMEDIC" | "PHYSICIAN";
+        };
+        ServiceReservation: {
+            serviceId?: string;
+            id: string;
+            /** @enum {string} */
+            kind: "VEHICLE" | "KIT" | "DEVICE";
+            resourceId: string;
+            /** Format: date-time */
+            startsAt: string;
+            /** Format: date-time */
+            endsAt: string;
+        };
+        ServiceTask: {
+            serviceId?: string;
+            id: string;
+            title: string;
+            responsibleId: string | null;
+            /** Format: date-time */
+            dueAt: string | null;
+            done: boolean;
+        };
+        ServiceCostLine: {
+            serviceId?: string;
+            id: string;
+            label: string;
+            /** @enum {string} */
+            category: "PERSONNEL" | "VEHICLE" | "MATERIAL" | "OTHER";
+            unit: string;
+            tariffId: string | null;
+            plannedQuantity: string;
+            actualQuantity: string | null;
+            costRate: string;
+            saleRate: string;
+        };
+        ServiceOutcome: {
+            visitors: number | null;
+            treatments: number | null;
+            transports: number | null;
+            emergencyPhysicians: number | null;
+            conditions: string;
+            notes: string;
+        };
+        ServiceWarning: {
+            code: string;
+            message: string;
+            entityId: string | null;
+        };
+        ServiceWrite: {
+            title: string;
+            eventType: string;
+            customer: string;
+            organizer?: string;
+            leadOrganization?: string;
+            contactName?: string;
+            contactEmail?: string;
+            contactPhone?: string;
+            location: string;
+            /** Format: date-time */
+            eventStartsAt: string;
+            /** Format: date-time */
+            eventEndsAt: string;
+            /** Format: date-time */
+            startsAt: string;
+            /** Format: date-time */
+            endsAt: string;
+            responsibleId?: string | null;
+            description?: string;
+            requirements?: string;
+            supportOnly?: boolean;
+            agreedRevenue?: string | null;
+            positions?: components["schemas"]["ServicePosition"][];
+            assignments?: components["schemas"]["ServiceAssignment"][];
+            reservations?: components["schemas"]["ServiceReservation"][];
+            tasks?: components["schemas"]["ServiceTask"][];
+            lines?: components["schemas"]["ServiceCostLine"][];
+            outcome?: components["schemas"]["ServiceOutcome"];
+        };
+        ServiceUpdate: {
+            title?: string;
+            eventType?: string;
+            customer?: string;
+            organizer?: string;
+            leadOrganization?: string;
+            contactName?: string;
+            contactEmail?: string;
+            contactPhone?: string;
+            location?: string;
+            /** Format: date-time */
+            eventStartsAt?: string;
+            /** Format: date-time */
+            eventEndsAt?: string;
+            /** Format: date-time */
+            startsAt?: string;
+            /** Format: date-time */
+            endsAt?: string;
+            responsibleId?: string | null;
+            description?: string;
+            requirements?: string;
+            supportOnly?: boolean;
+            agreedRevenue?: string | null;
+            positions?: components["schemas"]["ServicePosition"][];
+            assignments?: components["schemas"]["ServiceAssignment"][];
+            reservations?: components["schemas"]["ServiceReservation"][];
+            tasks?: components["schemas"]["ServiceTask"][];
+            lines?: components["schemas"]["ServiceCostLine"][];
+            outcome?: components["schemas"]["ServiceOutcome"];
+            version: number;
+        };
+        ServiceRecord: {
+            title: string;
+            eventType: string;
+            customer: string;
+            organizer: string;
+            leadOrganization: string;
+            contactName: string;
+            contactEmail: string;
+            contactPhone: string;
+            location: string;
+            /** Format: date-time */
+            eventStartsAt: string;
+            /** Format: date-time */
+            eventEndsAt: string;
+            /** Format: date-time */
+            startsAt: string;
+            /** Format: date-time */
+            endsAt: string;
+            responsibleId: string | null;
+            description: string;
+            requirements: string;
+            supportOnly: boolean;
+            agreedRevenue: string | null;
+            positions: components["schemas"]["ServicePosition"][];
+            assignments: components["schemas"]["ServiceAssignment"][];
+            reservations: components["schemas"]["ServiceReservation"][];
+            tasks: components["schemas"]["ServiceTask"][];
+            lines: components["schemas"]["ServiceCostLine"][];
+            outcome: components["schemas"]["ServiceOutcome"];
+            id: string;
+            version: number;
+            /** @enum {string} */
+            status: "INQUIRY" | "PLANNING" | "RELEASED" | "ACTIVE" | "REVIEW" | "COMPLETED" | "CANCELLED";
+            /** @enum {string} */
+            kind: "MEDICAL";
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: date-time */
+            updatedAt: string;
+            warnings: components["schemas"]["ServiceWarning"][];
+            calculations: components["schemas"]["ServiceCalculation"][];
+            releases: components["schemas"]["ServiceRelease"][];
+            costs: components["schemas"]["ServiceCosts"];
+            documents: components["schemas"]["ServiceDocument"][];
+        };
+        ServiceCalculation: {
+            id: string;
+            /** @enum {string} */
+            method: "MAURER" | "COLOGNE";
+            input: components["schemas"]["MaurerInput"] | components["schemas"]["CologneInput"];
+            result: components["schemas"]["ServiceAssessment"];
+            reason: string;
+            methodVersion: string;
+            sourceUrl: string;
+            serviceId: string;
+            createdBy: string;
+            /** Format: date-time */
+            createdAt: string;
+        };
+        ServiceRelease: {
+            id: string;
+            serviceId: string;
+            serviceVersion: number;
+            reason: string;
+            /** Format: date-time */
+            createdAt: string;
+            createdBy: string;
+            warnings: components["schemas"]["ServiceWarning"][];
+            snapshot: {
+                [key: string]: unknown;
+            };
+        };
+        ServiceCosts: {
+            /** @enum {string} */
+            currency: "EUR";
+            agreedRevenue: string | null;
+            planned: {
+                cost: string;
+                revenue: string;
+                result: string;
+            };
+            actual: {
+                complete: boolean;
+                cost: string | null;
+                revenue: string | null;
+                knownCost: string;
+                knownRevenue: string;
+                result: string | null;
+            };
+        };
+        ServiceTransition: {
+            version: number;
+            /** @enum {string} */
+            status: "INQUIRY" | "PLANNING" | "RELEASED" | "ACTIVE" | "REVIEW" | "COMPLETED" | "CANCELLED";
+            reason?: string;
+        };
+        ServiceDocument: {
+            id: string;
+            serviceId: string;
+            filename: string;
+            mimeType: string;
+            size: number;
+            sha256: string;
+            /** Format: date-time */
+            createdAt: string;
+            createdBy: string;
+        };
         InventoryTargetChange: {
             articleId: string;
             /** @description 0 removes the minimum target and cancels OPEN procurement orders. */
@@ -2171,6 +3036,7 @@ export interface components {
             twoFactorMethod?: components["schemas"]["TwoFactorMethod"];
             newOrderNotificationsEnabled: boolean;
             medicalDevicesManage?: boolean;
+            servicesManage?: boolean;
         };
         SessionResponse: {
             user: components["schemas"]["AuthenticatedUser"];
@@ -3140,6 +4006,1170 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
+    Services_permission: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful service operation */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ServicePermission"];
+                };
+            };
+            /** @description Invalid input or missing warning justification */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Service management permission required */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Record not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Stale version or read-only service */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    Services_permissions: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful service operation */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ServicePermissionUser"][];
+                };
+            };
+            /** @description Invalid input or missing warning justification */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Service management permission required */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Record not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Stale version or read-only service */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    Services_permission_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ServicePermission"];
+            };
+        };
+        responses: {
+            /** @description Successful service operation */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ServicePermission"];
+                };
+            };
+            /** @description Invalid input or missing warning justification */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Service management permission required */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Record not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Stale version or read-only service */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    Services_list: {
+        parameters: {
+            query?: {
+                from?: string;
+                to?: string;
+                eventType?: string;
+                customer?: string;
+                status?: string;
+                search?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful service operation */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ServiceRecord"][];
+                };
+            };
+            /** @description Invalid input or missing warning justification */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Service management permission required */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Record not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Stale version or read-only service */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    Services_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ServiceWrite"];
+            };
+        };
+        responses: {
+            /** @description Successful service operation */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ServiceRecord"];
+                };
+            };
+            /** @description Invalid input or missing warning justification */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Service management permission required */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Record not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Stale version or read-only service */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    Services_catalog: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful service operation */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ServiceCatalog"];
+                };
+            };
+            /** @description Invalid input or missing warning justification */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Service management permission required */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Record not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Stale version or read-only service */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    Services_statistics: {
+        parameters: {
+            query?: {
+                from?: string;
+                to?: string;
+                eventType?: string;
+                customer?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful service operation */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ServiceStatistics"];
+                };
+            };
+            /** @description Invalid input or missing warning justification */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Service management permission required */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Record not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Stale version or read-only service */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    Services_statistics_csv: {
+        parameters: {
+            query?: {
+                from?: string;
+                to?: string;
+                eventType?: string;
+                customer?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description CSV export */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "text/csv": string;
+                };
+            };
+        };
+    };
+    Services_create_people: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ServicePersonWrite"];
+            };
+        };
+        responses: {
+            /** @description Successful service operation */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ServicePerson"];
+                };
+            };
+            /** @description Invalid input or missing warning justification */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Service management permission required */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Record not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Stale version or read-only service */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    Services_update_people: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ServicePersonWrite"];
+            };
+        };
+        responses: {
+            /** @description Successful service operation */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ServicePerson"];
+                };
+            };
+            /** @description Invalid input or missing warning justification */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Service management permission required */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Record not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Stale version or read-only service */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    Services_create_vehicles: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ServiceVehicleWrite"];
+            };
+        };
+        responses: {
+            /** @description Successful service operation */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ServiceVehicle"];
+                };
+            };
+            /** @description Invalid input or missing warning justification */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Service management permission required */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Record not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Stale version or read-only service */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    Services_update_vehicles: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ServiceVehicleWrite"];
+            };
+        };
+        responses: {
+            /** @description Successful service operation */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ServiceVehicle"];
+                };
+            };
+            /** @description Invalid input or missing warning justification */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Service management permission required */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Record not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Stale version or read-only service */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    Services_create_tariffs: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ServiceTariffWrite"];
+            };
+        };
+        responses: {
+            /** @description Successful service operation */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ServiceTariff"];
+                };
+            };
+            /** @description Invalid input or missing warning justification */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Service management permission required */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Record not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Stale version or read-only service */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    Services_update_tariffs: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ServiceTariffWrite"];
+            };
+        };
+        responses: {
+            /** @description Successful service operation */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ServiceTariff"];
+                };
+            };
+            /** @description Invalid input or missing warning justification */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Service management permission required */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Record not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Stale version or read-only service */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    Services_create_checklists: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ServiceChecklistWrite"];
+            };
+        };
+        responses: {
+            /** @description Successful service operation */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ServiceChecklist"];
+                };
+            };
+            /** @description Invalid input or missing warning justification */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Service management permission required */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Record not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Stale version or read-only service */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    Services_update_checklists: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ServiceChecklistWrite"];
+            };
+        };
+        responses: {
+            /** @description Successful service operation */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ServiceChecklist"];
+                };
+            };
+            /** @description Invalid input or missing warning justification */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Service management permission required */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Record not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Stale version or read-only service */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    Services_detail: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful service operation */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ServiceRecord"];
+                };
+            };
+            /** @description Invalid input or missing warning justification */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Service management permission required */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Record not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Stale version or read-only service */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    Services_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ServiceUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful service operation */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ServiceRecord"];
+                };
+            };
+            /** @description Invalid input or missing warning justification */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Service management permission required */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Record not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Stale version or read-only service */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    Services_transition: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ServiceTransition"];
+            };
+        };
+        responses: {
+            /** @description Successful service operation */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ServiceRecord"];
+                };
+            };
+            /** @description Invalid input or missing warning justification */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Service management permission required */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Record not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Stale version or read-only service */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    Services_calculation: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ServiceCalculationWrite"];
+            };
+        };
+        responses: {
+            /** @description Successful service operation */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ServiceRecord"];
+                };
+            };
+            /** @description Invalid input or missing warning justification */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Service management permission required */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Record not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Stale version or read-only service */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    Services_documents: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful service operation */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ServiceDocument"][];
+                };
+            };
+            /** @description Invalid input or missing warning justification */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Service management permission required */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Record not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Stale version or read-only service */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    Services_upload: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "multipart/form-data": {
+                    /** Format: binary */
+                    file: string;
+                    version: number;
+                };
+            };
+        };
+        responses: {
+            /** @description Successful service operation */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ServiceDocument"];
+                };
+            };
+            /** @description Invalid input or missing warning justification */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Service management permission required */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Record not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Stale version or read-only service */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    Services_download: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+                documentId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Protected document */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/octet-stream": string;
+                };
+            };
+            /** @description Service management permission required */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Document not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
     AdminSettingsController_getAll: {
         parameters: {
             query?: never;
