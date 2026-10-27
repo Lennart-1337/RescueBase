@@ -46,6 +46,8 @@ services:
       RETENTION_DAYS: ${RETENTION_DAYS:-14}
     volumes:
       - ./backups:/backups
+      - mpg-documents:/documents/mpg
+      - service-documents:/documents/services
     depends_on:
       mariadb:
         condition: service_healthy
@@ -62,6 +64,8 @@ services:
       BACKUP_FILE: ${BACKUP_FILE:-}
     volumes:
       - ./backups:/backups
+      - mpg-documents:/documents/mpg
+      - service-documents:/documents/services
       - ${AGE_IDENTITY_HOST_FILE:-./keys/restore-disabled.txt}:${AGE_IDENTITY_FILE:-/run/secrets/staging.agekey}:ro
     depends_on:
       mariadb:

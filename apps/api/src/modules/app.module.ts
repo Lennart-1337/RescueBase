@@ -1,3 +1,4 @@
+import { ServicePlanningModule } from "./service-planning/service-planning.module.js";
 import { Module } from "@nestjs/common";
 import { APP_GUARD } from "@nestjs/core";
 import { AuthController } from "./auth.controller.js";
@@ -51,6 +52,7 @@ import { MpgPeopleService } from "../services/mpg-people.service.js";
 import { MpgTrainingsService } from "../services/mpg-trainings.service.js";
 
 @Module({
+  imports: [ServicePlanningModule],
   controllers: [
     AdminSettingsController,
     AccountActivationController,

@@ -19,7 +19,8 @@
     "motion": "^12.42.0",
     "qrcode": "^1.5.4",
     "react": "^19.2.0",
-    "react-dom": "^19.2.8"
+    "react-dom": "^19.2.8",
+    "@rescuebase/domain": "file:../../packages/domain"
   },
   "devDependencies": {
     "@tanstack/react-router-devtools": "^1.167.0",
@@ -33,7 +34,7 @@
     "@vitejs/plugin-react": "^6.0.3",
     "jsdom": "^29.1.1",
     "typescript": "^5.9.3",
-    "vite": "^8.1.5",
+    "vite": "^8.3.5",
     "vitest": "^4.1.11"
   }
 }

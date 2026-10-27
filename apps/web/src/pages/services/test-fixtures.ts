@@ -1,0 +1,63 @@
+import { emptyService } from "./service-fields";
+import type { Catalog, Service } from "./types";
+export const serviceFixture: Service = {
+  ...emptyService(),
+  kind: "MEDICAL",
+  pricingModel: "HOURLY",
+  id: "service-1",
+  title: "Sanitätsdienst Stadtlauf",
+  customer: "Sportverein",
+  organizer: "Sportverein",
+  location: "Stadtpark",
+  eventType: "Sport",
+  startsAt: "2026-11-08T08:00:00.000Z",
+  endsAt: "2026-11-08T17:00:00.000Z",
+  eventStartsAt: "2026-11-08T09:00:00.000Z",
+  eventEndsAt: "2026-11-08T16:00:00.000Z",
+  status: "PLANNING",
+  version: 3,
+  warnings: [],
+  calculations: [],
+  releases: [],
+  documents: [],
+  costs: {
+    currency: "EUR",
+    agreedRevenue: null,
+    planned: { cost: "0.00", revenue: "0.00", result: "0.00" },
+    actual: {
+      complete: true,
+      cost: "0.00",
+      revenue: "0.00",
+      result: "0.00",
+      knownCost: "0.00",
+      knownRevenue: "0.00",
+    },
+  },
+  createdAt: "2026-10-26T10:00:00.000Z",
+  updatedAt: "2026-10-26T10:00:00.000Z",
+};
+export const catalogFixture: Catalog = {
+  people: [
+    {
+      id: "person-1",
+      version: 1,
+      name: "Jana Müller",
+      active: true,
+      leader: false,
+      userId: null,
+      qualifications: [
+        {
+          qualification: "PARAMEDIC",
+          validUntil: null,
+          recognizedQualifications: [],
+        },
+      ],
+    },
+  ],
+  users: [{ id: "user-1", displayName: "Planung" }],
+  vehicles: [],
+  tariffs: [],
+  checklists: [],
+  kits: [],
+  devices: [],
+};

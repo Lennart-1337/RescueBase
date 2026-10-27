@@ -1,0 +1,35 @@
+@media (max-width: 600px) {
+  .service-resources .data-table table {
+    min-width: 0;
+    display: block;
+  }
+  .service-resources colgroup {
+    display: none;
+  }
+  .service-resources thead {
+    position: absolute;
+    clip-path: inset(50%);
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+  }
+  .service-resources tbody {
+    display: block;
+  }
+  .service-resources tbody tr {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 12px;
+    padding-block: 16px;
+    border-bottom: 1px solid var(--color-border-default);
+  }
+  .service-resources tbody td {
+    min-width: 0;
+    padding: 0;
+    border: 0;
+    align-self: center;
+  }
+  .service-resources tbody td:first-child {
+    grid-column: 1 / -1;
+  }
+}

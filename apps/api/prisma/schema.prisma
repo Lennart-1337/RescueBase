@@ -77,6 +77,7 @@ model User {
   twoFactorMethod  TwoFactorMethod?
   newOrderNotificationsEnabled Boolean @default(false)
   medicalDevicesManage Boolean @default(false)
+  servicesManage Boolean @default(false)
   active           Boolean  @default(true)
   banned           Boolean  @default(false)
   banReason        String?
@@ -859,6 +860,8 @@ model MpgInspection {
 }
 
 model MpgPerson {
+  personId                 String?                   @unique
+  person                   Person?                   @relation(fields: [personId], references: [id], onDelete: SetNull)
   id                       String                    @id @default(cuid())
   name                     String
   birthDate                DateTime?
@@ -1027,4 +1030,204 @@ model MpgNotification {
   createdAt DateTime @default(now())
   @@unique([eventKey, userId, channel])
   @@index([userId, createdAt])
+}
+
+
+// Shared identity. Legacy MPG fields remain as compatibility mirrors.
+model Person {
+  id String @id @default(cuid())
+  name String
+  active Boolean @default(true)
+  userId String? @unique
+  leader Boolean @default(false)
+  version Int @default(0)
+  mpgPerson MpgPerson?
+  qualifications PersonQualification[]
+  assignments ServiceAssignment[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+model PersonQualification {
+  id String @id @default(cuid())
+  personId String
+  person Person @relation(fields: [personId], references: [id], onDelete: Cascade)
+  qualification String
+  validUntil DateTime?
+  recognizedQualifications Json
+  @@unique([personId, qualification])
+}
+model ServiceVehicle {
+  id String @id @default(cuid())
+  name String
+  registration String
+  type String
+  ready Boolean @default(true)
+  notes String @db.Text
+  active Boolean @default(true)
+  version Int @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+model ServiceTariff {
+  id String @id @default(cuid())
+  name String
+  category String
+  unit String
+  costRate Decimal @db.Decimal(14, 4)
+  saleRate Decimal @db.Decimal(14, 4)
+  active Boolean @default(true)
+  version Int @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+model ServiceChecklist {
+  id String @id @default(cuid())
+  name String
+  tasks Json
+  active Boolean @default(true)
+  version Int @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+model ServiceEvent {
+  id String @id @default(cuid())
+  kind String @default("MEDICAL")
+  status String @default("INQUIRY")
+  title String
+  eventType String
+  customer String
+  organizer String
+  leadOrganization String
+  contactName String
+  contactEmail String
+  contactPhone String
+  location String
+  eventStartsAt DateTime
+  eventEndsAt DateTime
+  startsAt DateTime
+  endsAt DateTime
+  responsibleId String?
+  description String @db.Text
+  requirements String @db.Text
+  supportOnly Boolean @default(false)
+  agreedRevenue Decimal? @db.Decimal(14, 2)
+  materialDiscounted Boolean @default(false)
+  materialRate Decimal @default(35) @db.Decimal(12, 2)
+  additionalCharges Json @default("[]")
+  pricingModel String @default("HOURLY")
+  outcome Json
+  version Int @default(0)
+  positions ServicePosition[]
+  assignments ServiceAssignment[]
+  reservations ServiceReservation[]
+  tasks ServiceTask[]
+  lines ServiceCostLine[]
+  calculations ServiceCalculation[]
+  releases ServiceRelease[]
+  documents ServiceDocument[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  @@index([startsAt, endsAt])
+  @@index([status])
+}
+model ServicePosition {
+  id String @id @default(cuid())
+  serviceId String
+  service ServiceEvent @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+  name String
+  qualification String
+  leader Boolean @default(false)
+  quantity Int
+  team String?
+  @@index([serviceId])
+}
+model ServiceAssignment {
+  id String @id @default(cuid())
+  serviceId String
+  service ServiceEvent @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+  personId String
+  person Person @relation(fields: [personId], references: [id])
+  positionId String
+  qualification String
+  startsAt DateTime
+  endsAt DateTime
+  hourlyRate Decimal @default(0) @db.Decimal(14, 4)
+  actualStartsAt DateTime?
+  actualEndsAt DateTime?
+  @@unique([serviceId, personId])
+  @@index([startsAt, endsAt])
+}
+model ServiceReservation {
+  id String @id @default(cuid())
+  serviceId String
+  service ServiceEvent @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+  kind String
+  resourceId String
+  startsAt DateTime
+  endsAt DateTime
+  @@index([kind, resourceId])
+  @@index([startsAt, endsAt])
+}
+model ServiceTask {
+  id String @id @default(cuid())
+  serviceId String
+  service ServiceEvent @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+  title String
+  responsibleId String?
+  dueAt DateTime?
+  done Boolean @default(false)
+  @@index([serviceId])
+}
+model ServiceCostLine {
+  id String @id @default(cuid())
+  serviceId String
+  service ServiceEvent @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+  label String
+  category String
+  unit String
+  tariffId String?
+  plannedQuantity Decimal @db.Decimal(14, 4)
+  actualQuantity Decimal? @db.Decimal(14, 4)
+  costRate Decimal @db.Decimal(14, 4)
+  saleRate Decimal @db.Decimal(14, 4)
+  @@index([serviceId])
+}
+model ServiceCalculation {
+  id String @id @default(cuid())
+  serviceId String
+  service ServiceEvent @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+  method String
+  methodVersion String
+  sourceUrl String @db.Text
+  input Json
+  result Json
+  reason String @db.Text
+  createdBy String
+  createdAt DateTime @default(now())
+  @@index([serviceId])
+}
+model ServiceRelease {
+  id String @id @default(cuid())
+  serviceId String
+  service ServiceEvent @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+  serviceVersion Int
+  snapshot Json
+  warnings Json
+  reason String @db.Text
+  createdBy String
+  createdAt DateTime @default(now())
+  @@index([serviceId])
+}
+model ServiceDocument {
+  id String @id @default(cuid())
+  serviceId String
+  service ServiceEvent @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+  filename String
+  mimeType String
+  storageKey String @unique
+  sha256 String
+  size Int
+  createdBy String
+  createdAt DateTime @default(now())
+  @@index([serviceId])
 }

@@ -1,0 +1,148 @@
+.services-page {
+  gap: 20px;
+}
+.services-page .tab-list {
+  margin: 0;
+  padding: 0;
+  gap: 26px;
+  min-height: 48px;
+  border: 0;
+  border-bottom: 1px solid var(--color-border-default);
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+.services-page .tab-button {
+  padding: 12px 0;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  border-radius: 0;
+  font-weight: 500;
+  background: transparent;
+  box-shadow: none;
+}
+.services-page .tab-button-active {
+  color: var(--color-text-primary);
+  border-bottom-color: var(--color-text-brand);
+  font-weight: 650;
+  background: transparent;
+  box-shadow: none;
+}
+.services-page .tab-button:hover {
+  background: transparent;
+  color: var(--color-text-brand);
+}
+.service-list-toolbar {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+}
+.service-list-toolbar > .button {
+  flex: 0 0 auto;
+}
+.service-list-filters {
+  flex: 1;
+  min-width: 0;
+}
+.service-filter-bar {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+.service-search {
+  flex: 1;
+  min-width: 120px;
+  position: relative;
+}
+.service-search > svg {
+  position: absolute;
+  left: 13px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--color-text-muted);
+  pointer-events: none;
+}
+.service-search > input {
+  width: 100%;
+  padding-left: 38px;
+}
+.service-filter-bar > select {
+  width: 158px;
+  flex: 0 0 158px;
+}
+.service-filter-bar .button {
+  flex: 0 0 auto;
+}
+.service-filter-extra {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--color-border-default);
+}
+.service-catalog-switch {
+  display: flex;
+  justify-content: flex-end;
+}
+.service-catalog-switch > select {
+  width: 240px;
+}
+.services-page .service-section:first-child {
+  border-top: 0;
+  padding-top: 0;
+}
+.services-page .service-section-header h2 {
+  font-size: 21px;
+}
+.service-stack .service-note {
+  padding: 8px 12px;
+  font-size: 13px;
+}
+@media (max-width: 1000px) {
+  .service-list-toolbar {
+    flex-wrap: wrap;
+  }
+  .service-list-toolbar > .button {
+    order: -1;
+    margin-left: auto;
+  }
+  .service-list-filters {
+    flex-basis: 100%;
+  }
+  .service-filter-extra {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 620px) {
+  .services-page {
+    gap: 18px;
+  }
+  .services-page .tab-list {
+    gap: 22px;
+    min-height: 44px;
+  }
+  .services-page .tab-button {
+    font-size: 13px;
+    padding: 11px 0;
+  }
+  .service-filter-bar {
+    flex-wrap: wrap;
+  }
+  .service-search {
+    flex-basis: calc(100% - 120px);
+  }
+  .service-filter-bar > select {
+    width: 110px;
+    flex-basis: 110px;
+  }
+  .service-filter-bar .button {
+    min-height: 36px;
+  }
+  .service-filter-bar > .button:last-child {
+    margin-left: auto;
+  }
+  .service-catalog-switch > select {
+    width: 100%;
+  }
+}

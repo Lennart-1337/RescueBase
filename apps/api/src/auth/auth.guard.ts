@@ -68,6 +68,7 @@ function toAuthenticatedUser(user: Record<string, unknown>): AuthenticatedUser {
     role: user.role === "ADMIN" ? "ADMIN" : "WAREHOUSE",
     twoFactorEnabled: user.twoFactorEnabled === true,
     newOrderNotificationsEnabled: user.newOrderNotificationsEnabled === true,
-    medicalDevicesManage: user.role === "ADMIN" || user.medicalDevicesManage === true
+    medicalDevicesManage: user.role === "ADMIN" || user.medicalDevicesManage === true,
+    servicesManage: user.role === "ADMIN" || user.servicesManage === true
   };
 }

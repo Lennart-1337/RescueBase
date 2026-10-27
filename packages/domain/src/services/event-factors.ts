@@ -1,0 +1,38 @@
+// Maurer reference factors from Stadt Willich 07/1329 (2007), page 3.
+// Factors describe event categories; local adjustments require professional review.
+export const MAURER_EVENT_FACTORS = [
+  { id: "SPORT", label: "Allgemeine Sportveranstaltung", factor: 0.3 },
+  { id: "EXHIBITION", label: "Ausstellung / Basar", factor: 0.3 },
+  { id: "DEMONSTRATION", label: "Demonstration", factor: 0.8 },
+  { id: "FIREWORKS", label: "Feuerwerk", factor: 0.4 },
+  { id: "FLEA_MARKET", label: "Flohmarkt", factor: 0.3 },
+  { id: "AIR_SHOW", label: "Flugveranstaltung", factor: 0.9 },
+  {
+    id: "CARNIVAL",
+    label: "Karnevalsveranstaltung / Karnevalsumzug",
+    factor: 0.7,
+  },
+  { id: "COMBINED", label: "Sport, Musik und Show kombiniert", factor: 0.35 },
+  { id: "CONCERT", label: "Konzert", factor: 0.2 },
+  { id: "RALLY", label: "Kundgebung", factor: 0.5 },
+  { id: "RUNNING", label: "Langlauf", factor: 0.3 },
+  { id: "LANTERN_PARADE", label: "Martinszug", factor: 0.3 },
+  { id: "TRADE_FAIR", label: "Messe", factor: 0.3 },
+  { id: "MOTORSPORT", label: "Motorsportveranstaltung", factor: 0.8 },
+  { id: "MUSIC", label: "Musikveranstaltung", factor: 0.5 },
+  { id: "OPERA", label: "Oper / Operette", factor: 0.2 },
+  { id: "CYCLING", label: "Radrennen", factor: 0.3 },
+  { id: "EQUESTRIAN", label: "Reitsportveranstaltung", factor: 0.1 },
+  { id: "ROCK", label: "Rockkonzert", factor: 1 },
+  { id: "BOY_GROUP", label: "Rockkonzert mit Boygroup", factor: 1.2 },
+  { id: "THEATRE", label: "Schauspiel / Theater", factor: 0.2 },
+  { id: "SHOOTING_FESTIVAL", label: "Schützenfest", factor: 0.5 },
+  { id: "SHOW", label: "Show", factor: 0.2 },
+  {
+    id: "PUBLIC_FESTIVAL",
+    label: "Stadtteil-, Straßen- oder Volksfest",
+    factor: 0.4,
+  },
+  { id: "DANCE", label: "Tanzsportveranstaltung", factor: 0.3 },
+  { id: "CHRISTMAS_MARKET", label: "Weihnachtsmarkt", factor: 0.3 },
+] as const;

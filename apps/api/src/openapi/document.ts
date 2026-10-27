@@ -1,3 +1,5 @@
+import { servicePaths } from "./services/paths.js";
+import { serviceSchemas } from "./services/schemas.js";
 import { meierSearchSchemas } from "./meier-search/schemas.js";
 import { meierSearchPaths } from "./meier-search/paths.js";
 import { inventoryTargetPaths } from "./inventory-targets/paths.js";
@@ -43,6 +45,7 @@ const rescueBaseOpenApiDocumentDefinition = {
       },
     },
     schemas: {
+      ...serviceSchemas,
       ...inventoryTargetSchemas,
       MpgInput: { type: "object", additionalProperties: true },
       MpgRecord: { type: "object", additionalProperties: true },
@@ -112,6 +115,7 @@ const rescueBaseOpenApiDocumentDefinition = {
           twoFactorMethod: ref("TwoFactorMethod"),
           newOrderNotificationsEnabled: { type: "boolean" },
           medicalDevicesManage: { type: "boolean" },
+          servicesManage: { type: "boolean" },
         },
         [
           "id",
@@ -1471,6 +1475,7 @@ const rescueBaseOpenApiDocumentDefinition = {
   },
   security: [{ sessionCookie: [] }],
   paths: {
+    ...servicePaths,
     "/admin/settings": {
       get: operation(
         "Admin-Einstellungen",

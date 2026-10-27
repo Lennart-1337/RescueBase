@@ -1,0 +1,31 @@
+.service-form-group {
+  margin-top: 1.25rem;
+  border-top: 1px solid var(--color-border-default);
+  padding-top: 1rem;
+}
+.service-form-group h3 {
+  margin: 0 0 1rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+.service-form-disclosure {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+}
+.service-form-disclosure[aria-expanded="true"] {
+  margin-bottom: 1rem;
+}
+.service-form-disclosure:focus-visible {
+  outline: 2px solid var(--color-brand-solid);
+  outline-offset: 4px;
+}

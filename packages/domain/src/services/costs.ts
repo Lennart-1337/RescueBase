@@ -1,0 +1,63 @@
+import { decimal, money, roundCents } from "./money.js";
+/** Decimal strings preserve exact amounts across database and JSON boundaries. */
+export interface ServiceCostInput {
+  plannedQuantity: string;
+  actualQuantity: string | null;
+  costRate: string;
+  saleRate: string;
+}
+export interface CostSummary {
+  currency: "EUR";
+  agreedRevenue: string | null;
+  planned: { cost: string; revenue: string; result: string };
+  actual: {
+    complete: boolean;
+    cost: string | null;
+    revenue: string | null;
+    knownCost: string;
+    knownRevenue: string;
+    result: string | null;
+  };
+}
+export function calculateServiceCosts(
+  lines: ServiceCostInput[],
+  agreedRevenue: string | null,
+): CostSummary {
+  const parsed = lines.map((line) => ({
+    planned: decimal(line.plannedQuantity),
+    actual: line.actualQuantity === null ? null : decimal(line.actualQuantity),
+    cost: decimal(line.costRate),
+    sale: decimal(line.saleRate),
+  }));
+  const sum = (actual: boolean, field: "cost" | "sale") =>
+    parsed.reduce((total, line) => {
+      const quantity = actual ? (line.actual ?? 0n) : line.planned;
+      // Both inputs have scale 10^4, so 10^6 converts product to whole cents.
+      return total + (quantity * line[field] + 500000n) / 1000000n;
+    }, 0n);
+  const plannedCost = sum(false, "cost"),
+    plannedSales = sum(false, "sale");
+  const actualCost = sum(true, "cost"),
+    actualSales = sum(true, "sale");
+  const agreed =
+    agreedRevenue === null ? null : roundCents(decimal(agreedRevenue));
+  const complete =
+    parsed.length > 0 && parsed.every((line) => line.actual !== null);
+  return {
+    currency: "EUR",
+    agreedRevenue: agreed === null ? null : money(agreed),
+    planned: {
+      cost: money(plannedCost),
+      revenue: money(plannedSales),
+      result: money((agreed ?? plannedSales) - plannedCost),
+    },
+    actual: {
+      complete,
+      cost: complete ? money(actualCost) : null,
+      revenue: complete ? money(actualSales) : null,
+      knownCost: money(actualCost),
+      knownRevenue: money(actualSales),
+      result: complete ? money((agreed ?? actualSales) - actualCost) : null,
+    },
+  };
+}

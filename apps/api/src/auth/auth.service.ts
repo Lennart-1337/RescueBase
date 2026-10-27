@@ -20,6 +20,7 @@ type UserSessionView = {
   twoFactorMethod: TwoFactorMethod | null;
   newOrderNotificationsEnabled: boolean;
   medicalDevicesManage?: boolean;
+  servicesManage?: boolean;
   deletedAt?: Date | null;
 };
 
@@ -32,6 +33,7 @@ export interface AuthenticatedUser {
   twoFactorMethod?: TwoFactorMethod;
   newOrderNotificationsEnabled: boolean;
   medicalDevicesManage?: boolean;
+  servicesManage?: boolean;
 }
 
 type PendingLoginUser = UserSessionView & {
@@ -323,7 +325,8 @@ export class AuthService {
       twoFactorEnabled: user.twoFactorEnabled,
       twoFactorMethod: user.twoFactorMethod ?? undefined,
       newOrderNotificationsEnabled: user.newOrderNotificationsEnabled,
-      medicalDevicesManage: user.role === "ADMIN" || user.medicalDevicesManage === true
+      medicalDevicesManage: user.role === "ADMIN" || user.medicalDevicesManage === true,
+      servicesManage: user.role === "ADMIN" || user.servicesManage === true
     };
   }
 

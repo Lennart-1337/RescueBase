@@ -58,6 +58,2374 @@
       }
     },
     "schemas": {
+      "ServiceQualification": {
+        "type": "string",
+        "enum": [
+          "SANITARIAN",
+          "RESCUE_HELPER",
+          "PARAMEDIC",
+          "EMERGENCY_PARAMEDIC",
+          "PHYSICIAN"
+        ]
+      },
+      "ServicePersonQualification": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "personId": {
+            "type": "string"
+          },
+          "qualification": {
+            "type": "string",
+            "enum": [
+              "SANITARIAN",
+              "RESCUE_HELPER",
+              "PARAMEDIC",
+              "EMERGENCY_PARAMEDIC",
+              "PHYSICIAN"
+            ]
+          },
+          "validUntil": {
+            "type": "string",
+            "format": "date",
+            "nullable": true
+          },
+          "recognizedQualifications": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "SANITARIAN",
+                "RESCUE_HELPER",
+                "PARAMEDIC",
+                "EMERGENCY_PARAMEDIC",
+                "PHYSICIAN"
+              ]
+            }
+          }
+        },
+        "required": [
+          "qualification",
+          "validUntil",
+          "recognizedQualifications"
+        ],
+        "additionalProperties": false
+      },
+      "ServicePerson": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "active": {
+            "type": "boolean"
+          },
+          "leader": {
+            "type": "boolean"
+          },
+          "userId": {
+            "type": "string",
+            "nullable": true
+          },
+          "qualifications": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ServicePersonQualification"
+            }
+          },
+          "id": {
+            "type": "string"
+          },
+          "version": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "name",
+          "active",
+          "leader",
+          "userId",
+          "qualifications",
+          "id",
+          "version"
+        ],
+        "additionalProperties": false
+      },
+      "ServiceVehicle": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "registration": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          },
+          "ready": {
+            "type": "boolean"
+          },
+          "notes": {
+            "type": "string"
+          },
+          "active": {
+            "type": "boolean"
+          },
+          "id": {
+            "type": "string"
+          },
+          "version": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "name",
+          "registration",
+          "type",
+          "ready",
+          "notes",
+          "active",
+          "id",
+          "version"
+        ],
+        "additionalProperties": false
+      },
+      "ServiceTariff": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "category": {
+            "type": "string",
+            "enum": [
+              "PERSONNEL",
+              "VEHICLE",
+              "MATERIAL",
+              "OTHER"
+            ]
+          },
+          "unit": {
+            "type": "string"
+          },
+          "costRate": {
+            "type": "string",
+            "pattern": "^[0-9]+(\\.[0-9]+)?$"
+          },
+          "saleRate": {
+            "type": "string",
+            "pattern": "^[0-9]+(\\.[0-9]+)?$"
+          },
+          "active": {
+            "type": "boolean"
+          },
+          "id": {
+            "type": "string"
+          },
+          "version": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "name",
+          "category",
+          "unit",
+          "costRate",
+          "saleRate",
+          "active",
+          "id",
+          "version"
+        ],
+        "additionalProperties": false
+      },
+      "ServiceChecklist": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "tasks": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "active": {
+            "type": "boolean"
+          },
+          "id": {
+            "type": "string"
+          },
+          "version": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "name",
+          "tasks",
+          "active",
+          "id",
+          "version"
+        ],
+        "additionalProperties": false
+      },
+      "ServicePersonWrite": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "active": {
+            "type": "boolean"
+          },
+          "leader": {
+            "type": "boolean"
+          },
+          "userId": {
+            "type": "string",
+            "nullable": true
+          },
+          "qualifications": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ServicePersonQualification"
+            }
+          },
+          "version": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "name"
+        ],
+        "additionalProperties": false
+      },
+      "ServiceVehicleWrite": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "registration": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          },
+          "ready": {
+            "type": "boolean"
+          },
+          "notes": {
+            "type": "string"
+          },
+          "active": {
+            "type": "boolean"
+          },
+          "version": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "name"
+        ],
+        "additionalProperties": false
+      },
+      "ServiceTariffWrite": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "category": {
+            "type": "string",
+            "enum": [
+              "PERSONNEL",
+              "VEHICLE",
+              "MATERIAL",
+              "OTHER"
+            ]
+          },
+          "unit": {
+            "type": "string"
+          },
+          "costRate": {
+            "type": "string",
+            "pattern": "^[0-9]+(\\.[0-9]+)?$"
+          },
+          "saleRate": {
+            "type": "string",
+            "pattern": "^[0-9]+(\\.[0-9]+)?$"
+          },
+          "active": {
+            "type": "boolean"
+          },
+          "version": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "name",
+          "category",
+          "unit",
+          "costRate",
+          "saleRate"
+        ],
+        "additionalProperties": false
+      },
+      "ServiceChecklistWrite": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "tasks": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "active": {
+            "type": "boolean"
+          },
+          "version": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "name",
+          "tasks"
+        ],
+        "additionalProperties": false
+      },
+      "ServicePermission": {
+        "type": "object",
+        "properties": {
+          "servicesManage": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "servicesManage"
+        ],
+        "additionalProperties": false
+      },
+      "ServicePermissionUser": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "displayName": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "role": {
+            "type": "string",
+            "enum": [
+              "ADMIN",
+              "WAREHOUSE"
+            ]
+          },
+          "servicesManage": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "id",
+          "displayName",
+          "email",
+          "role",
+          "servicesManage"
+        ],
+        "additionalProperties": false
+      },
+      "ServiceResourceOption": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "kitId": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "status"
+        ],
+        "additionalProperties": false
+      },
+      "ServiceCatalog": {
+        "type": "object",
+        "properties": {
+          "people": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ServicePerson"
+            }
+          },
+          "vehicles": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ServiceVehicle"
+            }
+          },
+          "tariffs": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ServiceTariff"
+            }
+          },
+          "checklists": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ServiceChecklist"
+            }
+          },
+          "kits": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ServiceResourceOption"
+            }
+          },
+          "devices": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ServiceResourceOption"
+            }
+          },
+          "users": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "displayName": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "id",
+                "displayName"
+              ],
+              "additionalProperties": false
+            }
+          }
+        },
+        "required": [
+          "people",
+          "vehicles",
+          "tariffs",
+          "checklists",
+          "kits",
+          "devices",
+          "users"
+        ],
+        "additionalProperties": false
+      },
+      "MaurerInput": {
+        "type": "object",
+        "properties": {
+          "eventCategory": {
+            "type": "string"
+          },
+          "capacity": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "expectedVisitors": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "indoor": {
+            "type": "boolean"
+          },
+          "eventFactor": {
+            "type": "number",
+            "minimum": 0
+          },
+          "protectedVipCount": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "policeViolenceRisk": {
+            "type": "boolean"
+          }
+        },
+        "required": [],
+        "additionalProperties": false
+      },
+      "CologneZone": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "expectedVisitors": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "riskFactor": {
+            "type": "number",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "id",
+          "expectedVisitors",
+          "riskFactor"
+        ],
+        "additionalProperties": false
+      },
+      "CologneInput": {
+        "type": "object",
+        "properties": {
+          "durationHours": {
+            "type": "number",
+            "minimum": 0
+          },
+          "expectedVisitors": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "riskFactor": {
+            "type": "number",
+            "minimum": 0
+          },
+          "responseTimeMinutes": {
+            "type": "number",
+            "minimum": 0
+          },
+          "crowdMovement": {
+            "type": "string",
+            "enum": [
+              "SEATED",
+              "STANDING",
+              "DENSE"
+            ]
+          },
+          "regularAmbulanceTransports": {
+            "type": "number",
+            "minimum": 0
+          },
+          "regularEmergencyDoctorCalls": {
+            "type": "number",
+            "minimum": 0
+          },
+          "ambulanceBusyHours": {
+            "type": "number",
+            "minimum": 0
+          },
+          "emergencyDoctorBusyHours": {
+            "type": "number",
+            "minimum": 0
+          },
+          "zones": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CologneZone"
+            }
+          },
+          "weatherFactor": {
+            "type": "number",
+            "minimum": 0
+          },
+          "audienceFactor": {
+            "type": "number",
+            "minimum": 0
+          },
+          "crowdFactor": {
+            "type": "number",
+            "minimum": 0
+          },
+          "venueFactor": {
+            "type": "number",
+            "minimum": 0
+          },
+          "experienceFactor": {
+            "type": "number",
+            "minimum": 0
+          },
+          "coverageDescription": {
+            "type": "string"
+          }
+        },
+        "required": [],
+        "additionalProperties": false
+      },
+      "ServiceAssessment": {
+        "type": "object",
+        "properties": {
+          "method": {
+            "type": "string",
+            "enum": [
+              "MAURER",
+              "COLOGNE"
+            ]
+          },
+          "methodVersion": {
+            "type": "string"
+          },
+          "sourceUrls": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "COMPLETE",
+              "INCOMPLETE"
+            ]
+          },
+          "missingFields": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "warnings": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "requiresProfessionalReview": {
+            "type": "boolean"
+          },
+          "steps": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "key": {
+                  "type": "string"
+                },
+                "value": {
+                  "type": "number"
+                },
+                "formula": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "key",
+                "value",
+                "formula"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "recommendation": {
+            "type": "object",
+            "properties": {
+              "helpers": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "paramedics": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "advancedProviders": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "emergencyDoctors": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "ktw": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "rtw": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "command": {
+                "type": "string",
+                "enum": [
+                  "NONE",
+                  "REDUCED_STAFF",
+                  "FULL_STAFF",
+                  "UNDETERMINED"
+                ]
+              },
+              "additionalCrewRequired": {
+                "type": "boolean"
+              },
+              "treatmentStation": {
+                "type": "object",
+                "properties": {
+                  "helpers": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "paramedics": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "advancedProviders": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "emergencyDoctors": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "treatmentPlaces": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "restPlaces": {
+                    "type": "integer",
+                    "minimum": 0
+                  }
+                },
+                "required": [
+                  "helpers",
+                  "paramedics",
+                  "advancedProviders",
+                  "emergencyDoctors",
+                  "treatmentPlaces",
+                  "restPlaces"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "required": [
+              "helpers",
+              "ktw",
+              "rtw",
+              "emergencyDoctors",
+              "command",
+              "additionalCrewRequired"
+            ],
+            "additionalProperties": false
+          },
+          "metrics": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "number"
+            }
+          },
+          "zones": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "presentationsPerHour": {
+                  "type": "number",
+                  "minimum": 0
+                },
+                "responseTeamCount": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "treatmentStation": {
+                  "type": "string",
+                  "enum": [
+                    "MOBILE_1_1",
+                    "UHS_1_5",
+                    "UHS_1_1_8"
+                  ]
+                },
+                "considerAdditionalHelperTeam": {
+                  "type": "boolean"
+                },
+                "staffing": {
+                  "type": "object",
+                  "properties": {
+                    "helpers": {
+                      "type": "integer",
+                      "minimum": 0
+                    },
+                    "paramedics": {
+                      "type": "integer",
+                      "minimum": 0
+                    },
+                    "advancedProviders": {
+                      "type": "integer",
+                      "minimum": 0
+                    },
+                    "emergencyDoctors": {
+                      "type": "integer",
+                      "minimum": 0
+                    }
+                  },
+                  "required": [
+                    "helpers",
+                    "paramedics",
+                    "advancedProviders",
+                    "emergencyDoctors"
+                  ],
+                  "additionalProperties": false
+                }
+              },
+              "required": [
+                "id",
+                "presentationsPerHour",
+                "responseTeamCount",
+                "considerAdditionalHelperTeam",
+                "staffing"
+              ],
+              "additionalProperties": false
+            }
+          }
+        },
+        "required": [
+          "method",
+          "methodVersion",
+          "sourceUrls",
+          "status",
+          "missingFields",
+          "warnings",
+          "steps",
+          "requiresProfessionalReview",
+          "metrics"
+        ],
+        "additionalProperties": false
+      },
+      "ServiceCalculationWrite": {
+        "type": "object",
+        "properties": {
+          "version": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "method": {
+            "type": "string",
+            "enum": [
+              "MAURER",
+              "COLOGNE"
+            ]
+          },
+          "input": {
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/MaurerInput"
+              },
+              {
+                "$ref": "#/components/schemas/CologneInput"
+              }
+            ]
+          },
+          "reason": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "version",
+          "method",
+          "input"
+        ],
+        "additionalProperties": false
+      },
+      "ServiceStatistics": {
+        "type": "object",
+        "properties": {
+          "totals": {
+            "type": "object",
+            "properties": {
+              "requiredPersonnelMinutes": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "coveredPersonnelMinutes": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "coverageBasis": {
+                "type": "string",
+                "enum": [
+                  "NOMINAL_ASSIGNMENTS"
+                ]
+              },
+              "occupancyRate": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 1,
+                "nullable": true
+              },
+              "services": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "requiredPersonnel": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "assignedPersonnel": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "plannedMinutes": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "actualMinutes": {
+                "type": "integer",
+                "minimum": 0,
+                "nullable": true
+              },
+              "actualTimeMissing": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "plannedCost": {
+                "type": "string",
+                "pattern": "^[0-9]+(\\.[0-9]+)?$",
+                "nullable": true
+              },
+              "plannedRevenue": {
+                "type": "string",
+                "pattern": "^[0-9]+(\\.[0-9]+)?$",
+                "nullable": true
+              },
+              "plannedResult": {
+                "type": "string",
+                "nullable": true
+              },
+              "actualCost": {
+                "type": "string",
+                "pattern": "^[0-9]+(\\.[0-9]+)?$",
+                "nullable": true
+              },
+              "actualRevenue": {
+                "type": "string",
+                "pattern": "^[0-9]+(\\.[0-9]+)?$",
+                "nullable": true
+              },
+              "actualResult": {
+                "type": "string",
+                "nullable": true
+              },
+              "medical": {
+                "type": "object",
+                "properties": {
+                  "visitors": {
+                    "type": "object",
+                    "properties": {
+                      "total": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "nullable": true
+                      },
+                      "knownTotal": {
+                        "type": "integer",
+                        "minimum": 0
+                      },
+                      "missing": {
+                        "type": "integer",
+                        "minimum": 0
+                      }
+                    },
+                    "required": [
+                      "total",
+                      "knownTotal",
+                      "missing"
+                    ],
+                    "additionalProperties": false
+                  },
+                  "treatments": {
+                    "type": "object",
+                    "properties": {
+                      "total": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "nullable": true
+                      },
+                      "knownTotal": {
+                        "type": "integer",
+                        "minimum": 0
+                      },
+                      "missing": {
+                        "type": "integer",
+                        "minimum": 0
+                      }
+                    },
+                    "required": [
+                      "total",
+                      "knownTotal",
+                      "missing"
+                    ],
+                    "additionalProperties": false
+                  },
+                  "transports": {
+                    "type": "object",
+                    "properties": {
+                      "total": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "nullable": true
+                      },
+                      "knownTotal": {
+                        "type": "integer",
+                        "minimum": 0
+                      },
+                      "missing": {
+                        "type": "integer",
+                        "minimum": 0
+                      }
+                    },
+                    "required": [
+                      "total",
+                      "knownTotal",
+                      "missing"
+                    ],
+                    "additionalProperties": false
+                  },
+                  "emergencyPhysicians": {
+                    "type": "object",
+                    "properties": {
+                      "total": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "nullable": true
+                      },
+                      "knownTotal": {
+                        "type": "integer",
+                        "minimum": 0
+                      },
+                      "missing": {
+                        "type": "integer",
+                        "minimum": 0
+                      }
+                    },
+                    "required": [
+                      "total",
+                      "knownTotal",
+                      "missing"
+                    ],
+                    "additionalProperties": false
+                  }
+                },
+                "required": [
+                  "visitors",
+                  "treatments",
+                  "transports",
+                  "emergencyPhysicians"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "required": [
+              "requiredPersonnelMinutes",
+              "coveredPersonnelMinutes",
+              "coverageBasis",
+              "occupancyRate",
+              "services",
+              "requiredPersonnel",
+              "assignedPersonnel",
+              "plannedMinutes",
+              "actualMinutes",
+              "actualTimeMissing",
+              "plannedCost",
+              "plannedRevenue",
+              "plannedResult",
+              "actualCost",
+              "actualRevenue",
+              "actualResult",
+              "medical"
+            ],
+            "additionalProperties": false
+          },
+          "qualifications": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "qualification": {
+                  "$ref": "#/components/schemas/ServiceQualification"
+                },
+                "plannedMinutes": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "actualMinutes": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "nullable": true
+                },
+                "actualTimeMissing": {
+                  "type": "integer",
+                  "minimum": 0
+                }
+              },
+              "required": [
+                "qualification",
+                "plannedMinutes",
+                "actualMinutes",
+                "actualTimeMissing"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "rows": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ServiceStatisticRow"
+            }
+          }
+        },
+        "required": [
+          "totals",
+          "qualifications",
+          "rows"
+        ],
+        "additionalProperties": false
+      },
+      "ServiceStatisticRow": {
+        "type": "object",
+        "properties": {
+          "requiredPersonnelMinutes": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "coveredPersonnelMinutes": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "coverageBasis": {
+            "type": "string",
+            "enum": [
+              "NOMINAL_ASSIGNMENTS"
+            ]
+          },
+          "occupancyRate": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1,
+            "nullable": true
+          },
+          "id": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "status": {
+            "$ref": "#/components/schemas/ServiceStatus"
+          },
+          "startsAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "eventType": {
+            "type": "string"
+          },
+          "customer": {
+            "type": "string"
+          },
+          "supportOnly": {
+            "type": "boolean"
+          },
+          "requiredPersonnel": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "assignedPersonnel": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "plannedMinutes": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "actualMinutes": {
+            "type": "integer",
+            "minimum": 0,
+            "nullable": true
+          },
+          "actualTimeMissing": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "costs": {
+            "$ref": "#/components/schemas/ServiceCosts"
+          },
+          "outcome": {
+            "$ref": "#/components/schemas/ServiceOutcome"
+          },
+          "forecastComparable": {
+            "type": "boolean"
+          },
+          "forecasts": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "method": {
+                  "type": "string"
+                },
+                "createdAt": {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                "metrics": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "number"
+                  }
+                }
+              },
+              "required": [
+                "method",
+                "createdAt",
+                "metrics"
+              ],
+              "additionalProperties": false
+            }
+          }
+        },
+        "required": [
+          "requiredPersonnelMinutes",
+          "coveredPersonnelMinutes",
+          "coverageBasis",
+          "occupancyRate",
+          "id",
+          "title",
+          "status",
+          "startsAt",
+          "eventType",
+          "customer",
+          "supportOnly",
+          "requiredPersonnel",
+          "assignedPersonnel",
+          "plannedMinutes",
+          "actualMinutes",
+          "actualTimeMissing",
+          "costs",
+          "outcome",
+          "forecastComparable",
+          "forecasts"
+        ],
+        "additionalProperties": false
+      },
+      "ServiceStatus": {
+        "type": "string",
+        "enum": [
+          "INQUIRY",
+          "PLANNING",
+          "RELEASED",
+          "ACTIVE",
+          "REVIEW",
+          "COMPLETED",
+          "CANCELLED"
+        ]
+      },
+      "ServiceAdditionalCharge": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "label": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 191
+          },
+          "amount": {
+            "type": "string",
+            "pattern": "^[0-9]{1,10}(\\.[0-9]{1,2})?$"
+          }
+        },
+        "required": [
+          "id",
+          "label",
+          "amount"
+        ],
+        "additionalProperties": false
+      },
+      "ServicePosition": {
+        "type": "object",
+        "properties": {
+          "serviceId": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "qualification": {
+            "type": "string",
+            "enum": [
+              "SANITARIAN",
+              "RESCUE_HELPER",
+              "PARAMEDIC",
+              "EMERGENCY_PARAMEDIC",
+              "PHYSICIAN"
+            ]
+          },
+          "leader": {
+            "type": "boolean"
+          },
+          "quantity": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "team": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "qualification",
+          "leader",
+          "quantity",
+          "team"
+        ],
+        "additionalProperties": false
+      },
+      "ServiceAssignment": {
+        "type": "object",
+        "properties": {
+          "serviceId": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string"
+          },
+          "personId": {
+            "type": "string"
+          },
+          "positionId": {
+            "type": "string"
+          },
+          "startsAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "endsAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "hourlyRate": {
+            "type": "string",
+            "pattern": "^[0-9]+(\\.[0-9]+)?$"
+          },
+          "actualStartsAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "actualEndsAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "qualification": {
+            "type": "string",
+            "enum": [
+              "SANITARIAN",
+              "RESCUE_HELPER",
+              "PARAMEDIC",
+              "EMERGENCY_PARAMEDIC",
+              "PHYSICIAN"
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "personId",
+          "positionId",
+          "startsAt",
+          "endsAt",
+          "hourlyRate",
+          "actualStartsAt",
+          "actualEndsAt",
+          "qualification"
+        ],
+        "additionalProperties": false
+      },
+      "ServiceReservation": {
+        "type": "object",
+        "properties": {
+          "serviceId": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "VEHICLE",
+              "KIT",
+              "DEVICE"
+            ]
+          },
+          "resourceId": {
+            "type": "string"
+          },
+          "startsAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "endsAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "kind",
+          "resourceId",
+          "startsAt",
+          "endsAt"
+        ],
+        "additionalProperties": false
+      },
+      "ServiceTask": {
+        "type": "object",
+        "properties": {
+          "serviceId": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "responsibleId": {
+            "type": "string",
+            "nullable": true
+          },
+          "dueAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "done": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "id",
+          "title",
+          "responsibleId",
+          "dueAt",
+          "done"
+        ],
+        "additionalProperties": false
+      },
+      "ServiceCostLine": {
+        "type": "object",
+        "properties": {
+          "serviceId": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string"
+          },
+          "label": {
+            "type": "string"
+          },
+          "category": {
+            "type": "string",
+            "enum": [
+              "PERSONNEL",
+              "VEHICLE",
+              "MATERIAL",
+              "OTHER"
+            ]
+          },
+          "unit": {
+            "type": "string"
+          },
+          "tariffId": {
+            "type": "string",
+            "nullable": true
+          },
+          "plannedQuantity": {
+            "type": "string",
+            "pattern": "^[0-9]+(\\.[0-9]+)?$"
+          },
+          "actualQuantity": {
+            "type": "string",
+            "pattern": "^[0-9]+(\\.[0-9]+)?$",
+            "nullable": true
+          },
+          "costRate": {
+            "type": "string",
+            "pattern": "^[0-9]+(\\.[0-9]+)?$"
+          },
+          "saleRate": {
+            "type": "string",
+            "pattern": "^[0-9]+(\\.[0-9]+)?$"
+          }
+        },
+        "required": [
+          "id",
+          "label",
+          "category",
+          "unit",
+          "tariffId",
+          "plannedQuantity",
+          "actualQuantity",
+          "costRate",
+          "saleRate"
+        ],
+        "additionalProperties": false
+      },
+      "ServiceOutcome": {
+        "type": "object",
+        "properties": {
+          "visitors": {
+            "type": "integer",
+            "minimum": 0,
+            "nullable": true
+          },
+          "treatments": {
+            "type": "integer",
+            "minimum": 0,
+            "nullable": true
+          },
+          "transports": {
+            "type": "integer",
+            "minimum": 0,
+            "nullable": true
+          },
+          "emergencyPhysicians": {
+            "type": "integer",
+            "minimum": 0,
+            "nullable": true
+          },
+          "conditions": {
+            "type": "string"
+          },
+          "notes": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "visitors",
+          "treatments",
+          "transports",
+          "emergencyPhysicians",
+          "conditions",
+          "notes"
+        ],
+        "additionalProperties": false
+      },
+      "ServiceWarning": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "entityId": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "code",
+          "message",
+          "entityId"
+        ],
+        "additionalProperties": false
+      },
+      "ServiceWrite": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string"
+          },
+          "eventType": {
+            "type": "string"
+          },
+          "customer": {
+            "type": "string"
+          },
+          "organizer": {
+            "type": "string"
+          },
+          "leadOrganization": {
+            "type": "string"
+          },
+          "contactName": {
+            "type": "string"
+          },
+          "contactEmail": {
+            "type": "string"
+          },
+          "contactPhone": {
+            "type": "string"
+          },
+          "location": {
+            "type": "string"
+          },
+          "eventStartsAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "eventEndsAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "startsAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "endsAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "responsibleId": {
+            "type": "string",
+            "nullable": true
+          },
+          "description": {
+            "type": "string"
+          },
+          "requirements": {
+            "type": "string"
+          },
+          "supportOnly": {
+            "type": "boolean"
+          },
+          "additionalCharges": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ServiceAdditionalCharge"
+            },
+            "default": []
+          },
+          "materialDiscounted": {
+            "type": "boolean"
+          },
+          "materialRate": {
+            "type": "string",
+            "pattern": "^[0-9]{1,10}(\\.[0-9]{1,2})?$",
+            "default": "35.00"
+          },
+          "agreedRevenue": {
+            "type": "string",
+            "pattern": "^[0-9]+(\\.[0-9]+)?$",
+            "nullable": true
+          },
+          "positions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ServicePosition"
+            }
+          },
+          "assignments": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ServiceAssignment"
+            }
+          },
+          "reservations": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ServiceReservation"
+            }
+          },
+          "tasks": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ServiceTask"
+            }
+          },
+          "lines": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ServiceCostLine"
+            }
+          },
+          "outcome": {
+            "$ref": "#/components/schemas/ServiceOutcome"
+          }
+        },
+        "required": [
+          "title",
+          "customer",
+          "eventType",
+          "location",
+          "eventStartsAt",
+          "eventEndsAt",
+          "startsAt",
+          "endsAt"
+        ],
+        "additionalProperties": false
+      },
+      "ServiceUpdate": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string"
+          },
+          "eventType": {
+            "type": "string"
+          },
+          "customer": {
+            "type": "string"
+          },
+          "organizer": {
+            "type": "string"
+          },
+          "leadOrganization": {
+            "type": "string"
+          },
+          "contactName": {
+            "type": "string"
+          },
+          "contactEmail": {
+            "type": "string"
+          },
+          "contactPhone": {
+            "type": "string"
+          },
+          "location": {
+            "type": "string"
+          },
+          "eventStartsAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "eventEndsAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "startsAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "endsAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "responsibleId": {
+            "type": "string",
+            "nullable": true
+          },
+          "description": {
+            "type": "string"
+          },
+          "requirements": {
+            "type": "string"
+          },
+          "supportOnly": {
+            "type": "boolean"
+          },
+          "additionalCharges": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ServiceAdditionalCharge"
+            },
+            "default": []
+          },
+          "materialDiscounted": {
+            "type": "boolean"
+          },
+          "materialRate": {
+            "type": "string",
+            "pattern": "^[0-9]{1,10}(\\.[0-9]{1,2})?$",
+            "default": "35.00"
+          },
+          "agreedRevenue": {
+            "type": "string",
+            "pattern": "^[0-9]+(\\.[0-9]+)?$",
+            "nullable": true
+          },
+          "positions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ServicePosition"
+            }
+          },
+          "assignments": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ServiceAssignment"
+            }
+          },
+          "reservations": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ServiceReservation"
+            }
+          },
+          "tasks": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ServiceTask"
+            }
+          },
+          "lines": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ServiceCostLine"
+            }
+          },
+          "outcome": {
+            "$ref": "#/components/schemas/ServiceOutcome"
+          },
+          "version": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "version"
+        ],
+        "additionalProperties": false
+      },
+      "ServiceRecord": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string"
+          },
+          "eventType": {
+            "type": "string"
+          },
+          "customer": {
+            "type": "string"
+          },
+          "organizer": {
+            "type": "string"
+          },
+          "leadOrganization": {
+            "type": "string"
+          },
+          "contactName": {
+            "type": "string"
+          },
+          "contactEmail": {
+            "type": "string"
+          },
+          "contactPhone": {
+            "type": "string"
+          },
+          "location": {
+            "type": "string"
+          },
+          "eventStartsAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "eventEndsAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "startsAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "endsAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "responsibleId": {
+            "type": "string",
+            "nullable": true
+          },
+          "description": {
+            "type": "string"
+          },
+          "requirements": {
+            "type": "string"
+          },
+          "supportOnly": {
+            "type": "boolean"
+          },
+          "additionalCharges": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ServiceAdditionalCharge"
+            },
+            "default": []
+          },
+          "materialDiscounted": {
+            "type": "boolean"
+          },
+          "materialRate": {
+            "type": "string",
+            "pattern": "^[0-9]{1,10}(\\.[0-9]{1,2})?$",
+            "default": "35.00"
+          },
+          "agreedRevenue": {
+            "type": "string",
+            "pattern": "^[0-9]+(\\.[0-9]+)?$",
+            "nullable": true
+          },
+          "positions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ServicePosition"
+            }
+          },
+          "assignments": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ServiceAssignment"
+            }
+          },
+          "reservations": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ServiceReservation"
+            }
+          },
+          "tasks": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ServiceTask"
+            }
+          },
+          "lines": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ServiceCostLine"
+            }
+          },
+          "outcome": {
+            "$ref": "#/components/schemas/ServiceOutcome"
+          },
+          "id": {
+            "type": "string"
+          },
+          "version": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "INQUIRY",
+              "PLANNING",
+              "RELEASED",
+              "ACTIVE",
+              "REVIEW",
+              "COMPLETED",
+              "CANCELLED"
+            ]
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "MEDICAL"
+            ]
+          },
+          "pricingModel": {
+            "type": "string",
+            "enum": [
+              "HOURLY",
+              "LEGACY"
+            ],
+            "readOnly": true
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "warnings": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ServiceWarning"
+            }
+          },
+          "calculations": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ServiceCalculation"
+            }
+          },
+          "releases": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ServiceRelease"
+            }
+          },
+          "costs": {
+            "$ref": "#/components/schemas/ServiceCosts"
+          },
+          "documents": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ServiceDocument"
+            }
+          }
+        },
+        "required": [
+          "title",
+          "eventType",
+          "customer",
+          "organizer",
+          "leadOrganization",
+          "contactName",
+          "contactEmail",
+          "contactPhone",
+          "location",
+          "eventStartsAt",
+          "eventEndsAt",
+          "startsAt",
+          "endsAt",
+          "responsibleId",
+          "description",
+          "requirements",
+          "supportOnly",
+          "additionalCharges",
+          "materialDiscounted",
+          "materialRate",
+          "agreedRevenue",
+          "positions",
+          "assignments",
+          "reservations",
+          "tasks",
+          "lines",
+          "outcome",
+          "id",
+          "version",
+          "status",
+          "kind",
+          "pricingModel",
+          "createdAt",
+          "updatedAt",
+          "warnings",
+          "calculations",
+          "releases",
+          "costs",
+          "documents"
+        ],
+        "additionalProperties": false
+      },
+      "ServiceCalculation": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "method": {
+            "type": "string",
+            "enum": [
+              "MAURER",
+              "COLOGNE"
+            ]
+          },
+          "input": {
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/MaurerInput"
+              },
+              {
+                "$ref": "#/components/schemas/CologneInput"
+              }
+            ]
+          },
+          "result": {
+            "$ref": "#/components/schemas/ServiceAssessment"
+          },
+          "reason": {
+            "type": "string"
+          },
+          "methodVersion": {
+            "type": "string"
+          },
+          "sourceUrl": {
+            "type": "string"
+          },
+          "serviceId": {
+            "type": "string"
+          },
+          "createdBy": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "method",
+          "input",
+          "result",
+          "reason",
+          "methodVersion",
+          "sourceUrl",
+          "serviceId",
+          "createdBy",
+          "createdAt"
+        ],
+        "additionalProperties": false
+      },
+      "ServiceRelease": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "serviceId": {
+            "type": "string"
+          },
+          "serviceVersion": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "reason": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "createdBy": {
+            "type": "string"
+          },
+          "warnings": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ServiceWarning"
+            }
+          },
+          "snapshot": {
+            "type": "object",
+            "additionalProperties": true
+          }
+        },
+        "required": [
+          "id",
+          "serviceId",
+          "serviceVersion",
+          "reason",
+          "createdAt",
+          "createdBy",
+          "warnings",
+          "snapshot"
+        ],
+        "additionalProperties": false
+      },
+      "ServiceCosts": {
+        "type": "object",
+        "properties": {
+          "currency": {
+            "type": "string",
+            "enum": [
+              "EUR"
+            ]
+          },
+          "agreedRevenue": {
+            "type": "string",
+            "pattern": "^[0-9]+(\\.[0-9]+)?$",
+            "nullable": true
+          },
+          "planned": {
+            "type": "object",
+            "properties": {
+              "cost": {
+                "type": "string",
+                "pattern": "^[0-9]+(\\.[0-9]+)?$"
+              },
+              "revenue": {
+                "type": "string",
+                "pattern": "^[0-9]+(\\.[0-9]+)?$"
+              },
+              "result": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "cost",
+              "revenue",
+              "result"
+            ],
+            "additionalProperties": false
+          },
+          "actual": {
+            "type": "object",
+            "properties": {
+              "complete": {
+                "type": "boolean"
+              },
+              "cost": {
+                "type": "string",
+                "pattern": "^[0-9]+(\\.[0-9]+)?$",
+                "nullable": true
+              },
+              "revenue": {
+                "type": "string",
+                "pattern": "^[0-9]+(\\.[0-9]+)?$",
+                "nullable": true
+              },
+              "knownCost": {
+                "type": "string",
+                "pattern": "^[0-9]+(\\.[0-9]+)?$"
+              },
+              "knownRevenue": {
+                "type": "string",
+                "pattern": "^[0-9]+(\\.[0-9]+)?$"
+              },
+              "result": {
+                "type": "string",
+                "nullable": true
+              }
+            },
+            "required": [
+              "complete",
+              "cost",
+              "revenue",
+              "knownCost",
+              "knownRevenue",
+              "result"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "currency",
+          "agreedRevenue",
+          "planned",
+          "actual"
+        ],
+        "additionalProperties": false
+      },
+      "ServiceTransition": {
+        "type": "object",
+        "properties": {
+          "version": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "INQUIRY",
+              "PLANNING",
+              "RELEASED",
+              "ACTIVE",
+              "REVIEW",
+              "COMPLETED",
+              "CANCELLED"
+            ]
+          },
+          "reason": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "version",
+          "status"
+        ],
+        "additionalProperties": false
+      },
+      "ServiceDocument": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "serviceId": {
+            "type": "string"
+          },
+          "filename": {
+            "type": "string"
+          },
+          "mimeType": {
+            "type": "string"
+          },
+          "size": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "sha256": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "createdBy": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "serviceId",
+          "filename",
+          "mimeType",
+          "size",
+          "sha256",
+          "createdAt",
+          "createdBy"
+        ],
+        "additionalProperties": false
+      },
       "InventoryTargetChange": {
         "type": "object",
         "required": [
@@ -269,6 +2637,9 @@
             "type": "boolean"
           },
           "medicalDevicesManage": {
+            "type": "boolean"
+          },
+          "servicesManage": {
             "type": "boolean"
           }
         },
@@ -3865,6 +6236,1135 @@
     }
   ],
   "paths": {
+    "/service-permissions/me": {
+      "get": {
+        "tags": [
+          "Dienste"
+        ],
+        "operationId": "Services_permission",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Successful service operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServicePermission"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input or missing warning justification"
+          },
+          "403": {
+            "description": "Service management permission required"
+          },
+          "404": {
+            "description": "Record not found"
+          },
+          "409": {
+            "description": "Stale version or read-only service"
+          }
+        }
+      }
+    },
+    "/service-permissions/users": {
+      "get": {
+        "tags": [
+          "Dienste"
+        ],
+        "operationId": "Services_permissions",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Successful service operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ServicePermissionUser"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input or missing warning justification"
+          },
+          "403": {
+            "description": "Service management permission required"
+          },
+          "404": {
+            "description": "Record not found"
+          },
+          "409": {
+            "description": "Stale version or read-only service"
+          }
+        }
+      }
+    },
+    "/service-permissions/users/{id}": {
+      "put": {
+        "tags": [
+          "Dienste"
+        ],
+        "operationId": "Services_permission_update",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ServicePermission"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful service operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServicePermission"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input or missing warning justification"
+          },
+          "403": {
+            "description": "Service management permission required"
+          },
+          "404": {
+            "description": "Record not found"
+          },
+          "409": {
+            "description": "Stale version or read-only service"
+          }
+        }
+      }
+    },
+    "/services": {
+      "get": {
+        "tags": [
+          "Dienste"
+        ],
+        "operationId": "Services_list",
+        "parameters": [
+          {
+            "name": "from",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "to",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "eventType",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "customer",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful service operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ServiceRecord"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input or missing warning justification"
+          },
+          "403": {
+            "description": "Service management permission required"
+          },
+          "404": {
+            "description": "Record not found"
+          },
+          "409": {
+            "description": "Stale version or read-only service"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Dienste"
+        ],
+        "operationId": "Services_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ServiceWrite"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful service operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServiceRecord"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input or missing warning justification"
+          },
+          "403": {
+            "description": "Service management permission required"
+          },
+          "404": {
+            "description": "Record not found"
+          },
+          "409": {
+            "description": "Stale version or read-only service"
+          }
+        }
+      }
+    },
+    "/services/catalog": {
+      "get": {
+        "tags": [
+          "Dienste"
+        ],
+        "operationId": "Services_catalog",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Successful service operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServiceCatalog"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input or missing warning justification"
+          },
+          "403": {
+            "description": "Service management permission required"
+          },
+          "404": {
+            "description": "Record not found"
+          },
+          "409": {
+            "description": "Stale version or read-only service"
+          }
+        }
+      }
+    },
+    "/services/statistics": {
+      "get": {
+        "tags": [
+          "Dienste"
+        ],
+        "operationId": "Services_statistics",
+        "parameters": [
+          {
+            "name": "from",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "to",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "eventType",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "customer",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful service operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServiceStatistics"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input or missing warning justification"
+          },
+          "403": {
+            "description": "Service management permission required"
+          },
+          "404": {
+            "description": "Record not found"
+          },
+          "409": {
+            "description": "Stale version or read-only service"
+          }
+        }
+      }
+    },
+    "/services/statistics.csv": {
+      "get": {
+        "tags": [
+          "Dienste"
+        ],
+        "operationId": "Services_statistics_csv",
+        "parameters": [
+          {
+            "name": "from",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "to",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "eventType",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "customer",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "CSV export",
+            "content": {
+              "text/csv": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/services/people": {
+      "post": {
+        "tags": [
+          "Dienste"
+        ],
+        "operationId": "Services_create_people",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ServicePersonWrite"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful service operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServicePerson"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input or missing warning justification"
+          },
+          "403": {
+            "description": "Service management permission required"
+          },
+          "404": {
+            "description": "Record not found"
+          },
+          "409": {
+            "description": "Stale version or read-only service"
+          }
+        }
+      }
+    },
+    "/services/people/{id}": {
+      "put": {
+        "tags": [
+          "Dienste"
+        ],
+        "operationId": "Services_update_people",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ServicePersonWrite"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful service operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServicePerson"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input or missing warning justification"
+          },
+          "403": {
+            "description": "Service management permission required"
+          },
+          "404": {
+            "description": "Record not found"
+          },
+          "409": {
+            "description": "Stale version or read-only service"
+          }
+        }
+      }
+    },
+    "/services/vehicles": {
+      "post": {
+        "tags": [
+          "Dienste"
+        ],
+        "operationId": "Services_create_vehicles",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ServiceVehicleWrite"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful service operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServiceVehicle"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input or missing warning justification"
+          },
+          "403": {
+            "description": "Service management permission required"
+          },
+          "404": {
+            "description": "Record not found"
+          },
+          "409": {
+            "description": "Stale version or read-only service"
+          }
+        }
+      }
+    },
+    "/services/vehicles/{id}": {
+      "put": {
+        "tags": [
+          "Dienste"
+        ],
+        "operationId": "Services_update_vehicles",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ServiceVehicleWrite"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful service operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServiceVehicle"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input or missing warning justification"
+          },
+          "403": {
+            "description": "Service management permission required"
+          },
+          "404": {
+            "description": "Record not found"
+          },
+          "409": {
+            "description": "Stale version or read-only service"
+          }
+        }
+      }
+    },
+    "/services/tariffs": {
+      "post": {
+        "tags": [
+          "Dienste"
+        ],
+        "operationId": "Services_create_tariffs",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ServiceTariffWrite"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful service operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServiceTariff"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input or missing warning justification"
+          },
+          "403": {
+            "description": "Service management permission required"
+          },
+          "404": {
+            "description": "Record not found"
+          },
+          "409": {
+            "description": "Stale version or read-only service"
+          }
+        }
+      }
+    },
+    "/services/tariffs/{id}": {
+      "put": {
+        "tags": [
+          "Dienste"
+        ],
+        "operationId": "Services_update_tariffs",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ServiceTariffWrite"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful service operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServiceTariff"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input or missing warning justification"
+          },
+          "403": {
+            "description": "Service management permission required"
+          },
+          "404": {
+            "description": "Record not found"
+          },
+          "409": {
+            "description": "Stale version or read-only service"
+          }
+        }
+      }
+    },
+    "/services/checklists": {
+      "post": {
+        "tags": [
+          "Dienste"
+        ],
+        "operationId": "Services_create_checklists",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ServiceChecklistWrite"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful service operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServiceChecklist"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input or missing warning justification"
+          },
+          "403": {
+            "description": "Service management permission required"
+          },
+          "404": {
+            "description": "Record not found"
+          },
+          "409": {
+            "description": "Stale version or read-only service"
+          }
+        }
+      }
+    },
+    "/services/checklists/{id}": {
+      "put": {
+        "tags": [
+          "Dienste"
+        ],
+        "operationId": "Services_update_checklists",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ServiceChecklistWrite"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful service operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServiceChecklist"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input or missing warning justification"
+          },
+          "403": {
+            "description": "Service management permission required"
+          },
+          "404": {
+            "description": "Record not found"
+          },
+          "409": {
+            "description": "Stale version or read-only service"
+          }
+        }
+      }
+    },
+    "/services/{id}": {
+      "get": {
+        "tags": [
+          "Dienste"
+        ],
+        "operationId": "Services_detail",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful service operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServiceRecord"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input or missing warning justification"
+          },
+          "403": {
+            "description": "Service management permission required"
+          },
+          "404": {
+            "description": "Record not found"
+          },
+          "409": {
+            "description": "Stale version or read-only service"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Dienste"
+        ],
+        "operationId": "Services_update",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ServiceUpdate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful service operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServiceRecord"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input or missing warning justification"
+          },
+          "403": {
+            "description": "Service management permission required"
+          },
+          "404": {
+            "description": "Record not found"
+          },
+          "409": {
+            "description": "Stale version or read-only service"
+          }
+        }
+      }
+    },
+    "/services/{id}/transition": {
+      "post": {
+        "tags": [
+          "Dienste"
+        ],
+        "operationId": "Services_transition",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ServiceTransition"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful service operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServiceRecord"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input or missing warning justification"
+          },
+          "403": {
+            "description": "Service management permission required"
+          },
+          "404": {
+            "description": "Record not found"
+          },
+          "409": {
+            "description": "Stale version or read-only service"
+          }
+        }
+      }
+    },
+    "/services/{id}/calculations": {
+      "post": {
+        "tags": [
+          "Dienste"
+        ],
+        "operationId": "Services_calculation",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ServiceCalculationWrite"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful service operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServiceRecord"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input or missing warning justification"
+          },
+          "403": {
+            "description": "Service management permission required"
+          },
+          "404": {
+            "description": "Record not found"
+          },
+          "409": {
+            "description": "Stale version or read-only service"
+          }
+        }
+      }
+    },
+    "/services/{id}/documents": {
+      "get": {
+        "tags": [
+          "Dienste"
+        ],
+        "operationId": "Services_documents",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful service operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ServiceDocument"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input or missing warning justification"
+          },
+          "403": {
+            "description": "Service management permission required"
+          },
+          "404": {
+            "description": "Record not found"
+          },
+          "409": {
+            "description": "Stale version or read-only service"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Dienste"
+        ],
+        "operationId": "Services_upload",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Successful service operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServiceDocument"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input or missing warning justification"
+          },
+          "403": {
+            "description": "Service management permission required"
+          },
+          "404": {
+            "description": "Record not found"
+          },
+          "409": {
+            "description": "Stale version or read-only service"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "file",
+                  "version"
+                ],
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "binary"
+                  },
+                  "version": {
+                    "type": "integer"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/services/{id}/documents/{documentId}": {
+      "get": {
+        "tags": [
+          "Dienste"
+        ],
+        "operationId": "Services_download",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "documentId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Protected document",
+            "content": {
+              "application/octet-stream": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Service management permission required"
+          },
+          "404": {
+            "description": "Document not found"
+          }
+        }
+      }
+    },
     "/admin/settings": {
       "get": {
         "tags": [
