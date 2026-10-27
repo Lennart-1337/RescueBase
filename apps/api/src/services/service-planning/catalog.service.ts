@@ -10,6 +10,7 @@ import {
   normalizeChecklist,
 } from "./catalog-validation.js";
 import { type Input } from "./input.js";
+import { personQualifications } from "./qualification-records.js";
 export const json = (value: unknown) =>
   JSON.parse(JSON.stringify(value)) as Prisma.InputJsonValue;
 export const wire = <T>(value: T): T => JSON.parse(JSON.stringify(value)) as T;
@@ -17,10 +18,9 @@ export const wire = <T>(value: T): T => JSON.parse(JSON.stringify(value)) as T;
 export class ServiceCatalogService {
   constructor(private readonly db: PrismaService) {}
   async catalog() {
-    const [people, vehicles, tariffs, checklists, kits, devices, users] =
+    const [people, vehicles, tariffs, checklists, kits, devices, users, qualifications] =
       await Promise.all([
         this.db.person.findMany({
-          include: { qualifications: true },
           orderBy: { name: "asc" },
         }),
         this.db.serviceVehicle.findMany({ orderBy: { name: "asc" } }),
@@ -35,14 +35,12 @@ export class ServiceCatalogService {
           where: { active: true, deletedAt: null, banned: false },
           select: { id: true, displayName: true },
         }),
+        personQualifications(this.db),
       ]);
     return {
       people: people.map((person) => ({
         ...person,
-        qualifications: person.qualifications.map((q) => ({
-          ...q,
-          validUntil: q.validUntil?.toISOString().slice(0, 10) ?? null,
-        })),
+        qualifications: qualifications.filter((q) => q.personId === person.id),
       })),
       vehicles,
       tariffs,

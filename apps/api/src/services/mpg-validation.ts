@@ -7,7 +7,8 @@ export function text(value: unknown, label: string): string {
 export function optional(value: unknown): string | null { return value == null || value === "" ? null : text(value, "Angabe"); }
 export function date(value: unknown): Date {
   const result = new Date(text(value, "Datum"));
-  if (Number.isNaN(result.getTime())) throw new BadRequestException("Ungültiges Datum.");
+  if (!Number.isFinite(result.getTime()) || result.getUTCFullYear() < 1000 || result.getUTCFullYear() > 9999)
+    throw new BadRequestException("Ungültiges Datum. Das Jahr muss zwischen 1000 und 9999 liegen.");
   return result;
 }
 export function optionalDate(value: unknown) { return value ? date(value) : null; }

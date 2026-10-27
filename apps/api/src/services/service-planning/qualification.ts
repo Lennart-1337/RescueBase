@@ -1,5 +1,6 @@
 import type { WarningContext } from "./warning-context.js";
 import type { ServiceRecord } from "./record.js";
+import { storedQualificationDay } from "./qualification-records.js";
 const labels: Record<string, string> = {
   SANITARIAN: "Sanitäter", RESCUE_HELPER: "Rettungshelfer", PARAMEDIC: "Rettungssanitäter",
   EMERGENCY_PARAMEDIC: "Notfallsanitäter", PHYSICIAN: "Arzt",
@@ -18,7 +19,10 @@ export function qualificationWarning(
   const lastDay = new Intl.DateTimeFormat("en-CA", {
     timeZone: "Europe/Berlin", year: "numeric", month: "2-digit", day: "2-digit",
   }).format(new Date(endsAt.getTime() - 1));
-  if (matching.some((q) => !q.validUntil || q.validUntil.toISOString().slice(0, 10) >= lastDay)) return null;
+  const days = matching.map((q) => q.validUntil === null ? null : storedQualificationDay(q.validUntil));
+  if (matching.some((q, index) => q.validUntil === null || (days[index] !== null && days[index]! >= lastDay))) return null;
+  if (days.some((day) => day === null))
+    return `Das Gültigkeitsdatum für „${name}“ ist ungültig und muss korrigiert werden.`;
   return `Der Nachweis für „${name}“ ist nicht bis zum Ende der Teilnahme gültig.`;
 }
 

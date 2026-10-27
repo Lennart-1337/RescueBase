@@ -1,4 +1,5 @@
 import { Button, CheckboxField, Field } from "../../components/ui";
+import { GermanDateInput } from "./german-date-input";
 import {
   qualifications,
   qualificationLabels,
@@ -43,13 +44,8 @@ export function QualificationsEditor({
               </select>
             </Field>
             <Field label="Gültig bis (leer = ohne Ablaufdatum)">
-              <input
-                type="date"
-                value={row.validUntil?.slice(0, 10) ?? ""}
-                onChange={(event) =>
-                  update(index, { validUntil: event.target.value || null })
-                }
-              />
+              <GermanDateInput value={row.validUntil ?? ""}
+                onChange={(value) => update(index, { validUntil: value || null })} />
             </Field>
           </div>
           <fieldset>

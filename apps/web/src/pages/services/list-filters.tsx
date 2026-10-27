@@ -2,6 +2,7 @@ import { useState } from "react";
 import { SlidersHorizontal, Search } from "lucide-react";
 import { Button, Field } from "../../components/ui";
 import { serviceStatuses, statusLabels } from "./types";
+import { GermanDateInput, germanDateValue } from "./german-date-input";
 
 export function ListFilters({
   onApply,
@@ -10,6 +11,7 @@ export function ListFilters({
 }) {
   const [expanded, setExpanded] = useState(false);
   const [values, setValues] = useState<Record<string, string>>({});
+  const [error, setError] = useState("");
   const update = (key: string, value: string) =>
     setValues((previous) => ({ ...previous, [key]: value }));
   const advanced = ["from", "to", "customer", "eventType"].filter(
@@ -22,11 +24,16 @@ export function ListFilters({
       className="service-list-filters"
       onSubmit={(event) => {
         event.preventDefault();
-        const search = new URLSearchParams();
-        Object.entries(values).forEach(([key, value]) => {
-          if (value.trim()) search.set(key, value.trim());
-        });
-        onApply(search.toString());
+        setError("");
+        try {
+          const search = new URLSearchParams();
+          Object.entries(values).forEach(([key, value]) => {
+            if (value.trim()) search.set(key, ["from", "to"].includes(key) ? germanDateValue(value) : value.trim());
+          });
+          onApply(search.toString());
+        } catch (cause) {
+          setError(cause instanceof Error ? cause.message : "Datum ungültig.");
+        }
       }}
     >
       <div className="service-filter-bar">
@@ -75,15 +82,17 @@ export function ListFilters({
             ["eventType", "Veranstaltungsart", "text"],
           ].map(([key, label, type]) => (
             <Field key={key} label={label!}>
-              <input
+              {type === "date" ? <GermanDateInput value={values[key!] ?? ""}
+                onChange={(value) => update(key!, value)} /> : <input
                 type={type}
                 value={values[key!] ?? ""}
                 onChange={(event) => update(key!, event.target.value)}
-              />
+              />}
             </Field>
           ))}
         </div>
       ) : null}
+      {error ? <p role="alert" className="service-error">{error}</p> : null}
     </form>
   );
 }

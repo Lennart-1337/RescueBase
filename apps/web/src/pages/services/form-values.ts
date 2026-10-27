@@ -1,4 +1,5 @@
 import type { ServiceField, Values } from "./form-types";
+import { germanDateValue } from "./german-date-input";
 import {
   berlinChoices,
   berlinInput,
@@ -52,8 +53,9 @@ export function submitFormValues(
         if (field.type === "number") return [field.name, Number(value)];
         if (field.type === "decimal")
           return [field.name, String(value).trim().replace(",", ".")];
+        if (field.type === "date") return [field.name, germanDateValue(String(value))];
         if (field.type === "datetime-local") {
-          const iso = berlinIso(String(value), occurrences[field.name]);
+          const iso = berlinIso(germanDateValue(String(value), true), occurrences[field.name]);
           const original = initial[field.name];
           return [
             field.name,

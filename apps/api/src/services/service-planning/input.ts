@@ -74,7 +74,7 @@ export function timestamp(value: unknown, label = "Zeitpunkt") {
     .split(/[-T:]/)
     .map(Number);
   if (
-    !year ||
+    !year || year < 1000 ||
     !month ||
     !day ||
     month > 12 ||
@@ -86,7 +86,10 @@ export function timestamp(value: unknown, label = "Zeitpunkt") {
     throw new BadRequestException(
       `${label} ist kein gültiger Kalenderzeitpunkt.`,
     );
-  return new Date(raw).toISOString();
+  const parsed = new Date(raw);
+  if (parsed.getUTCFullYear() < 1000 || parsed.getUTCFullYear() > 9999)
+    throw new BadRequestException("Das Jahr muss zwischen 1000 und 9999 liegen.");
+  return parsed.toISOString();
 }
 export function optionalTimestamp(value: unknown) {
   return value == null || value === "" ? null : timestamp(value);
@@ -96,6 +99,7 @@ export function calendarDate(value: unknown) {
   const raw = string(value, "Gültigkeit", true);
   if (
     !/^\d{4}-\d{2}-\d{2}$/.test(raw) ||
+    Number(raw.slice(0, 4)) < 1000 ||
     !Number.isFinite(Date.parse(raw)) ||
     new Date(raw).toISOString().slice(0, 10) !== raw
   )
