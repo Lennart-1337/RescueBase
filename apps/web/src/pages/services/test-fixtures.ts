@@ -3,6 +3,7 @@ import type { Catalog, Service } from "./types";
 export const serviceFixture: Service = {
   ...emptyService(),
   kind: "MEDICAL",
+  pricingModel: "HOURLY",
   id: "service-1",
   title: "Sanitätsdienst Stadtlauf",
   customer: "Sportverein",

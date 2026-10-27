@@ -1,21 +1,28 @@
-import { calculateServiceCosts } from "@rescuebase/domain";
-import type { Prisma } from "@prisma/client";
-type Amount = string | Prisma.Decimal;
-type CostLine = {
-  plannedQuantity: Amount;
-  actualQuantity: Amount | null;
-  costRate: Amount;
-  saleRate: Amount;
-};
-export function serviceCosts(lines: CostLine[], agreed: Amount | null) {
-  return calculateServiceCosts(
-    lines.map((line) => ({
-      plannedQuantity: String(line.plannedQuantity),
-      actualQuantity:
-        line.actualQuantity === null ? null : String(line.actualQuantity),
-      costRate: String(line.costRate),
-      saleRate: String(line.saleRate),
+import {
+  calculateAttendancePricing,
+  calculateServiceCosts,
+} from "@rescuebase/domain";
+import type { ServiceRecord } from "./record.js";
+export function serviceCosts(row: ServiceRecord) {
+  if (row.pricingModel === "LEGACY")
+    return calculateServiceCosts(
+      row.lines.map((line) => ({
+        plannedQuantity: String(line.plannedQuantity),
+        actualQuantity:
+          line.actualQuantity === null ? null : String(line.actualQuantity),
+        costRate: String(line.costRate),
+        saleRate: String(line.saleRate),
+      })),
+      row.agreedRevenue === null ? null : String(row.agreedRevenue),
+    );
+  return calculateAttendancePricing(
+    row.assignments.map((assignment) => ({
+      startsAt: assignment.startsAt.toISOString(),
+      endsAt: assignment.endsAt.toISOString(),
+      actualStartsAt: assignment.actualStartsAt?.toISOString() ?? null,
+      actualEndsAt: assignment.actualEndsAt?.toISOString() ?? null,
+      hourlyRate: String(assignment.hourlyRate),
     })),
-    agreed === null ? null : String(agreed),
+    row.materialDiscounted,
   );
 }

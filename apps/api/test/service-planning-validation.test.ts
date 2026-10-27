@@ -3,7 +3,6 @@ import {
   normalizePerson,
 } from "../src/services/service-planning/validation.js";
 import { validateTransition } from "../src/services/service-planning/lifecycle.js";
-import { serviceCosts } from "../src/services/service-planning/costs.js";
 const base = {
   title: "Stadtlauf",
   customer: "Veranstalter",
@@ -36,7 +35,7 @@ describe("service planning input and lifecycle", () => {
       }),
     ).toThrow();
   });
-  it("rejects a duplicate person, dangling positions and pauses exceeding attendance", () => {
+  it("rejects a duplicate person, dangling positions and invalid hourly prices", () => {
     const position = {
       id: "p",
       name: "Posten",
@@ -64,7 +63,7 @@ describe("service planning input and lifecycle", () => {
       normalizeService({
         ...base,
         positions: [position],
-        assignments: [{ ...person, breakMinutes: 9999 }],
+        assignments: [{ ...person, hourlyRate: "-5" }],
       }),
     ).toThrow();
   });
@@ -78,22 +77,5 @@ describe("service planning input and lifecycle", () => {
       validateTransition("COMPLETED", "REVIEW", "Nachtrag Stunden", 0),
     ).not.toThrow();
     expect(() => validateTransition("INQUIRY", "COMPLETED", "", 0)).toThrow();
-  });
-  it("rounds each money line exactly and does not turn unknown actuals into zero", () => {
-    const costs = serviceCosts(
-      [
-        {
-          plannedQuantity: "3",
-          actualQuantity: null,
-          costRate: "0.335",
-          saleRate: "0.5",
-        },
-      ],
-      null,
-    );
-    expect(costs.planned.cost).toBe("1.01");
-    expect(costs.planned.revenue).toBe("1.50");
-    expect(costs.actual.cost).toBeNull();
-    expect(costs.actual.knownCost).toBe("0.00");
   });
 });

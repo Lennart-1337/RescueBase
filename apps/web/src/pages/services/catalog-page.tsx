@@ -5,27 +5,11 @@ import { ServiceForm, text, type ServiceField } from "./form";
 import { QueryState } from "./query-state";
 import { People } from "./people";
 import { ServiceTable } from "./table";
-import {
-  categoryLabels,
-  type Catalog,
-  type Checklist,
-  type Tariff,
-  type Vehicle,
-} from "./types";
-export type CatalogView = "people" | "vehicles" | "tariffs" | "checklists";
+import { type Catalog, type Checklist, type Vehicle } from "./types";
+export type CatalogView = "people" | "vehicles" | "checklists";
 const headings = {
   vehicles: "Fahrzeuge",
-  tariffs: "Tarife",
   checklists: "Vorbereitungslisten",
-};
-const categoryField: ServiceField = {
-  name: "category",
-  label: "Kategorie",
-  required: true,
-  options: Object.entries(categoryLabels).map(([value, label]) => ({
-    value,
-    label,
-  })),
 };
 const fields: Record<Exclude<CatalogView, "people">, ServiceField[]> = {
   vehicles: [
@@ -34,24 +18,6 @@ const fields: Record<Exclude<CatalogView, "people">, ServiceField[]> = {
     text("type", "Fahrzeugtyp", true),
     { name: "ready", label: "Einsatzbereit", type: "checkbox" },
     { name: "notes", label: "Hinweise", type: "textarea" },
-    { name: "active", label: "Aktiv", type: "checkbox" },
-  ],
-  tariffs: [
-    text("name", "Tarifbezeichnung", true),
-    categoryField,
-    text("unit", "Einheit (z. B. Stunde)", true),
-    {
-      name: "costRate",
-      label: "Kostensatz (EUR)",
-      type: "decimal",
-      required: true,
-    },
-    {
-      name: "saleRate",
-      label: "Verkaufssatz (EUR)",
-      type: "decimal",
-      required: true,
-    },
     { name: "active", label: "Aktiv", type: "checkbox" },
   ],
   checklists: [
@@ -73,11 +39,11 @@ function CatalogRecords({
   view: Exclude<CatalogView, "people">;
 }) {
   const action = useServiceAction();
-  const [editing, setEditing] = useState<
-    Vehicle | Tariff | Checklist | "new" | null
-  >(null);
+  const [editing, setEditing] = useState<Vehicle | Checklist | "new" | null>(
+    null,
+  );
   const row = editing && editing !== "new" ? editing : undefined;
-  const records = catalog[view] as (Vehicle | Tariff | Checklist)[];
+  const records = catalog[view] as (Vehicle | Checklist)[];
   return (
     <section className="service-section">
       <header className="service-section-header">
@@ -98,9 +64,7 @@ function CatalogRecords({
                 <small>
                   {"registration" in record
                     ? `${record.registration} · ${record.type}`
-                    : "unit" in record
-                      ? `${categoryLabels[record.category]} · ${record.unit}`
-                      : `${record.tasks.length} Aufgaben`}
+                    : `${record.tasks.length} Aufgaben`}
                 </small>
               </>
             ),

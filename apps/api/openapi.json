@@ -995,9 +995,6 @@
                 "type": "integer",
                 "minimum": 0
               },
-              "breakCoverageUncertain": {
-                "type": "boolean"
-              },
               "coverageBasis": {
                 "type": "string",
                 "enum": [
@@ -1175,7 +1172,6 @@
             "required": [
               "requiredPersonnelMinutes",
               "coveredPersonnelMinutes",
-              "breakCoverageUncertain",
               "coverageBasis",
               "occupancyRate",
               "services",
@@ -1249,9 +1245,6 @@
           "coveredPersonnelMinutes": {
             "type": "integer",
             "minimum": 0
-          },
-          "breakCoverageUncertain": {
-            "type": "boolean"
           },
           "coverageBasis": {
             "type": "string",
@@ -1348,7 +1341,6 @@
         "required": [
           "requiredPersonnelMinutes",
           "coveredPersonnelMinutes",
-          "breakCoverageUncertain",
           "coverageBasis",
           "occupancyRate",
           "id",
@@ -1449,9 +1441,9 @@
             "type": "string",
             "format": "date-time"
           },
-          "breakMinutes": {
-            "type": "integer",
-            "minimum": 0
+          "hourlyRate": {
+            "type": "string",
+            "pattern": "^[0-9]+(\\.[0-9]+)?$"
           },
           "actualStartsAt": {
             "type": "string",
@@ -1462,10 +1454,6 @@
             "type": "string",
             "format": "date-time",
             "nullable": true
-          },
-          "actualBreakMinutes": {
-            "type": "integer",
-            "minimum": 0
           },
           "qualification": {
             "type": "string",
@@ -1484,10 +1472,9 @@
           "positionId",
           "startsAt",
           "endsAt",
-          "breakMinutes",
+          "hourlyRate",
           "actualStartsAt",
           "actualEndsAt",
-          "actualBreakMinutes",
           "qualification"
         ],
         "additionalProperties": false
@@ -1743,6 +1730,9 @@
           "supportOnly": {
             "type": "boolean"
           },
+          "materialDiscounted": {
+            "type": "boolean"
+          },
           "agreedRevenue": {
             "type": "string",
             "pattern": "^[0-9]+(\\.[0-9]+)?$",
@@ -1853,6 +1843,9 @@
           "supportOnly": {
             "type": "boolean"
           },
+          "materialDiscounted": {
+            "type": "boolean"
+          },
           "agreedRevenue": {
             "type": "string",
             "pattern": "^[0-9]+(\\.[0-9]+)?$",
@@ -1960,6 +1953,9 @@
           "supportOnly": {
             "type": "boolean"
           },
+          "materialDiscounted": {
+            "type": "boolean"
+          },
           "agreedRevenue": {
             "type": "string",
             "pattern": "^[0-9]+(\\.[0-9]+)?$",
@@ -2023,6 +2019,14 @@
               "MEDICAL"
             ]
           },
+          "pricingModel": {
+            "type": "string",
+            "enum": [
+              "HOURLY",
+              "LEGACY"
+            ],
+            "readOnly": true
+          },
           "createdAt": {
             "type": "string",
             "format": "date-time"
@@ -2077,6 +2081,7 @@
           "description",
           "requirements",
           "supportOnly",
+          "materialDiscounted",
           "agreedRevenue",
           "positions",
           "assignments",
@@ -2088,6 +2093,7 @@
           "version",
           "status",
           "kind",
+          "pricingModel",
           "createdAt",
           "updatedAt",
           "warnings",

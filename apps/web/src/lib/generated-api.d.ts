@@ -2647,7 +2647,6 @@ export interface components {
             totals: {
                 requiredPersonnelMinutes: number;
                 coveredPersonnelMinutes: number;
-                breakCoverageUncertain: boolean;
                 /** @enum {string} */
                 coverageBasis: "NOMINAL_ASSIGNMENTS";
                 occupancyRate: number | null;
@@ -2697,7 +2696,6 @@ export interface components {
         ServiceStatisticRow: {
             requiredPersonnelMinutes: number;
             coveredPersonnelMinutes: number;
-            breakCoverageUncertain: boolean;
             /** @enum {string} */
             coverageBasis: "NOMINAL_ASSIGNMENTS";
             occupancyRate: number | null;
@@ -2747,12 +2745,11 @@ export interface components {
             startsAt: string;
             /** Format: date-time */
             endsAt: string;
-            breakMinutes: number;
+            hourlyRate: string;
             /** Format: date-time */
             actualStartsAt: string | null;
             /** Format: date-time */
             actualEndsAt: string | null;
-            actualBreakMinutes: number;
             /** @enum {string} */
             qualification: "SANITARIAN" | "RESCUE_HELPER" | "PARAMEDIC" | "EMERGENCY_PARAMEDIC" | "PHYSICIAN";
         };
@@ -2824,6 +2821,7 @@ export interface components {
             description?: string;
             requirements?: string;
             supportOnly?: boolean;
+            materialDiscounted?: boolean;
             agreedRevenue?: string | null;
             positions?: components["schemas"]["ServicePosition"][];
             assignments?: components["schemas"]["ServiceAssignment"][];
@@ -2854,6 +2852,7 @@ export interface components {
             description?: string;
             requirements?: string;
             supportOnly?: boolean;
+            materialDiscounted?: boolean;
             agreedRevenue?: string | null;
             positions?: components["schemas"]["ServicePosition"][];
             assignments?: components["schemas"]["ServiceAssignment"][];
@@ -2885,6 +2884,7 @@ export interface components {
             description: string;
             requirements: string;
             supportOnly: boolean;
+            materialDiscounted: boolean;
             agreedRevenue: string | null;
             positions: components["schemas"]["ServicePosition"][];
             assignments: components["schemas"]["ServiceAssignment"][];
@@ -2898,6 +2898,8 @@ export interface components {
             status: "INQUIRY" | "PLANNING" | "RELEASED" | "ACTIVE" | "REVIEW" | "COMPLETED" | "CANCELLED";
             /** @enum {string} */
             kind: "MEDICAL";
+            /** @enum {string} */
+            readonly pricingModel: "HOURLY" | "LEGACY";
             /** Format: date-time */
             createdAt: string;
             /** Format: date-time */

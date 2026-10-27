@@ -16,7 +16,7 @@ const assignment = {
   qualification: "SANITARIAN",
   startsAt,
   endsAt,
-  breakMinutes: 0,
+  hourlyRate: "0",
 };
 const service = {
   id: "service",
@@ -82,9 +82,8 @@ describe("service scheduling domain regression review", () => {
       ...service.assignments[0]!,
       startsAt: new Date("2026-10-25T01:00:00+02:00"),
       endsAt: new Date("2026-10-25T03:00:00+01:00"),
-      breakMinutes: 15,
     };
-    expect(attendanceMinutes(row)).toBe(165);
+    expect(attendanceMinutes(row)).toBe(180);
   });
   test("adjacent resource and personnel assignments do not conflict", () => {
     const peer = {

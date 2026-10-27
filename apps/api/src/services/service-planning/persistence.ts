@@ -13,6 +13,7 @@ export const scalarData = ({
   ...data
 }: ServiceWrite) => ({
   ...data,
+  pricingModel: "HOURLY",
   eventStartsAt: new Date(data.eventStartsAt),
   eventEndsAt: new Date(data.eventEndsAt),
   startsAt: new Date(data.startsAt),

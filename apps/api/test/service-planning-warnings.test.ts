@@ -27,7 +27,7 @@ const service = {
       qualification: "SANITARIAN",
       startsAt: start,
       endsAt: end,
-      breakMinutes: 0,
+      hourlyRate: "0",
     },
   ],
   reservations: [

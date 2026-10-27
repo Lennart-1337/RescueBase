@@ -146,12 +146,6 @@ export function evaluateWarnings(
         `Position „${p.name}“ ist nicht durchgehend ausreichend besetzt.`,
         p.id,
       );
-    if (assigned.some((a) => a.breakMinutes > 0))
-      add(
-        "BREAK_COVERAGE",
-        `Pausenablösung für „${p.name}“ muss fachlich abgestimmt werden.`,
-        p.id,
-      );
   }
   if (
     service.status === "REVIEW" &&

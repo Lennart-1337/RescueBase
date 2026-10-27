@@ -13,7 +13,6 @@ export const serviceViews = [
   { value: "statistics", label: "Statistik" },
   { value: "people", label: "Personal" },
   { value: "vehicles", label: "Fahrzeuge" },
-  { value: "tariffs", label: "Tarife" },
   { value: "checklists", label: "Vorbereitungslisten" },
 ] as const;
 export type ServiceView = (typeof serviceViews)[number]["value"];

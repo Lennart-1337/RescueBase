@@ -105,6 +105,7 @@ describe("integrated service planning", () => {
               personId: p.id,
               positionId: "post",
               qualification: "SANITARIAN",
+              hourlyRate: "20.00",
               startsAt: base.startsAt,
               endsAt: base.endsAt,
             },
@@ -137,9 +138,9 @@ describe("integrated service planning", () => {
     expect(service.status).toBe("INQUIRY");
     expect(service.calculations).toHaveLength(0);
     expect(service.costs.planned).toMatchObject({
-      cost: "100.00",
-      revenue: "160.00",
-      result: "60.00",
+      cost: "0.00",
+      revenue: "195.00",
+      result: "195.00",
     });
     await agent
       .put(`/services/tariffs/${t.id}`)
@@ -259,12 +260,12 @@ describe("integrated service planning", () => {
         .put(`/services/${service.id}`)
         .send({
           version: service.version,
+          materialDiscounted: true,
           assignments: [
             {
               ...service.assignments[0],
               actualStartsAt: base.startsAt,
               actualEndsAt: base.endsAt,
-              actualBreakMinutes: 30,
             },
           ],
           outcome: {
@@ -279,6 +280,9 @@ describe("integrated service planning", () => {
         .expect(200)
     ).body;
     expect(service.status).toBe("REVIEW");
+    expect(service.materialDiscounted).toBe(true);
+    expect(service.costs.actual.revenue).toBe("160.00");
+    expect(service.assignments[0]).not.toHaveProperty("breakMinutes");
     service = (
       await agent
         .post(`/services/${service.id}/transition`)
@@ -315,7 +319,7 @@ describe("integrated service planning", () => {
       stats.rows.find((r: { id: string }) => r.id === service.id),
     ).toMatchObject({
       plannedMinutes: 480,
-      actualMinutes: 450,
+      actualMinutes: 480,
       forecastComparable: false,
       outcome: { treatments: 0 },
     });

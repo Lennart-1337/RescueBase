@@ -7,13 +7,12 @@ const first = {
   personId: "p",
   startsAt: "2026-10-25T01:00:00+02:00",
   endsAt: "2026-10-25T03:00:00+01:00",
-  breakMinutes: 15,
 };
 describe("service personnel intervals", () => {
   test("calculates elapsed time across DST rather than clock difference", () => {
     expect(calculatePersonnelMinutes([first])).toEqual({
-      totalMinutes: 165,
-      byPerson: { p: 165 },
+      totalMinutes: 180,
+      byPerson: { p: 180 },
     });
   });
   test("adjacent intervals do not conflict; overlapping intervals do", () => {
@@ -36,12 +35,11 @@ describe("service personnel intervals", () => {
       calculatePersonnelMinutes([first, { ...first, id: "b" }]),
     ).toThrow();
   });
-  test("rejects missing timezones, inverted dates, impossible dates and oversized breaks", () => {
+  test("rejects missing timezones, inverted dates, impossible dates", () => {
     for (const item of [
       { ...first, startsAt: "2026-10-25T01:00:00" },
       { ...first, startsAt: first.endsAt },
       { ...first, startsAt: "2026-02-30T01:00:00Z" },
-      { ...first, breakMinutes: 181 },
     ])
       expect(() => calculatePersonnelMinutes([item])).toThrow();
   });

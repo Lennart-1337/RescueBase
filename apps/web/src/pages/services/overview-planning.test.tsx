@@ -22,10 +22,9 @@ function assignment(
     qualification: "SANITARIAN",
     startsAt,
     endsAt,
-    breakMinutes: 0,
     actualStartsAt: null,
     actualEndsAt: null,
-    actualBreakMinutes: 0,
+    hourlyRate: "0",
   };
 }
 describe("overview planning counts", () => {

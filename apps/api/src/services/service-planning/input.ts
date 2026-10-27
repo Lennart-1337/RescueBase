@@ -115,12 +115,9 @@ export function decimal(value: unknown, places = 4) {
 }
 export const id = (value: unknown) =>
   value ? string(value, "Kennung", true) : randomUUID();
-export function interval(start: string, end: string, pause = 0) {
-  if (
-    Date.parse(end) <= Date.parse(start) ||
-    pause * 60000 >= Date.parse(end) - Date.parse(start)
-  )
-    throw new BadRequestException("Zeitraum oder Pausendauer ist ungültig.");
+export function interval(start: string, end: string) {
+  if (Date.parse(end) <= Date.parse(start))
+    throw new BadRequestException("Zeitraum ist ungültig.");
 }
 export function unique(values: string[], label: string) {
   if (new Set(values).size !== values.length)

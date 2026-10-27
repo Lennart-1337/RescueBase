@@ -75,6 +75,7 @@ export function emptyService(): ServiceWrite {
     requirements: "",
     supportOnly: false,
     agreedRevenue: null,
+    materialDiscounted: false,
     positions: [],
     assignments: [],
     reservations: [],

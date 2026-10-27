@@ -1111,6 +1111,8 @@ model ServiceEvent {
   requirements String @db.Text
   supportOnly Boolean @default(false)
   agreedRevenue Decimal? @db.Decimal(14, 2)
+  materialDiscounted Boolean @default(false)
+  pricingModel String @default("HOURLY")
   outcome Json
   version Int @default(0)
   positions ServicePosition[]
@@ -1147,10 +1149,9 @@ model ServiceAssignment {
   qualification String
   startsAt DateTime
   endsAt DateTime
-  breakMinutes Int @default(0)
+  hourlyRate Decimal @default(0) @db.Decimal(14, 4)
   actualStartsAt DateTime?
   actualEndsAt DateTime?
-  actualBreakMinutes Int @default(0)
   @@unique([serviceId, personId])
   @@index([startsAt, endsAt])
 }

@@ -21,8 +21,8 @@ export function StatisticsSummary({ result }: { result: ServiceStatistics }) {
           <dd>{formatMinutes(totals.actualMinutes)}</dd>
         </div>
         <div>
-          <dt>Ergebnis Ist</dt>
-          <dd>{money(totals.actualResult)}</dd>
+          <dt>Betrag tatsächlich</dt>
+          <dd>{money(totals.actualRevenue)}</dd>
         </div>
         <div>
           <dt>Hilfeleistungen</dt>
@@ -45,9 +45,7 @@ export function StatisticsSummary({ result }: { result: ServiceStatistics }) {
               <dt>Besetzungsgrad</dt>
               <dd>
                 {totals.occupancyRate == null
-                  ? totals.breakCoverageUncertain
-                    ? "Pausenabdeckung offen"
-                    : "Kein Bedarf erfasst"
+                  ? "Kein Bedarf erfasst"
                   : `${(totals.occupancyRate * 100).toLocaleString("de-DE", { maximumFractionDigits: 1 })} %`}
               </dd>
             </div>
@@ -63,20 +61,12 @@ export function StatisticsSummary({ result }: { result: ServiceStatistics }) {
               <dd>{formatMinutes(totals.plannedMinutes)}</dd>
             </div>
             <div>
-              <dt>Plankosten / Planerlös</dt>
-              <dd>
-                {money(totals.plannedCost)} / {money(totals.plannedRevenue)}
-              </dd>
+              <dt>Betrag geplant</dt>
+              <dd>{money(totals.plannedRevenue)}</dd>
             </div>
             <div>
-              <dt>Planergebnis</dt>
-              <dd>{money(totals.plannedResult)}</dd>
-            </div>
-            <div>
-              <dt>Ist-Kosten / Ist-Erlös</dt>
-              <dd>
-                {money(totals.actualCost)} / {money(totals.actualRevenue)}
-              </dd>
+              <dt>Betrag tatsächlich</dt>
+              <dd>{money(totals.actualRevenue)}</dd>
             </div>
           </dl>
           <section>

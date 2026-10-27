@@ -56,7 +56,7 @@ export class ServiceEventsService {
     return {
       ...row,
       warnings: warnings ?? (await serviceWarnings(this.db, row)),
-      costs: serviceCosts(row.lines, row.agreedRevenue),
+      costs: serviceCosts(row),
     };
   }
   async save(id: string | null, body: Input, actor: string) {

@@ -10,10 +10,9 @@ const assignment = {
   qualification: "SANITARIAN",
   startsAt: start,
   endsAt: end,
-  breakMinutes: 0,
+  hourlyRate: "12.50",
   actualStartsAt: null,
   actualEndsAt: null,
-  actualBreakMinutes: 0,
 };
 const record = {
   id: "s",
@@ -25,6 +24,7 @@ const record = {
   assignments: [assignment],
   lines: [],
   agreedRevenue: null,
+  materialDiscounted: false,
   calculations: [],
   outcome: {},
   supportOnly: false,
@@ -86,18 +86,6 @@ describe("time-weighted service staffing statistics", () => {
     expect(
       serviceStatistics([record, unfilled]).totals.occupancyRate,
     ).toBeCloseTo(120 / 180);
-  });
-  test("unlocated breaks prevent a fabricated exact occupancy rate", () => {
-    const row = {
-      ...record,
-      assignments: [{ ...assignment, breakMinutes: 15 }],
-    } as ServiceRecord;
-    expect(serviceStatistics([row]).totals).toMatchObject({
-      occupancyRate: null,
-      breakCoverageUncertain: true,
-      coverageBasis: "NOMINAL_ASSIGNMENTS",
-      coveredPersonnelMinutes: 120,
-    });
   });
   test("no positions means unknown occupancy, rather than a phantom zero", () => {
     expect(

@@ -26,9 +26,7 @@ export function statisticsColumns(
       label: "Besetzung",
       render: (row) =>
         row.occupancyRate == null
-          ? row.breakCoverageUncertain
-            ? "Pausen offen"
-            : "Kein Bedarf"
+          ? "Kein Bedarf"
           : `${(row.occupancyRate * 100).toLocaleString("de-DE", { maximumFractionDigits: 1 })} %`,
     },
     {

@@ -29,10 +29,7 @@ export function attendanceMinutes(
 ) {
   const start = actual ? assignment.actualStartsAt : assignment.startsAt,
     end = actual ? assignment.actualEndsAt : assignment.endsAt;
-  return start && end
-    ? (end.getTime() - start.getTime()) / 60000 -
-        (actual ? assignment.actualBreakMinutes : assignment.breakMinutes)
-    : null;
+  return start && end ? (end.getTime() - start.getTime()) / 60000 : null;
 }
 export function planningSnapshot(value: ServiceRecord) {
   return {
@@ -47,7 +44,7 @@ export function planningSnapshot(value: ServiceRecord) {
       ({
         actualStartsAt: _start,
         actualEndsAt: _end,
-        actualBreakMinutes: _pause,
+        hourlyRate: _rate,
         ...row
       }) => row,
     ),

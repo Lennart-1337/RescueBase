@@ -46,15 +46,13 @@ export function Personnel({
     qualificationField,
     datetime("startsAt", "Geplanter Beginn", true),
     datetime("endsAt", "Geplantes Ende", true),
-    number("breakMinutes", "Geplante Pause (Minuten)", true),
     datetime("actualStartsAt", "Tatsächlicher Beginn"),
     datetime("actualEndsAt", "Tatsächliches Ende"),
-    number("actualBreakMinutes", "Tatsächliche Pause (Minuten)", true),
   ];
   const groupedAssignmentFields = assignmentFields.map((field, index) => ({
     ...field,
-    group: index < 3 ? "Zuteilung" : index < 6 ? "Geplant" : "Tatsächlich",
-    disclosure: index >= 6,
+    group: index < 3 ? "Zuteilung" : index < 5 ? "Geplant" : "Tatsächlich",
+    disclosure: index >= 5,
   }));
   const name = (id: string) =>
     catalog.people.find((person) => person.id === id)?.name ??
@@ -106,13 +104,13 @@ export function Personnel({
         defaults={{
           startsAt: service.startsAt,
           endsAt: service.endsAt,
-          breakMinutes: 0,
-          actualBreakMinutes: 0,
+          hourlyRate: "0",
         }}
         locked={locked}
         build={(values, previous) =>
           ({
             id: previous?.id ?? "",
+            hourlyRate: previous?.hourlyRate ?? "0",
             ...values,
             qualification: values.qualification as Qualification,
           }) as ServiceAssignment
@@ -144,9 +142,7 @@ export function Personnel({
             render: (row) => (
               <>
                 {displayTime(row.startsAt)}
-                <small>
-                  bis {displayTime(row.endsAt)} · Pause {row.breakMinutes} Min.
-                </small>
+                <small>bis {displayTime(row.endsAt)}</small>
               </>
             ),
           },
@@ -164,7 +160,7 @@ export function Personnel({
                         (Date.parse(row.actualEndsAt) -
                           Date.parse(row.actualStartsAt)) /
                           60000,
-                      ) - row.actualBreakMinutes,
+                      ),
                     )}
                   </small>
                 </>

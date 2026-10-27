@@ -1,10 +1,10 @@
-import { assertNumber, safeInteger } from "./validation.js";
+import { safeInteger } from "./validation.js";
+import { attendanceTimestamp } from "./attendance-time.js";
 export interface PersonnelInterval {
   id: string;
   personId: string;
   startsAt: string;
   endsAt: string;
-  breakMinutes: number;
 }
 export interface PersonnelConflict {
   personId: string;
@@ -19,26 +19,6 @@ interface ParsedInterval extends PersonnelInterval {
   start: number;
   end: number;
 }
-function timestamp(value: string): number {
-  const match =
-    /^(\d{4})-(\d{2})-(\d{2})T\d{2}:\d{2}:00(?:\.000)?(?:Z|[+-]\d{2}:\d{2})$/.exec(
-      value,
-    );
-  if (!match)
-    throw new Error(
-      "Time must be an ISO timestamp with timezone and whole minutes.",
-    );
-  const calendar = new Date(`${match[1]}-${match[2]}-${match[3]}T00:00:00Z`);
-  if (
-    !Number.isFinite(calendar.getTime()) ||
-    calendar.toISOString().slice(0, 10) !== value.slice(0, 10)
-  ) {
-    throw new Error("Invalid calendar date.");
-  }
-  const parsed = Date.parse(value);
-  if (!Number.isFinite(parsed)) throw new Error("Invalid timestamp.");
-  return parsed;
-}
 function parse(input: PersonnelInterval[]): ParsedInterval[] {
   const ids = new Set<string>();
   return input.map((interval) => {
@@ -50,12 +30,9 @@ function parse(input: PersonnelInterval[]): ParsedInterval[] {
       throw new Error("Personnel intervals need unique IDs and a person ID.");
     }
     ids.add(interval.id);
-    const start = timestamp(interval.startsAt);
-    const end = timestamp(interval.endsAt);
+    const start = attendanceTimestamp(interval.startsAt);
+    const end = attendanceTimestamp(interval.endsAt);
     if (end <= start) throw new Error("endsAt must be after startsAt.");
-    assertNumber(interval.breakMinutes, "breakMinutes", 0, true);
-    if (interval.breakMinutes > (end - start) / 60000)
-      throw new Error("Break exceeds interval.");
     return { ...interval, start, end };
   });
 }
@@ -93,7 +70,7 @@ export function calculatePersonnelMinutes(
   const totals = new Map<string, bigint>();
   for (const interval of intervals) {
     const minutes = BigInt(
-      (interval.end - interval.start) / 60000 - interval.breakMinutes,
+      (interval.end - interval.start) / 60000,
     );
     totals.set(
       interval.personId,

@@ -14,7 +14,6 @@ const money = nullable(decimal),
 const coverage = {
   requiredPersonnelMinutes: integer,
   coveredPersonnelMinutes: integer,
-  breakCoverageUncertain: boolean,
   coverageBasis: { type: "string", enum: ["NOMINAL_ASSIGNMENTS"] },
   occupancyRate: nullable({ type: "number", minimum: 0, maximum: 1 }),
 };

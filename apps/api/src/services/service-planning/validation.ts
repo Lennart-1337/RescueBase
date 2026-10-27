@@ -63,6 +63,7 @@ export function normalizeService(body: Input): ServiceWrite {
     eventEndsAt: timestamp(body.eventEndsAt),
     responsibleId: nullable(body.responsibleId),
     supportOnly: bool(body.supportOnly),
+    materialDiscounted: bool(body.materialDiscounted),
     agreedRevenue:
       body.agreedRevenue == null || body.agreedRevenue === ""
         ? null
@@ -87,10 +88,9 @@ export function normalizeService(body: Input): ServiceWrite {
         qualification: choice(p.qualification, qualifications),
         startsAt: timestamp(p.startsAt),
         endsAt: timestamp(p.endsAt),
-        breakMinutes: integer(p.breakMinutes),
+        hourlyRate: decimal(p.hourlyRate ?? "0"),
         actualStartsAt: optionalTimestamp(p.actualStartsAt),
         actualEndsAt: optionalTimestamp(p.actualEndsAt),
-        actualBreakMinutes: integer(p.actualBreakMinutes),
       };
     }),
     reservations: array(body.reservations).map((value) => {
@@ -180,7 +180,7 @@ function validateChildren(data: ServiceWrite) {
     if (!p.quantity)
       throw new BadRequestException("Positionsbedarf muss positiv sein.");
   for (const a of data.assignments) {
-    interval(a.startsAt, a.endsAt, a.breakMinutes);
+    interval(a.startsAt, a.endsAt);
     if (!data.positions.some((p) => p.id === a.positionId))
       throw new BadRequestException(
         "Zuteilung benötigt eine vorhandene Position.",
@@ -197,9 +197,7 @@ function validateChildren(data: ServiceWrite) {
         "Tatsächlicher Zeitraum muss vollständig sein.",
       );
     if (a.actualStartsAt && a.actualEndsAt)
-      interval(a.actualStartsAt, a.actualEndsAt, a.actualBreakMinutes);
-    else if (a.actualBreakMinutes)
-      throw new BadRequestException("Ist-Pause benötigt einen Ist-Zeitraum.");
+      interval(a.actualStartsAt, a.actualEndsAt);
   }
   for (const r of data.reservations) interval(r.startsAt, r.endsAt);
 }

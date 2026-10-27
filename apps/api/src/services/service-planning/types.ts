@@ -31,10 +31,9 @@ export type ServiceAssignment = {
   positionId: string;
   startsAt: string;
   endsAt: string;
-  breakMinutes: number;
+  hourlyRate: string;
   actualStartsAt: string | null;
   actualEndsAt: string | null;
-  actualBreakMinutes: number;
   qualification: Qualification;
 };
 export type ServiceReservation = {
@@ -90,6 +89,7 @@ export type ServiceWrite = {
   requirements: string;
   supportOnly: boolean;
   agreedRevenue: string | null;
+  materialDiscounted: boolean;
   positions: ServicePosition[];
   assignments: ServiceAssignment[];
   reservations: ServiceReservation[];
@@ -217,7 +217,6 @@ export type ServiceCoverage = {
   requiredPersonnelMinutes: number;
   coveredPersonnelMinutes: number;
   occupancyRate: number | null;
-  breakCoverageUncertain: boolean;
   coverageBasis: "NOMINAL_ASSIGNMENTS";
 };
 export type ServiceStatisticRow = ServiceCoverage & {

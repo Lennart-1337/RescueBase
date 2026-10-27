@@ -55,37 +55,14 @@ const renderQueries = (node: React.ReactNode) =>
     </QueryClientProvider>,
   );
 afterEach(() => vi.clearAllMocks());
-it("keeps financial editing out of the main view and preserves rates in the table", async () => {
-  render(
-    <Finance
-      {...props}
-      service={{
-        ...serviceFixture,
-        lines: [
-          {
-            id: "l",
-            label: "Sanität",
-            category: "PERSONNEL",
-            unit: "h",
-            tariffId: null,
-            plannedQuantity: "2",
-            actualQuantity: null,
-            costRate: "0.3355",
-            saleRate: "0.1255",
-          },
-        ],
-      }}
-    />,
-  );
-  expect(screen.queryByRole("form")).not.toBeInTheDocument();
-  expect(screen.getByText(/0,3355/)).toBeVisible();
-  fireEvent.click(screen.getByRole("button", { name: "Preis vereinbaren" }));
-  await waitFor(() =>
-    expect(
-      screen.getByRole("dialog", { name: "Preis vereinbaren" }),
-    ).toBeVisible(),
-  );
-  expect(screen.getByLabelText("Vereinbarter Erlös (EUR)")).toHaveValue("");
+it("keeps offer and invoice creation disabled until templates are ready", () => {
+  render(<Finance {...props} />);
+  expect(
+    screen.getByRole("button", { name: "Angebot erstellen" }),
+  ).toBeDisabled();
+  expect(
+    screen.getByRole("button", { name: "Rechnung erstellen" }),
+  ).toBeDisabled();
 });
 it("puts calculation review behind one disclosure without hiding its findings", () => {
   render(<AssessmentResult calculation={calculation} />);

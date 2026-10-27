@@ -265,3 +265,4 @@ export * from './mpg/glucose.js';
 export * from './services/staffing.js';
 export * from './services/costs.js';
 export * from './services/personnel.js';
+export * from './services/attendance-pricing.js';
