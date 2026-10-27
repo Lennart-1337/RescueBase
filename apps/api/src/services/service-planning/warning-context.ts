@@ -7,7 +7,7 @@ export type WarningContext = {
     leader: boolean;
     qualifications: {
       qualification: string;
-      validUntil: Date | null;
+      validUntil: Date | string | null;
       recognizedQualifications: Prisma.JsonValue;
     }[];
   }[];

@@ -1,6 +1,7 @@
 import { CheckboxField, Field } from "../../components/ui";
 import type { ServiceField } from "./form-types";
 import { berlinChoices, type BerlinOccurrence } from "./time";
+import { GermanDateInput } from "./german-date-input";
 export function FormField({
   field,
   value,
@@ -51,6 +52,9 @@ export function FormField({
             value={String(value ?? "")}
             onChange={(event) => update(event.target.value)}
           />
+        ) : field.type === "date" || field.type === "datetime-local" ? (
+          <GermanDateInput value={String(value ?? "")} required={field.required}
+            withTime={field.type === "datetime-local"} onChange={update} />
         ) : (
           <input
             required={field.required}

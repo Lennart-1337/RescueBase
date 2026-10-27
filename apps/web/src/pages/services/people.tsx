@@ -4,6 +4,7 @@ import { useServiceAction } from "./api";
 import { ServiceForm, text, type Values } from "./form";
 import { ServiceTable } from "./table";
 import { QualificationsEditor } from "./qualifications-editor";
+import { germanDateValue, germanDateDisplay } from "./german-date-input";
 import {
   qualificationLabels,
   type Catalog,
@@ -42,7 +43,9 @@ function PersonForm({
       onSubmit={(values) =>
         onSave({
           ...values,
-          qualifications: rows,
+          qualifications: rows.map((row) => ({ ...row,
+            validUntil: row.validUntil ? germanDateValue(row.validUntil) : null,
+          })),
           ...(person ? { version: person.version } : {}),
         })
       }
@@ -79,7 +82,7 @@ export function People({ catalog }: { catalog: Catalog }) {
               row.qualifications
                 .map(
                   (q) =>
-                    `${qualificationLabels[q.qualification]}${q.validUntil ? ` (bis ${q.validUntil.slice(0, 10)})` : ""}`,
+                    `${qualificationLabels[q.qualification]}${q.validUntil ? ` (bis ${germanDateDisplay(q.validUntil)})` : ""}`,
                 )
                 .join(" · ") || "Keine dokumentiert",
           },
