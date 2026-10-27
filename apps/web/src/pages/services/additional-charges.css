@@ -1,0 +1,38 @@
+.service-additional-charges {
+  display: grid;
+  gap: 16px;
+}
+.service-additional-charges h3 {
+  margin: 0;
+}
+.service-additional-charge {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 140px auto;
+  align-items: end;
+  gap: 16px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--color-border-default);
+}
+.service-additional-charge label {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+}
+.service-additional-charge input {
+  width: 100%;
+  min-width: 0;
+  border: 1px solid var(--color-border-default);
+  border-radius: 6px;
+  background: var(--color-surface);
+  color: var(--color-text-primary);
+  padding: 8px 10px;
+  font: inherit;
+}
+@media (max-width: 600px) {
+  .service-additional-charge {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+  .service-additional-charge label:first-child {
+    grid-column: 1 / -1;
+  }
+}

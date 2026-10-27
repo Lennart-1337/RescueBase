@@ -37,7 +37,13 @@ const properties = {
   description: string,
   requirements: string,
   supportOnly: boolean,
+  additionalCharges: { ...array(ref("ServiceAdditionalCharge")), default: [] },
   materialDiscounted: boolean,
+  materialRate: {
+    ...decimal,
+    pattern: "^[0-9]{1,10}(\\.[0-9]{1,2})?$",
+    default: "35.00",
+  },
   agreedRevenue: nullable(decimal),
   positions: array(ref("ServicePosition")),
   assignments: array(ref("ServiceAssignment")),
@@ -51,6 +57,11 @@ export const serviceSchemas = {
   ...serviceAssessmentSchemas,
   ...serviceStatisticsSchemas,
   ServiceStatus: status,
+  ServiceAdditionalCharge: object({
+    id: string,
+    label: { ...string, minLength: 1, maxLength: 191 },
+    amount: { ...decimal, pattern: "^[0-9]{1,10}(\\.[0-9]{1,2})?$" },
+  }),
   ServicePosition: object(
     {
       serviceId: string,

@@ -59,7 +59,7 @@ describe("time-weighted service staffing statistics", () => {
     expect(serviceStatistics([row]).totals.occupancyRate).toBe(1);
     expect(serviceStatistics([row]).rows[0]?.coveredPersonnelMinutes).toBe(120);
   });
-  test("a mismatched qualification and duplicate record cannot fill a second position", () => {
+  test("a stale copied role follows the position while duplicate people never inflate coverage", () => {
     const row = {
       ...record,
       positions: [{ ...record.positions[0]!, quantity: 2 }],
@@ -74,7 +74,7 @@ describe("time-weighted service staffing statistics", () => {
         },
       ],
     } as ServiceRecord;
-    expect(serviceStatistics([row]).totals.occupancyRate).toBe(0.5);
+    expect(serviceStatistics([row]).totals.occupancyRate).toBe(1);
   });
   test("total occupancy weights services by required minutes", () => {
     const unfilled = {

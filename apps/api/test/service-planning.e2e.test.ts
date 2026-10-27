@@ -37,6 +37,69 @@ describe("integrated service planning", () => {
     if (directory) await rm(directory, { recursive: true, force: true });
     delete process.env.SERVICE_DOCUMENT_DIR;
   });
+  it("persists an editable material fee independently from its discount", async () => {
+    const agent = request.agent(app.getHttpServer());
+    await agent
+      .post("/auth/login")
+      .send({
+        email: "admin@rescuebase.local",
+        password: "rescuebase-admin",
+      })
+      .expect(201);
+    let service = (
+      await agent
+        .post("/services")
+        .send({
+          ...base,
+          title: "Editierbare Materialpauschale",
+          materialRate: "42.75",
+        })
+        .expect(201)
+    ).body;
+    expect(service.materialRate).toBe("42.75");
+    expect(service.costs.planned.revenue).toBe("42.75");
+    service = (
+      await agent
+        .put(`/services/${service.id}`)
+        .send({
+          version: service.version,
+          materialDiscounted: true,
+        })
+        .expect(200)
+    ).body;
+    const read = (await agent.get(`/services/${service.id}`).expect(200)).body;
+    expect(read.materialRate).toBe("42.75");
+    expect(read.materialDiscounted).toBe(true);
+    expect(read.costs.planned.revenue).toBe("0.00");
+    service = (
+      await agent
+        .put(`/services/${service.id}`)
+        .send({
+          version: service.version,
+          materialDiscounted: false,
+        })
+        .expect(200)
+    ).body;
+    expect(service.costs.planned.revenue).toBe("42.75");
+    await agent
+      .put(`/services/${service.id}`)
+      .send({
+        version: service.version,
+        materialRate: "-1",
+        materialDiscounted: true,
+      })
+      .expect(400);
+    service = (
+      await agent
+        .put(`/services/${service.id}`)
+        .send({
+          version: service.version,
+          materialRate: "0",
+        })
+        .expect(200)
+    ).body;
+    expect(service.costs.planned.revenue).toBe("0.00");
+  });
   it("persists support orders, snapshots rates, warns on conflicts, releases, corrects and exports", async () => {
     const agent = request.agent(app.getHttpServer());
     await agent

@@ -10,6 +10,7 @@ export const scalarData = ({
   lines: _l,
   version: _v,
   outcome,
+  additionalCharges,
   ...data
 }: ServiceWrite) => ({
   ...data,
@@ -19,6 +20,7 @@ export const scalarData = ({
   startsAt: new Date(data.startsAt),
   endsAt: new Date(data.endsAt),
   outcome: json(outcome),
+  additionalCharges: json(additionalCharges),
 });
 export async function validateReferences(
   tx: Prisma.TransactionClient,

@@ -2726,6 +2726,11 @@ export interface components {
         };
         /** @enum {string} */
         ServiceStatus: "INQUIRY" | "PLANNING" | "RELEASED" | "ACTIVE" | "REVIEW" | "COMPLETED" | "CANCELLED";
+        ServiceAdditionalCharge: {
+            id: string;
+            label: string;
+            amount: string;
+        };
         ServicePosition: {
             serviceId?: string;
             id: string;
@@ -2821,7 +2826,11 @@ export interface components {
             description?: string;
             requirements?: string;
             supportOnly?: boolean;
+            /** @default [] */
+            additionalCharges: components["schemas"]["ServiceAdditionalCharge"][];
             materialDiscounted?: boolean;
+            /** @default 35.00 */
+            materialRate: string;
             agreedRevenue?: string | null;
             positions?: components["schemas"]["ServicePosition"][];
             assignments?: components["schemas"]["ServiceAssignment"][];
@@ -2852,7 +2861,11 @@ export interface components {
             description?: string;
             requirements?: string;
             supportOnly?: boolean;
+            /** @default [] */
+            additionalCharges: components["schemas"]["ServiceAdditionalCharge"][];
             materialDiscounted?: boolean;
+            /** @default 35.00 */
+            materialRate: string;
             agreedRevenue?: string | null;
             positions?: components["schemas"]["ServicePosition"][];
             assignments?: components["schemas"]["ServiceAssignment"][];
@@ -2884,7 +2897,11 @@ export interface components {
             description: string;
             requirements: string;
             supportOnly: boolean;
+            /** @default [] */
+            additionalCharges: components["schemas"]["ServiceAdditionalCharge"][];
             materialDiscounted: boolean;
+            /** @default 35.00 */
+            materialRate: string;
             agreedRevenue: string | null;
             positions: components["schemas"]["ServicePosition"][];
             assignments: components["schemas"]["ServiceAssignment"][];

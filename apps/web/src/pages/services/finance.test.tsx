@@ -24,7 +24,24 @@ const props = {
   save: vi.fn(async () => undefined),
 };
 afterEach(() => vi.clearAllMocks());
-it("calculates full attendance hours plus the fixed material charge without cost or tariff editors", () => {
+it("starts material at 35 EUR and keeps an edited amount when toggling the discount", async () => {
+  render(<Finance {...props} />);
+  const amount = screen.getByLabelText("Materialpauschale (EUR)");
+  expect(amount).toHaveValue("35.00");
+  fireEvent.change(amount, { target: { value: "47,25" } });
+  expect(screen.getByText("Gesamt geplant").nextElementSibling).toHaveTextContent("72,25");
+  fireEvent.click(screen.getByLabelText("Materialpauschale als Rabatt"));
+  expect(screen.getByText(/Rabatt: 47,25/)).toBeVisible();
+  expect(screen.getByText("Gesamt geplant").nextElementSibling).toHaveTextContent("25,00");
+  fireEvent.click(screen.getByRole("button", { name: "Kalkulation speichern" }));
+  await waitFor(() => expect(props.save).toHaveBeenCalledWith({
+    assignments: [assignment], materialRate: "47.25", materialDiscounted: true, additionalCharges: [],
+  }));
+  fireEvent.click(screen.getByLabelText("Materialpauschale als Rabatt"));
+  expect(amount).toHaveValue("47,25");
+  expect(screen.getByText("Gesamt geplant").nextElementSibling).toHaveTextContent("72,25");
+});
+it("calculates full attendance hours plus the default material charge without cost or tariff editors", () => {
   render(<Finance {...props} />);
   expect(
     screen.getByLabelText("Stundenpreis für Jana Müller (EUR)"),
@@ -45,6 +62,15 @@ it("calculates full attendance hours plus the fixed material charge without cost
     screen.queryByRole("button", { name: "Position hinzufügen" }),
   ).not.toBeInTheDocument();
 });
+it("rejects invalid material prices even with an active discount", async () => {
+  render(<Finance {...props} />);
+  fireEvent.click(screen.getByLabelText("Materialpauschale als Rabatt"));
+  fireEvent.change(screen.getByLabelText("Materialpauschale (EUR)"), { target: { value: "-1" } });
+  expect(screen.getByText("Gesamt geplant").nextElementSibling).toHaveTextContent("–");
+  fireEvent.click(screen.getByRole("button", { name: "Kalkulation speichern" }));
+  expect(await screen.findByRole("alert")).toHaveTextContent("Materialpauschale");
+  expect(props.save).not.toHaveBeenCalled();
+});
 it("previews a discounted material charge as zero and persists individual hourly prices", async () => {
   render(<Finance {...props} />);
   fireEvent.change(
@@ -63,6 +89,8 @@ it("previews a discounted material charge as zero and persists individual hourly
     expect(props.save).toHaveBeenCalledWith({
       assignments: [{ ...assignment, hourlyRate: "15.75" }],
       materialDiscounted: true,
+      materialRate: "35.00",
+      additionalCharges: [],
     }),
   );
 });

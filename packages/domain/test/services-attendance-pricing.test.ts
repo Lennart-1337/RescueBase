@@ -9,6 +9,16 @@ const assignment = {
 };
 
 describe("attendance pricing", () => {
+  test("uses a custom material amount for planned and actual totals", () => {
+    const result = calculateAttendancePricing([assignment], false, "47.25");
+    expect(result.planned.revenue).toBe("78.50");
+    expect(result.actual.revenue).toBe("84.75");
+    expect(calculateAttendancePricing([assignment], true, "47.25").planned.revenue).toBe("31.25");
+    expect(calculateAttendancePricing([assignment], false, "0").planned.revenue).toBe("31.25");
+  });
+  test.each(["-1", "", "NaN", "1.001"])("rejects invalid material amount even when discounted: %s", (rate) => {
+    expect(() => calculateAttendancePricing([assignment], true, rate)).toThrow();
+  });
   test("charges each person's hourly price and material once per service", () => {
     const result = calculateAttendancePricing([assignment, { ...assignment, hourlyRate: "20" }], false);
     expect(result.planned.revenue).toBe("116.25");

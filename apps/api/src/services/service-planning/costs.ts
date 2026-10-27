@@ -2,6 +2,7 @@ import {
   calculateAttendancePricing,
   calculateServiceCosts,
 } from "@rescuebase/domain";
+import { normalizeAdditionalCharges } from "./additional-charges.js";
 import type { ServiceRecord } from "./record.js";
 export function serviceCosts(row: ServiceRecord) {
   if (row.pricingModel === "LEGACY")
@@ -24,5 +25,7 @@ export function serviceCosts(row: ServiceRecord) {
       hourlyRate: String(assignment.hourlyRate),
     })),
     row.materialDiscounted,
+    row.materialRate?.toString() ?? "35.00",
+    normalizeAdditionalCharges(row.additionalCharges),
   );
 }

@@ -12,7 +12,8 @@
 .service-pricing > button {
   justify-self: start;
 }
-.service-pricing-table input {
+.service-pricing-table input,
+.service-material-charge input[type="text"] {
   width: 120px;
   border: 1px solid var(--color-border-default);
   border-radius: 6px;

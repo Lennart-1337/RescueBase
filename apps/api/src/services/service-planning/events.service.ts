@@ -20,6 +20,7 @@ import {
 } from "./persistence.js";
 import { serviceWarnings, serviceWarningsBatch } from "./warnings.js";
 import { serviceCosts } from "./costs.js";
+import { withPositionQualifications } from "./qualification.js";
 import { object, choice, string, type Input } from "./input.js";
 import { serviceStatuses, type ServiceStatus } from "./types.js";
 import { serviceFilter } from "./query.js";
@@ -54,7 +55,7 @@ export class ServiceEventsService {
     warnings?: Awaited<ReturnType<typeof serviceWarnings>>,
   ) {
     return {
-      ...row,
+      ...withPositionQualifications(row),
       warnings: warnings ?? (await serviceWarnings(this.db, row)),
       costs: serviceCosts(row),
     };

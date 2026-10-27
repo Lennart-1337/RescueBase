@@ -16,6 +16,7 @@ import {
   unique,
   type Input,
 } from "./input.js";
+import { normalizeAdditionalCharges } from "./additional-charges.js";
 import { qualifications, type ServiceWrite } from "./types.js";
 import {
   normalizePerson,
@@ -51,6 +52,17 @@ export function normalizeService(body: Input): ServiceWrite {
       ),
     ]),
   ) as Pick<ServiceWrite, (typeof optionalFields)[number]>;
+  const positions = array(body.positions).map((value) => {
+      const p = object(value);
+      return {
+        id: id(p.id),
+        name: string(p.name, "Position", true),
+        qualification: choice(p.qualification, qualifications),
+        leader: bool(p.leader),
+        quantity: integer(p.quantity, 1),
+        team: nullable(p.team),
+      };
+    });
   const result: ServiceWrite = {
     ...textFields,
     title: string(body.title, "Titel", true),
@@ -63,29 +75,23 @@ export function normalizeService(body: Input): ServiceWrite {
     eventEndsAt: timestamp(body.eventEndsAt),
     responsibleId: nullable(body.responsibleId),
     supportOnly: bool(body.supportOnly),
+    additionalCharges: normalizeAdditionalCharges(body.additionalCharges),
     materialDiscounted: bool(body.materialDiscounted),
+    materialRate:
+      body.materialRate === undefined ? "35.00" : decimal(body.materialRate, 2),
     agreedRevenue:
       body.agreedRevenue == null || body.agreedRevenue === ""
         ? null
         : decimal(body.agreedRevenue, 2),
-    positions: array(body.positions).map((value) => {
-      const p = object(value);
-      return {
-        id: id(p.id),
-        name: string(p.name, "Position", true),
-        qualification: choice(p.qualification, qualifications),
-        leader: bool(p.leader),
-        quantity: integer(p.quantity, 1),
-        team: nullable(p.team),
-      };
-    }),
+    positions,
     assignments: array(body.assignments).map((value) => {
       const p = object(value);
+      if (p.qualification !== undefined) choice(p.qualification, qualifications);
       return {
         id: id(p.id),
         personId: string(p.personId, "Person", true),
         positionId: string(p.positionId, "Position", true),
-        qualification: choice(p.qualification, qualifications),
+        qualification: positions.find((position) => position.id === p.positionId)?.qualification ?? choice(p.qualification, qualifications),
         startsAt: timestamp(p.startsAt),
         endsAt: timestamp(p.endsAt),
         hourlyRate: decimal(p.hourlyRate ?? "0"),

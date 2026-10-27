@@ -1,10 +1,12 @@
 import { useState } from "react";
 import { calculateAttendancePricing } from "@rescuebase/domain";
-import { Button, CheckboxField } from "../../components/ui";
+import { Button } from "../../components/ui";
 import type { ServiceEditorProps } from "./editor";
 import { FinanceSummary } from "./finance-summary";
 import { PersonnelPrices } from "./personnel-prices";
-import { money } from "./time";
+import { MaterialCharge } from "./material-charge";
+import { AdditionalChargesEditor } from "./additional-charges-editor";
+import { normalizeAdditionalCharges } from "./additional-charges";
 import type { Costs } from "./types";
 export function FinancePricing({
   service,
@@ -16,6 +18,9 @@ export function FinancePricing({
     service.assignments.map((row) => row.hourlyRate),
   );
   const [discounted, setDiscounted] = useState(service.materialDiscounted);
+  const [materialRate, setMaterialRate] = useState(service.materialRate);
+  const [additionalCharges, setAdditionalCharges] = useState(service.additionalCharges);
+  const normalizedMaterialRate = materialRate.trim().replace(",", ".");
   const [pending, setPending] = useState(false);
   const [error, setError] = useState("");
   const assignments = service.assignments.map((row, index) => ({
@@ -25,7 +30,7 @@ export function FinancePricing({
   let costs: Costs | null = service.costs;
   if (!locked) {
     try {
-      costs = calculateAttendancePricing(assignments, discounted);
+      costs = calculateAttendancePricing(assignments, discounted, normalizedMaterialRate, normalizeAdditionalCharges(additionalCharges));
     } catch {
       costs = null;
     }
@@ -39,14 +44,15 @@ export function FinancePricing({
         setError("");
         setPending(true);
         try {
+          const charges = normalizeAdditionalCharges(additionalCharges);
           try {
-            calculateAttendancePricing(assignments, discounted);
+            calculateAttendancePricing(assignments, discounted, normalizedMaterialRate, charges);
           } catch {
             throw new Error(
-              "Bitte gültige Stundenpreise mit höchstens vier Nachkommastellen eingeben.",
+              "Bitte gültige Stundenpreise (maximal vier Nachkommastellen) und eine Materialpauschale (maximal zwei Nachkommastellen) eingeben.",
             );
           }
-          await save({ assignments, materialDiscounted: discounted });
+          await save({ assignments, materialDiscounted: discounted, materialRate: normalizedMaterialRate, additionalCharges: charges });
         } catch (cause) {
           setError(
             cause instanceof Error
@@ -72,18 +78,9 @@ export function FinancePricing({
             )
           }
         />
-        <section className="service-material-charge">
-          <div>
-            <strong>Materialpauschale</strong>
-            <span>{money(discounted ? "0.00" : "35.00")}</span>
-          </div>
-          <CheckboxField
-            label="Materialpauschale als Rabatt"
-            checked={discounted}
-            onChange={(event) => setDiscounted(event.target.checked)}
-          />
-          {discounted ? <small>Rabatt: {money("35.00")}</small> : null}
-        </section>
+        <MaterialCharge rate={materialRate} discounted={discounted}
+          onRate={setMaterialRate} onDiscount={setDiscounted} />
+        <AdditionalChargesEditor charges={additionalCharges} onChange={setAdditionalCharges} />
       </fieldset>
       <FinanceSummary costs={costs} />
       {error ? (

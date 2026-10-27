@@ -1374,6 +1374,29 @@
           "CANCELLED"
         ]
       },
+      "ServiceAdditionalCharge": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "label": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 191
+          },
+          "amount": {
+            "type": "string",
+            "pattern": "^[0-9]{1,10}(\\.[0-9]{1,2})?$"
+          }
+        },
+        "required": [
+          "id",
+          "label",
+          "amount"
+        ],
+        "additionalProperties": false
+      },
       "ServicePosition": {
         "type": "object",
         "properties": {
@@ -1730,8 +1753,20 @@
           "supportOnly": {
             "type": "boolean"
           },
+          "additionalCharges": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ServiceAdditionalCharge"
+            },
+            "default": []
+          },
           "materialDiscounted": {
             "type": "boolean"
+          },
+          "materialRate": {
+            "type": "string",
+            "pattern": "^[0-9]{1,10}(\\.[0-9]{1,2})?$",
+            "default": "35.00"
           },
           "agreedRevenue": {
             "type": "string",
@@ -1843,8 +1878,20 @@
           "supportOnly": {
             "type": "boolean"
           },
+          "additionalCharges": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ServiceAdditionalCharge"
+            },
+            "default": []
+          },
           "materialDiscounted": {
             "type": "boolean"
+          },
+          "materialRate": {
+            "type": "string",
+            "pattern": "^[0-9]{1,10}(\\.[0-9]{1,2})?$",
+            "default": "35.00"
           },
           "agreedRevenue": {
             "type": "string",
@@ -1953,8 +2000,20 @@
           "supportOnly": {
             "type": "boolean"
           },
+          "additionalCharges": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ServiceAdditionalCharge"
+            },
+            "default": []
+          },
           "materialDiscounted": {
             "type": "boolean"
+          },
+          "materialRate": {
+            "type": "string",
+            "pattern": "^[0-9]{1,10}(\\.[0-9]{1,2})?$",
+            "default": "35.00"
           },
           "agreedRevenue": {
             "type": "string",
@@ -2081,7 +2140,9 @@
           "description",
           "requirements",
           "supportOnly",
+          "additionalCharges",
           "materialDiscounted",
+          "materialRate",
           "agreedRevenue",
           "positions",
           "assignments",

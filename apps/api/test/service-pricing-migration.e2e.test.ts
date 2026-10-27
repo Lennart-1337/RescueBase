@@ -64,6 +64,31 @@ describe("hourly service pricing migration", () => {
         "SHOW COLUMNS FROM ServiceAssignment WHERE Field IN ('breakMinutes','actualBreakMinutes')",
       );
       expect(columns).toEqual([]);
+      await connection.query(
+        await readFile(
+          join(
+            root,
+            "20261027100000_editable_service_material_rate/migration.sql",
+          ),
+          "utf8",
+        ),
+      );
+      const [material] = await connection.query(
+        "SELECT id,pricingModel,materialRate FROM ServiceEvent ORDER BY id",
+      );
+      expect(material).toEqual([
+        { id: "closed", pricingModel: "LEGACY", materialRate: "35.00" },
+        { id: "open", pricingModel: "HOURLY", materialRate: "35.00" },
+      ]);
+      await connection.query("UPDATE ServiceEvent SET materialRate=42.75 WHERE id='open'");
+      await connection.query(await readFile(join(root, "20261027110000_service_additional_charges/migration.sql"), "utf8"));
+      const [charges] = await connection.query(
+        "SELECT id,pricingModel,materialRate,JSON_LENGTH(additionalCharges) AS chargeCount FROM ServiceEvent ORDER BY id",
+      );
+      expect(charges).toEqual([
+        { id: "closed", pricingModel: "LEGACY", materialRate: "35.00", chargeCount: 0 },
+        { id: "open", pricingModel: "HOURLY", materialRate: "42.75", chargeCount: 0 },
+      ]);
     } finally {
       await connection.end();
       await database.stop();

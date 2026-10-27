@@ -10,9 +10,7 @@ export function serviceCoverage(row: ServiceRecord) {
   let coveredPersonnelMinutes = 0;
   for (const position of row.positions) {
     const assigned = row.assignments.filter(
-      (a) =>
-        a.positionId === position.id &&
-        a.qualification === position.qualification,
+      (a) => a.positionId === position.id,
     );
     const boundaries = [
       ...new Set([

@@ -1112,6 +1112,8 @@ model ServiceEvent {
   supportOnly Boolean @default(false)
   agreedRevenue Decimal? @db.Decimal(14, 2)
   materialDiscounted Boolean @default(false)
+  materialRate Decimal @default(35) @db.Decimal(12, 2)
+  additionalCharges Json @default("[]")
   pricingModel String @default("HOURLY")
   outcome Json
   version Int @default(0)

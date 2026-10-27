@@ -1,6 +1,6 @@
 import type { CostSummary } from "./costs.js";
 import { attendanceTimestamp } from "./attendance-time.js";
-import { decimal, money } from "./money.js";
+import { decimal, money, roundCents } from "./money.js";
 
 export interface AttendancePricingInput {
   startsAt: string;
@@ -22,13 +22,22 @@ export function calculateAttendanceAmount(startsAt: string, endsAt: string, hour
   return money(attendanceCents(startsAt, endsAt, hourlyRate));
 }
 
+function fixedAmountCents(amount: string): bigint {
+  if (typeof amount !== "string" || !/^\d{1,10}(\.\d{1,2})?$/.test(amount))
+    throw new Error("Fixed amounts require a non-negative decimal with at most two decimal places.");
+  return roundCents(decimal(amount));
+}
+
 /** Round each person's full elapsed attendance once, then add the flat rate once. */
 export function calculateAttendancePricing(
   assignments: AttendancePricingInput[],
   materialDiscounted: boolean,
+  materialRate = "35.00",
+  additionalCharges: { amount: string }[] = [],
 ): CostSummary {
-  const material = materialDiscounted ? 0n : 3500n;
-  let planned = material, actual = material;
+  const material = fixedAmountCents(materialRate);
+  const fixed = additionalCharges.reduce((sum, charge) => sum + fixedAmountCents(charge.amount), materialDiscounted ? 0n : material);
+  let planned = fixed, actual = fixed;
   let complete = assignments.length > 0;
   for (const assignment of assignments) {
     planned += attendanceCents(assignment.startsAt, assignment.endsAt, assignment.hourlyRate);

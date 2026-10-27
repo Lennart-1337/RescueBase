@@ -39,8 +39,20 @@ it("edits attendance without pauses and preserves the person's hourly price", as
   const edit = screen.getAllByRole("button", { name: "Bearbeiten" });
   fireEvent.click(edit[edit.length - 1]!);
   expect(screen.queryByLabelText(/Pause/)).not.toBeInTheDocument();
+  expect(screen.queryByRole("combobox", { name: /Qualifikation/ })).not.toBeInTheDocument();
   fireEvent.submit(screen.getByRole("form", { name: "Personal" }));
   await waitFor(() =>
     expect(save).toHaveBeenCalledWith({ assignments: [assignment] }),
   );
+});
+it("uses the position qualification when editing an assignment with an outdated copied role", async () => {
+  const save = vi.fn(async () => undefined);
+  render(<Personnel service={{ ...serviceFixture,
+    assignments: [{ ...assignment, qualification: "SANITARIAN" }],
+    positions: [{ id: "p", name: "EVT 01", qualification: "PARAMEDIC", quantity: 1, leader: false, team: null }],
+  }} catalog={catalogFixture} save={save} locked={false} />);
+  const edit = screen.getAllByRole("button", { name: "Bearbeiten" });
+  fireEvent.click(edit[edit.length - 1]!);
+  fireEvent.submit(screen.getByRole("form", { name: "Personal" }));
+  await waitFor(() => expect(save).toHaveBeenCalledWith({ assignments: [assignment] }));
 });

@@ -76,6 +76,8 @@ export function emptyService(): ServiceWrite {
     supportOnly: false,
     agreedRevenue: null,
     materialDiscounted: false,
+    materialRate: "35.00",
+    additionalCharges: [],
     positions: [],
     assignments: [],
     reservations: [],

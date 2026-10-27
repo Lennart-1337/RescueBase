@@ -1,4 +1,5 @@
 import type { Prisma } from "@prisma/client";
+import { withPositionQualifications } from "./qualification.js";
 export const serviceInclude = {
   positions: true,
   assignments: true,
@@ -32,6 +33,7 @@ export function attendanceMinutes(
   return start && end ? (end.getTime() - start.getTime()) / 60000 : null;
 }
 export function planningSnapshot(value: ServiceRecord) {
+  value = withPositionQualifications(value);
   return {
     startsAt: value.startsAt,
     endsAt: value.endsAt,

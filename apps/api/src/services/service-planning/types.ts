@@ -61,6 +61,11 @@ export type ServiceCostLine = {
   costRate: string;
   saleRate: string;
 };
+export type ServiceAdditionalCharge = {
+  id: string;
+  label: string;
+  amount: string;
+};
 export type ServiceOutcome = {
   visitors: number | null;
   treatments: number | null;
@@ -90,6 +95,8 @@ export type ServiceWrite = {
   supportOnly: boolean;
   agreedRevenue: string | null;
   materialDiscounted: boolean;
+  materialRate: string;
+  additionalCharges: ServiceAdditionalCharge[];
   positions: ServicePosition[];
   assignments: ServiceAssignment[];
   reservations: ServiceReservation[];

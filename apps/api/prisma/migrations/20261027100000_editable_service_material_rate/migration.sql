@@ -1,0 +1,2 @@
+ALTER TABLE `ServiceEvent`
+  ADD COLUMN `materialRate` DECIMAL(12,2) NOT NULL DEFAULT 35.00;
