@@ -1,6 +1,7 @@
 import { Prisma } from "@prisma/client";
 import { attendanceMinutes, type ServiceRecord } from "./record.js";
 import { serviceStatisticRows } from "./statistics-rows.js";
+import { withCompletedAttendance } from "./statistics-attendance.js";
 import { withPositionQualifications } from "./qualification.js";
 export { serviceCoverage } from "./statistics-coverage.js";
 export { statisticsCsv } from "./statistics-csv.js";
@@ -14,7 +15,7 @@ const money = (values: (string | null)[]) =>
         )
         .toFixed(2);
 export function serviceStatistics(records: ServiceRecord[]) {
-  records = records.map(withPositionQualifications);
+  records = records.map((record) => withPositionQualifications(withCompletedAttendance(record)));
   const rows = serviceStatisticRows(records);
   const qualificationNames = [
     ...new Set(
