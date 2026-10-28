@@ -24,10 +24,14 @@ import { withPositionQualifications } from "./qualification.js";
 import { object, choice, string, type Input } from "./input.js";
 import { serviceStatuses, type ServiceStatus } from "./types.js";
 import { serviceFilter } from "./query.js";
+import { removeService } from "./soft-delete.js";
 import { validateTransition } from "./lifecycle.js";
 @Injectable()
 export class ServiceEventsService {
   constructor(private readonly db: PrismaService) {}
+  remove(id: string, body: Input, actor: string) {
+    return removeService(this.db, id, body, actor);
+  }
   async list(query: Input = {}) {
     const rows = await this.db.serviceEvent.findMany({
       where: serviceFilter(query),
@@ -44,7 +48,7 @@ export class ServiceEventsService {
   }
   private async find(id: string) {
     const row = await this.db.serviceEvent.findUnique({
-      where: { id },
+      where: { id, deletedAt: null },
       include: serviceInclude,
     });
     if (!row) throw new NotFoundException("Dienst nicht gefunden.");
@@ -54,8 +58,9 @@ export class ServiceEventsService {
     row: ServiceRecord,
     warnings?: Awaited<ReturnType<typeof serviceWarnings>>,
   ) {
+    const { deletedAt: _deletedAt, ...record } = withPositionQualifications(row);
     return {
-      ...withPositionQualifications(row),
+      ...record,
       warnings: warnings ?? (await serviceWarnings(this.db, row)),
       costs: serviceCosts(row),
     };
@@ -66,7 +71,7 @@ export class ServiceEventsService {
       await this.db.$transaction(async (tx) => {
         const old = id
           ? await tx.serviceEvent.findUnique({
-              where: { id },
+              where: { id, deletedAt: null },
               include: serviceInclude,
             })
           : null;
@@ -99,7 +104,7 @@ export class ServiceEventsService {
           }
         const row = old
           ? await tx.serviceEvent.update({
-              where: { id: old.id, version: old.version },
+              where: { id: old.id, version: old.version, deletedAt: null },
               data: { ...scalarData(data), version: { increment: 1 } },
             })
           : await tx.serviceEvent.create({ data: scalarData(data) });
@@ -145,7 +150,7 @@ export class ServiceEventsService {
     try {
       await this.db.$transaction(async (tx) => {
         const old = await tx.serviceEvent.findUnique({
-          where: { id },
+          where: { id, deletedAt: null },
           include: serviceInclude,
         });
         if (!old) throw new NotFoundException("Dienst nicht gefunden.");
@@ -171,7 +176,7 @@ export class ServiceEventsService {
             },
           });
         await tx.serviceEvent.update({
-          where: { id, version: old.version },
+          where: { id, version: old.version, deletedAt: null },
           data: { status, version: { increment: 1 } },
         });
         await audit(tx, actor, "ServiceEvent", id, "SERVICE_STATUS_CHANGED", {

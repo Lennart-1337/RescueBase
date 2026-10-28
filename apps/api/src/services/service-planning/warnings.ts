@@ -32,7 +32,7 @@ export async function serviceWarningsBatch(
     tx.kit.findMany(),
     tx.mpgDevice.findMany({ include: deviceInclude }),
     tx.serviceEvent.findMany({
-      where: { status: { notIn: ["INQUIRY", "CANCELLED"] } },
+      where: { deletedAt: null, status: { notIn: ["INQUIRY", "CANCELLED"] } },
       select: { id: true, status: true, assignments: true, reservations: true },
     }),
     personQualifications(tx, personIds),

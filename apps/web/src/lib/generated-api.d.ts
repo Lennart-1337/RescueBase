@@ -254,7 +254,7 @@ export interface paths {
         get: operations["Services_detail"];
         put: operations["Services_update"];
         post?: never;
-        delete?: never;
+        delete: operations["Services_delete"];
         options?: never;
         head?: never;
         patch?: never;
@@ -4904,6 +4904,67 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ServiceRecord"];
+                };
+            };
+            /** @description Invalid input or missing warning justification */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Service management permission required */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Record not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Stale version or read-only service */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    Services_delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    version: number;
+                };
+            };
+        };
+        responses: {
+            /** @description Successful service operation */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        id: string;
+                        /** Format: date-time */
+                        deletedAt: string;
+                        version: number;
+                    };
                 };
             };
             /** @description Invalid input or missing warning justification */
