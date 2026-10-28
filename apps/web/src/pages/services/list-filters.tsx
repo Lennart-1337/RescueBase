@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { SlidersHorizontal, Search } from "lucide-react";
+import { SlidersHorizontal } from "lucide-react";
 import { Button, Field } from "../../components/ui";
 import { serviceStatuses, statusLabels } from "./types";
 import { GermanDateInput, germanDateValue } from "./german-date-input";
@@ -37,27 +37,27 @@ export function ListFilters({
       }}
     >
       <div className="service-filter-bar">
-        <div className="service-search">
-          <Search aria-hidden size={17} />
+        <Field label="Dienste suchen" className="service-search">
           <input
             aria-label="Dienste suchen"
             type="search"
             value={values.search ?? ""}
             onChange={(event) => update("search", event.target.value)}
           />
-        </div>
-        <select
-          aria-label="Status"
-          value={values.status ?? ""}
-          onChange={(event) => update("status", event.target.value)}
-        >
-          <option value="">Alle Status</option>
-          {serviceStatuses.map((value) => (
-            <option key={value} value={value}>
-              {statusLabels[value]}
-            </option>
-          ))}
-        </select>
+        </Field>
+        <Field label="Status" className="service-status-filter">
+          <select
+            value={values.status ?? ""}
+            onChange={(event) => update("status", event.target.value)}
+          >
+            <option value="">Alle Status</option>
+            {serviceStatuses.map((value) => (
+              <option key={value} value={value}>
+                {statusLabels[value]}
+              </option>
+            ))}
+          </select>
+        </Field>
         <Button
           type="button"
           variant="ghost"

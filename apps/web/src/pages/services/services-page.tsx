@@ -1,5 +1,5 @@
 import { PageHeader } from "../../components/page-layout";
-import { Tabs } from "../../components/ui";
+import { Field, Tabs } from "../../components/ui";
 import { ServiceList } from "./service-list";
 import { ServiceDetail } from "./service-detail";
 import { serviceViews, type ServiceView, type ServiceTab } from "./navigation";
@@ -52,7 +52,7 @@ export function ServicesPage({
         }
       />
       {isCatalog ? (
-        <div className="service-catalog-switch">
+        <Field label="Stammdatenbereich" className="service-catalog-switch">
           <select
             aria-label="Stammdatenbereich"
             value={view}
@@ -68,7 +68,7 @@ export function ServicesPage({
                 </option>
               ))}
           </select>
-        </div>
+        </Field>
       ) : null}
       {view === "list" ? (
         <ServiceList onSelect={onService} />

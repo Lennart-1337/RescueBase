@@ -39,3 +39,9 @@ it("preserves applied filter values when the filter controls are collapsed", () 
     expect.stringContaining("customer=DLRG"),
   );
 });
+
+it("uses shared labeled fields for search and status", () => {
+  render(<ListFilters onApply={vi.fn()} />);
+  expect(screen.getByRole("searchbox", { name: "Dienste suchen" }).closest("label")).toHaveClass("field");
+  expect(screen.getByRole("combobox", { name: "Status" }).closest("label")).toHaveClass("field");
+});
