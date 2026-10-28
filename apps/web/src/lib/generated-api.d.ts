@@ -244,6 +244,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/services/{id}/billing-status": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["Services_billing_status"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/services/{id}": {
         parameters: {
             query?: never;
@@ -2909,6 +2925,12 @@ export interface components {
             tasks: components["schemas"]["ServiceTask"][];
             lines: components["schemas"]["ServiceCostLine"][];
             outcome: components["schemas"]["ServiceOutcome"];
+            /** Format: date-time */
+            readonly offerSentAt: string | null;
+            /** Format: date-time */
+            readonly invoiceSentAt: string | null;
+            /** Format: date-time */
+            readonly invoicePaidAt: string | null;
             id: string;
             version: number;
             /** @enum {string} */
@@ -4800,6 +4822,65 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ServiceChecklist"];
+                };
+            };
+            /** @description Invalid input or missing warning justification */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Service management permission required */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Record not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Stale version or read-only service */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    Services_billing_status: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    version: number;
+                    offerSent: boolean;
+                    invoiceSent: boolean;
+                    invoicePaid: boolean;
+                };
+            };
+        };
+        responses: {
+            /** @description Successful service operation */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ServiceRecord"];
                 };
             };
             /** @description Invalid input or missing warning justification */

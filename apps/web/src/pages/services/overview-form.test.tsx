@@ -77,7 +77,7 @@ describe("concise service overview form", () => {
     renderOverview(initial);
     expect(screen.getByLabelText("Abweichende Dienstzeiten")).toBeChecked();
     expect(screen.getByLabelText("Eigener Dienstbeginn")).toHaveValue(
-      "08.11.2026 09:00",
+      "2026-11-08T09:00",
     );
     expect(normalizeOverview(overviewInitial(initial))).toMatchObject(initial);
   });

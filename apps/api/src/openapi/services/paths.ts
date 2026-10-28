@@ -1,4 +1,4 @@
-import { date, integer, object, ref, string, type Schema } from "./helpers.js";
+import { boolean, date, integer, object, ref, string, type Schema } from "./helpers.js";
 const json = "application/json";
 const query = (name: string) => ({
   name,
@@ -121,6 +121,10 @@ export const servicePaths = {
   ...resource("vehicles", "ServiceVehicle"),
   ...resource("tariffs", "ServiceTariff"),
   ...resource("checklists", "ServiceChecklist"),
+  "/services/{id}/billing-status": {
+    post: operation("billing_status", ref("ServiceRecord"),
+      object({ version: integer, offerSent: boolean, invoiceSent: boolean, invoicePaid: boolean }), ["id"], [], 201),
+  },
   "/services/{id}": {
     delete: operation("delete", object({ id: string, deletedAt: date, version: integer }),
       object({ version: integer }), ["id"]),

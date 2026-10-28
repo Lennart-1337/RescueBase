@@ -45,6 +45,13 @@ export class ServiceEventsController {
   ) {
     return this.events.remove(id, body, req.user!.id);
   }
+  @Post(":id/billing-status") billingStatus(
+    @Param("id") id: string,
+    @Body() body: Input,
+    @Req() req: AuthenticatedRequest,
+  ) {
+    return this.events.updateBillingStatus(id, body, req.user!.id);
+  }
   @Post(":id/transition") transition(
     @Param("id") id: string,
     @Body() body: Input,

@@ -172,6 +172,9 @@ export const serviceSchemas = {
   ServiceUpdate: object({ ...properties, version: integer }, ["version"]),
   ServiceRecord: object({
     ...properties,
+    offerSentAt: { ...nullable(date), readOnly: true },
+    invoiceSentAt: { ...nullable(date), readOnly: true },
+    invoicePaidAt: { ...nullable(date), readOnly: true },
     id: string,
     version: integer,
     status,

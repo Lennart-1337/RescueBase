@@ -43,6 +43,7 @@ const calculation: Calculation = {
   },
 };
 const props = {
+  onBillingSave: vi.fn(async () => undefined),
   service: serviceFixture,
   catalog: catalogFixture,
   locked: false,

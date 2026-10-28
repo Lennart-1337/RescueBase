@@ -26,12 +26,11 @@ export function GermanDateInput({ value, onChange, withTime = false, required = 
   withTime?: boolean;
   required?: boolean;
 }) {
-  return <input type="text" lang="de-DE" autoComplete="off" required={required}
-    placeholder={withTime ? "TT.MM.JJJJ HH:mm" : "TT.MM.JJJJ"}
-    value={germanDateDisplay(value, withTime)}
-    onChange={(event) => {
-      const draft = event.target.value;
-      try { onChange(germanDateValue(draft, withTime)); }
-      catch { onChange(draft); }
-    }} />;
+  let canonical = value;
+  try { canonical = value ? germanDateValue(value, withTime) : ""; }
+  catch { /* Preserve legacy values so invalid years cannot become unlimited proofs. */ }
+  return <input type={withTime ? "datetime-local" : "date"} lang="de-DE"
+    required={required} min={withTime ? "1000-01-01T00:00" : "1000-01-01"}
+    max={withTime ? "9999-12-31T23:59" : "9999-12-31"}
+    value={canonical} onChange={(event) => onChange(event.target.value)} />;
 }

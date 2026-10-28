@@ -2053,6 +2053,24 @@
           "outcome": {
             "$ref": "#/components/schemas/ServiceOutcome"
           },
+          "offerSentAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true,
+            "readOnly": true
+          },
+          "invoiceSentAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true,
+            "readOnly": true
+          },
+          "invoicePaidAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true,
+            "readOnly": true
+          },
           "id": {
             "type": "string"
           },
@@ -2150,6 +2168,9 @@
           "tasks",
           "lines",
           "outcome",
+          "offerSentAt",
+          "invoiceSentAt",
+          "invoicePaidAt",
           "id",
           "version",
           "status",
@@ -6997,6 +7018,80 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ServiceChecklist"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input or missing warning justification"
+          },
+          "403": {
+            "description": "Service management permission required"
+          },
+          "404": {
+            "description": "Record not found"
+          },
+          "409": {
+            "description": "Stale version or read-only service"
+          }
+        }
+      }
+    },
+    "/services/{id}/billing-status": {
+      "post": {
+        "tags": [
+          "Dienste"
+        ],
+        "operationId": "Services_billing_status",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "version": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "offerSent": {
+                    "type": "boolean"
+                  },
+                  "invoiceSent": {
+                    "type": "boolean"
+                  },
+                  "invoicePaid": {
+                    "type": "boolean"
+                  }
+                },
+                "required": [
+                  "version",
+                  "offerSent",
+                  "invoiceSent",
+                  "invoicePaid"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful service operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServiceRecord"
                 }
               }
             }

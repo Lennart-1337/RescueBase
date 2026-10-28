@@ -3,36 +3,36 @@ import { ServiceForm, datetime } from "./form";
 import { germanDateValue, germanDateDisplay } from "./german-date-input";
 import { QualificationsEditor } from "./qualifications-editor";
 
-describe("German service date entry", () => {
-  it("shows qualification expiry in German while preserving the canonical date", () => {
+describe("native service date pickers", () => {
+  it("uses a date picker for qualification expiry", () => {
     const change = vi.fn();
     const row = { qualification: "PARAMEDIC" as const, validUntil: "2026-12-31", recognizedQualifications: [] };
     render(<QualificationsEditor rows={[row]} onChange={change} />);
     const input = screen.getByLabelText("Gültig bis (leer = ohne Ablaufdatum)");
-    expect(input).toHaveValue("31.12.2026");
-    fireEvent.change(input, { target: { value: "01.01.2027" } });
+    expect(input).toHaveAttribute("type", "date");
+    expect(input).toHaveValue("2026-12-31");
+    fireEvent.change(input, { target: { value: "2027-01-01" } });
     expect(change).toHaveBeenCalledWith([{ ...row, validUntil: "2027-01-01" }]);
   });
-  it("shows Berlin time in German format and stores ISO timestamps", async () => {
+  it("uses a local datetime picker in Berlin time and stores ISO timestamps", async () => {
     const save = vi.fn(async () => undefined);
     render(<ServiceForm title="Dienstzeit" fields={[datetime("startsAt", "Beginn", true)]}
       initial={{ startsAt: "2026-07-12T10:30:00Z" }} onSubmit={save} />);
-    expect(screen.getByLabelText("Beginn")).toHaveValue("12.07.2026 12:30");
-    fireEvent.change(screen.getByLabelText("Beginn"), { target: { value: "13.07.2026 14:45" } });
+    expect(screen.getByLabelText("Beginn")).toHaveAttribute("type", "datetime-local");
+    expect(screen.getByLabelText("Beginn")).toHaveValue("2026-07-12T12:30");
+    fireEvent.change(screen.getByLabelText("Beginn"), { target: { value: "2026-07-13T14:45" } });
     fireEvent.submit(screen.getByRole("form", { name: "Dienstzeit" }));
     await waitFor(() => expect(save).toHaveBeenCalledWith({ startsAt: "2026-07-13T12:45:00.000Z" }));
   });
-  it("shows German calendar dates and rejects impossible dates", async () => {
-    const save = vi.fn(async () => undefined);
+  it("uses calendar picker bounds and preserves optional empty dates", () => {
     render(<ServiceForm title="Zeitraum" fields={[{ name: "from", label: "Von", type: "date" }]}
-      initial={{ from: "2026-11-01" }} onSubmit={save} />);
-    expect(screen.getByLabelText("Von")).toHaveValue("01.11.2026");
-    fireEvent.change(screen.getByLabelText("Von"), { target: { value: "31.02.2026" } });
-    fireEvent.submit(screen.getByRole("form", { name: "Zeitraum" }));
-    expect(await screen.findByRole("alert")).toHaveTextContent("gültiges Datum");
-    expect(save).not.toHaveBeenCalled();
+      initial={{ from: "2026-11-01" }} onSubmit={vi.fn()} />);
+    const input = screen.getByLabelText("Von");
+    expect(input).toHaveValue("2026-11-01");
+    expect(input).toHaveAttribute("min", "1000-01-01");
+    expect(input).toHaveAttribute("max", "9999-12-31");
   });
-  it("preserves editable partial drafts and strict calendar/time limits", () => {
+  it("keeps German display formatting and strict calendar/time validation", () => {
     expect(germanDateDisplay("2026-11-01")).toBe("01.11.2026");
     expect(germanDateValue("29.02.2028")).toBe("2028-02-29");
     expect(germanDateDisplay("0026-11-01")).toBe("01.11.0026");

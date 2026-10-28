@@ -18,6 +18,7 @@ const service = {
   materialDiscounted: false,
 };
 const props = {
+  onBillingSave: vi.fn(async () => undefined),
   service,
   catalog: catalogFixture,
   locked: false,

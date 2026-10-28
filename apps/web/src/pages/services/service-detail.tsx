@@ -88,7 +88,10 @@ export function ServiceDetail({
         ) : tab === "outcome" ? (
           <Outcome {...props} />
         ) : (
-          <Finance {...props} />
+          <Finance {...props} onBillingSave={(flags) => action.mutateAsync({
+            path: `/${id}/billing-status`,
+            body: { ...flags, version: service.version },
+          })} />
         )}
       </div>
       {editing && !locked ? (
