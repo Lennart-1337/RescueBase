@@ -41,7 +41,7 @@ export class ServiceCalculationsService {
     }
     try {
       await this.db.$transaction(async (tx) => {
-        const old = await tx.serviceEvent.findUnique({ where: { id } });
+        const old = await tx.serviceEvent.findUnique({ where: { id, deletedAt: null } });
         if (!old) throw new NotFoundException("Dienst nicht gefunden.");
         revision(old.version, body.version);
         if (["COMPLETED", "CANCELLED"].includes(old.status))
@@ -68,7 +68,7 @@ export class ServiceCalculationsService {
           },
         });
         await tx.serviceEvent.update({
-          where: { id, version: old.version },
+          where: { id, version: old.version, deletedAt: null },
           data: {
             version: { increment: 1 },
             ...(["RELEASED", "ACTIVE", "REVIEW"].includes(old.status)

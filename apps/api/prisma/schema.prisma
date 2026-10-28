@@ -1116,6 +1116,7 @@ model ServiceEvent {
   additionalCharges Json @default("[]")
   pricingModel String @default("HOURLY")
   outcome Json
+  deletedAt DateTime?
   version Int @default(0)
   positions ServicePosition[]
   assignments ServiceAssignment[]
@@ -1129,6 +1130,7 @@ model ServiceEvent {
   updatedAt DateTime @updatedAt
   @@index([startsAt, endsAt])
   @@index([status])
+  @@index([deletedAt])
 }
 model ServicePosition {
   id String @id @default(cuid())

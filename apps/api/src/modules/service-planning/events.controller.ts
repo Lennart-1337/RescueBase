@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   Post,
@@ -36,6 +37,13 @@ export class ServiceEventsController {
     @Req() req: AuthenticatedRequest,
   ) {
     return this.events.save(id, body, req.user!.id);
+  }
+  @Delete(":id") remove(
+    @Param("id") id: string,
+    @Body() body: Input,
+    @Req() req: AuthenticatedRequest,
+  ) {
+    return this.events.remove(id, body, req.user!.id);
   }
   @Post(":id/transition") transition(
     @Param("id") id: string,

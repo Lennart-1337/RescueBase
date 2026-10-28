@@ -26,7 +26,7 @@ export class ServiceDocumentsService {
   }
   async list(serviceId: string) {
     const service = await this.db.serviceEvent.findUnique({
-      where: { id: serviceId },
+      where: { id: serviceId, deletedAt: null },
       include: serviceInclude,
     });
     if (!service) throw new NotFoundException("Dienst nicht gefunden.");
@@ -51,7 +51,7 @@ export class ServiceDocumentsService {
     try {
       const document = await this.db.$transaction(async (tx) => {
         const service = await tx.serviceEvent.findUnique({
-          where: { id: serviceId },
+          where: { id: serviceId, deletedAt: null },
         });
         if (!service) throw new NotFoundException("Dienst nicht gefunden.");
         revision(service.version, Number(version));
@@ -60,7 +60,7 @@ export class ServiceDocumentsService {
             "Dienst muss zuerst wieder geöffnet werden.",
           );
         await tx.serviceEvent.update({
-          where: { id: serviceId, version: service.version },
+          where: { id: serviceId, version: service.version, deletedAt: null },
           data: { version: { increment: 1 } },
         });
         const row = await tx.serviceDocument.create({
@@ -93,7 +93,7 @@ export class ServiceDocumentsService {
   }
   async read(serviceId: string, id: string) {
     const document = await this.db.serviceDocument.findFirst({
-      where: { id, serviceId },
+      where: { id, serviceId, service: { deletedAt: null } },
     });
     if (!document || !/^[a-f0-9-]{36}$/.test(document.storageKey))
       throw new NotFoundException("Dokument nicht gefunden.");

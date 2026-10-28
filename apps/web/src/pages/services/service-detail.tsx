@@ -9,6 +9,7 @@ import { Preparation } from "./preparation";
 import { Outcome } from "./outcome";
 import { Finance } from "./finance";
 import { StatusActions } from "./status-actions";
+import { DeleteService } from "./delete-service";
 import { DetailHeader } from "./detail-header";
 import { DetailTabs } from "./detail-tabs";
 import { OverviewEditDialog } from "./overview-edit-dialog";
@@ -64,6 +65,7 @@ export function ServiceDetail({
             })
           }
         />
+        <DeleteService service={service} onDeleted={onBack} />
       </DetailHeader>
       <DetailTabs tab={tab} onTab={onTab} />
       <div

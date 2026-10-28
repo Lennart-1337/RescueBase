@@ -43,6 +43,7 @@ export function serviceFilter(query: Input): Prisma.ServiceEventWhereInput {
   if (from && to && from > to)
     throw new BadRequestException("Filterzeitraum ist ungültig.");
   return {
+    deletedAt: null,
     ...(query.status ? { status: choice(query.status, serviceStatuses) } : {}),
     ...(query.eventType
       ? { eventType: string(query.eventType, "Veranstaltungsart") }
