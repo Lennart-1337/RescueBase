@@ -1,0 +1,4 @@
+ALTER TABLE `ServiceEvent`
+  ADD COLUMN `offerSentAt` DATETIME(3) NULL,
+  ADD COLUMN `invoiceSentAt` DATETIME(3) NULL,
+  ADD COLUMN `invoicePaidAt` DATETIME(3) NULL;

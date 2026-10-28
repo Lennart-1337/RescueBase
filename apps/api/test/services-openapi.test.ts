@@ -6,6 +6,7 @@ describe("service planning OpenAPI", () => {
     expect(paths["/services"]?.post).toBeDefined();
     expect(paths["/services/{id}"]?.put).toBeDefined();
     expect(paths["/services/{id}"]?.delete).toBeDefined();
+    expect(paths["/services/{id}/billing-status"]?.post).toBeDefined();
     expect(paths["/services/{id}/transition"]?.post).toBeDefined();
     expect(paths["/services/{id}/calculations"]?.post).toBeDefined();
     expect(paths["/services/statistics.csv"]?.get).toBeDefined();

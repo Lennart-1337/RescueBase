@@ -24,6 +24,7 @@ import { withPositionQualifications } from "./qualification.js";
 import { object, choice, string, type Input } from "./input.js";
 import { serviceStatuses, type ServiceStatus } from "./types.js";
 import { serviceFilter } from "./query.js";
+import { updateBillingStatus } from "./billing-status.js";
 import { removeService } from "./soft-delete.js";
 import { validateTransition } from "./lifecycle.js";
 @Injectable()
@@ -31,6 +32,10 @@ export class ServiceEventsService {
   constructor(private readonly db: PrismaService) {}
   remove(id: string, body: Input, actor: string) {
     return removeService(this.db, id, body, actor);
+  }
+  async updateBillingStatus(id: string, body: Input, actor: string) {
+    await updateBillingStatus(this.db, id, body, actor);
+    return this.detail(id);
   }
   async list(query: Input = {}) {
     const rows = await this.db.serviceEvent.findMany({

@@ -1114,6 +1114,9 @@ model ServiceEvent {
   materialDiscounted Boolean @default(false)
   materialRate Decimal @default(35) @db.Decimal(12, 2)
   additionalCharges Json @default("[]")
+  offerSentAt DateTime?
+  invoiceSentAt DateTime?
+  invoicePaidAt DateTime?
   pricingModel String @default("HOURLY")
   outcome Json
   deletedAt DateTime?

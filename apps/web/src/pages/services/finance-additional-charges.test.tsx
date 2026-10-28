@@ -4,6 +4,7 @@ import { catalogFixture, serviceFixture } from "./test-fixtures";
 
 const charge = { id: "charge-1", label: "Fahrtkosten", amount: "12.50" };
 const props = {
+  onBillingSave: vi.fn(async () => undefined),
   service: { ...serviceFixture, additionalCharges: [] },
   catalog: catalogFixture,
   locked: false,
