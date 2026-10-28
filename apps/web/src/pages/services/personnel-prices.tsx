@@ -47,14 +47,14 @@ export function PersonnelPrices({
               <tr key={row.id}>
                 <th scope="row">{name}</th>
                 <td className="service-person-rate" data-label="Stundenpreis (EUR)">
-                  <input
+                  <div className="field"><input
                     aria-label={`Stundenpreis für ${name} (EUR)`}
                     type="text"
                     inputMode="decimal"
                     required
                     value={rates[index]}
                     onChange={(event) => onRate(index, event.target.value)}
-                  />
+                  /></div>
                 </td>
                 <td data-label="Geplant">
                   {formatMinutes(duration(row.startsAt, row.endsAt))}

@@ -1,4 +1,4 @@
-import { Button } from "../../components/ui";
+import { Button, Field } from "../../components/ui";
 import { newId } from "./editor";
 import type { AdditionalCharge } from "./additional-charges";
 import "./additional-charges.css";
@@ -20,16 +20,16 @@ export function AdditionalChargesEditor({ charges, onChange }: {
       </header>
       {charges.map((charge, index) => (
         <div className="service-additional-charge" key={charge.id}>
-          <label>Bezeichnung
+          <Field label="Bezeichnung">
             <input aria-label={`Bezeichnung für Posten ${index + 1}`} type="text"
               maxLength={191} required value={charge.label}
               onChange={(event) => change(charge.id, { label: event.target.value })} />
-          </label>
-          <label>Betrag (EUR)
+          </Field>
+          <Field label="Betrag (EUR)">
             <input aria-label={`Betrag für Posten ${index + 1} (EUR)`} type="text"
               inputMode="decimal" required value={charge.amount}
               onChange={(event) => change(charge.id, { amount: event.target.value })} />
-          </label>
+          </Field>
           <Button type="button" variant="ghost"
             aria-label={`Posten entfernen: ${charge.label.trim() || index + 1}`}
             onClick={() => onChange(charges.filter((row) => row.id !== charge.id))}>
