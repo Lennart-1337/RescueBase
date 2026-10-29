@@ -1234,5 +1234,9 @@ model ServiceDocument {
   size Int
   createdBy String
   createdAt DateTime @default(now())
+  billingKind String? @db.VarChar(16)
+  billingNumber String? @db.VarChar(64)
+  billingSnapshot Json?
+  @@unique([billingKind, billingNumber])
   @@index([serviceId])
 }

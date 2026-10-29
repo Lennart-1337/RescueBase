@@ -1,5 +1,5 @@
 import { BillingStatus, type BillingFlags } from "./billing-status";
-import { Button } from "../../components/ui";
+import { BillingDocuments } from "./billing-documents";
 import type { ServiceEditorProps } from "./editor";
 import { FinanceSummary } from "./finance-summary";
 import { FinancePricing } from "./finance-pricing";
@@ -17,18 +17,7 @@ export function Finance(props: ServiceEditorProps & { onBillingSave: (flags: Bil
         <FinancePricing key={`pricing-${props.service.version}`} {...props} />
       )}
       <BillingStatus key={`billing-${props.service.version}`} service={props.service} onSave={props.onBillingSave} />
-      <section className="service-section service-tool-documents">
-        <h3>Dokumente</h3>
-        <span className="service-tool-meta">Vorlagen ausstehend</span>
-        <div className="service-actions">
-          <Button disabled variant="secondary">
-            Angebot erstellen
-          </Button>
-          <Button disabled variant="secondary">
-            Rechnung erstellen
-          </Button>
-        </div>
-      </section>
+      <BillingDocuments service={props.service} />
     </div>
   );
 }

@@ -10,15 +10,19 @@ import { ServiceEventsController } from "./events.controller.js";
 import { ServiceCatalogController } from "./catalog.controller.js";
 import { ServiceDocumentsController } from "./documents.controller.js";
 import { ServiceStatisticsController } from "./statistics.controller.js";
+import { ServiceBillingDocumentsController } from "./billing-documents.controller.js";
+import { ServiceBillingDocumentsService } from "../../services/service-planning/billing/documents.service.js";
 @Module({
   imports: [ServicesAccessModule],
   controllers: [
+    ServiceBillingDocumentsController,
     ServiceCatalogController,
     ServiceStatisticsController,
     ServiceDocumentsController,
     ServiceEventsController,
   ],
   providers: [
+    ServiceBillingDocumentsService,
     PrismaService,
     ServiceEventsService,
     ServiceCatalogService,
