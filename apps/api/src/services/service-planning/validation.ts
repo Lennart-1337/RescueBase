@@ -178,10 +178,6 @@ function validateChildren(data: ServiceWrite) {
       data[key].map((row) => row.id),
       key,
     );
-  unique(
-    data.assignments.map((a) => a.personId),
-    "Person",
-  );
   for (const p of data.positions)
     if (!p.quantity)
       throw new BadRequestException("Positionsbedarf muss positiv sein.");

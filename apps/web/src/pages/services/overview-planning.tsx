@@ -34,7 +34,7 @@ export function OverviewPlanning({
       tab: "personnel" as const,
       label: "Personal",
       icon: Users,
-      text: `${service.assignments.length} eingeplant · ${required ? `Bedarf ${required}` : "Bedarf offen"}`,
+      text: `${new Set(service.assignments.map((assignment) => assignment.personId)).size} eingeplant · ${required ? `Bedarf ${required}` : "Bedarf offen"}`,
       warning: personnelWarning,
     },
     {

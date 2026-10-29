@@ -35,7 +35,7 @@ describe("service planning input and lifecycle", () => {
       }),
     ).toThrow();
   });
-  it("rejects a duplicate person, dangling positions and invalid hourly prices", () => {
+  it("rejects duplicate assignment IDs, dangling positions and invalid hourly prices", () => {
     const position = {
       id: "p",
       name: "Posten",
@@ -43,6 +43,7 @@ describe("service planning input and lifecycle", () => {
       quantity: 1,
     };
     const person = {
+      id: "assignment",
       personId: "h",
       positionId: "p",
       qualification: "SANITARIAN",

@@ -1159,7 +1159,7 @@ model ServiceAssignment {
   hourlyRate Decimal @default(0) @db.Decimal(14, 4)
   actualStartsAt DateTime?
   actualEndsAt DateTime?
-  @@unique([serviceId, personId])
+  @@index([serviceId, personId])
   @@index([startsAt, endsAt])
 }
 model ServiceReservation {
