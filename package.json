@@ -30,6 +30,18 @@
     "push:keys": "npm run vapid:generate -w @rescuebase/api"
   },
   "overrides": {
+    "@nestjs/platform-express@11.2.6": {
+      "multer": "2.5.0"
+    },
+    "zod": "^4.6.6",
+    "fast-uri": "^3.1.9",
+    "undici": "^8.12.2",
+    "cheerio": {
+      "undici": "^7.30.1"
+    },
+    "jsdom": {
+      "undici": "^7.30.1"
+    },
     "mysql2": "^3.24.6",
     "@prisma/adapter-mariadb": {
       "mariadb": "^3.5.4"

@@ -56,14 +56,14 @@ const renderQueries = (node: React.ReactNode) =>
     </QueryClientProvider>,
   );
 afterEach(() => vi.clearAllMocks());
-it("keeps offer and invoice creation disabled until templates are ready", () => {
+it("enables offer and invoice creation with the supplied templates", () => {
   render(<Finance {...props} />);
   expect(
     screen.getByRole("button", { name: "Angebot erstellen" }),
-  ).toBeDisabled();
+  ).toBeEnabled();
   expect(
     screen.getByRole("button", { name: "Rechnung erstellen" }),
-  ).toBeDisabled();
+  ).toBeEnabled();
 });
 it("puts calculation review behind one disclosure without hiding its findings", () => {
   render(<AssessmentResult calculation={calculation} />);

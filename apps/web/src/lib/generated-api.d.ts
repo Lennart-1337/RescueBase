@@ -4,6 +4,22 @@
  */
 
 export interface paths {
+    "/services/{id}/billing-documents": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["Services_create_billing_document"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/service-permissions/me": {
         parameters: {
             query?: never;
@@ -4047,6 +4063,69 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
+    Services_create_billing_document: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    /** @enum {string} */
+                    kind: "OFFER" | "INVOICE";
+                    number: string;
+                    /** Format: date */
+                    issuedOn: string;
+                    /** @description Postal recipient address, up to eight lines */
+                    recipient: string;
+                    version: number;
+                };
+            };
+        };
+        responses: {
+            /** @description Archived PDF with immutable billing snapshot */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/pdf": string;
+                };
+            };
+            /** @description Invalid input, cancelled service or missing actual attendance */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Service management permission required */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Service not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Stale version or document number already assigned */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
     Services_permission: {
         parameters: {
             query?: never;

@@ -222,5 +222,12 @@ Datenbank, MPG-Nachweise und Dienstunterlagen gemeinsam als `rescuebase-<Zeitpun
 Die Restore-Operation unterstützt weiterhin ältere `.sql.gz`-Sicherungen; diese enthalten ausschließlich die Datenbank.
 Während Sicherung und Wiederherstellung muss die API wie in den vorhandenen Wrapper-Skripten gestoppt sein.
 
-Angebots- und Rechnungserzeugung bleiben bis zur Bereitstellung der Vorlagen deaktiviert. Kalkulationen verwenden EUR,
-Tarifkopien je Dienst und kaufmännische Rundung je Position; es erfolgen keine Steuerberechnung oder Lagerbuchungen.
+Unter **Dienste → Dienst → Kalkulation → Dokumente** lassen sich Angebote und Rechnungen als PDF erstellen.
+Nummer, Dokumentdatum und Empfängeranschrift werden eingegeben; Nummern sind je Dokumentart eindeutig.
+Die Vorlagen verwenden den DLRG-Briefkopf mit Döpperstraße 47. Angebote gelten 30 Kalendertage ab Angebotsdatum.
+Angebote rechnen mit Plan-Zeiten, Rechnungen mit vollständig erfassten Ist-Zeiten; angefangene Stunden,
+Materialpauschale, Materialrabatt und freie Posten folgen der bestehenden Kalkulation. Altdienste verwenden ihre
+gespeicherten Mengen und Tarife. Rechnungen sind auch bei abgeschlossenen Diensten möglich; abgesagte Dienste sind gesperrt.
+PDF und unveränderlicher Berechnungsstand werden gemeinsam archiviert. Der erneute Download erfolgt unter
+**Vorbereitung → Dokumente**. Versand- und Zahlungsstatus werden weiterhin separat gepflegt.
+Kalkulationen verwenden EUR und kaufmännische Rundung je Position; es erfolgen keine Steuerberechnung oder Lagerbuchungen.
