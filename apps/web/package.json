@@ -14,7 +14,7 @@
   "dependencies": {
     "@tanstack/react-query": "^5.101.0",
     "@tanstack/react-router": "^1.170.18",
-    "better-auth": "^1.6.25",
+    "better-auth": "^1.7.14",
     "lucide-react": "^1.27.0",
     "motion": "^12.42.0",
     "qrcode": "^1.5.4",
