@@ -116,7 +116,7 @@
   padding: 4px 0;
 }
 .service-text-button strong {
-  color: var(--color-text-brand);
+  color: var(--color-text-primary);
 }
 .services-page .data-table td small,
 .service-text-button small {
