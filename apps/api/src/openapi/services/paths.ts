@@ -1,5 +1,6 @@
 import { boolean, date, integer, object, ref, string, type Schema } from "./helpers.js";
 import { billingDocumentOperation } from "./billing.js";
+import { billingSettingsPaths } from "./billing-settings.js";
 const json = "application/json";
 const query = (name: string) => ({
   name,
@@ -66,6 +67,7 @@ const resource = (name: string, schema: string) => ({
   },
 });
 export const servicePaths = {
+  ...billingSettingsPaths,
   "/services/{id}/billing-documents": { post: billingDocumentOperation },
   "/service-permissions/me": {
     get: operation("permission", ref("ServicePermission")),

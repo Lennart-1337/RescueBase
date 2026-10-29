@@ -22,16 +22,22 @@ const date = (value: Date) =>
 export function billingLines(row: ServiceRecord, actual: boolean): Line[] {
   if (row.pricingModel === "LEGACY") return legacyLines(row, actual);
   const lines = row.assignments.map((assignment): Line => {
-    const start = actual ? assignment.actualStartsAt : assignment.startsAt;
-    const end = actual ? assignment.actualEndsAt : assignment.endsAt;
-    if (!start || !end)
+    if (
+      actual &&
+      Boolean(assignment.actualStartsAt) !== Boolean(assignment.actualEndsAt)
+    )
       throw new BadRequestException(
-        "Für die Rechnung müssen alle Ist-Zeiten erfasst sein.",
+        "Angefangene Ist-Zeiten müssen vollständig erfasst oder entfernt werden.",
       );
+    const useActual =
+      actual && Boolean(assignment.actualStartsAt && assignment.actualEndsAt);
+    const start = useActual ? assignment.actualStartsAt! : assignment.startsAt;
+    const end = useActual ? assignment.actualEndsAt! : assignment.endsAt;
     const rate = String(assignment.hourlyRate);
     const position = row.positions.find((p) => p.id === assignment.positionId);
     return {
-      description: `${position?.name || "Einsatzkraft"}\n${date(start)} – ${date(end)}`,
+      description: `${position?.name || "Einsatzkraft"}\n${date(start)} – ${date(end)}${actual && !useActual ? " (Plan-Zeiten)" : ""}`,
+      timeBasis: useActual ? "ACTUAL" : "PLANNED",
       quantity: `${Math.ceil((end.getTime() - start.getTime()) / 3600000)} h`,
       unitPrice: rate,
       amount: calculateAttendanceAmount(
@@ -68,11 +74,8 @@ export function billingLines(row: ServiceRecord, actual: boolean): Line[] {
 }
 function legacyLines(row: ServiceRecord, actual: boolean): Line[] {
   const lines = row.lines.map((line): Line => {
-    const quantity = actual ? line.actualQuantity : line.plannedQuantity;
-    if (quantity === null)
-      throw new BadRequestException(
-        "Für die Rechnung müssen alle Ist-Mengen erfasst sein.",
-      );
+    const useActual = actual && line.actualQuantity !== null;
+    const quantity = useActual ? line.actualQuantity! : line.plannedQuantity;
     const input = {
       plannedQuantity: String(quantity),
       actualQuantity: null,
@@ -80,7 +83,8 @@ function legacyLines(row: ServiceRecord, actual: boolean): Line[] {
       costRate: "0",
     };
     return {
-      description: line.label,
+      description: `${line.label}${actual && !useActual ? " (Plan-Menge)" : ""}`,
+      timeBasis: useActual ? "ACTUAL" : "PLANNED",
       quantity: `${quantity} ${line.unit}`,
       unitPrice: String(line.saleRate),
       amount: calculateServiceCosts([input], null).planned.revenue,

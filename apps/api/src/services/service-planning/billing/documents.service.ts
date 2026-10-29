@@ -17,6 +17,7 @@ import { serviceInclude } from "../record.js";
 import type { Input } from "../input.js";
 import { billingInput, billingModel } from "./model.js";
 import { renderBillingPdf } from "./pdf.js";
+import { readBillingSettings } from "../../../settings/service-billing/read.js";
 @Injectable()
 export class ServiceBillingDocumentsService {
   constructor(private readonly db: PrismaService) {}
@@ -32,7 +33,11 @@ export class ServiceBillingDocumentsService {
           });
           if (!row) throw new NotFoundException("Dienst nicht gefunden.");
           revision(row.version, input.version);
-          const model = billingModel(row, input),
+          const { version: settingsVersion, ...settings } =
+            await readBillingSettings(tx);
+          if (body.settingsVersion !== undefined)
+            revision(settingsVersion, body.settingsVersion);
+          const model = billingModel(row, input, settings),
             buffer = await renderBillingPdf(model);
           if (buffer.length > MAX_DOCUMENT_BYTES)
             throw new BadRequestException(
@@ -84,7 +89,8 @@ export class ServiceBillingDocumentsService {
               kind: input.kind,
               number: input.number,
               issuedOn: input.issuedOn,
-              validUntil: input.validUntil,
+              validUntil: model.validUntil,
+              settingsVersion,
               sha256,
               previousVersion: row.version,
               version: row.version + 1,

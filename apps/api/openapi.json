@@ -58,6 +58,149 @@
       }
     },
     "schemas": {
+      "ServiceBillingSettings": {
+        "type": "object",
+        "properties": {
+          "organizationName": {
+            "type": "string",
+            "maxLength": 120,
+            "minLength": 1,
+            "description": "At most 1 line(s)"
+          },
+          "organizationDetails": {
+            "type": "string",
+            "maxLength": 160,
+            "description": "At most 3 line(s)"
+          },
+          "department": {
+            "type": "string",
+            "maxLength": 80,
+            "description": "At most 1 line(s)"
+          },
+          "street": {
+            "type": "string",
+            "maxLength": 120,
+            "minLength": 1,
+            "description": "At most 1 line(s)"
+          },
+          "postalCode": {
+            "type": "string",
+            "maxLength": 16,
+            "minLength": 1,
+            "description": "At most 1 line(s)"
+          },
+          "city": {
+            "type": "string",
+            "maxLength": 80,
+            "minLength": 1,
+            "description": "At most 1 line(s)"
+          },
+          "email": {
+            "type": "string",
+            "maxLength": 120,
+            "description": "At most 1 line(s)"
+          },
+          "phone": {
+            "type": "string",
+            "maxLength": 50,
+            "description": "At most 1 line(s)"
+          },
+          "website": {
+            "type": "string",
+            "maxLength": 200,
+            "description": "At most 1 line(s)"
+          },
+          "bankName": {
+            "type": "string",
+            "maxLength": 120,
+            "minLength": 1,
+            "description": "At most 2 line(s)"
+          },
+          "iban": {
+            "type": "string",
+            "maxLength": 42,
+            "minLength": 1,
+            "description": "At most 1 line(s)"
+          },
+          "bic": {
+            "type": "string",
+            "maxLength": 11,
+            "description": "At most 1 line(s)"
+          },
+          "legalDetails": {
+            "type": "string",
+            "maxLength": 600,
+            "description": "At most 8 line(s)"
+          },
+          "footerText": {
+            "type": "string",
+            "maxLength": 1000,
+            "description": "At most 8 line(s)"
+          },
+          "signatoryName": {
+            "type": "string",
+            "maxLength": 100,
+            "description": "At most 1 line(s)"
+          },
+          "signatoryRole": {
+            "type": "string",
+            "maxLength": 100,
+            "description": "At most 1 line(s)"
+          },
+          "taxNote": {
+            "type": "string",
+            "maxLength": 400,
+            "description": "At most 4 line(s)"
+          },
+          "offerTerms": {
+            "type": "string",
+            "maxLength": 800,
+            "description": "At most 8 line(s)"
+          },
+          "showLogo": {
+            "type": "boolean"
+          },
+          "offerValidityDays": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 365
+          },
+          "paymentTermDays": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 365
+          },
+          "version": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "organizationName",
+          "organizationDetails",
+          "department",
+          "street",
+          "postalCode",
+          "city",
+          "email",
+          "phone",
+          "website",
+          "bankName",
+          "iban",
+          "bic",
+          "legalDetails",
+          "footerText",
+          "signatoryName",
+          "signatoryRole",
+          "taxNote",
+          "offerTerms",
+          "showLogo",
+          "offerValidityDays",
+          "paymentTermDays",
+          "version"
+        ],
+        "additionalProperties": false
+      },
       "ServiceQualification": {
         "type": "string",
         "enum": [
@@ -6257,6 +6400,92 @@
     }
   ],
   "paths": {
+    "/admin/settings/service-billing": {
+      "get": {
+        "tags": [
+          "Admin-Einstellungen"
+        ],
+        "operationId": "AdminServiceBillingSettings_get",
+        "responses": {
+          "200": {
+            "description": "Versioned service billing settings",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServiceBillingSettings"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid or incomplete settings"
+          },
+          "403": {
+            "description": "Admin role required"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Admin-Einstellungen"
+        ],
+        "operationId": "AdminServiceBillingSettings_update",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ServiceBillingSettings"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Versioned service billing settings",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServiceBillingSettings"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid or incomplete settings"
+          },
+          "403": {
+            "description": "Admin role required"
+          },
+          "409": {
+            "description": "Settings version is stale"
+          }
+        }
+      }
+    },
+    "/services/billing-settings": {
+      "get": {
+        "tags": [
+          "Dienste"
+        ],
+        "operationId": "Services_billing_settings",
+        "responses": {
+          "200": {
+            "description": "Billing settings for service PDF export",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServiceBillingSettings"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Service management permission required"
+          }
+        }
+      }
+    },
     "/services/{id}/billing-documents": {
       "post": {
         "tags": [
@@ -6304,6 +6533,15 @@
                   "version": {
                     "type": "integer",
                     "minimum": 0
+                  },
+                  "settingsVersion": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "salutation": {
+                    "type": "string",
+                    "maxLength": 150,
+                    "description": "Single-line recipient salutation"
                   }
                 },
                 "required": [
@@ -6331,7 +6569,7 @@
             }
           },
           "400": {
-            "description": "Invalid input, cancelled service or missing actual attendance"
+            "description": "Invalid input, cancelled service or incomplete actual attendance pair"
           },
           "403": {
             "description": "Service management permission required"

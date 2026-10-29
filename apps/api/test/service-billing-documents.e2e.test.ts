@@ -94,8 +94,26 @@ describe("service billing PDF integration", () => {
       .expect(409);
     await admin
       .post(url)
-      .send({ ...body, kind: "INVOICE", version: service.version })
-      .expect(400);
+      .send({
+        ...body,
+        kind: "INVOICE",
+        number: "PLAN-012-SAN-2026",
+        version: service.version,
+      })
+      .expect(201);
+    const plannedInvoice = await app
+      .get(PrismaService)
+      .serviceDocument.findFirstOrThrow({
+        where: { serviceId: service.id, billingNumber: "PLAN-012-SAN-2026" },
+      });
+    expect(plannedInvoice.billingSnapshot).toMatchObject({
+      total: "77.00",
+      lines: [
+        expect.objectContaining({ timeBasis: "PLANNED", amount: "42.00" }),
+        expect.anything(),
+      ],
+    });
+    service = (await admin.get(`/services/${service.id}`).expect(200)).body;
     const pdf = await admin
       .post(url)
       .send({ ...body, version: service.version })
@@ -103,14 +121,41 @@ describe("service billing PDF integration", () => {
       .expect("Content-Type", /application\/pdf/);
     expect(pdf.body.subarray(0, 5).toString()).toBe("%PDF-");
     service = (await admin.get(`/services/${service.id}`).expect(200)).body;
-    expect(service.documents).toHaveLength(1);
+    expect(service.documents).toHaveLength(2);
     expect(service.offerSentAt).toBeNull();
     expect(service.invoiceSentAt).toBeNull();
-    const documentId = service.documents[0].id;
+    const documentId = service.documents.find(
+      (document: { filename: string }) =>
+        document.filename === "Angebot-012-SAN-2026.pdf",
+    ).id;
     const saved = await admin
       .get(`/services/${service.id}/documents/${documentId}`)
       .expect(200);
     expect(saved.body).toEqual(pdf.body);
+    const initialSettings = (
+      await admin.get("/admin/settings/service-billing").expect(200)
+    ).body;
+    await admin
+      .post("/admin/settings/service-billing")
+      .send({
+        ...initialSettings,
+        street: "Neue Straße 12",
+        offerValidityDays: 45,
+      })
+      .expect(201);
+    const originalSnapshot = await app
+      .get(PrismaService)
+      .serviceDocument.findUniqueOrThrow({ where: { id: documentId } });
+    expect(originalSnapshot.billingSnapshot).toMatchObject({
+      settings: { street: "Döpperstraße 47" },
+    });
+    expect(
+      (
+        await admin
+          .get(`/services/${service.id}/documents/${documentId}`)
+          .expect(200)
+      ).body,
+    ).toEqual(pdf.body);
     await warehouse
       .get(`/services/${service.id}/documents/${documentId}`)
       .expect(403);
@@ -121,7 +166,7 @@ describe("service billing PDF integration", () => {
     const db = app.get(PrismaService);
     expect(
       await db.serviceDocument.count({ where: { serviceId: service.id } }),
-    ).toBe(1);
+    ).toBe(2);
     await db.serviceAssignment.updateMany({
       where: { serviceId: service.id },
       data: {
@@ -135,14 +180,28 @@ describe("service billing PDF integration", () => {
     });
     await admin
       .post(url)
+      .send({
+        ...body,
+        number: "STALE-SETTINGS",
+        settingsVersion: 0,
+        version: service.version,
+      })
+      .expect(409);
+    await admin
+      .post(url)
       .send({ ...body, kind: "INVOICE", version: service.version })
       .expect(201);
     const invoice = await db.serviceDocument.findFirstOrThrow({
-      where: { serviceId: service.id, billingKind: "INVOICE" },
+      where: {
+        serviceId: service.id,
+        billingKind: "INVOICE",
+        billingNumber: body.number,
+      },
     });
     expect(invoice.billingSnapshot).toMatchObject({
       total: "91.00",
       validUntil: null,
+      settings: { street: "Neue Straße 12", offerValidityDays: 45 },
     });
     expect(
       await db.auditEvent.count({
@@ -151,7 +210,7 @@ describe("service billing PDF integration", () => {
           action: "SERVICE_BILLING_DOCUMENT_CREATED",
         },
       }),
-    ).toBe(2);
+    ).toBe(3);
     service = (await admin.get(`/services/${service.id}`).expect(200)).body;
     await admin
       .delete(`/services/${service.id}`)
