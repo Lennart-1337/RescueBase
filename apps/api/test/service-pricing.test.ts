@@ -19,10 +19,10 @@ const service = (extra = {}) =>
   }) as unknown as ServiceRecord;
 describe("simple attendance pricing", () => {
   test("uses hourly prices plus exactly one material fee", () => {
-    expect(serviceCosts(service()).planned.revenue).toBe("66.25");
+    expect(serviceCosts(service()).planned.revenue).toBe("72.50");
     expect(
       serviceCosts(service({ materialDiscounted: true })).planned.revenue,
-    ).toBe("31.25");
+    ).toBe("37.50");
   });
   test("never substitutes planned attendance for missing actual attendance", () => {
     expect(serviceCosts(service()).actual).toMatchObject({
@@ -42,7 +42,7 @@ describe("simple attendance pricing", () => {
           ],
         }),
       ).actual.revenue,
-    ).toBe("66.25");
+    ).toBe("72.50");
   });
   test("ignores obsolete pauses and old cost lines", () => {
     const row = service({
@@ -53,7 +53,7 @@ describe("simple attendance pricing", () => {
       agreedRevenue: "9999",
     });
     expect(attendanceMinutes(row.assignments[0]!)).toBe(150);
-    expect(serviceCosts(row).planned.revenue).toBe("66.25");
+    expect(serviceCosts(row).planned.revenue).toBe("72.50");
   });
   test("preserves completed legacy line totals", () => {
     const row = service({

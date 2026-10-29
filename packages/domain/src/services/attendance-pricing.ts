@@ -13,9 +13,8 @@ export interface AttendancePricingInput {
 function attendanceCents(startsAt: string, endsAt: string, hourlyRate: string): bigint {
   const elapsed = attendanceTimestamp(endsAt) - attendanceTimestamp(startsAt);
   if (elapsed <= 0) throw new Error("endsAt must be after startsAt.");
-  // Milliseconds × rate scaled by 10^4 / (milliseconds per hour × 100).
-  const divisor = 360000000n;
-  return (BigInt(elapsed) * decimal(hourlyRate) + divisor / 2n) / divisor;
+  const hours = (BigInt(elapsed) + 3599999n) / 3600000n;
+  return roundCents(hours * decimal(hourlyRate));
 }
 
 export function calculateAttendanceAmount(startsAt: string, endsAt: string, hourlyRate: string): string {
@@ -28,7 +27,7 @@ function fixedAmountCents(amount: string): bigint {
   return roundCents(decimal(amount));
 }
 
-/** Round each person's full elapsed attendance once, then add the flat rate once. */
+/** Bill each interval in started hours; add flat charges once per service. */
 export function calculateAttendancePricing(
   assignments: AttendancePricingInput[],
   materialDiscounted: boolean,
