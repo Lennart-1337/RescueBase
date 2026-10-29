@@ -1,5 +1,5 @@
 import { calculateAttendanceAmount } from "@rescuebase/domain";
-import { formatMinutes, money } from "./time";
+import { displayTime, formatMinutes, money } from "./time";
 import type { Catalog, ServiceAssignment } from "./types";
 function duration(start: string | null, end: string | null) {
   return start && end ? (Date.parse(end) - Date.parse(start)) / 60_000 : null;
@@ -43,12 +43,14 @@ export function PersonnelPrices({
         <tbody>
           {assignments.map((row, index) => {
             const name = names.get(row.personId) ?? "Person nicht verfügbar";
+            const repeated = assignments.filter((assignment) => assignment.personId === row.personId).length > 1;
+            const period = `${displayTime(row.startsAt)} – ${displayTime(row.endsAt)}`;
             return (
               <tr key={row.id}>
-                <th scope="row">{name}</th>
+                <th scope="row">{name}{repeated ? <small>{period}</small> : null}</th>
                 <td className="service-person-rate" data-label="Stundenpreis (EUR)">
                   <div className="field"><input
-                    aria-label={`Stundenpreis für ${name} (EUR)`}
+                    aria-label={`Stundenpreis für ${name}${repeated ? ` · ${period}` : ""} (EUR)`}
                     type="text"
                     inputMode="decimal"
                     required

@@ -21,7 +21,7 @@ export function serviceStatisticRows(records: ServiceRecord[]) {
       customer: row.customer,
       supportOnly: row.supportOnly,
       requiredPersonnel,
-      assignedPersonnel: row.assignments.length,
+      assignedPersonnel: new Set(row.assignments.map((a) => a.personId)).size,
       plannedMinutes: row.assignments.reduce(
         (sum, a) => sum + (attendanceMinutes(a) ?? 0),
         0,

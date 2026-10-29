@@ -57,7 +57,7 @@ export function PersonnelPositions({ service, save, locked }: ServiceEditorProps
             id: "quantity",
             label: "Bedarf / Besetzt",
             render: (row) =>
-              `${row.quantity} / ${service.assignments.filter((assignment) => assignment.positionId === row.id).length}`,
+              `${row.quantity} / ${new Set(service.assignments.filter((assignment) => assignment.positionId === row.id).map((assignment) => assignment.personId)).size}`,
           },
         ]}
       />

@@ -2,6 +2,7 @@ import type { ServiceRecord } from "./record.js";
 import type { ServiceWarning } from "./types.js";
 import type { WarningContext } from "./warning-context.js";
 import { binding, overlaps } from "./warning-utils.js";
+import { attendanceOverlaps } from "./attendance-overlap.js";
 import { qualificationWarning } from "./qualification.js";
 export function personnelWarnings(service: ServiceRecord, context: WarningContext): ServiceWarning[] {
   const warnings: ServiceWarning[] = [];
@@ -15,6 +16,9 @@ export function personnelWarnings(service: ServiceRecord, context: WarningContex
     if (qualification) add("QUALIFICATION", qualification, a.id);
     if (position?.leader && !person?.leader)
       add("LEADERSHIP", "Die Führungsfunktion ist nicht nachgewiesen.", a.id);
+    if (service.assignments.some((other) =>
+      other.id !== a.id && other.personId === a.personId && attendanceOverlaps(a, other)))
+      add("PERSON_CONFLICT", "Die Person ist in diesem Dienst zeitgleich mehrfach eingeteilt.", a.id);
     if (
       binding(service.status) &&
       context.peers.some(
@@ -40,8 +44,8 @@ export function personnelWarnings(service: ServiceRecord, context: WarningContex
     if (
       points.some(
         (t) =>
-          assigned.filter((a) => a.startsAt <= t && a.endsAt > t).length <
-          p.quantity,
+          new Set(assigned.filter((a) => a.startsAt <= t && a.endsAt > t)
+            .map((a) => a.personId)).size < p.quantity,
       )
     )
       add(

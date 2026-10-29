@@ -26,7 +26,7 @@ export async function validateReferences(
   tx: Prisma.TransactionClient,
   data: ServiceWrite,
 ) {
-  const personIds = data.assignments.map((a) => a.personId),
+  const personIds = [...new Set(data.assignments.map((a) => a.personId))],
     userIds = [
       ...new Set(
         [data.responsibleId, ...data.tasks.map((t) => t.responsibleId)].filter(
