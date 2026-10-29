@@ -1,25 +1,67 @@
-import { left, width } from "./pdf-layout.js";
-export function footer(doc: PDFKit.PDFDocument, page: number, pages: number) {
-  const margin = doc.page.margins.bottom;
-  doc.page.margins.bottom = 0;
-  const columns = [
-    "Sparkasse am Niederrhein\n(Geschäftsbereich Neukirchen-Vluyn)\nIBAN: DE08 3545 0000 1420 2018 55\nBIC: WELADED1MOR",
-    "Rechtsform: eingetragener Verein (e.V.)\nAmtsgericht: Kleve / VR 41098\nVertretungsberechtigung gemäß § 26 BGB\n1. Vors. Marina Pauly\nStv. Vors. Arne Pauly\nSteuerNr.: 119/5714/0534",
-    "Die Deutsche Lebens-Rettungs-Gesellschaft ist Spitzenverband im Deutschen Olympischen Sportbund (DOSB), Mitglied im Deutschen Paritätischen Wohlfahrtsverband, im Deutschen Spendenrat, Mitglied der International Life Saving Federation (ILS) und der ILS-Europe.",
-  ];
-  doc.font("Helvetica").fontSize(6).fillColor("#333333");
-  columns.forEach((text, index) =>
-    doc.text(text, left + index * 171, 755, {
-      width: 157,
-      lineGap: 1,
-      lineBreak: true,
-      align: "left",
-    }),
+import { billingSettings, type BillingPdfModel } from "./pdf-types.js";
+import { fixedLines, wrap } from "./pdf-text.js";
+export interface BillingGeometry {
+  left: number;
+  width: number;
+  bottom: number;
+  footerTop: number;
+  footerLines: string[][];
+  footerWidth: number;
+}
+export function geometry(
+  doc: PDFKit.PDFDocument,
+  model: BillingPdfModel,
+): BillingGeometry {
+  const settings = billingSettings(model),
+    left = model.kind === "OFFER" ? 70 : 48;
+  const width = 547 - left,
+    footerWidth = (width - 24) / 3;
+  const bank = [
+    settings.bankName,
+    `IBAN: ${settings.iban.replace(/\s/g, "").replace(/(.{4})(?=.)/g, "$1 ")}`,
+    settings.bic ? `BIC: ${settings.bic}` : "",
+  ]
+    .filter(Boolean)
+    .join("\n");
+  doc.font("BillingRegular").fontSize(6);
+  const footerLines = [bank, settings.legalDetails, settings.footerText].map(
+    (text) => wrap(doc, text, footerWidth),
   );
-  doc.fontSize(7).text(`Seite ${page} von ${pages}`, left, 827, {
+  const height = Math.max(...footerLines.map((lines) => lines.length)) * 7.5;
+  const footerTop = Math.min(
+    model.kind === "OFFER" ? 770 : 755,
+    doc.page.height - 28 - height,
+  );
+  return {
+    left,
     width,
-    align: "right",
-    lineBreak: false,
-  });
-  doc.page.margins.bottom = margin;
+    bottom: footerTop - 24,
+    footerTop,
+    footerLines,
+    footerWidth,
+  };
+}
+export function footer(
+  doc: PDFKit.PDFDocument,
+  layout: BillingGeometry,
+  page: number,
+  pages: number,
+) {
+  doc.font("BillingRegular").fontSize(6).fillColor("#111111");
+  layout.footerLines.forEach((lines, index) =>
+    fixedLines(
+      doc,
+      lines,
+      layout.left + index * (layout.footerWidth + 12),
+      layout.footerTop,
+      layout.footerWidth,
+      7.5,
+    ),
+  );
+  if (pages > 1)
+    doc.fontSize(7).text(`Seite ${page} von ${pages}`, layout.left, 827, {
+      width: layout.width,
+      align: "right",
+      lineBreak: false,
+    });
 }

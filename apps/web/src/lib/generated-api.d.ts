@@ -4,6 +4,38 @@
  */
 
 export interface paths {
+    "/admin/settings/service-billing": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["AdminServiceBillingSettings_get"];
+        put?: never;
+        post: operations["AdminServiceBillingSettings_update"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/services/billing-settings": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["Services_billing_settings"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/services/{id}/billing-documents": {
         parameters: {
             query?: never;
@@ -2457,6 +2489,48 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        ServiceBillingSettings: {
+            /** @description At most 1 line(s) */
+            organizationName: string;
+            /** @description At most 3 line(s) */
+            organizationDetails: string;
+            /** @description At most 1 line(s) */
+            department: string;
+            /** @description At most 1 line(s) */
+            street: string;
+            /** @description At most 1 line(s) */
+            postalCode: string;
+            /** @description At most 1 line(s) */
+            city: string;
+            /** @description At most 1 line(s) */
+            email: string;
+            /** @description At most 1 line(s) */
+            phone: string;
+            /** @description At most 1 line(s) */
+            website: string;
+            /** @description At most 2 line(s) */
+            bankName: string;
+            /** @description At most 1 line(s) */
+            iban: string;
+            /** @description At most 1 line(s) */
+            bic: string;
+            /** @description At most 8 line(s) */
+            legalDetails: string;
+            /** @description At most 8 line(s) */
+            footerText: string;
+            /** @description At most 1 line(s) */
+            signatoryName: string;
+            /** @description At most 1 line(s) */
+            signatoryRole: string;
+            /** @description At most 4 line(s) */
+            taxNote: string;
+            /** @description At most 8 line(s) */
+            offerTerms: string;
+            showLogo: boolean;
+            offerValidityDays: number;
+            paymentTermDays: number;
+            version: number;
+        };
         /** @enum {string} */
         ServiceQualification: "SANITARIAN" | "RESCUE_HELPER" | "PARAMEDIC" | "EMERGENCY_PARAMEDIC" | "PHYSICIAN";
         ServicePersonQualification: {
@@ -4063,6 +4137,112 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
+    AdminServiceBillingSettings_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Versioned service billing settings */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ServiceBillingSettings"];
+                };
+            };
+            /** @description Invalid or incomplete settings */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Admin role required */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    AdminServiceBillingSettings_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ServiceBillingSettings"];
+            };
+        };
+        responses: {
+            /** @description Versioned service billing settings */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ServiceBillingSettings"];
+                };
+            };
+            /** @description Invalid or incomplete settings */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Admin role required */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Settings version is stale */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    Services_billing_settings: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Billing settings for service PDF export */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ServiceBillingSettings"];
+                };
+            };
+            /** @description Service management permission required */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
     Services_create_billing_document: {
         parameters: {
             query?: never;
@@ -4083,6 +4263,9 @@ export interface operations {
                     /** @description Postal recipient address, up to eight lines */
                     recipient: string;
                     version: number;
+                    settingsVersion?: number;
+                    /** @description Single-line recipient salutation */
+                    salutation?: string;
                 };
             };
         };
@@ -4096,7 +4279,7 @@ export interface operations {
                     "application/pdf": string;
                 };
             };
-            /** @description Invalid input, cancelled service or missing actual attendance */
+            /** @description Invalid input, cancelled service or incomplete actual attendance pair */
             400: {
                 headers: {
                     [name: string]: unknown;

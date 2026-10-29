@@ -225,7 +225,15 @@ Während Sicherung und Wiederherstellung muss die API wie in den vorhandenen Wra
 Unter **Dienste → Dienst → Kalkulation → Dokumente** lassen sich Angebote und Rechnungen als PDF erstellen.
 Nummer, Dokumentdatum und Empfängeranschrift werden eingegeben; Nummern sind je Dokumentart eindeutig.
 Die Vorlagen verwenden den DLRG-Briefkopf mit Döpperstraße 47. Angebote gelten 30 Kalendertage ab Angebotsdatum.
-Angebote rechnen mit Plan-Zeiten, Rechnungen mit vollständig erfassten Ist-Zeiten; angefangene Stunden,
+Unter **App-Einstellungen → Dienstabrechnung → Angebote und Rechnungen** können Admins Absenderanschrift,
+Kontaktdaten, Bankverbindung, Register- und Steuerangaben, Fußzeilentext, Grußformel, Bedingungen und Fristen ändern.
+Die bisherigen Vorlagendaten sind vorbelegt; die Vorgaben bleiben 30 Tage Angebotsgültigkeit und 14 Tage Zahlungsfrist.
+Absender-Einstellungen werden bei der Erstellung mitgespeichert. Spätere Änderungen wirken sich nur auf neue PDFs aus.
+Angebote orientieren sich an der Originalvorlage mit separaten Spalten für Datum, Einsatzmittel, Dauer und Personenanzahl.
+Gleiche Schichten werden je Stundensatz zusammengefasst. Die Anrede lässt sich beim Erstellen anpassen.
+Angebote rechnen mit Plan-Zeiten. Rechnungen verwenden je Position vorhandene vollständige Ist-Zeiten;
+ohne Ist-Zeiten werden die geplanten Zeiten übernommen und im PDF als Plan-Zeiten gekennzeichnet.
+Unvollständige Ist-Zeitpaare müssen vervollständigt oder entfernt werden. Angefangene Stunden,
 Materialpauschale, Materialrabatt und freie Posten folgen der bestehenden Kalkulation. Altdienste verwenden ihre
 gespeicherten Mengen und Tarife. Rechnungen sind auch bei abgeschlossenen Diensten möglich; abgesagte Dienste sind gesperrt.
 PDF und unveränderlicher Berechnungsstand werden gemeinsam archiviert. Der erneute Download erfolgt unter

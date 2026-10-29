@@ -7,21 +7,30 @@ export const billingDocumentOperation = {
     required: true,
     content: {
       "application/json": {
-        schema: object({
-          kind: { type: "string", enum: ["OFFER", "INVOICE"] },
-          number: {
-            type: "string",
-            maxLength: 64,
-            pattern: "^[A-Za-z0-9][A-Za-z0-9 ._-]*$",
+        schema: object(
+          {
+            kind: { type: "string", enum: ["OFFER", "INVOICE"] },
+            number: {
+              type: "string",
+              maxLength: 64,
+              pattern: "^[A-Za-z0-9][A-Za-z0-9 ._-]*$",
+            },
+            issuedOn: { type: "string", format: "date" },
+            recipient: {
+              type: "string",
+              maxLength: 500,
+              description: "Postal recipient address, up to eight lines",
+            },
+            version: integer,
+            settingsVersion: integer,
+            salutation: {
+              type: "string",
+              maxLength: 150,
+              description: "Single-line recipient salutation",
+            },
           },
-          issuedOn: { type: "string", format: "date" },
-          recipient: {
-            type: "string",
-            maxLength: 500,
-            description: "Postal recipient address, up to eight lines",
-          },
-          version: integer,
-        }),
+          ["kind", "number", "issuedOn", "recipient", "version"],
+        ),
       },
     },
   },
@@ -34,7 +43,7 @@ export const billingDocumentOperation = {
     },
     400: {
       description:
-        "Invalid input, cancelled service or missing actual attendance",
+        "Invalid input, cancelled service or incomplete actual attendance pair",
     },
     403: { description: "Service management permission required" },
     404: { description: "Service not found" },

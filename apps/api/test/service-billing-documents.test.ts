@@ -26,6 +26,9 @@ function harness(status = "COMPLETED") {
     additionalCharges: [],
   };
   const tx = {
+    serviceBillingSettings: {
+      findUnique: jest.fn<() => Promise<unknown>>().mockResolvedValue(null),
+    },
     serviceEvent: {
       findUnique: jest.fn<() => Promise<unknown>>().mockResolvedValue(row),
       update: jest.fn<() => Promise<unknown>>().mockResolvedValue({}),
@@ -55,6 +58,26 @@ describe("persisted billing PDFs", () => {
   afterEach(async () => {
     delete process.env.SERVICE_DOCUMENT_DIR;
     await rm(directory, { recursive: true, force: true });
+  });
+  it("snapshots current issuer settings and refuses a stale settings preview", async () => {
+    const { service, tx } = harness();
+    tx.serviceBillingSettings.findUnique.mockResolvedValue({
+      data: { street: "Neue Straße 12", offerValidityDays: 45 },
+      version: 3,
+    });
+    await expect(
+      service.create("service", { ...body, settingsVersion: 2 }, "actor"),
+    ).rejects.toMatchObject({ status: 409 });
+    expect(await readdir(directory)).toEqual([]);
+    await service.create("service", { ...body, settingsVersion: 3 }, "actor");
+    expect(tx.serviceDocument.create).toHaveBeenCalledWith({
+      data: expect.objectContaining({
+        billingSnapshot: expect.objectContaining({
+          validUntil: "2026-12-13",
+          settings: expect.objectContaining({ street: "Neue Straße 12" }),
+        }),
+      }),
+    });
   });
   it("archives PDF plus immutable snapshot, version and audit even for completed services", async () => {
     const { service, tx } = harness();

@@ -10,6 +10,11 @@ import {
 import type { ServiceRecord } from "../record.js";
 import type { BillingPdfModel } from "./pdf.js";
 import { amount, billingLines, cents } from "./amounts.js";
+import {
+  defaultBillingSettings,
+  type BillingSettingsData,
+} from "../../../settings/service-billing/defaults.js";
+import { offerLines } from "./offer-lines.js";
 export function billingInput(value: Input) {
   const body = object(value);
   const kind = choice(body.kind, ["OFFER", "INVOICE"] as const);
@@ -34,17 +39,28 @@ export function billingInput(value: Input) {
     throw new BadRequestException(
       "Die Empfängeranschrift darf höchstens 8 Zeilen umfassen.",
     );
-  if ([...recipient].some((char) => char.charCodeAt(0) < 32 && char !== "\n" && char !== "\t"))
+  if (
+    [...recipient].some(
+      (char) => char.charCodeAt(0) < 32 && char !== "\n" && char !== "\t",
+    )
+  )
     throw new BadRequestException(
       "Empfängeranschrift enthält ungültige Zeichen.",
     );
   if (body.version === undefined)
     throw new BadRequestException("Version fehlt.");
+  const salutation =
+    body.salutation === undefined
+      ? "Sehr geehrte Damen und Herren,"
+      : string(body.salutation, "Anrede", true, 150);
+  if ([...salutation].some((char) => char.charCodeAt(0) < 32))
+    throw new BadRequestException("Die Anrede muss in einer Zeile stehen.");
   return {
     kind,
     number,
     issuedOn,
     recipient,
+    salutation,
     version: integer(body.version),
     validUntil: kind === "OFFER" ? date.toISOString().slice(0, 10) : null,
   };
@@ -53,6 +69,7 @@ export type BillingInput = ReturnType<typeof billingInput>;
 export function billingModel(
   row: ServiceRecord,
   input: BillingInput,
+  settings: BillingSettingsData = defaultBillingSettings,
 ): BillingPdfModel {
   if (row.status === "CANCELLED")
     throw new BadRequestException(
@@ -65,13 +82,23 @@ export function billingModel(
     throw new BadRequestException(
       "Für eine Rechnung müssen abrechenbare Leistungen erfasst sein.",
     );
-  const lines = billingLines(row, input.kind === "INVOICE");
+  const rawLines = billingLines(row, input.kind === "INVOICE");
+  const lines = input.kind === "OFFER" ? offerLines(row, rawLines) : rawLines;
+  const expiry = new Date(`${input.issuedOn}T00:00:00Z`);
+  expiry.setUTCDate(expiry.getUTCDate() + settings.offerValidityDays);
+  if (expiry.getUTCFullYear() > 9999)
+    throw new BadRequestException(
+      "Die Angebotsgültigkeit liegt außerhalb des gültigen Datumsbereichs.",
+    );
   return {
     kind: input.kind,
     number: input.number,
     issuedOn: input.issuedOn,
-    validUntil: input.validUntil,
+    validUntil:
+      input.kind === "OFFER" ? expiry.toISOString().slice(0, 10) : null,
     recipient: input.recipient,
+    salutation: input.salutation,
+    settings: { ...settings },
     title: row.title,
     lines,
     total: amount(lines.reduce((sum, line) => sum + cents(line.amount), 0n)),

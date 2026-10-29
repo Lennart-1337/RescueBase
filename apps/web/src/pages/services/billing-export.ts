@@ -1,7 +1,7 @@
 import { ApiError } from "../../lib/openapi-client";
 import type { Service } from "./types";
 export type BillingKind = "OFFER" | "INVOICE";
-export type BillingExport = { kind: BillingKind; number: string; issuedOn: string; recipient: string };
+export type BillingExport = { kind: BillingKind; number: string; issuedOn: string; recipient: string; salutation?: string; settingsVersion?: number };
 export async function exportBillingDocument(service: Service, input: BillingExport) {
   const response = await fetch(`/api/services/${service.id}/billing-documents`, {
     method: "POST", credentials: "include", headers: { "content-type": "application/json" },

@@ -1,4 +1,5 @@
 import { serviceStatisticsSchemas } from "./statistics-schemas.js";
+import { billingSettingsSchemas } from "./billing-settings.js";
 import {
   array,
   boolean,
@@ -53,6 +54,7 @@ const properties = {
   outcome: ref("ServiceOutcome"),
 };
 export const serviceSchemas = {
+  ...billingSettingsSchemas,
   ...serviceCatalogSchemas,
   ...serviceAssessmentSchemas,
   ...serviceStatisticsSchemas,

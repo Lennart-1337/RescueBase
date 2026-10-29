@@ -38,7 +38,7 @@ describe("billing snapshot", () => {
     expect(model.lines[0]).toMatchObject({ quantity: "3 h", amount: "42.00" });
     expect(model.recipient).toContain("Straße 1");
   });
-  it("uses actual hours for invoices and refuses missing actual attendance", () => {
+  it("uses actual hours for invoices and refuses incomplete actual attendance", () => {
     const input = billingInput({ ...request, kind: "INVOICE" });
     expect(billingModel(service(), input)).toMatchObject({
       total: "91.00",

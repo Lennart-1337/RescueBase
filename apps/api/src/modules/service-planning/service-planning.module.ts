@@ -12,9 +12,13 @@ import { ServiceDocumentsController } from "./documents.controller.js";
 import { ServiceStatisticsController } from "./statistics.controller.js";
 import { ServiceBillingDocumentsController } from "./billing-documents.controller.js";
 import { ServiceBillingDocumentsService } from "../../services/service-planning/billing/documents.service.js";
+import { AdminServiceBillingSettingsController, ServiceBillingSettingsController } from "./billing-settings.controller.js";
+import { ServiceBillingSettingsService } from "../../settings/service-billing/service.js";
 @Module({
   imports: [ServicesAccessModule],
   controllers: [
+    AdminServiceBillingSettingsController,
+    ServiceBillingSettingsController,
     ServiceBillingDocumentsController,
     ServiceCatalogController,
     ServiceStatisticsController,
@@ -22,6 +26,7 @@ import { ServiceBillingDocumentsService } from "../../services/service-planning/
     ServiceEventsController,
   ],
   providers: [
+    ServiceBillingSettingsService,
     ServiceBillingDocumentsService,
     PrismaService,
     ServiceEventsService,
